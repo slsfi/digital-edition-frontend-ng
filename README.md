@@ -96,7 +96,7 @@ Open your browser on http://localhost:4201/. You need to manually run the build 
 
 ## Earlier version
 
-[`digital-edition-frontend-ng`][digital-edition-frontend-ng] is an updated version of [`digital_edition_web`][digital_edition_web], which is an outdated Ionic 3/Angular 5 frontend app.
+[`digital-edition-frontend-ng`][digital-edition-frontend-ng] is an updated version of [`digital_edition_web`][digital_edition_web], which is an outdated Ionic 3 / Angular 5 frontend app.
 
 
 ## About the SLS Digital Edition Platform

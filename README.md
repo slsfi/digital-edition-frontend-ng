@@ -34,9 +34,9 @@ The app is built on [Angular][angular] and uses [Ionic][ionic] web components.
 
 4. Configure your project app by editing `/src/assets/config/config.ts`. Documentation on the configuration options is forthcoming.
 
-The `base` branch of the forked repository must **never** be manually modified. It must be kept as a clone of the upstream `main` branch in [`digital-edition-frontend-ng`][digital-edition-frontend-ng]. When the upstream `main` branch is updated, you can sync the updates to the `base` branch in your forked repository. You can then merge the `base` branch into your `production` branch.
+The `base` branch of the forked repository must **never** be manually modified. It must be kept as a clone of the original ”upstream” `main` branch in [`digital-edition-frontend-ng`][digital-edition-frontend-ng]. When the upstream `main` branch is updated, you can sync the updates to the `base` branch in your forked repository. You can then merge the `base` branch into your `production` branch.
 
-This workflow enables updates to the app in the original, upstream repository ([`digital-edition-frontend-ng`][digital-edition-frontend-ng]) to be easily distributed to forked project repositories.
+This workflow enables updates to the app in the original, upstream repository to be easily distributed to forked project repositories.
 
 By default, the app has Swedish and Finnish language versions enabled. See the documentation (forthcoming) on how to configure internationalization, customize your app, build it for production and deploy it.
 

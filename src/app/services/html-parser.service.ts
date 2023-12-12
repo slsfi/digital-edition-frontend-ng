@@ -223,8 +223,8 @@ export class HtmlParserService {
       queryMatches.forEach((term: any) => {
         // Remove line break characters
         let decoded_match = term.replace(/\n/gm, '');
-        // Remove any script tags
-        decoded_match = decoded_match.replace(/<script.+?<\/script>/gi, '');
+        // Encode some character entities in match, also sanitizes the match
+        // since it’s parsed as html and only text nodes are retained.
         decoded_match = this.encodeSelectedCharEntities(decoded_match);
         matches.push(decoded_match);
       });

@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, Inject, LOCALE_ID, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
-import { ActivatedRoute, Router } from '@angular/router';
-import { IonContent } from '@ionic/angular';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { IonContent, IonicModule } from '@ionic/angular';
 import { catchError, map, merge, Observable, of, Subject, Subscription, switchMap } from 'rxjs';
 import { marked } from 'marked';
 
@@ -12,13 +12,20 @@ import { MarkdownContentService } from '@services/markdown-content.service';
 import { PlatformService } from '@services/platform.service';
 import { UrlService } from '@services/url.service';
 import { isBrowser, isEmptyObject, sortArrayOfObjectsNumerically } from '@utility-functions';
+import { ElasticHitCollectionPageQueryparamsPipe } from '../../pipes/elastic-hit-collection-page-queryparams.pipe';
+import { ElasticHitCollectionPagePathPipe } from '../../pipes/elastic-hit-collection-page-path.pipe';
+import { DateHistogramComponent } from '../../components/date-histogram/date-histogram.component';
+import { FormsModule } from '@angular/forms';
+import { NgIf, NgFor, NgSwitch, NgSwitchCase, NgSwitchDefault, NgStyle, AsyncPipe } from '@angular/common';
 
 
 @Component({
-  selector: 'page-elastic-search',
-  templateUrl: './elastic-search.page.html',
-  styleUrls: ['./elastic-search.page.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+    selector: 'page-elastic-search',
+    templateUrl: './elastic-search.page.html',
+    styleUrls: ['./elastic-search.page.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    standalone: true,
+    imports: [IonicModule, NgIf, FormsModule, NgFor, NgSwitch, NgSwitchCase, NgSwitchDefault, RouterLink, DateHistogramComponent, NgStyle, AsyncPipe, ElasticHitCollectionPagePathPipe, ElasticHitCollectionPageQueryparamsPipe]
 })
 export class ElasticSearchPage implements OnDestroy, OnInit {
   @ViewChild(IonContent) content: IonContent;

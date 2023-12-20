@@ -10,7 +10,7 @@ import * as express from 'express';
 import { existsSync } from 'fs';
 import { join } from 'path';
 
-import { AppServerModule } from './src/main.server';
+import bootstrap from './src/main.server';
 import { environment } from './src/environments/environment';
 
 // The Express app is exported so that it can be used by serverless Functions.
@@ -41,7 +41,7 @@ export function app(lang: string): express.Express {
     // * architect.build.configurations.production.optimization.styles.inlineCritical
     commonEngine
       .render({
-        bootstrap: AppServerModule,
+        bootstrap,
         documentFilePath: indexHtml,
         url: `${protocol}://${headers.host}${originalUrl}`,
         inlineCriticalCss: false,

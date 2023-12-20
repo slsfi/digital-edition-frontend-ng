@@ -5,12 +5,16 @@ import { catchError, map, Observable, of, switchMap } from 'rxjs';
 import { marked } from 'marked';
 
 import { MarkdownContentService } from '@services/markdown-content.service';
+import { AsyncPipe } from '@angular/common';
+import { IonicModule } from '@ionic/angular';
 
 
 @Component({
-  selector: 'page-about',
-  templateUrl: './about.page.html',
-  styleUrls: ['./about.page.scss']
+    selector: 'page-about',
+    templateUrl: './about.page.html',
+    styleUrls: ['./about.page.scss'],
+    standalone: true,
+    imports: [IonicModule, AsyncPipe]
 })
 export class AboutPage implements OnInit {
   markdownText$: Observable<SafeHtml>;

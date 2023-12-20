@@ -1,7 +1,7 @@
 import { Component, Inject, LOCALE_ID, OnInit, ViewChild } from '@angular/core';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
-import { ActivatedRoute, Router } from '@angular/router';
-import { IonContent, ModalController } from '@ionic/angular';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { IonContent, ModalController, IonicModule } from '@ionic/angular';
 import { catchError, map, Observable, of, Subscription } from 'rxjs';
 import { marked } from 'marked';
 
@@ -12,15 +12,19 @@ import { MarkdownContentService } from '@services/markdown-content.service';
 import { NamedEntityService } from '@services/named-entity.service';
 import { TooltipService } from '@services/tooltip.service';
 import { sortArrayOfObjectsAlphabetically } from '@utility-functions';
+import { FormsModule } from '@angular/forms';
+import { NgIf, NgFor, AsyncPipe } from '@angular/common';
 
 
 /**
  * TODO: Add filters and search term to queryParams; refactor index for works
  */
 @Component({
-  selector: 'page-index',
-  templateUrl: './index.page.html',
-  styleUrls: ['./index.page.scss']
+    selector: 'page-index',
+    templateUrl: './index.page.html',
+    styleUrls: ['./index.page.scss'],
+    standalone: true,
+    imports: [IonicModule, NgIf, FormsModule, NgFor, RouterLink, AsyncPipe]
 })
 export class IndexPage implements OnInit {
   @ViewChild(IonContent) content: IonContent;

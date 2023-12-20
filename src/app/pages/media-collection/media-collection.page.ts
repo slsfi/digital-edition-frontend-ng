@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Inject, LOCALE_ID, OnDestroy, OnInit, SecurityContext } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
-import { ModalController } from '@ionic/angular';
+import { ModalController, IonicModule } from '@ionic/angular';
 import { catchError, combineLatest, forkJoin, map, Observable, of, Subscription } from 'rxjs';
 import { marked } from 'marked';
 
@@ -14,13 +14,16 @@ import { MarkdownContentService } from '@services/markdown-content.service';
 import { MediaCollectionService } from '@services/media-collection.service';
 import { UrlService } from '@services/url.service';
 import { isEmptyObject, sortArrayOfObjectsAlphabetically, sortArrayOfObjectsNumerically } from '@utility-functions';
+import { NgIf, NgFor, NgTemplateOutlet, AsyncPipe } from '@angular/common';
 
 
 @Component({
-  selector: 'page-media-collection',
-  templateUrl: './media-collection.page.html',
-  styleUrls: ['./media-collection.page.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+    selector: 'page-media-collection',
+    templateUrl: './media-collection.page.html',
+    styleUrls: ['./media-collection.page.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    standalone: true,
+    imports: [NgIf, IonicModule, RouterLink, NgFor, NgTemplateOutlet, AsyncPipe]
 })
 export class MediaCollectionPage implements OnDestroy, OnInit {
   activeKeywordFilters: number[] = [];

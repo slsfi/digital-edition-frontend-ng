@@ -1,23 +1,10 @@
 /// <reference types="@angular/localize" />
 
-import { enableProdMode } from '@angular/core';
-import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
+import { bootstrapApplication } from '@angular/platform-browser';
 
-import { AppModule } from './app/app.module';
-import { environment } from './environments/environment';
+import { DigitalEditionApp } from './app/app.component';
+import { appConfig } from './app/app.config';
 
 
-if (environment.production) {
-  enableProdMode();
-}
-
-function bootstrap() {
-  platformBrowserDynamic().bootstrapModule(AppModule)
-    .catch(err => console.log(err));
-};
-
-if (document.readyState === 'complete') {
-  bootstrap();
-} else {
-  document.addEventListener('DOMContentLoaded', bootstrap);
-}
+bootstrapApplication(DigitalEditionApp, appConfig)
+  .catch((err) => console.error(err));

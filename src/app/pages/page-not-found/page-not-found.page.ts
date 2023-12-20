@@ -4,12 +4,16 @@ import { catchError, map, Observable, of } from 'rxjs';
 import { marked } from 'marked';
 
 import { MarkdownContentService } from '@services/markdown-content.service';
+import { AsyncPipe } from '@angular/common';
+import { IonicModule } from '@ionic/angular';
 
 
 @Component({
-  selector: 'page-not-found',
-  templateUrl: './page-not-found.page.html',
-  styleUrls: ['./page-not-found.page.scss'],
+    selector: 'page-not-found',
+    templateUrl: './page-not-found.page.html',
+    styleUrls: ['./page-not-found.page.scss'],
+    standalone: true,
+    imports: [IonicModule, AsyncPipe],
 })
 export class PageNotFoundPage implements OnInit {
   markdownText$: Observable<SafeHtml>;

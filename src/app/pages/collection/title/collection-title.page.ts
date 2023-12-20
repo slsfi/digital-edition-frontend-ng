@@ -1,7 +1,7 @@
 import { Component, ElementRef, Inject, LOCALE_ID, OnDestroy, OnInit } from '@angular/core';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { ActivatedRoute } from '@angular/router';
-import { ModalController, PopoverController } from '@ionic/angular';
+import { ModalController, PopoverController, IonicModule } from '@ionic/angular';
 import { catchError, combineLatest, map, Observable, of, Subscription, switchMap, tap } from 'rxjs';
 import { marked } from 'marked';
 
@@ -15,12 +15,21 @@ import { MarkdownContentService } from '@services/markdown-content.service';
 import { PlatformService } from '@services/platform.service';
 import { ScrollService } from '@services/scroll.service';
 import { ViewOptionsService } from '@services/view-options.service';
+import { TextChangerComponent } from '../../../components/text-changer/text-changer.component';
+import { NgIf, AsyncPipe } from '@angular/common';
 
 
 @Component({
-  selector: 'page-title',
-  templateUrl: './collection-title.page.html',
-  styleUrls: ['./collection-title.page.scss'],
+    selector: 'page-title',
+    templateUrl: './collection-title.page.html',
+    styleUrls: ['./collection-title.page.scss'],
+    standalone: true,
+    imports: [
+        IonicModule,
+        NgIf,
+        TextChangerComponent,
+        AsyncPipe,
+    ],
 })
 export class CollectionTitlePage implements OnDestroy, OnInit {
   collectionID: string = '';

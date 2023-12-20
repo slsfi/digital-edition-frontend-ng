@@ -6,12 +6,24 @@ import { marked } from 'marked';
 
 import { config } from '@config';
 import { MarkdownContentService } from '@services/markdown-content.service';
+import { ContentGridComponent } from '../../components/content-grid/content-grid.component';
+import { FormsModule } from '@angular/forms';
+import { NgIf, AsyncPipe } from '@angular/common';
+import { IonicModule } from '@ionic/angular';
 
 
 @Component({
-  selector: 'page-home',
-  templateUrl: './home.page.html',
-  styleUrls: ['./home.page.scss'],
+    selector: 'page-home',
+    templateUrl: './home.page.html',
+    styleUrls: ['./home.page.scss'],
+    standalone: true,
+    imports: [
+        IonicModule,
+        NgIf,
+        FormsModule,
+        ContentGridComponent,
+        AsyncPipe,
+    ],
 })
 export class HomePage implements OnInit {
   descriptionText$: Observable<SafeHtml>;

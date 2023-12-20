@@ -1,7 +1,7 @@
 import { Component, ElementRef, Inject, LOCALE_ID, NgZone, OnDestroy, OnInit, Renderer2 } from '@angular/core';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ModalController, PopoverController } from '@ionic/angular';
+import { ModalController, PopoverController, IonicModule } from '@ionic/angular';
 import { combineLatest, map, Subscription } from 'rxjs';
 
 import { config } from '@config';
@@ -19,12 +19,16 @@ import { ScrollService } from '@services/scroll.service';
 import { TooltipService } from '@services/tooltip.service';
 import { ViewOptionsService } from '@services/view-options.service';
 import { isBrowser } from '@utility-functions';
+import { TextChangerComponent } from '../../../components/text-changer/text-changer.component';
+import { NgIf, NgClass, NgStyle } from '@angular/common';
 
 
 @Component({
-  selector: 'page-introduction',
-  templateUrl: './collection-introduction.page.html',
-  styleUrls: ['./collection-introduction.page.scss']
+    selector: 'page-introduction',
+    templateUrl: './collection-introduction.page.html',
+    styleUrls: ['./collection-introduction.page.scss'],
+    standalone: true,
+    imports: [IonicModule, NgIf, TextChangerComponent, NgClass, NgStyle]
 })
 export class CollectionIntroductionPage implements OnInit, OnDestroy {
   collectionID: string = '';

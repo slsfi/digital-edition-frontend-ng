@@ -1,7 +1,7 @@
 import { Component, ElementRef, Inject, LOCALE_ID, OnDestroy, OnInit } from '@angular/core';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { ActivatedRoute } from '@angular/router';
-import { ModalController, PopoverController } from '@ionic/angular';
+import { ModalController, PopoverController, IonicModule } from '@ionic/angular';
 import { catchError, combineLatest, map, Observable, of, Subscription, switchMap, tap } from 'rxjs';
 
 import { config } from '@config';
@@ -13,12 +13,16 @@ import { HtmlParserService } from '@services/html-parser.service';
 import { PlatformService } from '@services/platform.service';
 import { ScrollService } from '@services/scroll.service';
 import { ViewOptionsService } from '@services/view-options.service';
+import { TextChangerComponent } from '../../../components/text-changer/text-changer.component';
+import { NgIf, AsyncPipe } from '@angular/common';
 
 
 @Component({
-  selector: 'page-foreword',
-  templateUrl: './collection-foreword.page.html',
-  styleUrls: ['./collection-foreword.page.scss']
+    selector: 'page-foreword',
+    templateUrl: './collection-foreword.page.html',
+    styleUrls: ['./collection-foreword.page.scss'],
+    standalone: true,
+    imports: [IonicModule, NgIf, TextChangerComponent, AsyncPipe]
 })
 export class CollectionForewordPage implements OnDestroy, OnInit {
   collectionID: string = '';

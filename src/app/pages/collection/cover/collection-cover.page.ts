@@ -4,12 +4,17 @@ import { catchError, map, Observable, of, switchMap, tap } from 'rxjs';
 
 import { MarkdownContentService } from '@services/markdown-content.service';
 import { PlatformService } from '@services/platform.service';
+import { TextChangerComponent } from '../../../components/text-changer/text-changer.component';
+import { NgIf, AsyncPipe } from '@angular/common';
+import { IonicModule } from '@ionic/angular';
 
 
 @Component({
-  selector: 'page-cover',
-  templateUrl: './collection-cover.page.html',
-  styleUrls: ['./collection-cover.page.scss']
+    selector: 'page-cover',
+    templateUrl: './collection-cover.page.html',
+    styleUrls: ['./collection-cover.page.scss'],
+    standalone: true,
+    imports: [IonicModule, NgIf, TextChangerComponent, AsyncPipe]
 })
 export class CollectionCoverPage implements OnInit {
   collectionID: string = '';

@@ -11,7 +11,7 @@
     "start:fi": "ng serve --configuration=development,fi",
     "extract-i18n": "ng extract-i18n --sort idAsc",
     "generate-sitemap": "node ./generate_sitemap.js",
-    "build:ssr": "ng build --configuration production && ng run app:server:production && copyfiles proxy-server.js dist/app",
+    "build:ssr": "ng build --configuration production && copyfiles proxy-server.js dist/app",
     "serve:ssr": "node dist/app/proxy-server.js",
     "ssr-start": "npm run build:ssr && npm run serve:ssr"
   },

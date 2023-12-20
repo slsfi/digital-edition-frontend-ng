@@ -5,7 +5,11 @@
   "projects": {
     "app": {
       "projectType": "application",
-      "schematics": {},
+      "schematics": {
+        "@schematics/angular:component": {
+          "style": "scss"
+        }
+      },
       "root": "",
       "sourceRoot": "src",
       "prefix": "app",
@@ -24,17 +28,25 @@
       },
       "architect": {
         "build": {
-          "builder": "@angular-devkit/build-angular:browser",
+          "builder": "@angular-devkit/build-angular:application",
           "options": {
             "localize": ["sv", "fi"],
             "outputPath": "dist/app/browser",
             "index": "src/index.html",
-            "main": "src/main.ts",
-            "polyfills": "src/polyfills.ts",
+            "browser": "src/main.ts",
+            "polyfills": [
+              "zone.js"
+            ],
             "tsConfig": "tsconfig.app.json",
             "inlineStyleLanguage": "scss",
             "i18nDuplicateTranslation": "error",
             "i18nMissingTranslation": "ignore",
+            "stylePreprocessorOptions": {
+              "includePaths": [
+                "./node_modules",
+                "src/theme/scoped-variables"
+              ]
+            },
             "assets": [
               "src/assets/icon/favicon.ico",
               "src/robots.txt",
@@ -55,7 +67,12 @@
               "src/global.scss",
               "src/assets/custom_css/custom.scss"
             ],
-            "scripts": []
+            "scripts": [],
+            "server": "src/main.server.ts",
+            "prerender": false,
+            "ssr": {
+              "entry": "server.ts"
+            }
           },
           "configurations": {
             "production": {
@@ -88,15 +105,10 @@
               }
             },
             "development": {
-              "buildOptimizer": false,
               "optimization": false,
-              "vendorChunk": true,
               "extractLicenses": false,
               "sourceMap": true,
               "namedChunks": true
-            },
-            "ci": {
-              "progress": false
             },
             "fi": {
               "deleteOutputPath": false,
@@ -111,7 +123,7 @@
               ]
             }
           },
-          "defaultConfiguration": "development"
+          "defaultConfiguration": "production"
         },
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
@@ -246,55 +258,6 @@
                 "fi"
               ],
               "deleteOutputPath": false
-            }
-          },
-          "defaultConfiguration": "production"
-        },
-        "serve-ssr": {
-          "builder": "@angular-devkit/build-angular:ssr-dev-server",
-          "configurations": {
-            "development": {
-              "browserTarget": "app:build:development",
-              "serverTarget": "app:server:development"
-            },
-            "production": {
-              "browserTarget": "app:build:production",
-              "serverTarget": "app:server:production"
-            }
-          },
-          "defaultConfiguration": "development"
-        },
-        "prerender": {
-          "builder": "@angular-devkit/build-angular:prerender",
-          "options": {
-            "routes": [
-              "/"
-            ]
-          },
-          "configurations": {
-            "production": {
-              "browserTarget": "app:build:production",
-              "serverTarget": "app:server:production"
-            },
-            "development": {
-              "browserTarget": "app:build:development",
-              "serverTarget": "app:server:development"
-            },
-            "sv": {
-              "browserTarget": "app:build:production,sv",
-              "serverTarget": "app:server:production,sv",
-              "routes": [
-                "/"
-              ],
-              "discoverRoutes": false
-            },
-            "fi": {
-              "browserTarget": "app:build:production,fi",
-              "serverTarget": "app:server:production,fi",
-              "routes": [
-                "/"
-              ],
-              "discoverRoutes": false
             }
           },
           "defaultConfiguration": "production"

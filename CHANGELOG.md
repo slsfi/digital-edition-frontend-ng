@@ -14,7 +14,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ### Added
 
-- nginx web server to serve static files in front of Node. This improves performance under load since 1) nginx is more performant than Node’s Express-server, 2) nginx’s performance is not impacted by Node being busy with server-side rendering tasks for dynamic content. ([8952fdc](https://github.com/slsfi/digital-edition-frontend-ng/commit/8952fdcdfece942363b37ef7567da7c344541382))
+- nginx web server to serve static files in front of Node. This improves performance under load since 1) nginx is more performant than Node’s Express-server, 2) nginx’s performance is not impacted by Node being busy with server-side rendering tasks for dynamic content. ([8952fdc](https://github.com/slsfi/digital-edition-frontend-ng/commit/8952fdcdfece942363b37ef7567da7c344541382) by [@rasek-sls](https://github.com/rasek-sls))
 
 ### Changed
 
@@ -51,7 +51,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ### Added
 
-- GitHub Actions workflow definition for triggering builds on commit push to `main` branch or new release/tag. ([aa32c39](https://github.com/slsfi/digital-edition-frontend-ng/commit/aa32c3941b335219f5e1d68ebbcb9ba6ece21312), [a5b22e7](https://github.com/slsfi/digital-edition-frontend-ng/commit/a5b22e7ca599b27fcf98e2996a8e40b9de801557), [a7be6c3](https://github.com/slsfi/digital-edition-frontend-ng/commit/a7be6c3b71e059af6192d03303064e6c2d219cf2), [00b19e4](https://github.com/slsfi/digital-edition-frontend-ng/commit/00b19e43a3270d83744f84e700e898df51b81c08))
+- GitHub Actions workflow definition for triggering builds on commit push to `main` branch or new release/tag. ([aa32c39](https://github.com/slsfi/digital-edition-frontend-ng/commit/aa32c3941b335219f5e1d68ebbcb9ba6ece21312), [a5b22e7](https://github.com/slsfi/digital-edition-frontend-ng/commit/a5b22e7ca599b27fcf98e2996a8e40b9de801557), [a7be6c3](https://github.com/slsfi/digital-edition-frontend-ng/commit/a7be6c3b71e059af6192d03303064e6c2d219cf2), [00b19e4](https://github.com/slsfi/digital-edition-frontend-ng/commit/00b19e43a3270d83744f84e700e898df51b81c08) by [@rasek-sls](https://github.com/rasek-sls))
 
 ### Changed
 

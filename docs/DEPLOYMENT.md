@@ -3,7 +3,7 @@
 
 ## Prerequisites
 
-Set up a forked repository for your app according to the instructions for [setting up a new project][set_up_project]. These instructions only apply to forked repositories, and assume that it is the `production` branch which is to be updated, built and deployed. However, the same instructions apply to any other branches, for instance a `dev` branch, – just exchange any mentions of `production` with the branch name.
+Set up a forked repository for your app according to the instructions for [setting up a new project][set_up_project]. These instructions only apply to forked repositories, and assume that it is the `production` branch which is to be updated, built and deployed. However, the same instructions apply to any other branch, for instance a `dev` branch, – just exchange any mentions of `production` with the target branch name.
 
 
 ## Updating from the base app, [digital-edition-frontend-ng][digital-edition-frontend-ng]

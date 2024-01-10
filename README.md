@@ -44,7 +44,8 @@ By default, the app has Swedish and Finnish language versions enabled. See the d
 
 ## Documentation
 
-- [Updating, building and deployment](docs/DEPLOYMENT.md)
+- [Updating, building and deployment](docs/DEPLOYMENT.md).
+- [Development notes](docs/DEVELOPMENT.md).
 
 
 ## Development Setup

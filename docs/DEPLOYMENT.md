@@ -25,8 +25,8 @@ The Docker images built this way are stored as packages in the GitHub repository
 
 **Important!** Before creating a new release, push a commit that updates:
 
-1. the image tag in `compose.yml` to the release tag you are going to use,
-2. the version property in `package.json` (run `npm install` so `package-lock.json` also gets updated),
+1. the image tag in [`compose.yml`][docker_compose_file] to the release tag you are going to use,
+2. the version property in [`package.json`][package_json] with the release tag (run `npm install` so [`package-lock.json`][package-lock_json] also gets updated),
 3. the [changelog][changelog].
 
 
@@ -34,9 +34,9 @@ The Docker images built this way are stored as packages in the GitHub repository
 
 You can starting a Docker container of the app from an image created in the step above by using the [`docker run`][docker_run_reference] command.
 
-However, for easier configuration and better performance it is recommended you utilize [Docker Compose][docker_compose_reference] and the provided Compose file [`compose.yml`][docker_compose_file]. The Compose file defines an [nginx][nginx] web server to be used for serving static files in front of Node ([`nginx configuration file`][nginx_conf]). This increases performance.
+However, for easier configuration and better performance it is recommended you utilize [Docker Compose][docker_compose_reference] and the provided Compose file [`compose.yml`][docker_compose_file]. The Compose file defines an [nginx][nginx] web server to be used for serving static files in front of Node ([`nginx.conf`][nginx_conf]). This increases performance.
 
-**Important!** nginx gets access to the static files through a [Docker volume][docker_volume_reference], which is defined in the app’s [Dockerfile][dockerfile]. Since volumes persist even if the container itself is deleted, and the content of a volume is not updated when the image is updated, you need to run
+**Important!** nginx gets access to the static files through a [Docker volume][docker_volume_reference], which is defined in [`Dockerfile`][dockerfile]. Since volumes persist even if the container itself is deleted, and the content of a volume is not updated when the image is updated, you need to run
 
 ```
 docker compose pull && docker compose down --volumes && docker compose up -d
@@ -49,7 +49,7 @@ when you wish to redeploy the app with an updated image. This removes all existi
 
 In case the deployed app needs to be rolled back to an earlier version, push a commit that updates:
 
-1. the image tag in `compose.yml` to the tag of the selected previous release,
+1. the image tag in [`compose.yml`][docker_compose_file] to the tag of the selected previous release,
 2. the [changelog][changelog] with information about the roll-back under the ”Unreleased” section.
 
 Then redeploy the app.
@@ -62,14 +62,14 @@ Then redeploy the app.
 To locally run a Docker image, which has been automatically built and pushed to GitHub according to the description above:
 
 1. Start [Docker Desktop][docker_desktop] and log in.
-2. In Powershell, `cd` into the app folder.
+2. `cd` into the app repository folder.
 3. Run `docker run -it -p 4201:4201 --rm <image-url>` where `<image-url>` must be replaced with the URL to the image, for example `ghcr.io/slsfi/digital-edition-frontend-ng:main`.
 4. Open your browser on http://localhost:4201/.
 
 To first build and then run a Docker image of a local copy of the repository on your own machine:
 
 1. Start [Docker Desktop][docker_desktop] and log in.
-2. In Powershell, `cd` into the app folder.
+2. `cd` into the app repository folder.
 3. Run `docker build --no-cache -t name:tag .` (notice the dot at the end) to build the image from the current directory, where `name:tag` must be replaced with the name and tag of the image, for example `digital-edition-frontend-ng:latest`.
 4. Run `docker run -it -p 4201:4201 --rm name:tag` where `name:tag` must be replaced with the name and tag of the image that you specified in step 3.
 5. Open your browser on http://localhost:4201/.
@@ -87,3 +87,5 @@ To first build and then run a Docker image of a local copy of the repository on 
 [dockerfile]: ../Dockerfile
 [nginx]: https://www.nginx.com/
 [nginx_conf]: ../nginx.conf
+[package_json]: ../package.json
+[package-lock_json]: ../package-lock.json

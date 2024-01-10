@@ -21,7 +21,7 @@ A GitHub Actions [workflow][build_workflow] for automated builds is included in 
 
 For example, if the base app is on version `1.0.2`, the release targets the `production` branch and this is the first build for this version in the `production` branch, the release should be tagged `1.0.2-production.1`. The next release should be tagged `1.0.2-production.2` (build number incremented by 1), provided that the base app remains on `1.0.2` and the release targets the `production` branch. When the semantic version of the base app changes, the build number is reset to 1, for instance: `1.1.0-production.1`.
 
-The Docker images built this way are stored as packages in the GitHub repository.
+The Docker images built this way are pushed to and stored in the [GitHub Container Registry][ghcr_docs].
 
 **Important!** Before creating a new release, push a commit that updates:
 
@@ -85,6 +85,7 @@ To first build and then run a Docker image of a local copy of the repository on 
 [docker_run_reference]: https://docs.docker.com/engine/reference/run/
 [docker_volume_reference]: https://docs.docker.com/storage/volumes/
 [dockerfile]: ../Dockerfile
+[ghcr_docs]: https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry
 [nginx]: https://www.nginx.com/
 [nginx_conf]: ../nginx.conf
 [package_json]: ../package.json

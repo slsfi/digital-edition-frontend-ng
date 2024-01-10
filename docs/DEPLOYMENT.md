@@ -3,13 +3,13 @@
 
 ## Prerequisites
 
-Set up a forked repository for your app according to https://github.com/slsfi/digital-edition-frontend-ng#setting-up-a-project. These instructions only apply to forked apps.
+Set up a forked repository for your app according to https://github.com/slsfi/digital-edition-frontend-ng#setting-up-a-project. These instructions only apply to forked repositories, and assume that it is the `production` branch which is to be updated, built and deployed. However, the same instructions apply to any other branches, for instance a `dev` branch, – just exchange any mentions of `production` with the branch name.
 
 
 ## Updating from the base app, [digital-edition-frontend-ng][digital-edition-frontend-ng]
 
 1. Switch to the `base` branch.
-2. Select `Sync fork` to update the `base` branch with the latest changes from the [original, upstream repository][digital-edition-frontend-ng].
+2. Select `Sync fork` to update the `base` branch with the latest changes from the original, upstream repository [digital-edition-frontend-ng][digital-edition-frontend-ng].
 3. Merge the changes from the `base` branch to the `production` branch and resolve any conflicts.
 
 It’s recommended not to synchronise unreleased changes from the upstream repository, but to wait for them to be included in a release. The base app uses semantic versioning.

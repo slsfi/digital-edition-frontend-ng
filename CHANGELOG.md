@@ -12,6 +12,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 - Compression of static files. During the build step, static files of type html, xml, txt, css, js, svg, ico, json, ttf and otf in `dist/app/browser/` are precompressed using gzip. Files smaller than 1300 B are not compressed. If there is a compressed version of a static file, nginx is configured to serve it instead of the uncompressed file. The necessary configuration commands for compressing dynamically generated html on-the-fly have also been added to the nginx configuration (`nginx.conf`), however, the commands have been left commented out because of the increased server load associated with on-the-fly compression.
 
+### Fixed
+
+- Legacy setup code from Angular 15 to 17 migration. Angular 17 introduced several changes to the `app.module.\*`, `main.server.ts`, `main.ts`, `server.ts` and `tsconfig.\*` files. During the original v15 -> v17 update of the app all of these changes were not implemented. This fix attempts to align the app with the setup of a new modules based Angular 17 app that has SSR and i18n enabled.
+
 
 
 ## [1.2.0] – 2024-01-10

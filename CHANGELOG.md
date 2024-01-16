@@ -10,7 +10,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ### Added
 
-- Compression of static files. During the build step, static files of type html, xml, txt, css, js, svg, ico, json, ttf and otf in `dist/app/browser/` are precompressed using gzip. Files smaller than 1300 B are not compressed. If there is a compressed version of a static file, nginx is configured to serve it instead of the uncompressed file. The necessary configuration commands for compressing dynamically generated html on-the-fly have also been added to the nginx configuration (`nginx.conf`), however, the commands have been left commented out because of the increased server load associated with on-the-fly compression.
+- Compression of static files. During the build step, static files of type `html`, `xml`, `txt`, `css`, `js`, `svg`, `ico`, `json`, `ttf` and `otf` in `dist/app/browser/` are precompressed using gzip. Files smaller than 1300 B are not compressed. If there is a compressed version of a static file, nginx is configured to serve it instead of the uncompressed file. The necessary directives for compressing dynamically generated HTML on-the-fly have also been added to the nginx configuration (`nginx.conf`), however, the directives have been commented out because of the increased server load associated with on-the-fly compression. Each project can choose to enable the directives as they see fit.
 
 ### Fixed
 

@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { catchError, map, Observable, of } from 'rxjs';
 import { marked } from 'marked';
 
@@ -13,7 +14,8 @@ export class MarkdownContentService {
   private apiURL: string = '';
 
   constructor(
-    private http: HttpClient
+    private http: HttpClient,
+    private sanitizer: DomSanitizer
   ) {
     const apiBaseURL = config.app?.backendBaseURL ?? '';
     const projectName = config.app?.projectNameDB ?? '';
@@ -44,7 +46,21 @@ export class MarkdownContentService {
     );
   }
 
-  getParsedMd(md: string): string {
+  getParsedMdContentFromFileID(fileID: string, errorMessage: string = ''): Observable<SafeHtml> {
+    return this.getMdContent(fileID).pipe(
+      map((res: any) => {
+        return this.sanitizer.bypassSecurityTrustHtml(
+          this.parseMd(res.content)
+        );
+      }),
+      catchError((e: any) => {
+        console.error('Error loading markdown content', e);
+        return of(errorMessage);
+      })
+    );
+  }
+
+  parseMd(md: string): string {
     return marked.parse(md) as string;
   }
 

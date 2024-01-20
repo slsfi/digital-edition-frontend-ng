@@ -188,7 +188,7 @@ export class MediaCollectionPage implements OnDestroy, OnInit {
       map((res: any) => {
         return this.sanitizer.sanitize(
           SecurityContext.HTML, this.sanitizer.bypassSecurityTrustHtml(
-            this.mdContentService.getParsedMd(res.content)
+            this.mdContentService.parseMd(res.content)
           )
         );
       }),

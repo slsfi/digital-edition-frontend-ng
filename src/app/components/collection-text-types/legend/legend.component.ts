@@ -59,7 +59,7 @@ export class LegendComponent implements OnDestroy, OnInit {
           this.scrollToInitialTextPosition();
         }
         return this.sanitizer.bypassSecurityTrustHtml(
-          this.mdContentService.getParsedMd(res.content)
+          this.mdContentService.parseMd(res.content)
         );
       }),
       catchError(e => {

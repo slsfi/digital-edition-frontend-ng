@@ -926,7 +926,7 @@ export class DownloadTextsModal implements OnDestroy, OnInit {
     return this.mdContentService.getMdContent(fileID).pipe(
       map((res: any) => {
         return this.sanitizer.bypassSecurityTrustHtml(
-          this.mdContentService.getParsedMd(res.content)
+          this.mdContentService.parseMd(res.content)
         );
       }),
       catchError((e) => {

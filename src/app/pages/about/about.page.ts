@@ -1,7 +1,7 @@
 import { Component, Inject, LOCALE_ID, OnInit } from '@angular/core';
-import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+import { SafeHtml } from '@angular/platform-browser';
 import { ActivatedRoute } from '@angular/router';
-import { catchError, map, Observable, of, switchMap } from 'rxjs';
+import { Observable, switchMap } from 'rxjs';
 
 import { MarkdownContentService } from '@services/markdown-content.service';
 
@@ -17,28 +17,16 @@ export class AboutPage implements OnInit {
   constructor(
     private mdContentService: MarkdownContentService,
     private route: ActivatedRoute,
-    private sanitizer: DomSanitizer,
     @Inject(LOCALE_ID) private activeLocale: string
   ) {}
 
   ngOnInit() {
     this.markdownText$ = this.route.params.pipe(
       switchMap(({id}) => {
-        return this.getMdContent(this.activeLocale + '-' + id);
-      })
-    );
-  }
-
-  getMdContent(fileID: string): Observable<SafeHtml> {
-    return this.mdContentService.getMdContent(fileID).pipe(
-      map((res: any) => {
-        return this.sanitizer.bypassSecurityTrustHtml(
-          this.mdContentService.getParsedMd(res.content)
+        return this.mdContentService.getParsedMdContentFromFileID(
+          this.activeLocale + '-' + id,
+          $localize`:@@About.LoadingError:Sidans innehåll kunde inte laddas.`
         );
-      }),
-      catchError((e: any) => {
-        console.error('Error loading markdown content', e);
-        return of($localize`:@@About.LoadingError:Sidans innehåll kunde inte laddas.`);
       })
     );
   }

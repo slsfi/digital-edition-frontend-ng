@@ -32,7 +32,7 @@ export class ContentPage implements OnInit {
   getMdContent(fileID: string): Observable<string> {
     return this.mdContentService.getMdContent(fileID).pipe(
       map((res: any) => {
-        return this.mdContentService.getParsedMd(res.content);
+        return this.mdContentService.parseMd(res.content);
       }),
       catchError(e => {
         return of('');

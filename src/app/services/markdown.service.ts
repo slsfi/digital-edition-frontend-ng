@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { catchError, map, Observable, of } from 'rxjs';
 import { marked } from 'marked';
 
@@ -10,21 +9,15 @@ import { config } from '@config';
 @Injectable({
   providedIn: 'root',
 })
-export class MarkdownContentService {
+export class MarkdownService {
   private apiURL: string = '';
 
   constructor(
-    private http: HttpClient,
-    private sanitizer: DomSanitizer
+    private http: HttpClient
   ) {
     const apiBaseURL = config.app?.backendBaseURL ?? '';
     const projectName = config.app?.projectNameDB ?? '';
     this.apiURL = apiBaseURL + '/' + projectName;
-  }
-
-  getMdContent(fileID: string): Observable<any> {
-    const endpoint = `${this.apiURL}/md/${fileID}`;
-    return this.http.get(endpoint);
   }
 
   getMenuTree(language: string, rootNodeID: string): Observable<any> {
@@ -46,20 +39,38 @@ export class MarkdownContentService {
     );
   }
 
-  getParsedMdContentFromFileID(fileID: string, errorMessage: string = ''): Observable<SafeHtml> {
+  /**
+   * Get the content of a markdown file from the backend parsed to HTML as a string.
+   * @param fileID ID of the file to get content of.
+   * @param errorMessage optional message to display if the file content can’t be fetched.
+   * @returns HTML as a string or null.
+   */
+  getParsedMdContent(fileID: string, errorMessage: string = ''): Observable<string | null> {
     return this.getMdContent(fileID).pipe(
       map((res: any) => {
-        return this.sanitizer.bypassSecurityTrustHtml(
-          this.parseMd(res.content)
-        );
+        return res.content.trim() ? this.parseMd(res.content) : null;
       }),
       catchError((e: any) => {
         console.error('Error loading markdown content', e);
-        return of(errorMessage);
+        return of(errorMessage || null);
       })
     );
   }
 
+  /**
+   * Get the content of a markdown file from the backend. Prefer using the
+   * method 'getParsedMdContent' instead if you need the markdown parsed into HTML.
+   * @param fileID ID of the file to get content of.
+   * @returns object where the markdown content is in the 'content' property as a string.
+   */
+  getMdContent(fileID: string): Observable<any> {
+    const endpoint = `${this.apiURL}/md/${fileID}`;
+    return this.http.get(endpoint);
+  }
+
+  /**
+   * Parses the given markdown to HTML and returns it as a string.
+   */
   parseMd(md: string): string {
     return marked.parse(md) as string;
   }

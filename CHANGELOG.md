@@ -32,7 +32,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ### Removed
 
-- Deps: @angular-eslint from devDependencies. ([c719b45](https://github.com/slsfi/digital-edition-frontend-ng/commit/c719b45b41c93379f9819ad7d01e267c572ab52c))
+- Deps: angular-eslint from devDependencies. ([c719b45](https://github.com/slsfi/digital-edition-frontend-ng/commit/c719b45b41c93379f9819ad7d01e267c572ab52c))
 - Deps: jasmine-spec-reporter from devDependencies. ([a9e0702](https://github.com/slsfi/digital-edition-frontend-ng/commit/a9e070215e15adb5f1078b688ab7bd347d316270))
 - Deps: karma-coverage-istanbul-reporter from devDependencies. ([f27d677](https://github.com/slsfi/digital-edition-frontend-ng/commit/f27d6770d2623acea2f07067952edec0529976cd))
 - Deps: ts-node from devDependencies. ([e55173f](https://github.com/slsfi/digital-edition-frontend-ng/commit/e55173f496db494fcd369b414efa1adf5353beb9))

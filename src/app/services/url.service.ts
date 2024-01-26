@@ -203,7 +203,8 @@ export class UrlService {
           decodedValue += decodeURIComponent(percentEncoded);
           i = end; // Update the index to the end of the percent-encoded sequence
         } catch (e) {
-          console.error(`Decode string failed for ${value}: `, e);
+          console.log('Decode string failed for ', value);
+          console.error(e);
           // If decoding fails, add the original sequence and continue
           decodedValue += percentEncoded;
           i = end; // Update the index to the end of the percent-encoded sequence

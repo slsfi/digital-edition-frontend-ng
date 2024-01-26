@@ -11,15 +11,24 @@ export class UrlService {
   constructor() { }
 
   parse(text: string, impliedArray: boolean = false): any {
+    if (impliedArray) {
+      console.log('string to parse: ', `(${text})`);
+    } else {
+      console.log('string to parse: ', text);
+    }
     const JsonURLParsed = JsonURL.parse(text, {
       AQF: true,
       ...(impliedArray && { impliedArray: [] })
     });
 
-    const custom = this.fromJsonUrl(text, impliedArray);
-
     console.log('Parse Json url: ', JsonURLParsed);
-    console.log('Parse custom  : ', custom);
+
+    try {
+      const custom = this.fromJsonUrl(text, impliedArray);
+      console.log('Parse custom  : ', custom);
+    } catch (e) {
+      console.error(e);
+    }
 
     return JsonURLParsed;
   }
@@ -65,11 +74,11 @@ export class UrlService {
 
 
   // Check if a value is a plain object (not an array or null)
-  isPlainObject(obj: any): obj is PlainObject {
+  private isPlainObject(obj: any): obj is PlainObject {
       return typeof obj === 'object' && obj !== null && !Array.isArray(obj);
   }
 
-  encodeString(value: string): string {
+  private encodeString(value: string): string {
     // Manually encode characters as per specification
     let encodedValue = '';
     for (const char of value) {
@@ -103,7 +112,7 @@ export class UrlService {
     return encodedValue;
   }
 
-  encodeValue(value: boolean | number | string | null): string {
+  private encodeValue(value: boolean | number | string | null): string {
     if (value === null) {
         return 'null';
     }
@@ -114,12 +123,12 @@ export class UrlService {
   }
 
   // Encode an array into a string
-  encodeArray(arr: Array<any>): string {
+  private encodeArray(arr: Array<any>): string {
       return arr.map(item => this.toJsonUrl(item)).join(','); // Recursively encode each item
   }
 
   // Encode an object into a string
-  encodeObject(obj: PlainObject): string {
+  private encodeObject(obj: PlainObject): string {
       let encoded = Object.entries(obj).map(([key, value]) => {
           // Encode each key-value pair
           return `${this.encodeValue(key)}:${this.toJsonUrl(value)}`;
@@ -128,7 +137,7 @@ export class UrlService {
   }
 
   // Convert a value to a JSON URL string
-  toJsonUrl(value: any, impliedArray: boolean = false): string {
+  private toJsonUrl(value: any, impliedArray: boolean = false): string {
       if (value === null) {
           return 'null'; // Handle null separately
       }
@@ -141,7 +150,8 @@ export class UrlService {
       }
   }
 
-  decodeStringOLD(value: string): string {
+  /*
+  private decodeStringOLD(value: string): string {
     // Handle the representation of an empty string
     if (value === '!e') {
         return ''; // Decode empty string
@@ -157,8 +167,104 @@ export class UrlService {
     // Decode percent-encoded characters
     return decodeURIComponent(value);
   }
+  */
 
-  decodeString(value: string): string {
+  decodeString(value: string): any {
+    // Handle the representation of an empty string
+    if (value === '!e') {
+        return ''; // Decode empty string
+    }
+
+    // Handle escaped patterns and percent-encoded characters
+    let decodedValue = '';
+    let i = 0;
+    while (i < value.length) {
+        if (value[i] === '!') {
+            if (value[i + 1] === ':') {
+                decodedValue += ':'; // Decode escaped colon
+                i += 2; // Skip next character
+            } else {
+                decodedValue += value[i + 1]; // Unescape character
+                i += 2; // Skip next character
+            }
+        } else if (value[i] === '+') {
+            decodedValue += ' '; // Replace plus with space
+            i++;
+        } else if (value[i] === '%') {
+            // Attempt to decode percent-encoded sequences
+            let end = i;
+            while (end < value.length && value[end] === '%') {
+                end += 3; // Move to the end of the percent-encoded sequence
+            }
+            const percentEncoded = value.substring(i, end);
+            try {
+                decodedValue += decodeURIComponent(percentEncoded);
+                i = end; // Update the index to the end of the percent-encoded sequence
+            } catch (e) {
+                console.log('decoding failed for', value);
+                // If decoding fails, add the original sequence and continue
+                decodedValue += percentEncoded;
+                i = end; // Update the index to the end of the percent-encoded sequence
+            }
+        } else {
+            decodedValue += value[i]; // Regular character
+            i++;
+        }
+    }
+
+    // Convert to number if it's a valid numeric string
+    const numberValue = Number(decodedValue);
+    return isNaN(numberValue) || decodedValue.includes(':') || decodedValue.includes('!') ? decodedValue : numberValue;
+  }
+
+
+  decodeStringPREVIOUS4(value: string): any {
+    // Handle the representation of an empty string
+    if (value === '!e') {
+        return ''; // Decode empty string
+    }
+
+    // Handle escaped patterns and percent-encoded characters
+    let decodedValue = '';
+    for (let i = 0; i < value.length; i++) {
+        if (value[i] === '!') {
+            if (value[i + 1] === ':') {
+                decodedValue += ':'; // Decode escaped colon
+                i++; // Skip next character
+            } else {
+                decodedValue += value[i + 1]; // Unescape character
+                i++; // Skip next character
+            }
+        } else if (value[i] === '+') {
+            decodedValue += ' '; // Replace plus with space
+        } else if (value[i] === '%') {
+            // Attempt to decode percent-encoded sequences
+            let end = i + 1;
+            while (end < value.length && value[end] === '%' && end + 2 < value.length) {
+                end += 3; // Move to the end of the percent-encoded sequence
+            }
+            const percentEncoded = value.substring(i, end);
+            try {
+                decodedValue += decodeURIComponent(percentEncoded);
+                i = end - 1; // Update the index to the end of the percent-encoded sequence
+            } catch (e) {
+                console.log('decoding failed for', value);
+                // If decoding fails, add the original sequence and continue
+                decodedValue += percentEncoded;
+                i = end - 1; // Update the index to the end of the percent-encoded sequence
+            }
+        } else {
+            decodedValue += value[i]; // Regular character
+        }
+    }
+
+    // Convert to number if it's a valid numeric string
+    const numberValue = Number(decodedValue);
+    return isNaN(numberValue) || decodedValue.includes(':') || decodedValue.includes('!') ? decodedValue : numberValue;
+  }
+
+
+  decodeStringPREVIOUS3(value: string): any {
     // Handle the representation of an empty string
     if (value === '!e') {
         return ''; // Decode empty string
@@ -179,18 +285,112 @@ export class UrlService {
             decodedValue += ' '; // Replace plus with space
         } else if (value[i] === '%' && i + 2 < value.length) {
             // Decode percent-encoded sequences
-            const percentEncoded = value.substr(i, 3);
-            decodedValue += decodeURIComponent(percentEncoded);
+            const percentEncoded = value.substring(i, i + 3);
+            try {
+                decodedValue += decodeURIComponent(percentEncoded);
+                i += 2; // Skip next two characters
+            } catch (e) {
+                console.log('decoding failed for', value);
+                // If decoding fails, add the original sequence and continue
+                decodedValue += percentEncoded;
+                i += 2; // Skip next two characters
+            }
+        } else {
+            decodedValue += value[i]; // Regular character
+        }
+    }
+
+    // Convert to number if it's a valid numeric string
+    const numberValue = Number(decodedValue);
+    return isNaN(numberValue) || decodedValue.includes(':') || decodedValue.includes('!') ? decodedValue : numberValue;
+  }
+
+
+  decodeStringPREVIOUS2(value: string): any {
+    // Handle the representation of an empty string
+    if (value === '!e') {
+        return ''; // Decode empty string
+    }
+
+    // Handle escaped patterns and percent-encoded characters
+    let decodedValue = '';
+    for (let i = 0; i < value.length; i++) {
+        if (value[i] === '!') {
+            if (value[i + 1] === ':') {
+                decodedValue += ':'; // Decode escaped colon
+                i++; // Skip next character
+            } else {
+                decodedValue += value[i + 1]; // Unescape character
+                i++; // Skip next character
+            }
+        } else if (value[i] === '+') {
+            decodedValue += ' '; // Replace plus with space
+        } else if (value[i] === '%' && i + 2 < value.length) {
+            // Attempt to decode percent-encoded sequences
+            try {
+                const percentEncoded = value.substring(i, i + 3);
+                decodedValue += decodeURIComponent(percentEncoded);
+                i += 2; // Skip next two characters
+            } catch (e) {
+                console.log('decoding failed for', value);
+                // If decoding fails, add the original sequence
+                decodedValue += value.substring(i, i + 3);
+                i += 2; // Skip next two characters
+            }
+        } else {
+            decodedValue += value[i]; // Regular character
+        }
+    }
+
+    // Convert to number if it's a valid numeric string
+    const numberValue = Number(decodedValue);
+    return isNaN(numberValue) || decodedValue.includes(':') || decodedValue.includes('!') ? decodedValue : numberValue;
+}
+
+
+  decodeStringPREVIOUS(value: string): any {
+    // Handle the representation of an empty string
+    if (value === '!e') {
+        return ''; // Decode empty string
+    }
+
+    // Handle escaped patterns and percent-encoded characters
+    let decodedValue = '';
+    for (let i = 0; i < value.length; i++) {
+        if (value[i] === '!') {
+            if (value[i + 1] === ':') {
+                decodedValue += ':'; // Decode escaped colon
+                i++; // Skip next character
+            } else {
+                decodedValue += value[i + 1]; // Unescape character
+                i++; // Skip next character
+            }
+        } else if (value[i] === '+') {
+            decodedValue += ' '; // Replace plus with space
+        } else if (value[i] === '%' && i + 2 < value.length) {
+            // Decode percent-encoded sequences
+            const percentEncoded = value.substring(i, i + 3);
+            try {
+              decodedValue += decodeURIComponent(percentEncoded);
+            } catch (e) {
+              console.log('error decoding: ', value);
+              console.error(e);
+            }
             i += 2; // Skip next two characters
         } else {
             decodedValue += value[i]; // Regular character
         }
     }
 
-    return decodedValue;
+    // Convert to number if it's a valid numeric string
+    const numberValue = Number(decodedValue);
+    return isNaN(numberValue) || decodedValue.includes(':') || decodedValue.includes('!') ? decodedValue : numberValue;
   }
 
-  decodeValue(value: string): any {
+
+
+  /*
+  private decodeValue(value: string): any {
     if (value === 'null') {
         return null;
     }
@@ -208,12 +408,12 @@ export class UrlService {
   }
 
   // Decode an array from a string
-  decodeArray(arrStr: string): Array<any> {
+  private decodeArray(arrStr: string): Array<any> {
     return arrStr.slice(1, -1).split(',').map(item => this.fromJsonUrl(item)); // Recursively decode each item
   }
 
   // Decode an object from a string
-  decodeObject(objStr: string): PlainObject {
+  private decodeObject(objStr: string): PlainObject {
     let obj: PlainObject = {};
     objStr.slice(1, -1).split(',').forEach(pair => {
         let [key, value] = pair.split(':');
@@ -222,8 +422,9 @@ export class UrlService {
     });
     return obj; // Return the decoded object
   }
+  */
 
-  splitByTopLevelComma(str: string): string[] {
+  private splitByTopLevelComma(str: string): string[] {
     const elements = [];
     let bracketCount = 0;
     let start = 0;
@@ -241,14 +442,13 @@ export class UrlService {
     return elements;
   }
 
-  isObjectContent(content: string): boolean {
+  private isObjectContent(content: string): boolean {
     return content.includes(':') && !content.startsWith('(');
   }
 
-  fromJsonUrl(value: string, impliedArray: boolean = false): any {
+  private fromJsonUrl(value: string, impliedArray: boolean = false): any {
     if (impliedArray) {
       value = `(${value})`;
-      console.log(value);
     }
     
     // Handle the representation of an empty string
@@ -281,9 +481,9 @@ export class UrlService {
   }
 
 
-
-  /* This works for arrays of objects in collection text, but not in media-collections */
-  fromJsonUrlV4(value: string, impliedArray: boolean = false): any {
+  /*
+  // This works for arrays of objects in collection text, but not in media-collections
+  private fromJsonUrlV4(value: string, impliedArray: boolean = false): any {
     if (impliedArray) {
       value = `(${value})`;
       console.log(value);
@@ -319,8 +519,8 @@ export class UrlService {
 }
 
 
-  /* This doesn't work for arrays of objects in collection text, and almost works in media-collections*/
-  fromJsonUrlV3(value: string, impliedArray: boolean = false): any {
+  // This doesn't work for arrays of objects in collection text, and almost works in media-collections
+  private fromJsonUrlV3(value: string, impliedArray: boolean = false): any {
     if (impliedArray) {
       value = `(${value})`;
       console.log(value);
@@ -356,8 +556,8 @@ export class UrlService {
 
 
 
-  /* This works for arrays of objects in collection text, but not in media-collections */
-  fromJsonUrlV2(value: string, impliedArray: boolean = false): any {
+  // This works for arrays of objects in collection text, but not in media-collections
+  private fromJsonUrlV2(value: string, impliedArray: boolean = false): any {
     if (impliedArray) {
       value = `(${value})`;
     }
@@ -407,7 +607,7 @@ export class UrlService {
 
 
   // Convert a JSON URL string to a value
-  fromJsonUrlBASTI(value: string, impliedArray: boolean = false): any {
+  private fromJsonUrlBASTI(value: string, impliedArray: boolean = false): any {
     if (impliedArray) {
       value = `(${value})`;
     }
@@ -451,6 +651,6 @@ export class UrlService {
     // Decode other values
     return this.decodeString(value);
   }
-
+  */
 
 }

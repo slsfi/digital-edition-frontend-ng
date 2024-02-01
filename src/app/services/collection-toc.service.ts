@@ -62,7 +62,9 @@ export class CollectionTableOfContentsService {
   }
 
   getStaticTableOfContents(id: string): Observable<string> {
-    const headers = new HttpHeaders().set('Content-Type', 'text/html');
+    const headers = new HttpHeaders({
+      'Content-Type': 'text/html; charset=UTF-8'
+    });
     const endpoint = `/static-html/collection-toc/${id}_${this.activeLocale}.html`;
 
     return this.http.get(endpoint, {headers, responseType: 'text'}).pipe(

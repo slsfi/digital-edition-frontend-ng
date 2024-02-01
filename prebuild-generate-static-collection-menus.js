@@ -76,9 +76,13 @@ async function generateStaticCollectionMenus() {
             break;
           }
 
-          // Initialize output file and add collection title
+          // Initialize output file and add collection title.
+          // To prevent the output files from being gzipped, change the file
+          // extension to .htm here and in getStaticTableOfContents() in
+          // collection-toc.service.ts. Serving gzipped versions of the
+          // static TOC files might put an unecessary load on the server.
           const filename = collectionId + '_' + locale + '.html';
-          let html = '<p>' + collectionTitle + '</p>\n';
+          let html = '<p><b>' + collectionTitle + '</b></p>\n';
           const fileWriteSuccess = initializeOutputFile(filename, html);
           if (!fileWriteSuccess) {
             console.log('Error: unable to initialize collection toc file: ', outputPath + filename);

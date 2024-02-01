@@ -10,8 +10,19 @@ generateStaticCollectionMenus();
 
 
 async function generateStaticCollectionMenus() {
-  console.log('Generating static collection menus ...');
   const config = common.getConfig(configFilepath);
+  const enable = config.app?.prebuild?.staticCollectionMenus ?? true;
+  const ssrCollectionSideMenu = config.app?.ssr?.collectionSideMenu ?? false;
+
+  if (enable && !ssrCollectionSideMenu) {
+    console.log('Generating static collection menus ...');
+  } else if (enable && ssrCollectionSideMenu) {
+    console.log('Skipping generation of static collection menus, server-side rendering of collection side menu is enabled.');
+    return;
+  } else {
+    console.log('Skipping generation of static collection menus, disabled in config.');
+    return;
+  }
 
   const projectName = config.app?.projectNameDB ?? '';
   const API = config.app?.backendBaseURL ?? '';

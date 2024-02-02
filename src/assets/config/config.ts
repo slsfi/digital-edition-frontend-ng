@@ -35,7 +35,7 @@ export const config: Config = {
       staticCollectionMenus: true
     },
     ssr: {
-      collectionSideMenu: true
+      collectionSideMenu: false
     }
   },
   collections: {

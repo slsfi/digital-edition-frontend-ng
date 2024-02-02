@@ -9,18 +9,27 @@ const outputPath = 'src/static-html/collection-toc/';
 generateStaticCollectionMenus();
 
 
+/**
+ * Generates .htm files with prerendered HTML of collection
+ * side menus. Each file holds an HTML fragment which is a static
+ * version of a collection’s table of contents in a specific
+ * language. The files are named <collection_id>_<language>.htm.
+ * The collections’ TOC-files in JSON format are fetched from
+ * the backend, flattened and parsed into a single-level
+ * unordered HTML-list.
+ */
 async function generateStaticCollectionMenus() {
   const config = common.getConfig(configFilepath);
-  const enable = config.app?.prebuild?.staticCollectionMenus ?? true;
+  const generateStaticMenus = config.app?.prebuild?.staticCollectionMenus ?? true;
   const ssrCollectionSideMenu = config.app?.ssr?.collectionSideMenu ?? false;
 
-  if (enable && !ssrCollectionSideMenu) {
+  if (generateStaticMenus && !ssrCollectionSideMenu) {
     console.log('Generating static collection menus ...');
-  } else if (enable && ssrCollectionSideMenu) {
-    console.log('Skipping generation of static collection menus, server-side rendering of collection side menu is enabled.');
+  } else if (generateStaticMenus && ssrCollectionSideMenu) {
+    console.log('Skipping generation of static collection menus, server-side rendering of collection side menu is enabled.\n');
     return;
   } else {
-    console.log('Skipping generation of static collection menus, disabled in config.');
+    console.log('Skipping generation of static collection menus, disabled in config.\n');
     return;
   }
 
@@ -88,11 +97,14 @@ async function generateStaticCollectionMenus() {
           }
 
           // Initialize output file and add collection title.
-          // To prevent the output files from being gzipped, change the file
-          // extension to .htm here and in getStaticTableOfContents() in
-          // collection-toc.service.ts. Serving gzipped versions of the
-          // static TOC files might put an unecessary load on the server.
-          const filename = collectionId + '_' + locale + '.html';
+          // The .htm file extension is used here on purpose so these
+          // files can be distinguished from other HTML files with
+          // .html extension. This way you can easily prevent the
+          // files from being gzipped by removing "htm" from the file
+          // formats that gzipper compresses in package.json. Serving
+          // gzipped versions of the static TOC files might put an
+          // unecessary load on the server.
+          const filename = collectionId + '_' + locale + '.htm';
           let html = '<p><b>' + collectionTitle + '</b></p>\n';
           const fileWriteSuccess = initializeOutputFile(filename, html);
           if (!fileWriteSuccess) {

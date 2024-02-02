@@ -2,6 +2,7 @@ import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { AsyncPipe } from '@angular/common';
 import { Observable, of } from 'rxjs';
 
+import { config } from '@config';
 import { CollectionTableOfContentsService } from '@services/collection-toc.service';
 
 
@@ -16,11 +17,14 @@ export class StaticHtmlComponent implements OnChanges {
   @Input() type: string = '';
   @Input() id: string = '';
 
+  prebuiltCollectionMenus: boolean = true;
   staticContent$: Observable<string>;
 
   constructor(
     private tocService: CollectionTableOfContentsService
-  ) {}
+  ) {
+    this.prebuiltCollectionMenus = config.app?.prebuild?.staticCollectionMenus ?? true;
+  }
 
   ngOnChanges(changes: SimpleChanges): void {
     let inputChanged = false;
@@ -48,7 +52,7 @@ export class StaticHtmlComponent implements OnChanges {
   }
 
   private getStaticContent(): Observable<string> {
-    if (this.type === 'collection-toc') {
+    if (this.type === 'collection-toc' && this.prebuiltCollectionMenus) {
       return this.tocService.getStaticTableOfContents(this.id);
     }
 

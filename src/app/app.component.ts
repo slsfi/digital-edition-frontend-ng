@@ -3,6 +3,7 @@ import { NavigationEnd, Params, PRIMARY_OUTLET, Router, UrlSegment, UrlTree } fr
 import { filter, Subscription } from 'rxjs';
 
 import { config } from '@config';
+import { CollectionTableOfContentsService } from '@services/collection-toc.service';
 import { DocumentHeadService } from '@services/document-head.service';
 import { PlatformService } from '@services/platform.service';
 import { isBrowser } from '@utility-functions';
@@ -33,7 +34,8 @@ export class AppComponent implements OnDestroy, OnInit {
   constructor(
     private headService: DocumentHeadService,
     private platformService: PlatformService,
-    private router: Router
+    private router: Router,
+    private tocService: CollectionTableOfContentsService
   ) {
     this.enableCollectionSideMenuSSR = config.app?.ssr?.collectionSideMenu ?? false;
     this.enableRouterLoadingBar = config.app?.enableRouterLoadingBar ?? false;
@@ -60,7 +62,13 @@ export class AppComponent implements OnDestroy, OnInit {
       // Check if a collection page in order to show collection side
       // menu instead of main side menu.
       if (this.currentUrlSegments?.[0]?.path === 'collection') {
-        this.collectionID = this.currentUrlSegments[1]?.path || '';
+        const newCollectionID = this.currentUrlSegments[1]?.path || '';
+        
+        if (this.collectionID !== newCollectionID) {
+          this.collectionID = newCollectionID;
+          this.tocService.setCurrentCollectionTOC(this.collectionID);
+        }
+
         this.collectionSideMenuInitialUrlSegments = this.currentUrlSegments;
         this.collectionSideMenuInitialQueryParams = currentUrlTree?.queryParams;
         this.showCollectionSideMenu = true;

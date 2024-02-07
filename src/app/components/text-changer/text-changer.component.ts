@@ -6,6 +6,7 @@ import { Subscription } from 'rxjs';
 
 import { config } from '@config';
 import { CollectionTableOfContentsService } from '@services/collection-toc.service';
+import { DocumentHeadService } from '@services/document-head.service';
 import { PlatformService } from '@services/platform.service';
 import { sortArrayOfObjectsAlphabetically, sortArrayOfObjectsNumerically } from '@utility-functions';
 
@@ -22,16 +23,17 @@ export class TextChangerComponent implements OnChanges, OnDestroy, OnInit {
   @Input() textItemID: string = '';
   @Input() textPosition: string = '';
 
-  activeTocOrder: string = '';
-  activeTocOrderSubscription: Subscription | null = null;
+  activeTocOrder: string = 'default';
+  activeTocOrderSubscr: Subscription | null = null;
   collectionHasCover: boolean = false;
   collectionHasTitle: boolean = false;
   collectionHasForeword: boolean = false;
   collectionHasIntro: boolean = false;
   collectionId: string = '';
+  collectionTitle: string = '';
   currentItemTitle: string = '';
   firstItem?: boolean;
-  flattened: Array<any> = [];
+  flattenedToc: any[] = [];
   lastItem?: boolean;
   mobileMode: boolean = false;
   nextItem: any;
@@ -39,8 +41,13 @@ export class TextChangerComponent implements OnChanges, OnDestroy, OnInit {
   prevItem: any;
   prevItemTitle?: string;
   tocItemId: string = '';
+  tocSubscr: Subscription | null = null;
+
+  frontMatterPages: any[] = [];
+  currentTocTextIndex: number = 0;
 
   constructor(
+    private headService: DocumentHeadService,
     private platformService: PlatformService,
     private router: Router,
     private tocService: CollectionTableOfContentsService
@@ -49,6 +56,31 @@ export class TextChangerComponent implements OnChanges, OnDestroy, OnInit {
     this.collectionHasTitle = config.collections?.frontMatterPages?.title ?? false;
     this.collectionHasForeword = config.collections?.frontMatterPages?.foreword ?? false;
     this.collectionHasIntro = config.collections?.frontMatterPages?.introduction ?? false;
+
+    if (config.collections?.frontMatterPages?.cover) {
+      this.frontMatterPages.push({
+        text: $localize`:@@CollectionCover.Cover:Omslag`,
+        page: 'cover'
+      });
+    }
+    if (config.collections?.frontMatterPages?.title) {
+      this.frontMatterPages.push({
+        text: $localize`:@@CollectionTitle.TitlePage:Titelblad`,
+        page: 'title'
+      });
+    }
+    if (config.collections?.frontMatterPages?.foreword) {
+      this.frontMatterPages.push({
+        text: $localize`:@@CollectionForeword.Foreword:Förord`,
+        page: 'foreword'
+      });
+    }
+    if (config.collections?.frontMatterPages?.introduction) {
+      this.frontMatterPages.push({
+        text: $localize`:@@CollectionIntroduction.Introduction:Inledning`,
+        page: 'introduction'
+      });
+    }
   }
 
   ngOnChanges(changes: SimpleChanges) {
@@ -81,6 +113,12 @@ export class TextChangerComponent implements OnChanges, OnDestroy, OnInit {
       this.tocItemId += ';' + this.textPosition;
     }
 
+    if (!firstChange) {
+      console.log('changing from ngChanges');
+      this.updateCurrentText();
+    }
+
+    /*
     if (
       !firstChange &&
       this.parentPageType === 'page-text' &&
@@ -96,40 +134,118 @@ export class TextChangerComponent implements OnChanges, OnDestroy, OnInit {
     } else if (
       !firstChange &&
       this.parentPageType === 'page-text' &&
-      this.flattened.length > 0 &&
+      this.flattenedToc.length > 0 &&
       changes.textItemID &&
       this.collectionId === changes.textItemID.previousValue.split('_')[0]
     ) {
       // Different read text, same collection
       this.setCurrentPreviousAndNextItemsFromFlattenedToc(this.tocItemId);
+    } else if (
+      !firstChange &&
+      this.parentPageType !== 'page-text' &&
+      this.collectionId === changes.textItemID.previousValue.split('_')[0]
+    ) {
+      // Different parent page type, same collection
+      this.setItems();
     } else if (!firstChange) {
       // Different collection or parent page type
       this.loadData();
     }
+    */
   }
 
   ngOnInit() {
+    console.log('text changer init', this.textItemID);
     this.mobileMode = this.platformService.isMobile();
 
-    this.activeTocOrderSubscription = this.tocService.getActiveTocOrder().subscribe(
+    this.activeTocOrderSubscr = this.tocService.getActiveTocOrder().subscribe(
       (tocOrder: string) => {
-        if (tocOrder !== this.activeTocOrder) {
+        if (
+          tocOrder !== this.activeTocOrder &&
+          this.flattenedToc.length &&
+          this.textItemID
+        ) {
           this.activeTocOrder = tocOrder;
-          if (this.textItemID) {
-            this.loadData();
-          }
+          
+        }
+      }
+    );
+
+    this.tocSubscr = this.tocService.getCurrentFlattenedCollectionTOC().subscribe(
+      (toc: any[]) => {
+        if (
+          toc.length &&
+          this.collectionId === toc[0].itemId.split('_')[0]
+        ) {
+          this.flattenedToc = this.frontMatterPages.concat(toc);
+          this.updateCurrentText();
         }
       }
     );
   }
 
   ngOnDestroy() {
-    this.activeTocOrderSubscription?.unsubscribe();
+    this.activeTocOrderSubscr?.unsubscribe();
+    this.tocSubscr?.unsubscribe();
   }
 
-  loadData() {
-    this.flattened = [];
+  private updateCurrentText() {
+    const foundTextIndex = this.getCurrentTextIndex();
+    if (foundTextIndex > -1) {
+      console.log(this.flattenedToc[foundTextIndex]);
+      this.currentTocTextIndex = foundTextIndex;
+    } else {
+      console.error('Unable to find the current text in flattenedTOC in text-changer component.');
+      this.currentTocTextIndex = 0;
+    }
+  }
 
+  private getCurrentTextIndex() {
+    let currentTextIndex = -1;
+    for (let i = 0; i < this.flattenedToc.length; i++) {
+      if (!this.flattenedToc[i].page) {
+        // Text page
+        if (this.flattenedToc[i].itemId === this.tocItemId) {
+          return i;
+        }
+      } else if (this.flattenedToc[i].page === this.parentPageType) {
+        // Front matter page
+        return i;
+      }
+    }
+    return currentTextIndex;
+  }
+
+  openText(tocIndex: number) {
+    const item = this.flattenedToc[tocIndex];
+    if (item.page !== undefined) {
+      // Open text in page-cover, page-title, page-foreword or page-introduction
+      this.router.navigate(['/collection', this.collectionId, item.page]);
+    } else {
+      // Open text in page-text
+      let itemIdParts = item.itemId.split(';');
+      const positionId = itemIdParts.length > 1 ? itemIdParts[1] : '';
+      itemIdParts = itemIdParts[0].split('_');
+      const collectionId = itemIdParts[0];
+      const publicationId = itemIdParts[1];
+      const chapterId = itemIdParts.length > 2 ? itemIdParts[2] : '';
+
+      this.router.navigate(
+        (
+          chapterId ? ['/collection', collectionId, 'text', publicationId, chapterId] :
+          ['/collection', collectionId, 'text', publicationId]
+        ),
+        (positionId ? { queryParams: { position: positionId } } : {})
+      );
+    }
+  }
+
+  private loadData() {
+    this.flattenedToc = [];
+    this.setItems();
+  }
+
+  private setItems() {
     if (this.parentPageType === 'page-cover') {
       // Initialised from page-cover
       this.currentItemTitle = $localize`:@@CollectionCover.Cover:Omslag`;
@@ -234,14 +350,14 @@ export class TextChangerComponent implements OnChanges, OnDestroy, OnInit {
             } else if (this.activeTocOrder === 'categorical') {
               this.sortFlattenedTocCategorically();
             }
-            for (let i = 0; i < this.flattened.length; i++) {
+            for (let i = 0; i < this.flattenedToc.length; i++) {
               if (
-                this.flattened[i].itemId !== undefined &&
-                this.flattened[i].type !== 'subtitle' &&
-                this.flattened[i].type !== 'section_title'
+                this.flattenedToc[i].itemId !== undefined &&
+                this.flattenedToc[i].type !== 'subtitle' &&
+                this.flattenedToc[i].type !== 'section_title'
               ) {
-                this.nextItemTitle = this.flattened[i].text;
-                this.nextItem = this.flattened[i];
+                this.nextItemTitle = this.flattenedToc[i].text;
+                this.nextItem = this.flattenedToc[i];
                 break;
               }
             }
@@ -361,7 +477,7 @@ export class TextChangerComponent implements OnChanges, OnDestroy, OnInit {
   }
 
   findNext(toc: any) {
-    if (this.flattened.length < 1) {
+    if (this.flattenedToc.length < 1) {
       this.flatten(toc);
     }
     if (this.activeTocOrder === 'alphabetical') {
@@ -391,8 +507,8 @@ export class TextChangerComponent implements OnChanges, OnDestroy, OnInit {
     // get the id of the current toc item in the flattened toc array
     let currentId = 0;
     let currentItemFound = false;
-    for (let i = 0; i < this.flattened.length; i ++) {
-      if ( this.flattened[i].itemId === currentTextId ) {
+    for (let i = 0; i < this.flattenedToc.length; i ++) {
+      if ( this.flattenedToc[i].itemId === currentTextId ) {
         currentId = i;
         currentItemFound = true;
         break;
@@ -401,7 +517,7 @@ export class TextChangerComponent implements OnChanges, OnDestroy, OnInit {
     let nextId = 0 as any;
     let prevId = 0 as any;
     // last item
-    if ((currentId + 1) === this.flattened.length) {
+    if ((currentId + 1) === this.flattenedToc.length) {
       // nextId = 0; // this line makes the text-changer into a loop
       nextId = null;
     } else {
@@ -420,7 +536,7 @@ export class TextChangerComponent implements OnChanges, OnDestroy, OnInit {
     if (this.parentPageType === 'page-text') {
       if (nextId !== null) {
         this.lastItem = false;
-        this.nextItem = this.flattened[nextId];
+        this.nextItem = this.flattenedToc[nextId];
         if (this.nextItem !== undefined && this.nextItem.text !== undefined) {
           this.nextItemTitle = String(this.nextItem.text);
         } else {
@@ -436,7 +552,7 @@ export class TextChangerComponent implements OnChanges, OnDestroy, OnInit {
     if (prevId !== null) {
       if (this.parentPageType === 'page-text') {
         this.firstItem = false;
-        this.prevItem = this.flattened[prevId];
+        this.prevItem = this.flattenedToc[prevId];
         if (this.prevItem !== undefined && this.prevItem.text !== undefined) {
           this.prevItemTitle = String(this.prevItem.text);
         } else {
@@ -464,8 +580,8 @@ export class TextChangerComponent implements OnChanges, OnDestroy, OnInit {
     }
 
     if (this.parentPageType === 'page-text') {
-      if (this.flattened[currentId] !== undefined) {
-        this.currentItemTitle = String(this.flattened[currentId].text);
+      if (this.flattenedToc[currentId] !== undefined) {
+        this.currentItemTitle = String(this.flattenedToc[currentId].text);
       } else {
         this.currentItemTitle = '';
       }
@@ -478,7 +594,7 @@ export class TextChangerComponent implements OnChanges, OnDestroy, OnInit {
       if (toc.children) {
         for (let i = 0, count = toc.children.length; i < count; i++) {
           if (toc.children[i].itemId !== undefined && toc.children[i].itemId !== '') {
-            this.flattened.push(toc.children[i]);
+            this.flattenedToc.push(toc.children[i]);
           }
           this.flatten(toc.children[i]);
         }
@@ -487,8 +603,8 @@ export class TextChangerComponent implements OnChanges, OnDestroy, OnInit {
   }
 
   sortFlattenedTocAlphabetically() {
-    if (this.flattened.length > 0) {
-      this.flattened.sort(
+    if (this.flattenedToc.length > 0) {
+      this.flattenedToc.sort(
         (a: any, b: any) =>
           (a.text !== undefined && b.text !== undefined) ?
             ((String(a.text).toUpperCase() < String(b.text).toUpperCase()) ? -1 :
@@ -498,8 +614,8 @@ export class TextChangerComponent implements OnChanges, OnDestroy, OnInit {
   }
 
   sortFlattenedTocChronologically() {
-    if (this.flattened.length > 0) {
-      this.flattened.sort(
+    if (this.flattenedToc.length > 0) {
+      this.flattenedToc.sort(
         (a: any, b: any) =>
           (a.date < b.date) ? -1 : (a.date > b.date) ? 1 : 0
       );
@@ -510,19 +626,19 @@ export class TextChangerComponent implements OnChanges, OnDestroy, OnInit {
     const primarySortKey = config.component?.collectionSideMenu?.categoricalSortingPrimaryKey ?? '';
     const secondarySortKey = config.component?.collectionSideMenu?.categoricalSortingSecondaryKey ?? '';
 
-    if (this.flattened.length > 0 && primarySortKey && secondarySortKey) {
+    if (this.flattenedToc.length > 0 && primarySortKey && secondarySortKey) {
       if (primarySortKey === 'date') {
-        sortArrayOfObjectsNumerically(this.flattened, primarySortKey, 'asc');
+        sortArrayOfObjectsNumerically(this.flattenedToc, primarySortKey, 'asc');
       } else {
-        sortArrayOfObjectsAlphabetically(this.flattened, primarySortKey);
+        sortArrayOfObjectsAlphabetically(this.flattenedToc, primarySortKey);
       }
 
       const categorized: any[] = [];
       let categoryItems: any[] = [];
       let prevCategory = '';
 
-      for (let i = 0; i < this.flattened.length; i++) {
-        const currentCategory = this.flattened[i][primarySortKey];
+      for (let i = 0; i < this.flattenedToc.length; i++) {
+        const currentCategory = this.flattenedToc[i][primarySortKey];
         if (i < 1) {
           prevCategory = currentCategory;
         }
@@ -535,7 +651,7 @@ export class TextChangerComponent implements OnChanges, OnDestroy, OnInit {
           categorized.push(categoryItems);
           categoryItems = [];
         }
-        categoryItems.push(this.flattened[i]);
+        categoryItems.push(this.flattenedToc[i]);
       }
 
       if (categoryItems.length > 0) {
@@ -546,7 +662,7 @@ export class TextChangerComponent implements OnChanges, OnDestroy, OnInit {
         }
         categorized.push(categoryItems);
       }
-      this.flattened = categorized.flat();
+      this.flattenedToc = categorized.flat();
     }
   }
 

@@ -1,8 +1,9 @@
 import { Inject, Injectable, LOCALE_ID } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { BehaviorSubject, catchError, map, Observable, of } from 'rxjs';
+import { BehaviorSubject, catchError, map, Observable, of, tap } from 'rxjs';
 
 import { config } from '@config';
+import { flattenObjectTree } from '@utility-functions';
 
 
 @Injectable({
@@ -11,7 +12,10 @@ import { config } from '@config';
 export class CollectionTableOfContentsService {
   private activeTocOrder: BehaviorSubject<string> = new BehaviorSubject('default');
   private apiURL: string = '';
-  private cachedTableOfContents: any = {};
+  private cachedTOC: any = {};
+  private cachedFlattenedTOC: any[] = [];
+  private currentCollectionTOC$: BehaviorSubject<any> = new BehaviorSubject(null);
+  private currentFlattenedCollectionTOC$ = new BehaviorSubject<any[]>([]);
   private multilingualTOC: boolean = false;
 
   constructor(
@@ -25,18 +29,42 @@ export class CollectionTableOfContentsService {
   }
 
   getTableOfContents(id: string): Observable<any> {
-    if (this.cachedTableOfContents?.collectionId === id) {
-      return of(this.cachedTableOfContents);
+    if (this.cachedTOC?.collectionId === id) {
+      return of(this.cachedTOC);
     } else {
       const locale = this.multilingualTOC ? '/' + this.activeLocale : '';
       const endpoint = `${this.apiURL}/toc/${id}${locale}`;
 
       return this.http.get(endpoint).pipe(
-        map((res: any) => {
-          this.cachedTableOfContents = res;
-          return res;
+        tap({
+          next: (res: any) => {
+            this.cachedTOC = res;
+            this.cachedFlattenedTOC = flattenObjectTree(res, 'children', 'itemId');
+          },
+          error: error => {
+            this.cachedTOC = {};
+            this.cachedFlattenedTOC = [];
+          }
         }),
-        catchError(this.handleError)
+        catchError((e: any) => {
+          return of({});
+        })
+      );
+    }
+  }
+
+  getFlattenedTableOfContents(id: string): Observable<any[]> {
+    if (this.cachedTOC?.collectionId === id) {
+      return of(this.cachedFlattenedTOC);
+    } else {
+      return this.getTableOfContents(id).pipe(
+        map((toc: any) => {
+          if (toc?.collectionId === id) {
+            return this.cachedFlattenedTOC;
+          } else {
+            return [];
+          }
+        })
       );
     }
   }
@@ -61,6 +89,26 @@ export class CollectionTableOfContentsService {
     return this.activeTocOrder.asObservable();
   }
 
+  setCurrentCollectionTOC(collectionId: string) {
+    if (collectionId) {
+      this.getTableOfContents(collectionId).subscribe((toc: any) => {
+        this.currentCollectionTOC$.next(toc);
+        this.currentFlattenedCollectionTOC$.next(this.cachedFlattenedTOC);
+      });
+    } else {
+      this.currentCollectionTOC$.next({});
+      this.currentFlattenedCollectionTOC$.next([]);
+    }
+  }
+
+  getCurrentCollectionTOC(): Observable<any> {
+    return this.currentCollectionTOC$.asObservable();
+  }
+
+  getCurrentFlattenedCollectionTOC(): Observable<any[]> {
+    return this.currentFlattenedCollectionTOC$.asObservable();
+  }
+
   getStaticTableOfContents(id: string): Observable<string> {
     const headers = new HttpHeaders({
       'Content-Type': 'text/html; charset=UTF-8'
@@ -73,18 +121,6 @@ export class CollectionTableOfContentsService {
         return of('');
       })
     );
-  }
-
-  private async handleError(error: Response | any) {
-    let errMsg: string;
-    if (error instanceof Response) {
-      const body = (await error.json()) || '';
-      const err = body.error || JSON.stringify(body);
-      errMsg = `${error.status} - ${error.statusText || ''} ${err}`;
-    } else {
-      errMsg = error.message ? error.message : error.toString();
-    }
-    throw errMsg;
   }
 
 }

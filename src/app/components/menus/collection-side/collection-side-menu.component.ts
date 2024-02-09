@@ -133,8 +133,7 @@ export class CollectionSideMenuComponent implements OnInit, OnChanges, OnDestroy
   private updateHighlightedMenuItem(scrollTimeout: number = 600) {
     const itemId = this.getItemId();
     this.highlightedMenu = itemId;
-    const isFrontMatterPage = this.setTitleForFrontMatterPages();
-    if (!isFrontMatterPage) {
+    if (this.initialUrlSegments[2].path === 'text') {
       const item = this.recursiveFindMenuItem(this.collectionMenu, itemId);
       if (item && !this.selectedMenu.includes(item.itemId || item.nodeId)) {
         this.selectedMenu.push(item.itemId || item.nodeId);
@@ -143,26 +142,6 @@ export class CollectionSideMenuComponent implements OnInit, OnChanges, OnDestroy
     // Angular is not good at detecting changes within arrays and objects, so we have to manually trigger an update of the view
     this.cref.detectChanges();
     this.scrollHighlightedMenuItemIntoView(itemId, scrollTimeout);
-  }
-
-  private setTitleForFrontMatterPages() {
-    const page = this.initialUrlSegments[2].path;
-    switch (page) {
-      case 'cover':
-        this.headService.setTitle([$localize`:@@CollectionCover.Cover:Omslag`, this.collectionTitle]);
-        return true;
-      case 'title':
-        this.headService.setTitle([$localize`:@@CollectionTitle.TitlePage:Titelblad`, this.collectionTitle]);
-        return true;
-      case 'foreword':
-        this.headService.setTitle([$localize`:@@CollectionForeword.Foreword:Förord`, this.collectionTitle]);
-        return true;
-      case 'introduction':
-        this.headService.setTitle([$localize`:@@CollectionIntroduction.Introduction:Inledning`, this.collectionTitle]);
-        return true;
-      default:
-        return false;
-    }
   }
 
   private getItemId(): string {
@@ -177,37 +156,20 @@ export class CollectionSideMenuComponent implements OnInit, OnChanges, OnDestroy
 
   /**
    * Recursively search array for an object that has an 'itemId' property
-   * equal to 'searchItemId'. If found, the page title is set to the item's
-   * title and the item is marked as the selected item in the side menu.
+   * equal to 'searchItemId'. If found, the item is marked as the selected
+   * item in the side menu.
    * @param array 
    * @param searchItemId 
    * @param setTitleOnly if true, the matching item is not set as selected
    * in the menu, it's title is just set as the page title.
    */
-  private recursiveFindMenuItem(
-    array: any[],
-    searchItemId: string,
-    setTitleOnly: boolean = false
-  ): any {
+  private recursiveFindMenuItem(array: any[], searchItemId: string): any {
     return array.find(item => {
       if (item.itemId === searchItemId) {
-        if (item.itemId.split(';')[1]) {
-          // The itemId contains a position, so we need to find it's parent
-          // that doesn't contain a position, since we don't want positioned
-          // item's titles to be set as page titles.
-          this.recursiveFindMenuItem(
-            this.collectionMenu, item.itemId.split(';')[0], true
-          );
-        } else {
-          this.headService.setTitle([String(item.text), this.collectionTitle]);
-        }
         return item;
       } else if (item.children) {
-        const result = this.recursiveFindMenuItem(
-          item.children, searchItemId, setTitleOnly
-        );
+        const result = this.recursiveFindMenuItem(item.children, searchItemId);
         if (
-          !setTitleOnly &&
           result &&
           !this.selectedMenu.includes(result.itemId || result.nodeId)
         ) {
@@ -272,6 +234,7 @@ export class CollectionSideMenuComponent implements OnInit, OnChanges, OnDestroy
     return sortOptions;
   }
 
+  /** Has been copied to toc-service, should be used from there */
   private constructAlphabeticalMenu(flattenedMenuData: any[]) {
     const alphabeticalMenu: any[] = [];
 

@@ -4,28 +4,30 @@
       [class.desktop-mode]="!mobileMode"
 >
   <div class="prev-wrapper">
-    <button *ngIf="currentTocTextIndex > 0"
+    <a *ngIf="currentTocTextIndex > 0"
           class="prev-button"
-          (click)="openText(currentTocTextIndex - 1)"
+          [routerLink]="flattenedToc[currentTocTextIndex - 1].itemId | collectionPagePath: flattenedToc[currentTocTextIndex - 1].page"
+          [queryParams]="flattenedToc[currentTocTextIndex - 1].itemId | collectionPagePositionQueryparam"
     >
       <ion-icon name="arrow-back"></ion-icon>
       <span *ngIf="!mobileMode" class="prev-text-name">
         {{flattenedToc[currentTocTextIndex - 1].text}}
       </span>
-    </button>
+    </a>
   </div>
   <div class="current-text-name">
     <p>{{flattenedToc[currentTocTextIndex].text}} {{flattenedToc[currentTocTextIndex].text_two || ''}}</p>
   </div>
   <div class="next-wrapper">
-    <button *ngIf="currentTocTextIndex < flattenedToc.length - 1"
+    <a *ngIf="currentTocTextIndex < flattenedToc.length - 1"
           class="next-button"
-          (click)="openText(currentTocTextIndex + 1)"
+          [routerLink]="flattenedToc[currentTocTextIndex + 1].itemId | collectionPagePath: flattenedToc[currentTocTextIndex + 1].page"
+          [queryParams]="flattenedToc[currentTocTextIndex + 1].itemId | collectionPagePositionQueryparam"
     >
       <span *ngIf="!mobileMode" class="next-text-name">
         {{flattenedToc[currentTocTextIndex + 1].text}}
       </span>
       <ion-icon name="arrow-forward"></ion-icon>
-    </button>
+    </a>
   </div>
 </div>

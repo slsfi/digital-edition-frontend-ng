@@ -3,7 +3,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { BehaviorSubject, catchError, map, Observable, of, tap } from 'rxjs';
 
 import { config } from '@config';
-import { flattenObjectTree } from '@utility-functions';
+import { flattenObjectTree, sortArrayOfObjectsAlphabetically, sortArrayOfObjectsNumerically } from '@utility-functions';
 
 
 @Injectable({
@@ -13,9 +13,9 @@ export class CollectionTableOfContentsService {
   private activeTocOrder: BehaviorSubject<string> = new BehaviorSubject('default');
   private apiURL: string = '';
   private cachedTOC: any = {};
-  private cachedFlattenedTOC: any[] = [];
-  private currentCollectionTOC$: BehaviorSubject<any> = new BehaviorSubject(null);
-  private currentFlattenedCollectionTOC$ = new BehaviorSubject<any[]>([]);
+  private cachedFlattenedTOC: any = {};
+  private currentCollectionTOC$ = new BehaviorSubject<any>(null);
+  private currentFlattenedCollectionTOC$ = new BehaviorSubject<any>(null);
   private multilingualTOC: boolean = false;
 
   constructor(
@@ -39,11 +39,15 @@ export class CollectionTableOfContentsService {
         tap({
           next: (res: any) => {
             this.cachedTOC = res;
-            this.cachedFlattenedTOC = flattenObjectTree(res, 'children', 'itemId');
+            this.cachedFlattenedTOC = {
+              collectionId: res.collectionId,
+              text: res.text,
+              children: flattenObjectTree(res, 'children', 'itemId')
+            };
           },
           error: error => {
             this.cachedTOC = {};
-            this.cachedFlattenedTOC = [];
+            this.cachedFlattenedTOC = {};
           }
         }),
         catchError((e: any) => {
@@ -53,8 +57,8 @@ export class CollectionTableOfContentsService {
     }
   }
 
-  getFlattenedTableOfContents(id: string): Observable<any[]> {
-    if (this.cachedTOC?.collectionId === id) {
+  getFlattenedTableOfContents(id: string): Observable<any> {
+    if (this.cachedFlattenedTOC?.collectionId === id) {
       return of(this.cachedFlattenedTOC);
     } else {
       return this.getTableOfContents(id).pipe(
@@ -62,7 +66,7 @@ export class CollectionTableOfContentsService {
           if (toc?.collectionId === id) {
             return this.cachedFlattenedTOC;
           } else {
-            return [];
+            return {};
           }
         })
       );
@@ -105,7 +109,7 @@ export class CollectionTableOfContentsService {
     return this.currentCollectionTOC$.asObservable();
   }
 
-  getCurrentFlattenedCollectionTOC(): Observable<any[]> {
+  getCurrentFlattenedCollectionTOC(): Observable<any> {
     return this.currentFlattenedCollectionTOC$.asObservable();
   }
 
@@ -121,6 +125,104 @@ export class CollectionTableOfContentsService {
         return of('');
       })
     );
+  }
+
+  /**
+   * Given a flattened collection TOC as the array `flattenedMenuData`,
+   * returns a new array where the TOC items have been sorted alphabetically
+   * (ascendingly) on the 'text' property of each item.
+   */
+  constructAlphabeticalMenu(flattenedMenuData: any[]) {
+    const alphabeticalMenu: any[] = [];
+
+    for (const child of flattenedMenuData) {
+      if (child.itemId) {
+        alphabeticalMenu.push(child);
+      }
+    }
+
+    sortArrayOfObjectsAlphabetically(alphabeticalMenu, 'text');
+    return alphabeticalMenu;
+  }
+
+  /**
+   * Given a flattened collection TOC as the array `flattenedMenuData`,
+   * returns a new array where the TOC items have been sorted according
+   * to the `primarySortKey` and (optional) `secondarySortKey` properties.
+   * If `returnFlattened` is true, the returned array is flattened, retaining
+   * only items with `itemId` property.
+   */
+  constructCategoricalMenu(
+    flattenedMenuData: any[],
+    primarySortKey: string,
+    secondarySortKey?: string,
+    returnFlattened: boolean = false
+  ) {
+    const orderedList: any[] = [];
+
+    for (const child of flattenedMenuData) {
+      if (
+        child[primarySortKey] &&
+        ((secondarySortKey && child[secondarySortKey]) || !secondarySortKey) &&
+        child.itemId
+      ) {
+        orderedList.push(child);
+      }
+    }
+
+    if (primarySortKey === 'date') {
+      sortArrayOfObjectsNumerically(orderedList, primarySortKey, 'asc');
+    } else {
+      sortArrayOfObjectsAlphabetically(orderedList, primarySortKey);
+    }
+
+    const categoricalMenu: any[] = [];
+    let childItems: any[] = [];
+    let prevCategory = '';
+
+    for (let i = 0; i < orderedList.length; i++) {
+      let currentCategory = orderedList[i][primarySortKey];
+      if (primarySortKey === 'date') {
+        currentCategory = String(currentCategory).split('-')[0];
+      }
+
+      if (prevCategory === '') {
+        prevCategory = currentCategory;
+        categoricalMenu.push({type: 'subtitle', collapsed: true, text: prevCategory, children: []});
+      }
+
+      if (prevCategory !== currentCategory) {
+        if (secondarySortKey === 'date') {
+          sortArrayOfObjectsNumerically(childItems, secondarySortKey, 'asc');
+        } else if (secondarySortKey) {
+          sortArrayOfObjectsAlphabetically(childItems, secondarySortKey);
+        }
+        categoricalMenu[categoricalMenu.length - 1].children = childItems;
+        childItems = [];
+        prevCategory = currentCategory;
+        categoricalMenu.push({type: 'subtitle', collapsed: true, text: prevCategory, children: []});
+      }
+      childItems.push(orderedList[i]);
+    }
+
+    if (childItems.length > 0) {
+      if (secondarySortKey === 'date') {
+        sortArrayOfObjectsNumerically(childItems, secondarySortKey, 'asc');
+      } else if (secondarySortKey) {
+        sortArrayOfObjectsAlphabetically(childItems, secondarySortKey);
+      }
+    }
+
+    if (categoricalMenu.length > 0) {
+      categoricalMenu[categoricalMenu.length - 1].children = childItems;
+    } else {
+      categoricalMenu[0] = {};
+      categoricalMenu[0].children = childItems;
+    }
+
+    return returnFlattened
+          ? flattenObjectTree({children: categoricalMenu}, 'children', 'itemId')
+          : categoricalMenu;
   }
 
 }

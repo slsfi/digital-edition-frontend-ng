@@ -17,8 +17,8 @@ import { isBrowser } from '@utility-functions';
 export class AppComponent implements OnDestroy, OnInit {
   appIsStarting: boolean = true;
   collectionID: string = '';
-  collectionSideMenuInitialUrlSegments: UrlSegment[];
-  collectionSideMenuInitialQueryParams: Params;
+  collSideMenuUrlSegments: UrlSegment[];
+  collSideMenuQueryParams: Params;
   currentRouterUrl: string = '';
   currentUrlSegments: UrlSegment[] = [];
   enableRouterLoadingBar: boolean = false;
@@ -66,11 +66,11 @@ export class AppComponent implements OnDestroy, OnInit {
         
         if (this.collectionID !== newCollectionID) {
           this.collectionID = newCollectionID;
-          this.tocService.setCurrentCollectionTOC(this.collectionID);
+          this.tocService.setCurrentCollectionToc(this.collectionID);
         }
 
-        this.collectionSideMenuInitialUrlSegments = this.currentUrlSegments;
-        this.collectionSideMenuInitialQueryParams = currentUrlTree?.queryParams;
+        this.collSideMenuUrlSegments = this.currentUrlSegments;
+        this.collSideMenuQueryParams = currentUrlTree?.queryParams;
         this.showCollectionSideMenu = true;
       } else {
         // If the app is started on a collection-page the main side menu

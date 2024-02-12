@@ -2,7 +2,7 @@ import { Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@
 import { NgIf } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { IonicModule } from '@ionic/angular';
-import { combineLatest, distinctUntilChanged, Subscription } from 'rxjs';
+import { Subscription } from 'rxjs';
 
 import { config } from '@config';
 import { CollectionTableOfContentsService } from '@services/collection-toc.service';
@@ -31,9 +31,6 @@ export class TextChangerComponent implements OnChanges, OnDestroy, OnInit {
   @Input() textItemID: string = '';
   @Input() textPosition: string = '';
 
-  activeTocOrder: string = '';
-  categoricalTocPrimarySortKey: string = 'date';
-  categoricalTocSecondarySortKey: string = '';
   collectionId: string = '';
   collectionTitle: string = '';
   currentTocTextIndex: number = 0;
@@ -42,16 +39,12 @@ export class TextChangerComponent implements OnChanges, OnDestroy, OnInit {
   mobileMode: boolean = false;
   tocItemId: string = '';
   tocSubscr: Subscription | null = null;
-  unsortedFlattenedToc: any[] = [];
 
   constructor(
     private headService: DocumentHeadService,
     private platformService: PlatformService,
     private tocService: CollectionTableOfContentsService
-  ) {
-    this.categoricalTocPrimarySortKey = config.component?.collectionSideMenu?.categoricalSortingPrimaryKey ?? 'date';
-    this.categoricalTocSecondarySortKey = config.component?.collectionSideMenu?.categoricalSortingSecondaryKey ?? '';
-  }
+  ) {}
 
   ngOnChanges(changes: SimpleChanges) {
     let firstChange = true;
@@ -84,55 +77,22 @@ export class TextChangerComponent implements OnChanges, OnDestroy, OnInit {
     this.updateVariables();
     this.setFrontmatterPagesArray();
 
-    // Subscribe to BehaviorSubjects emitting the current sorting of
-    // the collection TOC as well as the flattened TOC itself.
-    // TODO: explore how sorted flattened TOCs could be cached so they
-    // TODO: don't need to be recreated on every text change.
-    this.tocSubscr = combineLatest([
-      this.tocService.getActiveTocOrder().pipe(distinctUntilChanged()),
-      this.tocService.getCurrentFlattenedCollectionTOC()
-    ]).subscribe(([tocOrder, toc]) => {
-      if (
-        toc?.children?.length &&
-        this.collectionId === toc?.collectionId
-      ) {
-        this.collectionTitle = toc.text || '';
-        this.unsortedFlattenedToc = toc.children;
-        let sortedToc = toc.children;
-        if (tocOrder !== this.activeTocOrder) {
-          this.activeTocOrder = tocOrder;
-          if (
-            this.activeTocOrder === 'alphabetical' &&
-            config.component?.collectionSideMenu?.sortableCollectionsAlphabetical?.includes(this.collectionId)
-          ) {
-            sortedToc = this.tocService.constructAlphabeticalMenu(toc.children);
-          } else if (
-            this.activeTocOrder === 'chronological' &&
-            config.component?.collectionSideMenu?.sortableCollectionsChronological?.includes(this.collectionId)
-          ) {
-            sortedToc = this.tocService.constructCategoricalMenu(
-              toc.children, 'date', undefined, true
-            );
-          } else if (
-            this.activeTocOrder === 'categorical' &&
-            config.component?.collectionSideMenu?.sortableCollectionsCategorical?.includes(this.collectionId)
-          ) {
-            sortedToc = this.tocService.constructCategoricalMenu(
-              toc.children,
-              this.categoricalTocPrimarySortKey,
-              this.categoricalTocSecondarySortKey,
-              true
-            )
-          } else if (this.unsortedFlattenedToc.length) {
-            sortedToc = this.unsortedFlattenedToc;
-          }
+    // Subscribe to BehaviorSubject emitting the current (flattened) TOC.
+    // The received TOC is already properly ordered.
+    this.tocSubscr = this.tocService.getCurrentFlattenedCollectionToc().subscribe(
+      (toc: any) => {
+        if (
+          toc?.children?.length &&
+          this.collectionId === toc?.collectionId
+        ) {
+          this.collectionTitle = toc.text || '';
+          // Prepend the frontmatter pages to the TOC array
+          this.flattenedToc = this.frontMatterPages.concat(toc.children);
+          // Search for the current text in the array and display it
+          this.updateCurrentText();
         }
-        // Prepend the frontmatter pages to the TOC array
-        this.flattenedToc = this.frontMatterPages.concat(sortedToc);
-        // Search for the current text in the array and display it
-        this.updateCurrentText();
       }
-    });
+    );
   }
 
   ngOnDestroy() {
@@ -205,9 +165,11 @@ export class TextChangerComponent implements OnChanges, OnDestroy, OnInit {
         ({ itemId }) => itemId === this.textItemID
       );
     }
-    this.headService.setTitle([
-      this.flattenedToc[titleItemIndex].text || '', this.collectionTitle
-    ]);
+
+    const itemTitle = titleItemIndex > -1
+          ? this.flattenedToc[titleItemIndex].text || ''
+          : this.flattenedToc[this.currentTocTextIndex].text || '';
+    this.headService.setTitle([itemTitle, this.collectionTitle]);
   }
 
   private getCurrentTextIndex() {

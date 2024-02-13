@@ -37,7 +37,7 @@ export class CollectionTableOfContentsService {
   getTableOfContents(id: string): Observable<any> {
     if (this.currentUnorderedToc?.collectionId === id) {
       return of(this.currentUnorderedToc);
-    } else {
+    } else if (id) {
       const locale = this.multilingualToc ? '/' + this.activeLocale : '';
       const endpoint = `${this.apiURL}/toc/${id}${locale}`;
 
@@ -46,23 +46,8 @@ export class CollectionTableOfContentsService {
           return of({});
         })
       );
-    }
-  }
-
-  /* NOT IN USE YET */
-  getFlattenedTableOfContents(id: string): Observable<any> {
-    if (this.currentFlattenedToc?.collectionId === id) {
-      return of(this.currentFlattenedToc);
     } else {
-      return this.getTableOfContents(id).pipe(
-        map((toc: any) => {
-          if (toc?.collectionId === id) {
-            return this.currentFlattenedToc;
-          } else {
-            return {};
-          }
-        })
-      );
+      return of({});
     }
   }
 

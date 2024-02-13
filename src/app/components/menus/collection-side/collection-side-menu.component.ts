@@ -25,7 +25,7 @@ export class CollectionSideMenuComponent implements OnInit, OnChanges, OnDestroy
   @Input() routeUrlSegments: UrlSegment[];
   @Input() sideMenuToggled: boolean = true;
 
-  activeMenuSorting: string = 'default';
+  activeMenuOrder: string = '';
   collectionMenu: any[] = [];
   collectionTitle: string = '';
   currentMenuItemId: string = '';
@@ -103,8 +103,8 @@ export class CollectionSideMenuComponent implements OnInit, OnChanges, OnDestroy
         this.selectedMenu = [];
         this.currentMenuItemId = '';
 
-        const scrollTimeout = this.activeMenuSorting !== toc.order ? 1000 : 700;
-        this.activeMenuSorting = toc.order;
+        const scrollTimeout = this.activeMenuOrder !== toc?.order ? 1000 : 700;
+        this.activeMenuOrder = toc?.order || 'default';
 
         if (toc?.children?.length) {
           this.recursiveInitializeSelectedMenu(toc.children);
@@ -236,7 +236,7 @@ export class CollectionSideMenuComponent implements OnInit, OnChanges, OnDestroy
   }
 
   async setActiveMenuSorting(event: any) {
-    if (this.activeMenuSorting !== event.detail.value) {
+    if (this.activeMenuOrder !== event.detail.value) {
       this.tocService.setCurrentCollectionToc(
         this.collectionID, event.detail.value
       );

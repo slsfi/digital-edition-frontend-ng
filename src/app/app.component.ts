@@ -81,6 +81,10 @@ export class AppComponent implements OnDestroy, OnInit {
         // displayed.
         this.mountMainSideMenu = true;
         this.showCollectionSideMenu = false;
+        // Clear the collection TOC loaded in the collection side menu
+        // to prevent the previous TOC from flashing in view when
+        // entering another collection.
+        this.tocService.setCurrentCollectionToc('');
       }
 
       // Hide side menu if:

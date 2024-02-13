@@ -19,7 +19,7 @@
           i18n-cancelText="@@BasicActions.Cancel"
           [interfaceOptions]="sortSelectOptions"
           (ionChange)="setActiveMenuSorting($event)"
-          [value]="activeMenuSorting"
+          [value]="activeMenuOrder"
     >
       <ion-select-option
             value="default"
@@ -39,7 +39,7 @@
       >Kategorivis</ion-select-option>
     </ion-select>
   </div>
-  <ul role="menu" [ngClass]="activeMenuSorting + '-menu-sorting'">
+  <ul role="menu" [ngClass]="activeMenuOrder + '-menu-sorting'">
     <li *ngIf="enableCover" [attr.aria-current]="routeUrlSegments[2].path === 'cover' ? 'page' : null" role="menuitem" data-id="toc_cover">
       <a routerLink="{{collectionID | collectionPagePath: 'cover'}}" [class.menu-highlight]="routeUrlSegments[2].path === 'cover'">
         <span class="label" i18n="@@CollectionCover.Cover">Omslag</span>

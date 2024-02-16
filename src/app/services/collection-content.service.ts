@@ -13,6 +13,7 @@ export class CollectionContentService {
   previousReadViewTextId: string = '';
   readViewTextId: string = '';
   recentCollectionTextViews: any[] = [];
+  textPath: string = 'text';
 
   private apiURL: string = '';
 
@@ -22,20 +23,30 @@ export class CollectionContentService {
     const apiBaseURL = config.app?.backendBaseURL ?? '';
     const projectName = config.app?.projectNameDB ?? '';
     this.apiURL = apiBaseURL + '/' + projectName;
+
+    // Check config wether the HTML for collection texts (including texts
+    // for frontmatter pages like foreword) should be fetched from the
+    // endpoints that provide prerendered HTML of the texts, or HTML that
+    // is transformed from XML to HTML on-the-fly for each request
+    // (this is the default behaviour). This does not apply to the
+    // endpoints for fetching downloadable versions of the texts.
+    this.textPath = config.collections?.usePrerenderedTextEndpoints
+          ? 'text-prerendered'
+          : 'text';
   }
 
   getTitle(id: string, language: string): Observable<any> {
-    const endpoint = `${this.apiURL}/text/${id}/1/tit/${language}`;
+    const endpoint = `${this.apiURL}/${this.textPath}/${id}/1/tit/${language}`;
     return this.http.get(endpoint);
   }
 
   getForeword(id: string, language: string): Observable<any> {
-    const endpoint = `${this.apiURL}/text/${id}/fore/${language}`;
+    const endpoint = `${this.apiURL}/${this.textPath}/${id}/fore/${language}`;
     return this.http.get(endpoint);
   }
 
   getIntroduction(id: string, language: string): Observable<any> {
-    const endpoint = `${this.apiURL}/text/${id}/1/inl/${language}`;
+    const endpoint = `${this.apiURL}/${this.textPath}/${id}/1/inl/${language}`;
     return this.http.get(endpoint);
   }
 
@@ -44,7 +55,7 @@ export class CollectionContentService {
     const idParts = id.split(';')[0].split('_');
     const ch_id = idParts.length > 2 ? '/' + idParts[2] : '';
     language = language ? '/' + language : '';
-    const endpoint = `${this.apiURL}/text/`
+    const endpoint = `${this.apiURL}/${this.textPath}/`
           + `${idParts[0]}/${idParts[1]}/${estFolder}${ch_id}${language}`;
     return this.http.get(endpoint);
   }
@@ -53,7 +64,7 @@ export class CollectionContentService {
     const idParts = id.split(';')[0].split('_');
     const ch_id = idParts.length > 2 ? '/' + idParts[2] : '';
     ms_id = ms_id ? '/' + ms_id : '';
-    const endpoint = `${this.apiURL}/text/${idParts[0]}/${idParts[1]}/ms${ms_id}${ch_id}`;
+    const endpoint = `${this.apiURL}/${this.textPath}/${idParts[0]}/${idParts[1]}/ms${ms_id}${ch_id}`;
     return this.http.get(endpoint);
   }
 
@@ -66,7 +77,7 @@ export class CollectionContentService {
   getVariants(id: string): Observable<any> {
     const idParts = id.split(';')[0].split('_');
     const ch_id = idParts.length > 2 ? '/' + idParts[2] : '';
-    const endpoint = `${this.apiURL}/text/${idParts[0]}/${idParts[1]}/var${ch_id}`;
+    const endpoint = `${this.apiURL}/${this.textPath}/${idParts[0]}/${idParts[1]}/var${ch_id}`;
     return this.http.get(endpoint);
   }
 

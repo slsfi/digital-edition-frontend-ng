@@ -67,7 +67,8 @@ export const config: Config = {
       [216, 219, 220, 218, 210, 208, 207, 214, 203, 213,
         202, 199, 221, 206, 201, 211, 200, 205, 215, 217,
         204, 212, 209]
-    ]
+    ],
+    usePrerenderedTextEndpoints: false
   },
   ebooks: [
     {

@@ -14,7 +14,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ### Fixes
 
-- Memory leak related to BehaviorSubject-subscription in the download-texts modal. Also, as a precation, unsubscribe from all route subscriptions on component destruction.
+- Memory leak related to BehaviorSubject-subscription in the download-texts modal. Also, as a precation, unsubscribe from all route subscriptions on component destruction. ([b32dfe4](https://github.com/slsfi/digital-edition-frontend-ng/commit/b32dfe4e74393ecb64aad4f83d415fa60f2f37bb))
 
 
 

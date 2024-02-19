@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+
+
+## [1.3.1] – 2024-02-19
+
 ### Fixes
 
 - Memory leak related to BehaviorSubject-subscription in the download-texts modal. Also, as a precation, unsubscribe from all route subscriptions on component destruction.
@@ -220,7 +224,8 @@ siteLogoDimensions: {
 
 
 
-[unreleased]: https://github.com/slsfi/digital-edition-frontend-ng/compare/1.3.0...HEAD
+[unreleased]: https://github.com/slsfi/digital-edition-frontend-ng/compare/1.3.1...HEAD
+[1.3.1]: https://github.com/slsfi/digital-edition-frontend-ng/compare/1.3.0...1.3.1
 [1.3.0]: https://github.com/slsfi/digital-edition-frontend-ng/compare/1.2.3...1.3.0
 [1.2.3]: https://github.com/slsfi/digital-edition-frontend-ng/compare/1.2.2...1.2.3
 [1.2.2]: https://github.com/slsfi/digital-edition-frontend-ng/compare/1.2.1...1.2.2

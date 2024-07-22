@@ -11,7 +11,14 @@ To locally run a prebuilt Docker image, which has been pushed to an image reposi
 
 1. Start [Docker Desktop][docker_desktop] and log in with your credentials.
 2. In PowerShell, `cd` into the app repository folder.
-3. Run `docker run -it -p 4201:4201 --rm <image-url>` where `<image-url>` must be replaced with the URL to the remote image, for example `ghcr.io/slsfi/digital-edition-frontend-ng:main`.
+3. Run
+
+```bash
+docker run -it -p 4201:4201 --rm <image-url>
+```
+
+where `<image-url>` must be replaced with the URL to the remote image, for example `ghcr.io/slsfi/digital-edition-frontend-ng:main`.
+
 4. Open your browser on http://localhost:4201/.
 
 ### Local Docker image of app

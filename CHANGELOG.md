@@ -12,6 +12,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 - Home page: reduce landscape banner image height to 40% on viewport widths less than 1100px.
 - PDF viewer on ebooks page: add PDF title to secondary toolbar.
+- PDF viewer on ebooks page: add message and download link to PDF as fallback if the user’s browser doesn’t support viewing embedded PDFs.
 
 ### Fixed
 

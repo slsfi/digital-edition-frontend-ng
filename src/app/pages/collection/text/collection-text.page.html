@@ -2,7 +2,7 @@
   <ion-toolbar class="secondary">
 
     <!-- Text changer in desktop mode -->
-    <text-changer *ngIf="!mobileMode"
+    <text-changer slot="start" *ngIf="!mobileMode"
           [parentPageType]="'text'"
           [ionViewActive]="_activeComponent"
           class="text-changer-desktop-mode"

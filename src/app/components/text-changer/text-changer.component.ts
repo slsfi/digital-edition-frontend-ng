@@ -28,6 +28,11 @@ import { PlatformService } from '@services/platform.service';
 })
 export class TextChangerComponent implements OnChanges, OnDestroy, OnInit {
   @Input() parentPageType: string = 'text';
+  // ionViewActive is true when the parent page component is active in the DOM,
+  // i.e. the component has entered the Ionic life cycle hook ionViewWillEnter.
+  // Set to false when the parent component has entered ionViewWillLeave life
+  // cycle hook. This way we can react to ActivatedRoute changes only in active
+  // components.
   @Input() ionViewActive: boolean = true;
 
   activeMenuOrder: string = '';
@@ -50,7 +55,8 @@ export class TextChangerComponent implements OnChanges, OnDestroy, OnInit {
   ) {}
 
   ngOnChanges(changes: SimpleChanges) {
-    if (changes.ionViewActive.currentValue && !changes.ionViewActive.firstChange) {
+    if (changes.ionViewActive?.currentValue && !changes.ionViewActive?.firstChange) {
+      // Update current text when the ionic view becomes active again
       this.updateCurrentText();
     }
   }
@@ -63,7 +69,7 @@ export class TextChangerComponent implements OnChanges, OnDestroy, OnInit {
     // Then observe changes to route parameters, and act on changes to either.
     this.tocSubscr = this.tocService.getCurrentFlattenedCollectionToc().pipe(
       switchMap((toc: any) => {
-        // Early return if no TOC
+        // Early return if the view is not active or no TOC
         if (!this.ionViewActive || !toc || !toc?.children?.length) {
           return [];
         }
@@ -94,14 +100,6 @@ export class TextChangerComponent implements OnChanges, OnDestroy, OnInit {
       if (!collectionID || collectionID !== String(toc?.collectionId)) {
         return;
       }
-
-      /*
-      console.log('ToC:', toc);
-      console.log('collectionID:', collectionID);
-      console.log('publicationID:', publicationID);
-      console.log('chapterID:', chapterID);
-      console.log('position:', position);
-      */
 
       this.textItemID =
             (publicationID && chapterID) ? collectionID + '_' + publicationID + '_' + chapterID
@@ -156,7 +154,6 @@ export class TextChangerComponent implements OnChanges, OnDestroy, OnInit {
    * text, the parent text title is set as the document title.
    */
   private updateCurrentText() {
-    console.log('Updating current text in toc: ', this.tocItemId);
     const foundTextIndex = this.getCurrentTextIndex();
     if (foundTextIndex > -1) {
       this.currentTocTextIndex = foundTextIndex;

@@ -68,6 +68,7 @@ export class PdfViewerComponent implements OnInit {
         if (pageParam) {
           pageNumber = parseInt(pageParam, 10);  
         }
+        this.pageNumber = pageNumber;
 
         const pdfURL: string = pageNumber ? pdfFilePath + '#page=' + pageNumber : pdfFilePath;
         return this.sanitizer.bypassSecurityTrustResourceUrl(pdfURL);

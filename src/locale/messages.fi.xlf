@@ -614,7 +614,7 @@
     </unit>
     <unit id="ElasticSearch.Signum">
       <segment state="initial">
-        <source>Signum</source>
+        <source>Arkivsignum</source>
         <target>Arkistotunnus</target>
       </segment>
     </unit>

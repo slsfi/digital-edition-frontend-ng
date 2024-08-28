@@ -33,8 +33,8 @@ export class ElasticHitCollectionPagePathPipe implements PipeTransform {
       elasticHit.source.text_type === 'var' ||
       elasticHit.source.text_type === 'ms'
     ) {
-      path = `/collection/${elasticHit.source.collection_id}`;
-      path += `/text/${elasticHit.source.publication_id}`;
+      path = `/collection/${elasticHit.source.collection_id}`
+            + `/text/${elasticHit.source.publication_id}`;
     } else if (elasticHit.source.text_type === 'pdf') {
       const ebook = this.ebooks.find(
         (e: any) => String(e.collectionId) === String(elasticHit.source.collection_id)

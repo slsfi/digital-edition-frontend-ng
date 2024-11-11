@@ -21,7 +21,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - Deps: pin `@ionic` to 8.2.2. ([5275d39](https://github.com/slsfi/digital-edition-frontend-ng/commit/5275d397aa62dc4a8a6919846125aa0f2cacdcff))
 - Deps (dev): update `@types/node` to 20.17.6. ([2685ec8](https://github.com/slsfi/digital-edition-frontend-ng/commit/2685ec862679bf1915c201f58adef6f6ca6e33c9))
 - Deps (dev): update `jasmine-core` to 5.4.0. ([82b4437](https://github.com/slsfi/digital-edition-frontend-ng/commit/82b4437892cd96a89d5ce6ce46dcf7a96c37396f))
-- Deps (transitive): update multiple by recreating `package-lock.json`. ([d3557a6](https://github.com/slsfi/digital-edition-frontend-ng/commit/d3557a688de7c8960a232d2c01246767f9e39b30), (bfa02a1)[https://github.com/slsfi/digital-edition-frontend-ng/commit/bfa02a1c6af527fd17fbc721c3fdd93bcbee7151])
+- Deps (transitive): update multiple by recreating `package-lock.json`. ([d3557a6](https://github.com/slsfi/digital-edition-frontend-ng/commit/d3557a688de7c8960a232d2c01246767f9e39b30), [bfa02a1](https://github.com/slsfi/digital-edition-frontend-ng/commit/bfa02a1c6af527fd17fbc721c3fdd93bcbee7151))
 
 
 

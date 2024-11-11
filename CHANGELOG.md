@@ -11,7 +11,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 ### Changed
 
 - Deps: update `@angular` to 18.2.11.
-
+- Deps: update `express` to 4.21.1.
+- Deps: update `marked` to 15.0.0.
+- Deps: update `tslib` to 2.8.1.
 
 
 ## [1.5.3] – 2024-09-26

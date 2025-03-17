@@ -11,6 +11,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 ### Changed
 
 - Deps: update `@angular` to 19.2.x.
+- Deps (dev): update `ng-extract-i18n-merge` to 2.14.3.
 - Deps (dev): update `typescript` to 5.8.2.
 
 

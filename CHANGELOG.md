@@ -11,6 +11,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 ### Changed
 
 - Deps: update `@angular` to 19.2.x.
+- Deps: update `htmlparser2` to 10.0.0.
 - Deps: update `marked` to 15.0.7.
 - Deps (dev): update `@types/jasmine` to 5.1.7.
 - Deps (dev): update `@types/node` to 20.17.24.

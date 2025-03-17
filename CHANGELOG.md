@@ -10,6 +10,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ### Changed
 
+- Update `nginx` to 1.26.3.
 - Deps: update `@angular` to 19.2.x.
 - Deps: update `htmlparser2` to 10.0.0.
 - Deps: update `marked` to 15.0.7.

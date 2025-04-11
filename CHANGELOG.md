@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+### Changed
+
+- Deps: update `@angular/cli` to 19.2.7 and `@angular/core` to 19.2.6.
+
 ### Fixed
 
 - Prebuild-scripts: handle 404 responses from API.

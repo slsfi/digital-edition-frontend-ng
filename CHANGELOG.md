@@ -11,6 +11,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 ### Changed
 
 - Deps: update `@angular/cli` to 19.2.7 and `@angular/core` to 19.2.6.
+- Deps: update `marked` to 15.0.8.
 - Deps (dev): update `@types/node` to 20.17.30.
 - Deps (dev): update `browser-sync` to 3.0.4.
 - Deps (dev): update `typescript` to 5.8.3.

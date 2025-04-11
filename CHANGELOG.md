@@ -12,6 +12,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 - Deps: update `@angular/cli` to 19.2.7 and `@angular/core` to 19.2.6.
 - Deps (dev): update `browser-sync` to 3.0.4.
+- Deps (dev): update `typescript` to 5.8.3.
 
 ### Fixed
 

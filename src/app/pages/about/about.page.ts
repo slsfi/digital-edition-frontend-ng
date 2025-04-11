@@ -1,6 +1,6 @@
 import { Component, ElementRef, Inject, LOCALE_ID, NgZone, OnDestroy, OnInit, Renderer2 } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-import { Observable, switchMap } from 'rxjs';
+import { ActivatedRoute, Router } from '@angular/router';
+import { Observable, Subscription, switchMap } from 'rxjs';
 
 import { MarkdownService } from '@services/markdown.service';
 import { ScrollService } from '@services/scroll.service';
@@ -16,6 +16,7 @@ import { isBrowser } from '@utility-functions';
 export class AboutPage implements OnInit, OnDestroy {
   markdownText$: Observable<string | null>;
 
+  private fragmentSubscription?: Subscription;
   private unlistenClickEvents?: () => void;
 
   constructor(
@@ -24,6 +25,7 @@ export class AboutPage implements OnInit, OnDestroy {
     private ngZone: NgZone,
     private renderer2: Renderer2,
     private route: ActivatedRoute,
+    private router: Router,
     private scrollService: ScrollService,
     @Inject(LOCALE_ID) private activeLocale: string
   ) {}
@@ -31,6 +33,12 @@ export class AboutPage implements OnInit, OnDestroy {
   ngOnInit() {
     if (isBrowser()) {
       this.setUpTextListeners();
+
+      this.fragmentSubscription = this.route.fragment.subscribe(fragment => {
+        if (fragment) {
+          this.scrollToFragment(fragment);
+        }
+      });
     }
 
     this.markdownText$ = this.route.params.pipe(
@@ -45,6 +53,7 @@ export class AboutPage implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     this.unlistenClickEvents?.();
+    this.fragmentSubscription?.unsubscribe();
   }
 
   private setUpTextListeners() {
@@ -60,26 +69,19 @@ export class AboutPage implements OnInit, OnDestroy {
             eventTarget.getAttribute('href')?.startsWith('#')
           ) {
             // Link to a position on the same page, find the link target
-            // and scroll the position into view.
+            // and scroll the position into view using the URL fragment.
             event.preventDefault();
             const targetElemId = eventTarget.getAttribute('href')?.slice(1);
             if (!targetElemId) {
               return;
             }
 
-            const scrollTargetElem = document.querySelector(
-              'page-about:not([ion-page-hidden]):not(.ion-page-hidden) [id="' + targetElemId + '"]'
-            );
-            const scrollContainerElem = document.querySelector(
-              'page-about:not([ion-page-hidden]):not(.ion-page-hidden) ion-content'
-            )?.shadowRoot?.querySelector('[part="scroll"]');
-            if (!scrollTargetElem || !scrollContainerElem) {
-              return;
-            }
-
-            this.scrollService.scrollElementIntoView(
-              scrollTargetElem as HTMLElement, 'top', 20, 'smooth', scrollContainerElem as HTMLElement
-            );
+            this.router.navigate([], {
+              fragment: targetElemId,
+              queryParamsHandling: 'preserve',
+              relativeTo: this.route,
+              replaceUrl: false,
+            });
           }
         } catch (e) {
           console.error(e);
@@ -87,4 +89,34 @@ export class AboutPage implements OnInit, OnDestroy {
       });
     });
   }
+
+  private scrollToFragment(targetElemId: string, delayMs: number = 500) {
+    if (!isBrowser()) return;
+  
+    this.ngZone.runOutsideAngular(() => {
+      let attemptsLeft = 10;
+  
+      const tryScroll = () => {
+        if (attemptsLeft-- < 1) return;
+  
+        const scrollTargetElem = document.querySelector(
+          'page-about:not([ion-page-hidden]):not(.ion-page-hidden) [id="' + targetElemId + '"]'
+        );
+        const scrollContainerElem = document.querySelector(
+          'page-about:not([ion-page-hidden]):not(.ion-page-hidden) ion-content'
+        )?.shadowRoot?.querySelector('[part="scroll"]');
+  
+        if (scrollTargetElem && scrollContainerElem) {
+          this.scrollService.scrollElementIntoView(
+            scrollTargetElem as HTMLElement, 'top', 20, 'smooth', scrollContainerElem as HTMLElement
+          );
+        } else {
+          setTimeout(tryScroll, delayMs);
+        }
+      };
+  
+      tryScroll();
+    });
+  }
+  
 }

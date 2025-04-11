@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { catchError, map, Observable, of } from 'rxjs';
 import { marked } from 'marked';
+import markedFootnote from 'marked-footnote'
 
 import { config } from '@config';
 
@@ -18,6 +19,13 @@ export class MarkdownService {
     const apiBaseURL = config.app?.backendBaseURL ?? '';
     const projectName = config.app?.projectNameDB ?? '';
     this.apiURL = apiBaseURL + '/' + projectName;
+
+    // Configure marked to use the marked-footnote extension for handling
+    // GFM-footnotes in markdown.
+    marked.use(markedFootnote({
+      description: $localize`:@@About.FootnotesHeading:Noter`,
+      prefixId: "md-footnote-"
+    }));
   }
 
   getMenuTree(language: string, rootNodeID: string): Observable<any> {

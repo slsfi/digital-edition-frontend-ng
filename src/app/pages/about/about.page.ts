@@ -56,6 +56,10 @@ export class AboutPage implements OnInit, OnDestroy {
     this.fragmentSubscription?.unsubscribe();
   }
 
+  /**
+   * Listen for click events so we can intercept clicks on fragment links to
+   * positions on the same page, and smoothly scroll the position into view.
+   */
   private setUpTextListeners() {
     const nElement: HTMLElement = this.elementRef.nativeElement;
 
@@ -108,7 +112,7 @@ export class AboutPage implements OnInit, OnDestroy {
   
         if (scrollTargetElem && scrollContainerElem) {
           this.scrollService.scrollElementIntoView(
-            scrollTargetElem as HTMLElement, 'top', 20, 'smooth', scrollContainerElem as HTMLElement
+            scrollTargetElem as HTMLElement, 'top', 0, 'smooth', scrollContainerElem as HTMLElement
           );
         } else {
           setTimeout(tryScroll, delayMs);

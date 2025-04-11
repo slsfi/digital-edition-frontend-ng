@@ -12,6 +12,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 - Support for [GFM footnotes](https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax#footnotes) in Markdown on About-pages.
 
+### Changed
+
+- Truncate console error message when loading of static collection TOC fails.
 
 
 ## [1.5.8] – 2025-04-11

@@ -8,14 +8,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+
+
+## [1.6.0] – 2025-04-11
+
 ### Added
 
-- Support for [GFM footnotes](https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax#footnotes) in Markdown on About-pages.
+- Support for [GFM footnotes](https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax#footnotes) in Markdown on About-pages. ([02e314f](https://github.com/slsfi/digital-edition-frontend-ng/commit/02e314f5d10239843aca3ea9a61a485ab35b5ac9))
 
 ### Changed
 
-- Truncate console error message when loading of static collection TOC fails.
-- Adjust CSS of Markdown content.
+- Truncate console error message when loading of static collection TOC fails. ([13eb19c](https://github.com/slsfi/digital-edition-frontend-ng/commit/13eb19c95829718e64c974c178114f8fbc284563))
+- Adjust CSS of Markdown content. ([9cb8e82](https://github.com/slsfi/digital-edition-frontend-ng/commit/9cb8e82b1690f5651852991360cb5c477ea09850))
 
 
 
@@ -547,7 +551,8 @@ siteLogoDimensions: {
 
 
 
-[unreleased]: https://github.com/slsfi/digital-edition-frontend-ng/compare/1.5.8...HEAD
+[unreleased]: https://github.com/slsfi/digital-edition-frontend-ng/compare/1.6.0...HEAD
+[1.6.0]: https://github.com/slsfi/digital-edition-frontend-ng/compare/1.5.8...1.6.0
 [1.5.8]: https://github.com/slsfi/digital-edition-frontend-ng/compare/1.5.7...1.5.8
 [1.5.7]: https://github.com/slsfi/digital-edition-frontend-ng/compare/1.5.6...1.5.7
 [1.5.6]: https://github.com/slsfi/digital-edition-frontend-ng/compare/1.5.5...1.5.6

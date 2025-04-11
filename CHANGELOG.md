@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+### Fixed
+
+- Prebuild-scripts: handle 404 responses from API.
+
 
 
 ## [1.5.7] – 2025-03-17

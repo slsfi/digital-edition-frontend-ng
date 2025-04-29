@@ -9,6 +9,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 ## [Unreleased]
 
 - Deps: update `@angular/cli` to 19.2.9 and `@angular/core` to 19.2.8.
+- Deps (dev): update `@types/node` to 20.17.32.
 
 
 

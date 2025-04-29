@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+
+
+## [1.6.1] – 2025-04-29
+
 - Deps: update `@angular/cli` to 19.2.9 and `@angular/core` to 19.2.8.
 - Deps: update `marked` to 15.0.11.
 - Deps (dev): update `@types/node` to 20.17.32.
@@ -555,7 +559,8 @@ siteLogoDimensions: {
 
 
 
-[unreleased]: https://github.com/slsfi/digital-edition-frontend-ng/compare/1.6.0...HEAD
+[unreleased]: https://github.com/slsfi/digital-edition-frontend-ng/compare/1.6.1...HEAD
+[1.6.1]: https://github.com/slsfi/digital-edition-frontend-ng/compare/1.6.0...1.6.1
 [1.6.0]: https://github.com/slsfi/digital-edition-frontend-ng/compare/1.5.8...1.6.0
 [1.5.8]: https://github.com/slsfi/digital-edition-frontend-ng/compare/1.5.7...1.5.8
 [1.5.7]: https://github.com/slsfi/digital-edition-frontend-ng/compare/1.5.6...1.5.7

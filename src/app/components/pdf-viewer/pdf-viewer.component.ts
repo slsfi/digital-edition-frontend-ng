@@ -1,5 +1,5 @@
 import { Component, Inject, Input, LOCALE_ID, OnInit, ViewChild } from '@angular/core';
-import { AsyncPipe, DOCUMENT, NgFor, NgIf, NgStyle } from '@angular/common';
+import { AsyncPipe, DOCUMENT, NgStyle } from '@angular/common';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { ActivatedRoute } from '@angular/router';
 import { IonicModule, ModalController } from '@ionic/angular';
@@ -14,7 +14,7 @@ import { ReferenceDataModal } from '@modals/reference-data/reference-data.modal'
     selector: 'pdf-viewer',
     templateUrl: './pdf-viewer.component.html',
     styleUrls: ['./pdf-viewer.component.scss'],
-    imports: [AsyncPipe, NgFor, NgIf, NgStyle, IonicModule, IsExternalURLPipe],
+    imports: [AsyncPipe, NgStyle, IonicModule, IsExternalURLPipe],
     host: { ngSkipHydration: 'true' }
 })
 export class PdfViewerComponent implements OnInit {

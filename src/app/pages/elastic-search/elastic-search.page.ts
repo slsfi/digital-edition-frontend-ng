@@ -893,16 +893,4 @@ export class ElasticSearchPage implements OnDestroy, OnInit {
     }
   }
 
-  trackById(index: number, item: any) {
-    return item.id;
-  }
-
-  trackByKey(index: number, item: any) {
-    return item.key;
-  }
-
-  trackByName(index: number, item: any) {
-    return item.name;
-  }
-
 }

@@ -14,6 +14,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - Defer loading of the variants component.
 - Migrate templates to new Angular control flow syntax.
 
+### Fixed
+
+- Occurrences accordion: guard against empty collection ToC, and ensure ToC subscription completes.
+
 
 
 ## [1.6.1] – 2025-04-29

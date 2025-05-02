@@ -16,7 +16,7 @@
         </button>
         @if (!collection.hidden) {
           <ul role="menu">
-            @for (publication of collection['publications']; track $index) {
+            @for (publication of collection['publications']; track publication.publication_id) {
               <li role="menuitem">
                 <span class="text-name">{{publication.occurrences[0].displayName}}
                   @if (publication.occurrences.length > 1) {

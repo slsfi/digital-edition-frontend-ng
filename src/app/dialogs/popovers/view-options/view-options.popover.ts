@@ -1,5 +1,5 @@
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
-import { NgIf } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { IonicModule, PopoverController } from '@ionic/angular';
 import { Subscription } from 'rxjs';
@@ -13,7 +13,7 @@ import { ViewOptionsService } from '@services/view-options.service';
     selector: 'popover-view-options',
     templateUrl: './view-options.popover.html',
     styleUrls: ['./view-options.popover.scss'],
-    imports: [NgIf, FormsModule, IonicModule]
+    imports: [FormsModule, IonicModule]
 })
 export class ViewOptionsPopover implements OnDestroy, OnInit {
   @Input() toggles: any = undefined;

@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Inject, Input, LOCALE_ID, OnDestroy, OnInit, Output } from '@angular/core';
-import { DOCUMENT, NgFor, NgIf, NgStyle } from '@angular/common';
+import { DOCUMENT, NgStyle } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { IonicModule, ModalController } from '@ionic/angular';
 
@@ -12,7 +12,7 @@ import { isBrowser } from '@utility-functions';
     selector: 'top-menu',
     templateUrl: './top-menu.component.html',
     styleUrls: ['./top-menu.component.scss'],
-    imports: [NgFor, NgIf, NgStyle, IonicModule, RouterLink]
+    imports: [NgStyle, IonicModule, RouterLink]
 })
 export class TopMenuComponent implements OnDestroy, OnInit {
   @Input() currentRouterUrl: string = '';

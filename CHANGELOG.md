@@ -12,6 +12,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 - Defer loading of the text-legend component.
 - Defer loading of the variants component.
+- Migrate templates to new Angular control flow syntax.
 
 
 

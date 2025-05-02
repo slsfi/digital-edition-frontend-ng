@@ -492,8 +492,4 @@ export class IndexPage implements OnInit {
     return data;
   }
 
-  trackData(index: number, dataItem: any) {
-    return dataItem ? dataItem.id : undefined;
-  }
-
 }

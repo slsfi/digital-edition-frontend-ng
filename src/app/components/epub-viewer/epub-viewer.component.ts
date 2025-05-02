@@ -1,5 +1,5 @@
 import { AfterViewInit, Component, ElementRef, Inject, Input, LOCALE_ID, NgZone, OnDestroy, OnInit, Renderer2, ViewChild } from '@angular/core';
-import { NgClass, NgFor, NgIf, NgStyle, NgTemplateOutlet, DOCUMENT } from '@angular/common';
+import { NgClass, NgStyle, NgTemplateOutlet, DOCUMENT } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 import { AlertController, IonicModule, ModalController, PopoverController } from '@ionic/angular';
@@ -20,7 +20,7 @@ import { concatenateNames, isBrowser, numberIsEven } from '@utility-functions';
     selector: 'epub-viewer',
     templateUrl: './epub-viewer.component.html',
     styleUrls: ['./epub-viewer.component.scss'],
-    imports: [NgClass, NgFor, NgIf, NgStyle, NgTemplateOutlet, FormsModule, IonicModule, IsExternalURLPipe],
+    imports: [NgClass, NgStyle, NgTemplateOutlet, FormsModule, IonicModule, IsExternalURLPipe],
     host: { ngSkipHydration: 'true' }
 })
 export class EpubViewerComponent implements AfterViewInit, OnDestroy, OnInit {

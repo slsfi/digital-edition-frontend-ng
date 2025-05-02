@@ -589,8 +589,4 @@ export class MediaCollectionPage implements OnDestroy, OnInit {
     modal.present();
   }
 
-  trackById(index: number | string, item: any) {
-    return item.id;
-  }
-
 }

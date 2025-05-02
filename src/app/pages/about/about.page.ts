@@ -8,10 +8,10 @@ import { isBrowser } from '@utility-functions';
 
 
 @Component({
-    selector: 'page-about',
-    templateUrl: './about.page.html',
-    styleUrls: ['./about.page.scss'],
-    standalone: false
+  selector: 'page-about',
+  templateUrl: './about.page.html',
+  styleUrls: ['./about.page.scss'],
+  standalone: false
 })
 export class AboutPage implements OnInit, OnDestroy {
   markdownText$: Observable<string | null>;

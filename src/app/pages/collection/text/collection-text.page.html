@@ -348,10 +348,16 @@
     }
   </ng-container>
 
-  <text-legend *ngIf="view.type === 'legend'"
-        [itemId]="textItemID"
-        [scrollToElementId]="view.id"
-  ></text-legend>
+  <ng-container *ngIf="view.type === 'legend'">
+    @defer {
+      <text-legend
+            [itemId]="textItemID"
+            [scrollToElementId]="view.id"
+      ></text-legend>
+    } @loading (minimum 1s) {
+      <ion-spinner class="loading" name="crescent"></ion-spinner>
+    }
+  </ng-container>
 
   <text-metadata *ngIf="view.type === 'metadata'"
         [textItemID]="textItemID"

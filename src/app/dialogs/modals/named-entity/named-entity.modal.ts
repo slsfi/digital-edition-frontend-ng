@@ -12,10 +12,10 @@ import { isEmptyObject } from '@utility-functions';
 
 
 @Component({
-    selector: 'modal-named-entity',
-    templateUrl: './named-entity.modal.html',
-    styleUrls: ['./named-entity.modal.scss'],
-    imports: [AsyncPipe, IonicModule, OccurrencesAccordionComponent, RouterModule]
+  selector: 'modal-named-entity',
+  templateUrl: './named-entity.modal.html',
+  styleUrls: ['./named-entity.modal.scss'],
+  imports: [AsyncPipe, IonicModule, OccurrencesAccordionComponent, RouterModule]
 })
 export class NamedEntityModal implements OnDestroy, OnInit {
   @Input() id: string = '';

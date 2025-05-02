@@ -17,11 +17,11 @@ import { concatenateNames, isBrowser, numberIsEven } from '@utility-functions';
 
 
 @Component({
-    selector: 'epub-viewer',
-    templateUrl: './epub-viewer.component.html',
-    styleUrls: ['./epub-viewer.component.scss'],
-    imports: [NgClass, NgStyle, NgTemplateOutlet, FormsModule, IonicModule, IsExternalURLPipe],
-    host: { ngSkipHydration: 'true' }
+  selector: 'epub-viewer',
+  templateUrl: './epub-viewer.component.html',
+  styleUrls: ['./epub-viewer.component.scss'],
+  imports: [NgClass, NgStyle, NgTemplateOutlet, FormsModule, IonicModule, IsExternalURLPipe],
+  host: { ngSkipHydration: 'true' }
 })
 export class EpubViewerComponent implements AfterViewInit, OnDestroy, OnInit {
   @Input() epubFileName: string = '';

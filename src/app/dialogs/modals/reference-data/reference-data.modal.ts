@@ -7,10 +7,10 @@ import { ReferenceDataService } from '@services/reference-data.service';
 
 
 @Component({
-    selector: 'modal-reference-data',
-    templateUrl: './reference-data.modal.html',
-    styleUrls: ['./reference-data.modal.scss'],
-    imports: [IonicModule, RouterModule]
+  selector: 'modal-reference-data',
+  templateUrl: './reference-data.modal.html',
+  styleUrls: ['./reference-data.modal.scss'],
+  imports: [IonicModule, RouterModule]
 })
 export class ReferenceDataModal implements OnInit {
   @Input() origin: string = '';

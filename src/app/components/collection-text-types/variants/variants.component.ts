@@ -1,5 +1,4 @@
 import { Component, ElementRef, EventEmitter, Input, OnInit, Output } from '@angular/core';
-
 import { AlertButton, AlertController, AlertInput, IonicModule } from '@ionic/angular';
 
 import { config } from '@config';
@@ -11,10 +10,10 @@ import { ViewOptionsService } from '@services/view-options.service';
 
 
 @Component({
-    selector: 'variants',
-    templateUrl: './variants.component.html',
-    styleUrls: ['./variants.component.scss'],
-    imports: [IonicModule, TrustHtmlPipe]
+  selector: 'variants',
+  templateUrl: './variants.component.html',
+  styleUrls: ['./variants.component.scss'],
+  imports: [IonicModule, TrustHtmlPipe]
 })
 export class VariantsComponent implements OnInit {
   @Input() searchMatches: Array<string> = [];

@@ -12,10 +12,10 @@ import { MarkdownService } from '@services/markdown.service';
 
 
 @Component({
-    selector: 'content-grid',
-    templateUrl: './content-grid.component.html',
-    styleUrls: ['./content-grid.component.scss'],
-    imports: [AsyncPipe, IonicModule, RouterLink, ParentChildPagePathPipe]
+  selector: 'content-grid',
+  templateUrl: './content-grid.component.html',
+  styleUrls: ['./content-grid.component.scss'],
+  imports: [AsyncPipe, IonicModule, RouterLink, ParentChildPagePathPipe]
 })
 export class ContentGridComponent implements OnInit {
   availableEbooks: any[] = [];

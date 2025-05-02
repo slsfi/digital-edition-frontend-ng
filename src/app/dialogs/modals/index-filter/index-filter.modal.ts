@@ -1,5 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { NgFor, NgIf } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { IonicModule, ModalController } from '@ionic/angular';
 
@@ -10,7 +10,7 @@ import { NamedEntityService } from '@services/named-entity.service';
     selector: 'modal-index-filter',
     templateUrl: './index-filter.modal.html',
     styleUrls: ['./index-filter.modal.scss'],
-    imports: [NgFor, NgIf, FormsModule, IonicModule]
+    imports: [FormsModule, IonicModule]
 })
 export class IndexFilterModal implements OnInit {
   @Input() activeFilters: any = undefined;

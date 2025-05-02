@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+### Changed
+
+- Defer loading of the text-legend component.
+
 
 
 ## [1.6.1] – 2025-04-29

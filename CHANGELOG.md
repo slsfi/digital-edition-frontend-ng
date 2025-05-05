@@ -8,26 +8,30 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+
+
+## [1.6.2] – 2025-05-05
+
 ### Changed
 
-- Defer loading of the text-legend component.
-- Defer loading of the variants component.
-- Migrate templates to new Angular control flow syntax.
-- Load index list data in SSR only when named entity modal not shown.
-- Deps: update `@angular/cli` to 19.2.10 and `@angular/core` to 19.2.9.
-- Deps (dev): update `jasmine-core` to 5.7.1.
+- Defer loading of the text-legend component. ([a672d5d](https://github.com/slsfi/digital-edition-frontend-ng/commit/a672d5d549995100eb51ec0336cd87fdd98a71b6))
+- Defer loading of the variants component. ([9b79c42](https://github.com/slsfi/digital-edition-frontend-ng/commit/9b79c42dbc5572f87dea59d470b63a3c7d8b63dc))
+- Migrate templates to new Angular control flow syntax. ([a237511](https://github.com/slsfi/digital-edition-frontend-ng/commit/a237511cffe3751a7828f14123f78fe7bd989a1b))
+- Load index list data in SSR only when named entity modal not shown. ([d64ad09](https://github.com/slsfi/digital-edition-frontend-ng/commit/d64ad0905f1a44eb793f22a90cc661ec26c06cb2))
+- Deps: update `@angular/cli` to 19.2.10 and `@angular/core` to 19.2.9. ([314bf2c](https://github.com/slsfi/digital-edition-frontend-ng/commit/314bf2c26e5f103725c4e2970c5ea9afe5849a93))
+- Deps (dev): update `jasmine-core` to 5.7.1. ([9ba2111](https://github.com/slsfi/digital-edition-frontend-ng/commit/9ba2111683039728cf36ee4e79ad58cf43667c75))
 
 ### Fixed
 
-- Occurrences accordion: guard against empty collection ToC, and ensure ToC subscription completes.
+- Occurrences accordion: guard against empty collection ToC, and ensure ToC subscription completes. ([f4f871f](https://github.com/slsfi/digital-edition-frontend-ng/commit/f4f871f0712853d6661e431a68bb1121b149f677))
 
 
 
 ## [1.6.1] – 2025-04-29
 
-- Deps: update `@angular/cli` to 19.2.9 and `@angular/core` to 19.2.8.
-- Deps: update `marked` to 15.0.11.
-- Deps (dev): update `@types/node` to 20.17.32.
+- Deps: update `@angular/cli` to 19.2.9 and `@angular/core` to 19.2.8. ([45f6c18](https://github.com/slsfi/digital-edition-frontend-ng/commit/45f6c182a4cf2097c99a94f72e467d00e2ff5096))
+- Deps: update `marked` to 15.0.11. ([2f749b2](https://github.com/slsfi/digital-edition-frontend-ng/commit/2f749b2ca4dd16ac70314e59c4a97fabd9268898))
+- Deps (dev): update `@types/node` to 20.17.32. ([c09b87f](https://github.com/slsfi/digital-edition-frontend-ng/commit/c09b87f8e3c53b5c7414058919c4277f7925bfe0))
 
 
 
@@ -572,7 +576,8 @@ siteLogoDimensions: {
 
 
 
-[unreleased]: https://github.com/slsfi/digital-edition-frontend-ng/compare/1.6.1...HEAD
+[unreleased]: https://github.com/slsfi/digital-edition-frontend-ng/compare/1.6.2...HEAD
+[1.6.2]: https://github.com/slsfi/digital-edition-frontend-ng/compare/1.6.1...1.6.2
 [1.6.1]: https://github.com/slsfi/digital-edition-frontend-ng/compare/1.6.0...1.6.1
 [1.6.0]: https://github.com/slsfi/digital-edition-frontend-ng/compare/1.5.8...1.6.0
 [1.5.8]: https://github.com/slsfi/digital-edition-frontend-ng/compare/1.5.7...1.5.8

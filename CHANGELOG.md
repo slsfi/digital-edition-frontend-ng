@@ -14,6 +14,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - Defer loading of the variants component.
 - Migrate templates to new Angular control flow syntax.
 - Load index list data in SSR only when named entity modal not shown.
+- Deps: update `@angular/cli` to 19.2.10 and `@angular/core` to 19.2.9.
 - Deps (dev): update `jasmine-core` to 5.7.1.
 
 ### Fixed

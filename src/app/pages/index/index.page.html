@@ -76,6 +76,7 @@
               }
               @if (indexType === 'persons' && (item.sort_by_name?.length > 0 || item.name_for_list?.length > 0)) {
                 <a aria-haspopup="dialog"
+                      rel="nofollow"
                       [routerLink]="[]"
                       [queryParams]="{ id: item.id }"
                       [queryParamsHandling]="'merge'"
@@ -91,7 +92,8 @@
                 </a>
               }
               @if ((indexType === 'keywords' || indexType === 'places') && item.name.length > 1) {
-                <a
+                <a aria-haspopup="dialog"
+                      rel="nofollow"
                       [routerLink]="[]"
                       [queryParams]="{ id: item.id }"
                       [queryParamsHandling]="'merge'"
@@ -100,7 +102,8 @@
                 >{{item.name}}</a>
               }
               @if (indexType === 'works' && item.title.length > 1) {
-                <a
+                <a aria-haspopup="dialog"
+                      rel="nofollow"
                       [routerLink]="[]"
                       [queryParams]="{ id: item.id }"
                       [queryParamsHandling]="'merge'"

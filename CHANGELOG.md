@@ -12,6 +12,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [1.6.3] – 2025-05-13
 
+> [!NOTE]
+> This release increases the proxy buffer size in `nginx` to a total of 384 KB per request (`24 16k`). For projects where the majority of SSR HTML is larger than that, it might be useful to increase the buffer size even more, for example to `32 16k` (corresponding to a total of 512 KB per request). This prevents `nginx` from buffering large requests on disk, but might have other trade offs.
+
 ### Changed
 
 - Optimize SSR asset handling and clarify routing logic in `server.ts`. ([a223a4a](https://github.com/slsfi/digital-edition-frontend-ng/commit/a223a4abcf8c854d17a2d1b85e2e39a00fb276b7))

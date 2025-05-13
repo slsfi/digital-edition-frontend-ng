@@ -12,6 +12,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 - Optimize SSR asset handling and clarify routing logic in `server.ts`.
 - Increase proxy buffer sizes in `nginx` config to reduce disk buffering for large SSR pages.
+- Update dependency notes in docs.
 - Deps: update `@angular/cli` to 19.2.11 and `@angular/core` to 19.2.10.
 - Deps (dev): update `@types/jasmine` to 5.1.8.
 - Deps (dev): update `@types/node` to 20.17.46.

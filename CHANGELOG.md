@@ -12,6 +12,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 - Optimize SSR asset handling and clarify routing logic in `server.ts`.
 - Deps (dev): update `@types/jasmine` to 5.1.8.
+- Deps (dev): update `@types/node` to 20.17.46.
 
 
 

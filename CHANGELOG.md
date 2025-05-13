@@ -12,6 +12,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 - Optimize SSR asset handling and clarify routing logic in `server.ts`.
 - Increase proxy buffer sizes in `nginx` config to reduce disk buffering for large SSR pages.
+- Optimize cache control of static files in `nginx` config.
 - Update dependency notes in docs.
 - Update `nginx` to 1.28.0.
 - Deps: update `@angular/cli` to 19.2.11 and `@angular/core` to 19.2.10.

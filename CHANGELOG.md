@@ -8,16 +8,20 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+
+
+## [1.6.3] – 2025-05-13
+
 ### Changed
 
-- Optimize SSR asset handling and clarify routing logic in `server.ts`.
-- Increase proxy buffer sizes in `nginx` config to reduce disk buffering for large SSR pages.
-- Optimize cache control of static files in `nginx` config.
-- Update dependency notes in docs.
-- Update `nginx` to 1.28.0.
-- Deps: update `@angular/cli` to 19.2.11 and `@angular/core` to 19.2.10.
-- Deps (dev): update `@types/jasmine` to 5.1.8.
-- Deps (dev): update `@types/node` to 20.17.46.
+- Optimize SSR asset handling and clarify routing logic in `server.ts`. ([a223a4a](https://github.com/slsfi/digital-edition-frontend-ng/commit/a223a4abcf8c854d17a2d1b85e2e39a00fb276b7))
+- Increase proxy buffer sizes in `nginx` config to reduce disk buffering for large SSR pages. ([0bfda62](https://github.com/slsfi/digital-edition-frontend-ng/commit/0bfda62dba88b838bfe9ef586e8a7954a880c6a3))
+- Optimize cache control of static files in `nginx` config. ([ff3f496](https://github.com/slsfi/digital-edition-frontend-ng/commit/ff3f4965bcab9b11551c4e9fadcc0344c4131c06))
+- Update dependency notes in docs. ([3483c23](https://github.com/slsfi/digital-edition-frontend-ng/commit/3483c235e13db7127f1042b0dcdb9dc3398680a5))
+- Update `nginx` to 1.28.0. ([00d1a6e](https://github.com/slsfi/digital-edition-frontend-ng/commit/00d1a6ec8beb9a41fc5a031cb2da8f22ca5c4325))
+- Deps: update `@angular/cli` to 19.2.11 and `@angular/core` to 19.2.10. ([2bab396](https://github.com/slsfi/digital-edition-frontend-ng/commit/2bab396b55b2ab136db97fd2ad2449927720c673))
+- Deps (dev): update `@types/jasmine` to 5.1.8. ([1c549fb](https://github.com/slsfi/digital-edition-frontend-ng/commit/1c549fb83be9af82f5fc6f99cb3c5d7bc8f0c359))
+- Deps (dev): update `@types/node` to 20.17.46. ([19e7c6f](https://github.com/slsfi/digital-edition-frontend-ng/commit/19e7c6f1596bcf402da7e2fec977557b4e5c4f1c))
 
 
 
@@ -587,7 +591,8 @@ siteLogoDimensions: {
 
 
 
-[unreleased]: https://github.com/slsfi/digital-edition-frontend-ng/compare/1.6.2...HEAD
+[unreleased]: https://github.com/slsfi/digital-edition-frontend-ng/compare/1.6.3...HEAD
+[1.6.3]: https://github.com/slsfi/digital-edition-frontend-ng/compare/1.6.2...1.6.3
 [1.6.2]: https://github.com/slsfi/digital-edition-frontend-ng/compare/1.6.1...1.6.2
 [1.6.1]: https://github.com/slsfi/digital-edition-frontend-ng/compare/1.6.0...1.6.1
 [1.6.0]: https://github.com/slsfi/digital-edition-frontend-ng/compare/1.5.8...1.6.0

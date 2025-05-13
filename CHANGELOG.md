@@ -11,6 +11,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 ### Changed
 
 - Optimize SSR asset handling and clarify routing logic in `server.ts`.
+- Increase proxy buffer sizes in `nginx` config to reduce disk buffering for large SSR pages.
 - Deps (dev): update `@types/jasmine` to 5.1.8.
 - Deps (dev): update `@types/node` to 20.17.46.
 

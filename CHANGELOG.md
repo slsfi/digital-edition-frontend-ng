@@ -12,6 +12,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 - SSR of ebooks in pdf-format blocked.
 
+### Changed
+
+- Deps (dev): update `@types/node` to 20.17.47.
+
 
 
 ## [1.6.3] – 2025-05-13

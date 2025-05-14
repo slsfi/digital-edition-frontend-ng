@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+### Fixed
+
+- SSR of ebooks in pdf-format blocked.
+
 
 
 ## [1.6.3] – 2025-05-13

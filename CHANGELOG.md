@@ -8,14 +8,21 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+
+
+## [1.6.5] – 2025-05-19
+
+> [!IMPORTANT]
+> This release includes a critical fix to a bug introduced in version [1.6.0.](https://github.com/slsfi/digital-edition-frontend-ng/releases/tag/1.6.0). Projects on versions 1.6.0–1.6.4 are adviced to update as soon as possible.
+
 ### Fixed
 
-- Add `marked-footnote` extension to local instance of `marked` in `markdown.service.ts`. Adding it to the global instance causes the app to hang over time.
+- Add `marked-footnote` extension to local instance of `marked` in `markdown.service.ts`. Adding it to the global instance causes the app to hang over time. ([707e5d7](https://github.com/slsfi/digital-edition-frontend-ng/commit/707e5d7027da77540fe707ea44d5fec0a6724821))
 
 ### Changed
 
-- Deps: update `@angular/cli` to 19.2.12 and `@angular/core` to 19.2.11.
-- Deps (dev): update `@types/node` to 20.17.48.
+- Deps: update `@angular/cli` to 19.2.12 and `@angular/core` to 19.2.11. ([a3f0220](https://github.com/slsfi/digital-edition-frontend-ng/commit/a3f02201cbeb168542b972e5338339621dc54c4d))
+- Deps (dev): update `@types/node` to 20.17.48. ([d6b2772](https://github.com/slsfi/digital-edition-frontend-ng/commit/d6b27729eb4d7fab28177c6648509cd0904c5220))
 
 
 
@@ -618,7 +625,8 @@ siteLogoDimensions: {
 
 
 
-[unreleased]: https://github.com/slsfi/digital-edition-frontend-ng/compare/1.6.4...HEAD
+[unreleased]: https://github.com/slsfi/digital-edition-frontend-ng/compare/1.6.5...HEAD
+[1.6.5]: https://github.com/slsfi/digital-edition-frontend-ng/compare/1.6.4...1.6.5
 [1.6.4]: https://github.com/slsfi/digital-edition-frontend-ng/compare/1.6.3...1.6.4
 [1.6.3]: https://github.com/slsfi/digital-edition-frontend-ng/compare/1.6.2...1.6.3
 [1.6.2]: https://github.com/slsfi/digital-edition-frontend-ng/compare/1.6.1...1.6.2

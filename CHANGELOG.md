@@ -13,7 +13,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 ## [1.6.5] – 2025-05-19
 
 > [!IMPORTANT]
-> This release includes a critical fix to a bug introduced in version [1.6.0.](https://github.com/slsfi/digital-edition-frontend-ng/releases/tag/1.6.0). Projects on versions 1.6.0–1.6.4 are adviced to update as soon as possible.
+> This release includes a critical fix to a bug introduced in version [1.6.0](https://github.com/slsfi/digital-edition-frontend-ng/releases/tag/1.6.0). Projects on versions 1.6.0–1.6.4 are adviced to update as soon as possible.
 
 ### Fixed
 

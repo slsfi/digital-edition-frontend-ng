@@ -12,6 +12,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 - Add `marked-footnote` extension to local instance of `marked` in `markdown.service.ts`. Adding it to the global instance causes the app to hang over time.
 
+### Changed
+
+- Deps: update `@angular/cli` to 19.2.12 and `@angular/core` to 19.2.11.
+
 
 
 ## [1.6.4] – 2025-05-14

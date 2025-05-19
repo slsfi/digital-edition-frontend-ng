@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+### Fixed
+
+- Add `marked-footnote` extension to local instance of `marked` in `markdown.service.ts`. Adding it to the global instance causes the app to hang over time.
+
 
 
 ## [1.6.4] – 2025-05-14

@@ -21,8 +21,11 @@ export class MarkdownService {
     const projectName = config.app?.projectNameDB ?? '';
     this.apiURL = apiBaseURL + '/' + projectName;
 
-    // Create new instance of Marked to keep options and extensions
-    // locally scoped.
+    // * Create new instance of Marked to keep options and extensions
+    // * locally scoped. Adding the marked-footnote extension to the
+    // * global scope of Marked will cause it to be added on every
+    // * SSR, ultimately resulting in an unresponsive app.
+    //   https://marked.js.org/using_advanced#instance
     this.marked = new Marked();
 
     // Configure this instance of Marked to use the marked-footnote

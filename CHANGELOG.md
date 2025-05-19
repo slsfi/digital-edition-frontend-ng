@@ -10,7 +10,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ### Fixed
 
-- Misconfigured Marked footnote extension causing the app to hang over time.
+- Add `marked-footnote` extension to local instance of `marked` in `markdown.service.ts`. Adding it to the global instance causes the app to hang over time.
 
 
 

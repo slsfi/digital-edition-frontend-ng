@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+### Fixed
+
+- Misconfigured Marked footnote extension causing the app to hang over time.
+
 
 
 ## [1.6.4] – 2025-05-14

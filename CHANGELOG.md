@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+### Fixed
+
+- Add throttling and retries to prebuild scripts to prevent backend overload.
+
 
 
 ## [1.6.5] – 2025-05-19

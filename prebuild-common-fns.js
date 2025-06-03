@@ -62,6 +62,18 @@ async function fetchFromAPI(endpoint) {
   }
 }
 
+async function fetchWithRetry(url, retries = 3, delay = 2000) {
+  for (let attempt = 1; attempt <= retries; attempt++) {
+    const result = await fetchFromAPI(url);
+    if (result) return result;
+    console.warn(`Fetch failed (${attempt}/${retries}) for ${url}. Retrying in ${delay}ms...`);
+    await sleep(delay);
+  }
+  console.error(`Failed to fetch ${url} after ${retries} attempts.`);
+  return null;
+}
+
+
 /**
  * Given an object with nested objects in the property 'branchingKey',
  * returns a flattened array of the object. If 'requiredKey' is not
@@ -124,12 +136,18 @@ function getTranslation(folderPath, locale, id) {
   }
 }
 
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 /**
  * Export all functions in this file as a CommonJS module.
  */
 module.exports = {
   getConfig,
   fetchFromAPI,
+  fetchWithRetry,
   flattenObjectTree,
-  getTranslation
+  getTranslation,
+  sleep
 };

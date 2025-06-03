@@ -67,7 +67,7 @@ async function generateSitemap() {
 
   // Get about-pages URLs
   if (config.component?.mainSideMenu?.items?.about) {
-    let aboutPages = await common.fetchFromAPI(APIBase + '/static-pages-toc/' + locale);
+    let aboutPages = await common.fetchWithRetry(APIBase + '/static-pages-toc/' + locale);
     if (aboutPages && aboutPages.children) {
       urlCounter += generateAboutPagesURLs(aboutPages.children, '03', urlOrigin, locale);
     }
@@ -86,7 +86,7 @@ async function generateSitemap() {
     }
 
     // Fetch all collections from the backend
-    const allCollections = await common.fetchFromAPI(collectionsEndpoint);
+    const allCollections = await common.fetchWithRetry(collectionsEndpoint);
 
     if (!allCollections) {
       console.warn(`Skipping collections: No data fetched from ${collectionsEndpoint}`);
@@ -116,7 +116,7 @@ async function generateSitemap() {
 
   // Get media collection URLs
   if (config.component?.mainSideMenu?.items?.mediaCollections) {
-    const mediaCollections = await common.fetchFromAPI(APIBase + '/gallery/data/' + locale);
+    const mediaCollections = await common.fetchWithRetry(APIBase + '/gallery/data/' + locale);
     if (mediaCollections && mediaCollections.length) {
       urlCounter += await generateMediaCollectionURLs(mediaCollections, urlOrigin, locale);
     }
@@ -177,6 +177,10 @@ function generateEbookURLs(epubs, urlOrigin, locale) {
 async function generateCollectionURLs(collections, part, urlOrigin, locale, API = undefined, multilingualTOC = false) {
   let counter = 0;
   for (let i = 0; i < collections.length; i++) {
+    if (i > 0 && (i % 20 === 0)) {
+      // Pause to avoid backend overload
+      await common.sleep(2000);
+    }
     if (part === 'text') {
       counter += await generateCollectionTextURLs(collections[i]['id'] || 0, urlOrigin, locale, API, multilingualTOC);
     } else {
@@ -194,7 +198,7 @@ async function generateCollectionTextURLs(collection_id, urlOrigin, locale, API,
     endpoint += '/' + locale;
   }
 
-  const tocJSON = await common.fetchFromAPI(endpoint);
+  const tocJSON = await common.fetchWithRetry(endpoint);
 
   // Handle failed fetch
   if (!tocJSON) {

@@ -74,14 +74,22 @@ async function generateStaticCollectionMenus() {
       collectionsEndpoint += '/' + locale;
     }
 
-    const collections = await common.fetchFromAPI(collectionsEndpoint);
+    const collections = await common.fetchWithRetry(collectionsEndpoint);
     if (!collections) {
       console.warn(`Skipping locale "${locale}": could not fetch collections from ${collectionsEndpoint}`);
       continue;
     }
 
+    let collectionCount = 0;
+
     // Loop through each collection
     for (const collection of collections) {
+      collectionCount++;
+      if (collectionCount % 20 === 0) {
+        // Pause to avoid backend overload
+        await common.sleep(2000);
+      }
+
       const collectionId = collection?.id;
       const collectionTitle = collection?.title ?? '';
 
@@ -95,7 +103,7 @@ async function generateStaticCollectionMenus() {
         tocEndpoint += '/' + locale;
       }
 
-      const tocJSON = await common.fetchFromAPI(tocEndpoint);
+      const tocJSON = await common.fetchWithRetry(tocEndpoint);
       if (!tocJSON) {
         console.warn(`Skipping collection ${collectionId} (${locale}): could not fetch TOC from ${tocEndpoint}`);
         continue;

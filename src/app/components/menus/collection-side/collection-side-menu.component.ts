@@ -9,7 +9,7 @@ import { CollectionPagePathPipe } from '@pipes/collection-page-path.pipe';
 import { CollectionPagePositionQueryparamPipe } from '@pipes/collection-page-position-queryparam.pipe';
 import { CollectionTableOfContentsService } from '@services/collection-toc.service';
 import { ScrollService } from '@services/scroll.service';
-import { addOrRemoveValueInArray, isBrowser } from '@utility-functions';
+import { addOrRemoveValueInArray, enableFrontMatterPage, isBrowser } from '@utility-functions';
 
 
 @Component({
@@ -42,11 +42,6 @@ export class CollectionSideMenuComponent implements OnInit, OnChanges, OnDestroy
     private scrollService: ScrollService,
     private tocService: CollectionTableOfContentsService
   ) {
-    this.enableCover = config.collections?.frontMatterPages?.cover ?? false;
-    this.enableTitle = config.collections?.frontMatterPages?.title ?? false;
-    this.enableForeword = config.collections?.frontMatterPages?.foreword ?? false;
-    this.enableIntroduction = config.collections?.frontMatterPages?.introduction ?? false;
-
     this.sortSelectOptions = {
       header: $localize`:@@CollectionSideMenu.SortOptions.SelectSorting:Välj sortering för innehållsförteckningen`,
       cssClass: 'custom-select-alert'
@@ -93,6 +88,11 @@ export class CollectionSideMenuComponent implements OnInit, OnChanges, OnDestroy
   }
 
   ngOnInit() {
+    this.enableCover = enableFrontMatterPage('cover', this.collectionID, config);
+    this.enableTitle = enableFrontMatterPage('title', this.collectionID, config);
+    this.enableForeword = enableFrontMatterPage('foreword', this.collectionID, config);
+    this.enableIntroduction = enableFrontMatterPage('introduction', this.collectionID, config);
+
     // Subscribe to BehaviorSubject emitting the current TOC.
     // The received TOC is already properly ordered.
     this.tocSubscr = this.tocService.getCurrentCollectionToc().subscribe(

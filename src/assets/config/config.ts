@@ -60,6 +60,12 @@ export const config: Config = {
       foreword: true,
       introduction: true
     },
+    frontMatterPageDisabled: {
+      cover: [],
+      title: [],
+      foreword: [],
+      introduction: []
+    },
     highlightSearchMatches: true,
     inlineIllustrations: [206],
     mediaCollectionMappings: { 214: 44, 206: 19, 218: 19 },

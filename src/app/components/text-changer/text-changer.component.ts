@@ -9,6 +9,7 @@ import { DocumentHeadService } from '@services/document-head.service';
 import { CollectionPagePathPipe } from '@pipes/collection-page-path.pipe';
 import { CollectionPagePositionQueryparamPipe } from '@pipes/collection-page-position-queryparam.pipe';
 import { PlatformService } from '@services/platform.service';
+import { enableFrontMatterPage } from '@utility-functions';
 
 
 /**
@@ -134,7 +135,7 @@ export class TextChangerComponent implements OnChanges, OnDestroy, OnInit {
     };
 
     return frontMatterKeys.reduce<{ text: string; page: string; itemId: string }[]>((pages, key) => {
-      if (config.collections?.frontMatterPages?.[key]) {
+      if (enableFrontMatterPage(key, collectionId, config)) {
         pages.push({
           text: localizedTexts[key],
           page: key,

@@ -141,6 +141,23 @@ function sleep(ms) {
 }
 
 /**
+ * Check if a front matter page should be enabled for a collection.
+ * @param {string} type - One of 'cover', 'title', 'foreword', 'introduction'
+ * @param {string} collectionId
+ * @param {object} config
+ * @returns {boolean}
+ */
+function enableFrontMatterPage(type, collectionId, config) {
+  const defaultEnable = config.collections?.frontMatterPages?.[type] ?? false;
+  if (!defaultEnable) {
+    return false;
+  }
+  const collection = Number(collectionId);
+  const disabledCollections = config.collections?.frontMatterPageDisabled?.[type] ?? [];
+  return !disabledCollections.includes(collection);
+}
+
+/**
  * Export all functions in this file as a CommonJS module.
  */
 module.exports = {
@@ -149,5 +166,6 @@ module.exports = {
   fetchWithRetry,
   flattenObjectTree,
   getTranslation,
-  sleep
+  sleep,
+  enableFrontMatterPage
 };

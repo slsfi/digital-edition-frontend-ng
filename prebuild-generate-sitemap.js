@@ -167,8 +167,8 @@ async function generateCollectionURLs(collections, part, urlOrigin, locale, conf
   let counter = 0;
   for (let i = 0; i < collections.length; i++) {
     if (part === 'text') {
-      if (i > 0 && (i % 20 === 0)) {
-        // Pause every 20th collection to avoid backend overload
+      if (i > 0 && (i % 10 === 0)) {
+        // Pause every 10th collection to avoid backend overload
         await common.sleep(2000);
       }
       counter += await generateCollectionTextURLs(collections[i]['id'] || 0, urlOrigin, locale, API, multilingualTOC);

@@ -59,7 +59,10 @@ export class CollectionSideMenuComponent implements OnInit, OnChanges, OnDestroy
           changes.collectionID.previousValue !== changes.collectionID.currentValue
         ) {
           // Collection changed, the new menu will be loaded in the subscription
-          // in ngOnInit(), so no need to do anything here.
+          // in ngOnInit(). Update collection frontmatter pages if collectionID set.
+          if (this.collectionID) {
+            this.updateFrontmatterPages();
+          }
           break;
         } else if (
           (
@@ -88,10 +91,7 @@ export class CollectionSideMenuComponent implements OnInit, OnChanges, OnDestroy
   }
 
   ngOnInit() {
-    this.enableCover = enableFrontMatterPage('cover', this.collectionID, config);
-    this.enableTitle = enableFrontMatterPage('title', this.collectionID, config);
-    this.enableForeword = enableFrontMatterPage('foreword', this.collectionID, config);
-    this.enableIntroduction = enableFrontMatterPage('introduction', this.collectionID, config);
+    this.updateFrontmatterPages();
 
     // Subscribe to BehaviorSubject emitting the current TOC.
     // The received TOC is already properly ordered.
@@ -120,6 +120,13 @@ export class CollectionSideMenuComponent implements OnInit, OnChanges, OnDestroy
 
   ngOnDestroy() {
     this.tocSubscr?.unsubscribe();
+  }
+
+  private updateFrontmatterPages() {
+    this.enableCover = enableFrontMatterPage('cover', this.collectionID, config);
+    this.enableTitle = enableFrontMatterPage('title', this.collectionID, config);
+    this.enableForeword = enableFrontMatterPage('foreword', this.collectionID, config);
+    this.enableIntroduction = enableFrontMatterPage('introduction', this.collectionID, config);
   }
 
   private updateHighlightedMenuItem(scrollTimeout: number = 600) {

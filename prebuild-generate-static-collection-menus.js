@@ -85,8 +85,8 @@ async function generateStaticCollectionMenus() {
     // Loop through each collection
     for (const collection of collections) {
       collectionCount++;
-      if (collectionCount % 20 === 0) {
-        // Pause to avoid backend overload
+      if (collectionCount % 10 === 0) {
+        // Pause every 10th collection to avoid backend overload
         await common.sleep(2000);
       }
 

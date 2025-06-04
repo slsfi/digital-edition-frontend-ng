@@ -42,11 +42,6 @@ export class CollectionSideMenuComponent implements OnInit, OnChanges, OnDestroy
     private scrollService: ScrollService,
     private tocService: CollectionTableOfContentsService
   ) {
-    this.enableCover = enableFrontMatterPage('cover', this.collectionID, config);
-    this.enableTitle = enableFrontMatterPage('title', this.collectionID, config);
-    this.enableForeword = enableFrontMatterPage('foreword', this.collectionID, config);
-    this.enableIntroduction = enableFrontMatterPage('introduction', this.collectionID, config);
-
     this.sortSelectOptions = {
       header: $localize`:@@CollectionSideMenu.SortOptions.SelectSorting:Välj sortering för innehållsförteckningen`,
       cssClass: 'custom-select-alert'
@@ -93,6 +88,11 @@ export class CollectionSideMenuComponent implements OnInit, OnChanges, OnDestroy
   }
 
   ngOnInit() {
+    this.enableCover = enableFrontMatterPage('cover', this.collectionID, config);
+    this.enableTitle = enableFrontMatterPage('title', this.collectionID, config);
+    this.enableForeword = enableFrontMatterPage('foreword', this.collectionID, config);
+    this.enableIntroduction = enableFrontMatterPage('introduction', this.collectionID, config);
+
     // Subscribe to BehaviorSubject emitting the current TOC.
     // The received TOC is already properly ordered.
     this.tocSubscr = this.tocService.getCurrentCollectionToc().subscribe(

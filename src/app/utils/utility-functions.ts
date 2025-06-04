@@ -237,3 +237,25 @@ export async function urlExists(url: string) {
     return 0;
   }
 }
+
+
+/**
+ * Check if a front matter page should be enabled for a collection.
+ * @param type one of 'cover', 'title', 'foreword', 'introduction'
+ * @param collectionId string
+ * @param config 
+ * @returns boolean
+ */
+export function enableFrontMatterPage(
+  type: string,
+  collectionId: string,
+  config: any
+) {
+  const defaultEnable = config.collections?.frontMatterPages?.[type] ?? false;
+  if (!defaultEnable) {
+    return false;
+  }
+  const collection = Number(collectionId);
+  const disabledCollections = config.collections?.frontMatterPageDisabled?.[type] ?? [];
+  return !disabledCollections.includes(collection);
+}

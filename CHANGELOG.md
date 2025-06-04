@@ -13,19 +13,23 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - Config option `config.collections.frontMatterPageDisabled` with `cover`, `title`, `foreword` and `introduction` as keys, each taking an array of collection IDs as numbers, to disable the respective frontmatter page of the specified collections. This can be used to disable frontmatter pages of some collections, even though the default is to have them enabled (through `config.collections.frontMatterPages`). For example, to disable the cover and introduction pages of just collections with IDs 1 and 2, and having them enabled for all other collections, you would define:
 
 ```typescript
-collections: {
+export const config: Config = {
   /*...*/
-  frontMatterPages: {
-    cover: true,
-    title: true,
-    foreword: true,
-    introduction: true
-  },
-  frontMatterPageDisabled: {
-    cover: [1, 2],
-    title: [],
-    foreword: [],
-    introduction: [1, 2]
+  collections: {
+    /*...*/
+    frontMatterPages: {
+      cover: true,
+      title: true,
+      foreword: true,
+      introduction: true
+    },
+    frontMatterPageDisabled: {
+      cover: [1, 2],
+      title: [],
+      foreword: [],
+      introduction: [1, 2]
+    },
+    /*...*/
   },
   /*...*/
 }

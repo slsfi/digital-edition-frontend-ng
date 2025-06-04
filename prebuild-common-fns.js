@@ -62,17 +62,18 @@ async function fetchFromAPI(endpoint) {
   }
 }
 
-async function fetchWithRetry(url, retries = 3, delay = 2000) {
-  for (let attempt = 1; attempt <= retries; attempt++) {
+async function fetchWithRetry(url, attempts = 3, delay = 2000) {
+  for (let attempt = 1; attempt <= attempts; attempt++) {
     const result = await fetchFromAPI(url);
     if (result) return result;
-    console.warn(`Fetch failed (${attempt}/${retries}) for ${url}. Retrying in ${delay}ms...`);
-    await sleep(delay);
+    if (attempt < attempts) {
+      console.warn(`Fetch failed (${attempt}/${attempts}) for ${url}. Retrying in ${delay}ms...`);
+      await sleep(delay);
+    }
   }
-  console.error(`Failed to fetch ${url} after ${retries} attempts.`);
+  console.error(`Fetch failed (${attempts}/${attempts}) for ${url}.`);
   return null;
 }
-
 
 /**
  * Given an object with nested objects in the property 'branchingKey',

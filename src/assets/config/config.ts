@@ -299,7 +299,7 @@ export const config: Config = {
         legend: true,
         metadata: false
       },
-      disabledCollectionViewTypes: {
+      viewTypeDisabledCollections: {
         readingtext: [],
         comments: [],
         facsimiles: [],

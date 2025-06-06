@@ -35,7 +35,7 @@ export const config: Config = {
 }
 ```
 
-- Config option `config.page.text.disabledCollectionViewTypes` with the collection text page view types `readingtext`, `comments`, `facsimiles`, `manuscripts`, `variants`, `illustrations`, `legend` and `metadata` as keys, each taking an array of collection IDs as numbers, to disable the respective view type of the specified collections. This can be used to disable particular view types for some collections, even though the default is to have them enabled (through `config.page.text.viewTypes`). For example, to disable `facsimiles` and `variants` view types of just collections with IDs 1 and 2, and having them enabled for all other collections, you would define:
+- Config option `config.page.text.viewTypeDisabledCollections` with the collection text page view types `readingtext`, `comments`, `facsimiles`, `manuscripts`, `variants`, `illustrations`, `legend` and `metadata` as keys, each taking an array of collection IDs as numbers, to disable the respective view type of the specified collections. This can be used to disable particular view types for some collections, even though the default is to have them enabled (through `config.page.text.viewTypes`). For example, to disable `facsimiles` and `variants` view types of just collections with IDs 1 and 2, and having them enabled for all other collections, you would define:
 
 ```typescript
 export const config: Config = {
@@ -55,7 +55,7 @@ export const config: Config = {
         legend: true,
         metadata: true
       },
-      disabledCollectionViewTypes: {
+      viewTypeDisabledCollections: {
         readingtext: [],
         comments: [],
         facsimiles: [1, 2],

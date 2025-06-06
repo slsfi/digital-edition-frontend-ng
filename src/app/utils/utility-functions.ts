@@ -268,7 +268,7 @@ export function enableFrontMatterPageOrTextViewType(
   const collection = Number(collectionId);
 
   const disabledCollections: number[] = (pageType === 'text')
-    ? config.page?.text?.disabledCollectionViewTypes?.[viewType || ''] ?? []
+    ? config.page?.text?.viewTypeDisabledCollections?.[viewType || ''] ?? []
     : config.collections?.frontMatterPageDisabled?.[pageType] ?? [];
 
   return !disabledCollections.includes(collection);

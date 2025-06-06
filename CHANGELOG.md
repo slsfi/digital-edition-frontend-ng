@@ -76,6 +76,10 @@ export const config: Config = {
 
 - Add throttling and retries to prebuild scripts to prevent backend overload.
 
+### Changed
+
+- Deps: update `marked` to 15.0.12.
+
 
 
 ## [1.6.5] – 2025-05-19

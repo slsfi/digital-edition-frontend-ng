@@ -79,6 +79,7 @@ export const config: Config = {
 ### Changed
 
 - Deps: update `marked` to 15.0.12.
+- Deps: update `zone.js` to 0.15.1.
 
 
 

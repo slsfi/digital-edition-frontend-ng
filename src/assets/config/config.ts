@@ -298,6 +298,16 @@ export const config: Config = {
         illustrations: true,
         legend: true,
         metadata: false
+      },
+      disabledCollectionViewTypes: {
+        readingtext: [],
+        comments: [],
+        facsimiles: [],
+        manuscripts: [],
+        variants: [],
+        illustrations: [],
+        legend: [],
+        metadata: []
       }
     },
     title: {

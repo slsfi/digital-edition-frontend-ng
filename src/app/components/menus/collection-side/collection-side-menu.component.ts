@@ -9,7 +9,7 @@ import { CollectionPagePathPipe } from '@pipes/collection-page-path.pipe';
 import { CollectionPagePositionQueryparamPipe } from '@pipes/collection-page-position-queryparam.pipe';
 import { CollectionTableOfContentsService } from '@services/collection-toc.service';
 import { ScrollService } from '@services/scroll.service';
-import { addOrRemoveValueInArray, enableFrontMatterPage, isBrowser } from '@utility-functions';
+import { addOrRemoveValueInArray, enableFrontMatterPageOrTextViewType, isBrowser } from '@utility-functions';
 
 
 @Component({
@@ -123,10 +123,10 @@ export class CollectionSideMenuComponent implements OnInit, OnChanges, OnDestroy
   }
 
   private updateFrontmatterPages() {
-    this.enableCover = enableFrontMatterPage('cover', this.collectionID, config);
-    this.enableTitle = enableFrontMatterPage('title', this.collectionID, config);
-    this.enableForeword = enableFrontMatterPage('foreword', this.collectionID, config);
-    this.enableIntroduction = enableFrontMatterPage('introduction', this.collectionID, config);
+    this.enableCover = enableFrontMatterPageOrTextViewType('cover', this.collectionID, config);
+    this.enableTitle = enableFrontMatterPageOrTextViewType('title', this.collectionID, config);
+    this.enableForeword = enableFrontMatterPageOrTextViewType('foreword', this.collectionID, config);
+    this.enableIntroduction = enableFrontMatterPageOrTextViewType('introduction', this.collectionID, config);
   }
 
   private updateHighlightedMenuItem(scrollTimeout: number = 600) {

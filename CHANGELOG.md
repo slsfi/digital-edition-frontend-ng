@@ -8,9 +8,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+
+
+## [1.7.0] – 2025-06-07
+
 ### Added
 
-- Config option `config.collections.frontMatterPageDisabled` with `cover`, `title`, `foreword` and `introduction` as keys, each taking an array of collection IDs as numbers, to disable the respective frontmatter page of the specified collections. This can be used to disable frontmatter pages of some collections, even though the default is to have them enabled (through `config.collections.frontMatterPages`). For example, to disable the cover and introduction pages of just collections with IDs 1 and 2, and having them enabled for all other collections, you would define:
+- Config option `config.collections.frontMatterPageDisabled` with `cover`, `title`, `foreword` and `introduction` as keys, each taking an array of collection IDs as numbers, to disable the respective frontmatter page of the specified collections. This can be used to disable frontmatter pages of some collections, even though the default is to have them enabled (through `config.collections.frontMatterPages`). For example, to disable the cover and introduction pages of just collections with IDs 1 and 2, and having them enabled for all other collections, you would define: ([c4cc376](https://github.com/slsfi/digital-edition-frontend-ng/commit/c4cc3760fd520b53b7023650cfa3f2c0d6023103), [b887ae8](https://github.com/slsfi/digital-edition-frontend-ng/commit/b887ae86c1eff24b7b37b07bc8bc37e2a48d4605))
 
 ```typescript
 export const config: Config = {
@@ -35,7 +39,7 @@ export const config: Config = {
 }
 ```
 
-- Config option `config.page.text.viewTypeDisabledCollections` with the collection text page view types `readingtext`, `comments`, `facsimiles`, `manuscripts`, `variants`, `illustrations`, `legend` and `metadata` as keys, each taking an array of collection IDs as numbers, to disable the respective view type of the specified collections. This can be used to disable particular view types for some collections, even though the default is to have them enabled (through `config.page.text.viewTypes`). For example, to disable `facsimiles` and `variants` view types of just collections with IDs 1 and 2, and having them enabled for all other collections, you would define:
+- Config option `config.page.text.viewTypeDisabledCollections` with the collection text page view types `readingtext`, `comments`, `facsimiles`, `manuscripts`, `variants`, `illustrations`, `legend` and `metadata` as keys, each taking an array of collection IDs as numbers, to disable the respective view type of the specified collections. This can be used to disable particular view types for some collections, even though the default is to have them enabled (through `config.page.text.viewTypes`). For example, to disable `facsimiles` and `variants` view types of just collections with IDs 1 and 2, and having them enabled for all other collections, you would define: ([aac0877](https://github.com/slsfi/digital-edition-frontend-ng/commit/aac08771a79b739eab70774f95faf7fd754ba0b1), [c703dfc](https://github.com/slsfi/digital-edition-frontend-ng/commit/c703dfc65785d674fc7ad7be87d33b255168d4c3))
 
 ```typescript
 export const config: Config = {
@@ -74,13 +78,13 @@ export const config: Config = {
 
 ### Fixed
 
-- Add throttling and retries to prebuild scripts to prevent backend overload.
+- Add throttling and retries to prebuild scripts to prevent backend overload. ([4b57519](https://github.com/slsfi/digital-edition-frontend-ng/commit/4b575195560282eb27398b0c165f086ee22b785f), [3774ad6](https://github.com/slsfi/digital-edition-frontend-ng/commit/3774ad61a93508cbf0356d45392d7ccb168ffc63), [b694671](https://github.com/slsfi/digital-edition-frontend-ng/commit/b6946714f4f9ebaea8de9994848f0daae199c900))
 
 ### Changed
 
-- Deps: update `marked` to 15.0.12.
-- Deps: update `zone.js` to 0.15.1.
-- Deps (dev): update `@types/node` to 20.19.0.
+- Deps: update `marked` to 15.0.12. ([48ffd64](https://github.com/slsfi/digital-edition-frontend-ng/commit/48ffd64abf25cc66492782fea99a3eefed5a29d7))
+- Deps: update `zone.js` to 0.15.1. ([da67c52](https://github.com/slsfi/digital-edition-frontend-ng/commit/da67c52fce7684ba6da1691e5527a3b62e3cefac))
+- Deps (dev): update `@types/node` to 20.19.0. ([16f43e6](https://github.com/slsfi/digital-edition-frontend-ng/commit/16f43e68cf729bee0968c5e48749a76b82173e59))
 
 
 
@@ -699,7 +703,8 @@ siteLogoDimensions: {
 
 
 
-[unreleased]: https://github.com/slsfi/digital-edition-frontend-ng/compare/1.6.5...HEAD
+[unreleased]: https://github.com/slsfi/digital-edition-frontend-ng/compare/1.7.0...HEAD
+[1.7.0]: https://github.com/slsfi/digital-edition-frontend-ng/compare/1.6.5...1.7.0
 [1.6.5]: https://github.com/slsfi/digital-edition-frontend-ng/compare/1.6.4...1.6.5
 [1.6.4]: https://github.com/slsfi/digital-edition-frontend-ng/compare/1.6.3...1.6.4
 [1.6.3]: https://github.com/slsfi/digital-edition-frontend-ng/compare/1.6.2...1.6.3

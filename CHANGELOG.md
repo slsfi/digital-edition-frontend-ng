@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+### Added
+
+- Config option `config.component.mainSideMenu.defaultExpanded` to expand the main menu items with children by default, when set to `true`. Defaults to `false`.
+
 
 
 ## [1.7.0] – 2025-06-07

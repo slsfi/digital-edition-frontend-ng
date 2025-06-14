@@ -52,6 +52,15 @@ export class MainSideMenuComponent implements OnInit, OnChanges {
   ngOnInit() {
     this.getMenuData().subscribe(
       (menu: any[]) => {
+        if (this._config.component?.mainSideMenu?.defaultExpanded ?? false) {
+          // Add root menu items to selectedMenu array if the main menu
+          // should be expanded by default when initialised.
+          menu.forEach((item: any) => {
+            if (item.children) {
+              this.selectedMenu.push(item.nodeId);
+            }
+          });
+        }
         this.mainMenu = menu;
         this.updateHighlightedMenuItem();
       }

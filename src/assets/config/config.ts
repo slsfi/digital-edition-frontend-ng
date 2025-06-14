@@ -354,7 +354,8 @@ export const config: Config = {
         indexPersons: true,
         indexPlaces: true,
         indexWorks: false
-      }
+      },
+      defaultExpanded: false
     },
     manuscripts: {
       showTitle: true,

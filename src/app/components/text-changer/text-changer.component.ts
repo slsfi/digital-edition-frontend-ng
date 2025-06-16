@@ -113,7 +113,7 @@ export class TextChangerComponent implements OnChanges, OnDestroy, OnInit {
         this.collectionId = collectionID;
         this.collectionTitle = toc.text || '';
         this.activeMenuOrder = toc?.order || 'default';
-        this.flattenedToc = this.getFrontmatterPages(collectionID).concat(toc.children);
+        this.flattenedToc = this.getFrontmatterPages(collectionID, toc).concat(toc.children);
       }
 
       this.updateCurrentText();
@@ -124,14 +124,14 @@ export class TextChangerComponent implements OnChanges, OnDestroy, OnInit {
     this.tocSubscr?.unsubscribe();
   }
 
-  private getFrontmatterPages(collectionId: string) {
+  private getFrontmatterPages(collectionId: string, toc: any) {
     type FrontMatterKey = 'cover' | 'title' | 'foreword' | 'introduction';
     const frontMatterKeys: FrontMatterKey[] = ['cover', 'title', 'foreword', 'introduction'];
     const localizedTexts: Record<FrontMatterKey, string> = {
-      cover: $localize`:@@CollectionCover.Cover:Omslag`,
-      title: $localize`:@@CollectionTitle.TitlePage:Titelblad`,
-      foreword: $localize`:@@CollectionForeword.Foreword:Förord`,
-      introduction: $localize`:@@CollectionIntroduction.Introduction:Inledning`
+      cover: toc.coverPageName || $localize`:@@CollectionCover.Cover:Omslag`,
+      title: toc.titlePageName || $localize`:@@CollectionTitle.TitlePage:Titelblad`,
+      foreword: toc.forewordPageName || $localize`:@@CollectionForeword.Foreword:Förord`,
+      introduction: toc.introductionPageName || $localize`:@@CollectionIntroduction.Introduction:Inledning`
     };
 
     return frontMatterKeys.reduce<{ text: string; page: string; itemId: string }[]>((pages, key) => {

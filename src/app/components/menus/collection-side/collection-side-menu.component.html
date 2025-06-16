@@ -50,28 +50,28 @@
     @if (enableCover) {
       <li [attr.aria-current]="routeUrlSegments[2].path === 'cover' ? 'page' : null" role="menuitem" data-id="toc_cover">
         <a routerLink="{{collectionID | collectionPagePath: 'cover'}}" [class.menu-highlight]="routeUrlSegments[2].path === 'cover'">
-          <span class="label" i18n="@@CollectionCover.Cover">Omslag</span>
+          <span class="label">{{ coverPageName }}</span>
         </a>
       </li>
     }
     @if (enableTitle) {
       <li [attr.aria-current]="routeUrlSegments[2].path === 'title' ? 'page' : null" role="menuitem" data-id="toc_title">
         <a routerLink="{{collectionID | collectionPagePath: 'title'}}" [class.menu-highlight]="routeUrlSegments[2].path === 'title'">
-          <span class="label" i18n="@@CollectionTitle.TitlePage">Titelblad</span>
+          <span class="label">{{ titlePageName }}</span>
         </a>
       </li>
     }
     @if (enableForeword) {
       <li [attr.aria-current]="routeUrlSegments[2].path === 'foreword' ? 'page' : null" role="menuitem" data-id="toc_foreword">
         <a routerLink="{{collectionID | collectionPagePath: 'foreword'}}" [class.menu-highlight]="routeUrlSegments[2].path === 'foreword'">
-          <span class="label" i18n="@@CollectionForeword.Foreword">Förord</span>
+          <span class="label">{{ forewordPageName }}</span>
         </a>
       </li>
     }
     @if (enableIntroduction) {
       <li [attr.aria-current]="routeUrlSegments[2].path === 'introduction' ? 'page' : null" role="menuitem" data-id="toc_introduction">
         <a routerLink="{{collectionID | collectionPagePath: 'introduction'}}" [class.menu-highlight]="routeUrlSegments[2].path === 'introduction'">
-          <span class="label" i18n="@@CollectionIntroduction.Introduction">Inledning</span>
+          <span class="label">{{ introductionPageName }}</span>
         </a>
       </li>
     }

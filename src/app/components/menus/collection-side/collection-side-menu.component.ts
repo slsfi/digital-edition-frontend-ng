@@ -27,15 +27,19 @@ export class CollectionSideMenuComponent implements OnInit, OnChanges, OnDestroy
   activeMenuOrder: string = '';
   collectionMenu: any[] = [];
   collectionTitle: string = '';
+  coverPageName: string = '';
   currentMenuItemId: string = '';
   enableCover: boolean = false;
   enableTitle: boolean = false;
   enableForeword: boolean = false;
   enableIntroduction: boolean = false;
+  forewordPageName: string = '';
+  introductionPageName: string = '';
   isLoading: boolean = true;
   selectedMenu: string[] = []; // list of all open menu items in the menu tree
   sortOptions: string[] = [];
   sortSelectOptions: Record<string, any> = {};
+  titlePageName: string = '';
   tocSubscr: Subscription | null = null;
 
   constructor(
@@ -105,13 +109,19 @@ export class CollectionSideMenuComponent implements OnInit, OnChanges, OnDestroy
         const scrollTimeout = this.activeMenuOrder !== toc?.order ? 1000 : 700;
         this.activeMenuOrder = toc?.order || 'default';
 
+        this.collectionTitle = toc.text || '';
+        this.coverPageName = toc.coverPageName || $localize`:@@CollectionCover.Cover:Omslag`;
+        this.titlePageName = toc.titlePageName || $localize`:@@CollectionTitle.TitlePage:Titelblad`;
+        this.forewordPageName = toc.forewordPageName || $localize`:@@CollectionForeword.Foreword:Förord`;
+        this.introductionPageName = toc.introductionPageName || $localize`:@@CollectionIntroduction.Introduction:Inledning`;
+
         if (toc?.children?.length) {
           this.recursiveInitializeSelectedMenu(toc.children);
-          this.collectionTitle = toc.text || '';
           this.collectionMenu = toc.children;
-          this.isLoading = false;
-          this.updateHighlightedMenuItem(scrollTimeout);
         }
+
+        this.isLoading = false;
+        this.updateHighlightedMenuItem(scrollTimeout);
 
         this.sortOptions = this.setSortOptions(this.collectionID);
       }

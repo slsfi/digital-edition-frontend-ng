@@ -10,7 +10,21 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ### Added
 
-- Config option `config.component.mainSideMenu.defaultExpanded` to expand the main menu items with children by default, when set to `true`. Defaults to `false`.
+- Config option `config.component.mainSideMenu.defaultExpanded` to expand the main menu items with children by default when set to `true`. Defaults to `false`.
+- Support for custom names for the collection frontmatter pages (cover, title, foreword and introduction). By default, all collections have the same names for the frontmatter pages, set in the translation files in `src/locale/`. The names of these pages can now be set differently for each collection in the JSON table of contents (ToC) files of the collections. The root object in the JSON ToC-files can optionally take the keys `coverPageName`, `titlePageName`, `forewordPageName` and `introductionPageName`. If any of these are set (i.e. have truthy values), those page names are used instead of the default ones. Example of a JSON ToC-file where the introduction page of a particular collection has a non-default name:
+
+```json
+/* 225.json */
+{
+  "text": "About Wittgenstein",
+  "collectionId": "225",
+  "type": "title",
+  "introductionPageName": "G.H. von Wright as a Gateway to Wittgenstein",
+  "children": [
+    /*...*/
+  ]
+}
+```
 
 
 

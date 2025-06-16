@@ -30,6 +30,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 ### Changed
 
 - Deps (dev): update `jasmine-core` to 5.8.0.
+- Deps (dev): update `ng-extract-i18n-merge` to 2.15.1.
 
 
 

@@ -27,6 +27,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 - Clear search field on home page after query, so that when navigating back to the home page, the search field is empty.
 
+### Changed
+
+- Deps (dev): update `jasmine-core` to 5.8.0.
+
 
 
 ## [1.7.0] – 2025-06-07

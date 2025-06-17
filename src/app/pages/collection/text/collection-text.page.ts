@@ -190,8 +190,11 @@ export class CollectionTextPage implements OnDestroy, OnInit {
         parsedViews.forEach((viewObj: any) => {
           const cachedViewObj: any = { type: viewObj.type };
           if (
-            viewObj.type === 'variants' &&
-            viewObj.sortOrder
+            viewObj.sortOrder &&
+            (
+              viewObj.type === 'variants' ||
+              viewObj.type === 'facsimiles'
+            )
           ) {
             cachedViewObj.sortOrder = viewObj.sortOrder;
           }

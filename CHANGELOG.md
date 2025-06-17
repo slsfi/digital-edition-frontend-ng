@@ -26,6 +26,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 ### Fixed
 
 - Clear search field on home page after query, so that when navigating back to the home page, the search field is empty.
+- Preserve selected facsimile collection on text change.
 
 ### Changed
 

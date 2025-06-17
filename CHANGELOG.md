@@ -27,6 +27,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 - Clear search field on home page after query, so that when navigating back to the home page, the search field is empty.
 - Preserve selected facsimile collection on text change.
+- Parsing of `itemId` to router links when position but no chapter segment is present.
 
 ### Changed
 

@@ -288,6 +288,10 @@ export const config: Config = {
         pageBreakOriginal: true,
         pageBreakEdition: true
       },
+      variantViewOptions: {
+        showVariationTypeOption: false,
+        defaultVariationType: "all"
+      },
       viewTypes: {
         showAll: true,
         readingtext: true,

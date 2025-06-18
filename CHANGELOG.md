@@ -23,6 +23,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 }
 ```
 
+- Config option `config.page.text.variantViewOptions` to allow the user to control the type of variation that is displayed in variant texts.
+
 ### Fixed
 
 - Clear search field on home page after query, so that when navigating back to the home page, the search field is empty.

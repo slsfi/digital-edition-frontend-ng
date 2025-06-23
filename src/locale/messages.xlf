@@ -1486,6 +1486,21 @@
         <source>Inställningar</source>
       </segment>
     </unit>
+    <unit id="ViewOptions.ShowAllVariation">
+      <segment>
+        <source>Visa alla skillnader</source>
+      </segment>
+    </unit>
+    <unit id="ViewOptions.ShowNoVariation">
+      <segment>
+        <source>Visa inga skillnader</source>
+      </segment>
+    </unit>
+    <unit id="ViewOptions.ShowSubstantialVariation">
+      <segment>
+        <source>Visa substantiella skillnader</source>
+      </segment>
+    </unit>
     <unit id="ViewOptions.Textsize">
       <segment>
         <source>Textstorlek</source>
@@ -1519,6 +1534,11 @@
     <unit id="ViewOptions.ToggleAll">
       <segment>
         <source>Välj alla</source>
+      </segment>
+    </unit>
+    <unit id="ViewOptions.VariantOptions">
+      <segment>
+        <source>Visningsalternativ, varianter</source>
       </segment>
     </unit>
     <unit id="ViewOptions.WorkInfo">

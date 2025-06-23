@@ -23,7 +23,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 }
 ```
 
-- Config option `config.page.text.variantViewOptions` to allow the user to control the type of variation that is displayed in variant texts. It has two properties: `showVariationTypeOption`, which is a boolean used to control if the view option should be shown or not (defaults to `false`), and `defaultVariationType`, which is a string used to control the variation type that is show by default. Possible values include `all` (default) for displaying all variation types, `sub` for displaying only substantial/significant variation, and `none` for hiding all variation highlighting. Example:
+- Config option `config.page.text.variantViewOptions` to allow the user to control the type of variation that is displayed in variant texts. It has two properties: `showVariationTypeOption`, which is a boolean used to control if the view option should be shown or not (defaults to `false`), and `defaultVariationType`, which is a string used to set the variation type that is shown by default. Possible values include `all` (default) for displaying all variation types, `sub` for displaying only substantial/significant variation, and `none` for hiding all variation highlighting. Example:
 
 ```typescript
 export const config: Config = {

@@ -49,6 +49,7 @@ export const config: Config = {
 - Clear search field on home page after query, so that when navigating back to the home page, the search field is empty.
 - Preserve selected facsimile collection on text change.
 - Parsing of `itemId` to router links when position but no chapter segment is present.
+- Localization of back to reference labels of footnotes in Markdown texts.
 
 ### Changed
 

@@ -672,7 +672,10 @@ export class CollectionTextPage implements OnDestroy, OnInit {
             this.viewOptionsService.selectedVariationType === 'all' ||
             (
               this.viewOptionsService.selectedVariationType === 'sub' &&
-              eventTarget.classList.contains('substantial')
+              (
+                eventTarget.classList.contains('substantial') ||
+                eventTarget.classList.contains('lemma')
+              )
             )
           )
         ) {

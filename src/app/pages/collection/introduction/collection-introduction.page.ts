@@ -198,7 +198,7 @@ export class CollectionIntroductionPage implements OnInit, OnDestroy {
     this.textLoading = true;
     this.collectionContentService.getIntroduction(id, lang).subscribe({
       next: (res: any) => {
-        if (res?.content) {
+        if (res?.content && res?.content !== 'File not found') {
           this.textLoading = false;
           // Fix paths for images
           let textContent = this.replaceImageAssetsPaths

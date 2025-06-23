@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+### Fixed
+
+- Error messages on failed loading of foreword and introduction pages.
+
 
 
 ## [1.8.0] – 2025-06-23

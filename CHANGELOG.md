@@ -8,10 +8,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+
+
+## [1.8.0] – 2025-06-23
+
 ### Added
 
-- Config option `config.component.mainSideMenu.defaultExpanded` to expand the main menu items with children by default when set to `true`. Defaults to `false`.
-- Support for custom names for the collection frontmatter pages (cover, title, foreword and introduction). By default, all collections have the same names for the frontmatter pages, set in the translation files in `src/locale/`. The names of these pages can now be set differently for each collection in the JSON table of contents (ToC) files of the collections. The root object in the JSON ToC-files can optionally take the keys `coverPageName`, `titlePageName`, `forewordPageName` and `introductionPageName`. If any of these are set (i.e. have truthy values), those page names are used instead of the default ones. Example of a JSON ToC-file where the introduction page of a particular collection has a non-default name:
+- Config option `config.component.mainSideMenu.defaultExpanded` to expand the main menu items with children by default when set to `true`. Defaults to `false`. ([45930e6](https://github.com/slsfi/digital-edition-frontend-ng/commit/45930e6dcb2b1e69ed5c76c9ce534e0a40f387af))
+- Support for custom names for the collection frontmatter pages (cover, title, foreword and introduction). By default, all collections have the same names for the frontmatter pages, set in the translation files in `src/locale/`. The names of these pages can now be set differently for each collection in the JSON table of contents (ToC) files of the collections. The root object in the JSON ToC-files can optionally take the keys `coverPageName`, `titlePageName`, `forewordPageName` and `introductionPageName`. If any of these are set (i.e. have truthy values), those page names are used instead of the default ones. ([f98b6f4](https://github.com/slsfi/digital-edition-frontend-ng/commit/f98b6f41b861605ef692e3a23fa750c34a1fc1b5)) Example of a JSON ToC-file where the introduction page of a particular collection has a non-default name:
 
 ```json
 {
@@ -23,7 +27,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 }
 ```
 
-- Config option `config.page.text.variantViewOptions` to allow the user to control the type of variation that is displayed in variant texts. It has two properties: `showVariationTypeOption`, which is a boolean used to control if the view option should be shown or not (defaults to `false`), and `defaultVariationType`, which is a string used to set the variation type that is shown by default. Possible values include `all` (default) for displaying all variation types, `sub` for displaying only substantial/significant variation, and `none` for hiding all variation highlighting. Example:
+- Config option `config.page.text.variantViewOptions` to allow the user to control the type of variation that is displayed in variant texts. It has two properties: `showVariationTypeOption`, which is a boolean used to control if the view option should be shown or not (defaults to `false`), and `defaultVariationType`, which is a string used to set the variation type that is shown by default. Possible values include `all` (default) for displaying all variation types, `sub` for displaying only substantial/significant variation, and `none` for hiding all variation highlighting. ([e6ae4d3](https://github.com/slsfi/digital-edition-frontend-ng/commit/e6ae4d340c6e61ea59a451bfcb27e7d8f1b5ec72#diff-b0bf11efc4756fd809b5ba1d2cc58847e1e61af9ca9215b394c86cee16de8498)) Example:
 
 ```typescript
 export const config: Config = {
@@ -46,20 +50,20 @@ export const config: Config = {
 
 ### Fixed
 
-- Clear search field on home page after query, so that when navigating back to the home page, the search field is empty.
-- Preserve selected facsimile collection on text change.
-- Parsing of `itemId` to router links when position but no chapter segment is present.
-- Localization of back to reference labels of footnotes in Markdown texts.
+- Clear search field on home page after query, so that when navigating back to the home page, the search field is empty. ([040fd83](https://github.com/slsfi/digital-edition-frontend-ng/commit/040fd83ca9b9e721acdee5dc4e803b7ecb9fff16))
+- Preserve selected facsimile collection on text change. ([9f645ca](https://github.com/slsfi/digital-edition-frontend-ng/commit/9f645cacbcfda48a008d9621e0a34fef27a775a0))
+- Parsing of `itemId` to router links when position but no chapter segment is present. ([992988c](https://github.com/slsfi/digital-edition-frontend-ng/commit/992988c7c6c776e5163e3068cce3672ca1fcabb1))
+- Localization of back to reference labels of footnotes in Markdown texts. ([4dabdcb](https://github.com/slsfi/digital-edition-frontend-ng/commit/4dabdcb9aab057ff3e52c5b095aa66f0bec494dd))
 
 ### Changed
 
-- Update README.
-- Deps: update `@angular/cli` to 19.2.15 and `@angular/core` to 19.2.14.
-- Deps: update `marked-footnote` to 1.3.0.
-- Deps (dev): update `@types/express` to 4.17.23.
-- Deps (dev): update `@types/node` to 20.19.1.
-- Deps (dev): update `jasmine-core` to 5.8.0.
-- Deps (dev): update `ng-extract-i18n-merge` to 2.15.1.
+- Update README. ([cb30c5c](https://github.com/slsfi/digital-edition-frontend-ng/commit/cb30c5c79839d882ff689b8d5cd831116fdf8060), [671f6c6](https://github.com/slsfi/digital-edition-frontend-ng/commit/671f6c63e693f6b52814e345d6ab19fd9d0d368b))
+- Deps: update `@angular/cli` to 19.2.15 and `@angular/core` to 19.2.14. ([4694863](https://github.com/slsfi/digital-edition-frontend-ng/commit/46948634efbd98d3da939e634356f856558cf0b2))
+- Deps: update `marked-footnote` to 1.3.0. ([f34a364](https://github.com/slsfi/digital-edition-frontend-ng/commit/f34a364cbbdc12d914acbf7625a2337a40913b96))
+- Deps (dev): update `@types/express` to 4.17.23. ([542b9a3](https://github.com/slsfi/digital-edition-frontend-ng/commit/542b9a3de1bb16229b4ea3e7001a086a218cfa2e))
+- Deps (dev): update `@types/node` to 20.19.1. ([ef3e2a9](https://github.com/slsfi/digital-edition-frontend-ng/commit/ef3e2a9cc25dd8d7cdc9e52041bb5f9c767271c9))
+- Deps (dev): update `jasmine-core` to 5.8.0. ([a45cd26](https://github.com/slsfi/digital-edition-frontend-ng/commit/a45cd26bdbffc2b733a3c15cdaf0fe62ae099184))
+- Deps (dev): update `ng-extract-i18n-merge` to 2.15.1. ([9eaf5b7](https://github.com/slsfi/digital-edition-frontend-ng/commit/9eaf5b780c36654b4f2194d73302bfd4be8b1070))
 
 
 
@@ -756,7 +760,8 @@ siteLogoDimensions: {
 
 
 
-[unreleased]: https://github.com/slsfi/digital-edition-frontend-ng/compare/1.7.0...HEAD
+[unreleased]: https://github.com/slsfi/digital-edition-frontend-ng/compare/1.8.0...HEAD
+[1.8.0]: https://github.com/slsfi/digital-edition-frontend-ng/compare/1.7.0...1.8.0
 [1.7.0]: https://github.com/slsfi/digital-edition-frontend-ng/compare/1.6.5...1.7.0
 [1.6.5]: https://github.com/slsfi/digital-edition-frontend-ng/compare/1.6.4...1.6.5
 [1.6.4]: https://github.com/slsfi/digital-edition-frontend-ng/compare/1.6.3...1.6.4

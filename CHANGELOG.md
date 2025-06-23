@@ -56,6 +56,7 @@ export const config: Config = {
 - Update README.
 - Deps: update `@angular/cli` to 19.2.15 and `@angular/core` to 19.2.14.
 - Deps: update `marked-footnote` to 1.3.0.
+- Deps: update transitive dependencies.
 - Deps (dev): update `@types/express` to 4.17.23.
 - Deps (dev): update `@types/node` to 20.19.1.
 - Deps (dev): update `jasmine-core` to 5.8.0.

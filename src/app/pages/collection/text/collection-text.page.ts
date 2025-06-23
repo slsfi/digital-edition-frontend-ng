@@ -1232,12 +1232,12 @@ export class CollectionTextPage implements OnDestroy, OnInit {
   private showCommentInfoOverlay(id: string, targetElem: HTMLElement) {
     this.tooltipService.getCommentTooltip(this.textItemID, id).subscribe({
       next: (tooltip: any) => {
-        this.setInfoOverlayTitle($localize`:@@Commentary.Commentary:Kommentar`);
+        this.setInfoOverlayTitle($localize`:@@ViewOptions.ExplanatoryNote:Punktkommentar`);
         this.setInfoOverlayPositionAndWidth(targetElem);
         this.setInfoOverlayText(tooltip.description);
       },
       error: (errorC: any) => {
-        this.setInfoOverlayTitle($localize`:@@Commentary.Commentary:Kommentar`);
+        this.setInfoOverlayTitle($localize`:@@ViewOptions.ExplanatoryNote:Punktkommentar`);
         this.setInfoOverlayPositionAndWidth(targetElem);
         this.setInfoOverlayText($localize`:@@NamedEntity.NoInfoFound:Ingen information hittades.`);
       }

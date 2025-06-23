@@ -1782,6 +1782,24 @@
         <target>Inställningar</target>
       </segment>
     </unit>
+    <unit id="ViewOptions.ShowAllVariation">
+      <segment state="initial">
+        <source>Visa alla skillnader</source>
+        <target>Visa alla skillnader</target>
+      </segment>
+    </unit>
+    <unit id="ViewOptions.ShowNoVariation">
+      <segment state="initial">
+        <source>Visa inga skillnader</source>
+        <target>Visa inga skillnader</target>
+      </segment>
+    </unit>
+    <unit id="ViewOptions.ShowSubstantialVariation">
+      <segment state="initial">
+        <source>Visa substantiella skillnader</source>
+        <target>Visa substantiella skillnader</target>
+      </segment>
+    </unit>
     <unit id="ViewOptions.Textsize">
       <segment state="initial">
         <source>Textstorlek</source>
@@ -1822,6 +1840,12 @@
       <segment state="initial">
         <source>Välj alla</source>
         <target>Välj alla</target>
+      </segment>
+    </unit>
+    <unit id="ViewOptions.VariantOptions">
+      <segment state="initial">
+        <source>Visningsalternativ, varianter</source>
+        <target>Visningsalternativ, varianter</target>
       </segment>
     </unit>
     <unit id="ViewOptions.WorkInfo">

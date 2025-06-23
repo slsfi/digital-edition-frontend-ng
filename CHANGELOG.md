@@ -11,6 +11,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 ### Fixed
 
 - Error messages on failed loading of foreword and introduction pages.
+- Title of explanatory notes in the info-overlay component on the collection text page.
 
 
 

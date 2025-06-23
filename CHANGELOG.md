@@ -60,6 +60,7 @@ export const config: Config = {
 - Update README. ([cb30c5c](https://github.com/slsfi/digital-edition-frontend-ng/commit/cb30c5c79839d882ff689b8d5cd831116fdf8060), [671f6c6](https://github.com/slsfi/digital-edition-frontend-ng/commit/671f6c63e693f6b52814e345d6ab19fd9d0d368b))
 - Deps: update `@angular/cli` to 19.2.15 and `@angular/core` to 19.2.14. ([4694863](https://github.com/slsfi/digital-edition-frontend-ng/commit/46948634efbd98d3da939e634356f856558cf0b2))
 - Deps: update `marked-footnote` to 1.3.0. ([f34a364](https://github.com/slsfi/digital-edition-frontend-ng/commit/f34a364cbbdc12d914acbf7625a2337a40913b96))
+- Deps: update transitive dependencies. ([a410da3](https://github.com/slsfi/digital-edition-frontend-ng/commit/a410da348fc1272a0e3183dfb9b31b90e28d93b7))
 - Deps (dev): update `@types/express` to 4.17.23. ([542b9a3](https://github.com/slsfi/digital-edition-frontend-ng/commit/542b9a3de1bb16229b4ea3e7001a086a218cfa2e))
 - Deps (dev): update `@types/node` to 20.19.1. ([ef3e2a9](https://github.com/slsfi/digital-edition-frontend-ng/commit/ef3e2a9cc25dd8d7cdc9e52041bb5f9c767271c9))
 - Deps (dev): update `jasmine-core` to 5.8.0. ([a45cd26](https://github.com/slsfi/digital-edition-frontend-ng/commit/a45cd26bdbffc2b733a3c15cdaf0fe62ae099184))

@@ -1,6 +1,6 @@
 /**
  * If the given value exists in the array, it is removed from the array.
- * Otherwise the value is added to the array.
+ * Otherwise the value is added to the array. The array is modified in place.
  * @param array to add or remove value to/from.
  * @param value to add to or remove from array.
  */
@@ -11,6 +11,20 @@ export function addOrRemoveValueInArray(array: any[], value: any) {
   } else {
     array.push(value);
   }
+}
+
+
+/**
+ * Returns a new array where the given value is added or removed.
+ * If the value exists, it is removed. If not, it is added.
+ * @param array The original array.
+ * @param value The value to toggle.
+ * @returns A new array with the value added or removed.
+ */
+export function addOrRemoveValueInNewArray<T>(array: T[], value: T): T[] {
+  return array.includes(value)
+        ? array.filter(v => v !== value)
+        : [...array, value];
 }
 
 

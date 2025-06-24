@@ -32,7 +32,7 @@ import { addOrRemoveValueInNewArray, enableFrontMatterPageOrTextViewType, isBrow
     ArrayIncludesAnyPipe, ArrayIncludesPipe, CollectionPagePathPipe,
     CollectionPagePositionQueryparamPipe
   ],
-  changeDetection: ChangeDetectionStrategy.OnPush,
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CollectionSideMenuComponent implements OnInit, OnChanges, OnDestroy {
   @Input() collectionID: string = '';

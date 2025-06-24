@@ -14,6 +14,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - Document title on positioned introduction page.
 - Handle missing collection table of contents gracefully.
 
+### Changed
+
+- Improve readability and performance of the collection side menu component.
 
 
 ## [1.8.1] – 2025-06-23

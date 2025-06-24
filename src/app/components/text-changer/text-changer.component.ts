@@ -162,9 +162,10 @@ export class TextChangerComponent implements OnChanges, OnDestroy, OnInit {
     }
 
     // Set the document title to the current text title.
-    // Positioned item's title should not be set, instead we have to
-    // search for the non-positioned item's title.
-    const titleItemIndex = this.textPosition
+    // Positioned item's title should not be set. Instead, if a frontmatter
+    // page ("page" key present), we have to search for the non-positioned
+    // item's title.
+    const titleItemIndex = this.textPosition && !this.flattenedToc[this.currentTocTextIndex].page
           ? this.flattenedToc.findIndex(({ itemId }) => itemId === this.textItemID)
           : this.currentTocTextIndex;
 

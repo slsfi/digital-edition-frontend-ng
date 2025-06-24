@@ -11,6 +11,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 ### Fixed
 
 - Extraction of introduction table of contents when HTML contains newlines.
+- Document title on positioned introduction page.
 
 
 

@@ -2,7 +2,7 @@ import { Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@
 import { NgClass, NgTemplateOutlet } from '@angular/common';
 import { Params, RouterLink, UrlSegment } from '@angular/router';
 import { IonicModule } from '@ionic/angular';
-import { Subscription } from 'rxjs';
+import { filter, Subscription } from 'rxjs';
 
 import { config } from '@config';
 import { CollectionPagePathPipe } from '@pipes/collection-page-path.pipe';
@@ -99,15 +99,17 @@ export class CollectionSideMenuComponent implements OnInit, OnChanges, OnDestroy
 
     // Subscribe to BehaviorSubject emitting the current TOC.
     // The received TOC is already properly ordered.
-    this.tocSubscr = this.tocService.getCurrentCollectionToc().subscribe(
+    this.tocSubscr = this.tocService.getCurrentCollectionToc().pipe(
+      filter(toc => !!toc)
+    ).subscribe(
       (toc: any) => {
         this.isLoading = true;
         this.collectionMenu = [];
         this.selectedMenu = [];
         this.currentMenuItemId = '';
 
-        const scrollTimeout = this.activeMenuOrder !== toc?.order ? 1000 : 700;
-        this.activeMenuOrder = toc?.order || 'default';
+        const scrollTimeout = this.activeMenuOrder !== toc.order ? 1000 : 700;
+        this.activeMenuOrder = toc.order || 'default';
 
         this.collectionTitle = toc.text || '';
         this.coverPageName = toc.coverPageName || $localize`:@@CollectionCover.Cover:Omslag`;
@@ -115,7 +117,7 @@ export class CollectionSideMenuComponent implements OnInit, OnChanges, OnDestroy
         this.forewordPageName = toc.forewordPageName || $localize`:@@CollectionForeword.Foreword:Förord`;
         this.introductionPageName = toc.introductionPageName || $localize`:@@CollectionIntroduction.Introduction:Inledning`;
 
-        if (toc?.children?.length) {
+        if (toc.children?.length) {
           this.recursiveInitializeSelectedMenu(toc.children);
           this.collectionMenu = toc.children;
         }
@@ -194,7 +196,7 @@ export class CollectionSideMenuComponent implements OnInit, OnChanges, OnDestroy
    */
   private recursiveInitializeSelectedMenu(array: any[], parentNodeId?: string) {
     for (let i = 0; i < array.length; i++) {
-      array[i]["nodeId"] = (parentNodeId ? parentNodeId + '-' : 'n') + (i+1);
+      array[i]["nodeId"] = (parentNodeId ? `${parentNodeId}-` : 'n') + (i+1);
       if (array[i]["collapsed"] === false) {
         if (array[i]["itemId"]) {
           this.selectedMenu.push(array[i]["itemId"]);
@@ -215,8 +217,8 @@ export class CollectionSideMenuComponent implements OnInit, OnChanges, OnDestroy
     if (isBrowser()) {
       setTimeout(() => {
         const dataIdValue = this.routeUrlSegments[2].path === 'text'
-              ? 'toc_' + itemId
-              : 'toc_' + this.routeUrlSegments[2].path;
+              ? `toc_${itemId}`
+              : `toc_${this.routeUrlSegments[2].path}`;
         const container = document.querySelector('.side-navigation') as HTMLElement;
         const target = document.querySelector(
           'collection-side-menu [data-id="' + dataIdValue + '"] .menu-highlight'

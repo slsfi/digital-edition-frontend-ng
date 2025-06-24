@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+### Fixed
+
+- Extraction of introduction table of contents when HTML contains newlines.
+
 
 
 ## [1.8.1] – 2025-06-23

@@ -1,5 +1,5 @@
-import { Component, EventEmitter, Inject, Input, LOCALE_ID, OnDestroy, OnInit, Output } from '@angular/core';
-import { DOCUMENT, NgStyle } from '@angular/common';
+import { Component, EventEmitter, Inject, Input, LOCALE_ID, OnDestroy, OnInit, Output, DOCUMENT } from '@angular/core';
+import { NgStyle } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { IonicModule, ModalController } from '@ionic/angular';
 

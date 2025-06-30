@@ -1,5 +1,5 @@
-import { AfterViewInit, Component, ElementRef, Inject, Input, LOCALE_ID, NgZone, OnDestroy, OnInit, Renderer2, ViewChild } from '@angular/core';
-import { NgClass, NgStyle, NgTemplateOutlet, DOCUMENT } from '@angular/common';
+import { AfterViewInit, Component, ElementRef, Inject, Input, LOCALE_ID, NgZone, OnDestroy, OnInit, Renderer2, ViewChild, DOCUMENT } from '@angular/core';
+import { NgClass, NgStyle, NgTemplateOutlet } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 import { AlertController, IonicModule, ModalController, PopoverController } from '@ionic/angular';

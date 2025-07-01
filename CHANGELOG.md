@@ -10,6 +10,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ### Changed
 
+- Supported browser list updated to default for Angular 20.
 - Deps: update `@angular/cli` to 20.0.4 and `@angular/core` to 20.0.5.
 
 

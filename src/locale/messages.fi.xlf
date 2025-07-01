@@ -33,7 +33,7 @@
     <unit id="BasicActions.DontShowAgain">
       <segment state="initial">
         <source>Visa inte igen</source>
-        <target>Visa inte igen</target>
+        <target>Älä näytä uudelleen</target>
       </segment>
     </unit>
     <unit id="BasicActions.Download">

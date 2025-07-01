@@ -24,9 +24,22 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - Deps (dev): update `@types/node` to 22.15.34.
 - Deps (dev): update `gzipper` to 8.2.1.
 
+### Removed
+
+- Style rule `.teiComment.noteReference` from `_tei-comments.scss`.
+
 ### Breaking changes
 
 - Drop support for Node.js 18. Supported Node.js versions are ^20.19.0 || ^22.12.0 || ^24.0.0.
+- The style rule `.teiComment.noteReference` for references after comment notes has been removed from `_tei-comments.scss`. Projects that need the rule should add it to `custom.scss` instead:
+```css
+div.tei .teiComment.noteReference {
+  display: block;
+  font-size: 0.85em;
+  line-height: 1.55;
+  margin-top: 0.5em;
+}
+```
 
 
 

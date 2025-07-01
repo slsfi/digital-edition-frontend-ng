@@ -14,6 +14,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - Use Node.js 22 and align supported Node.js versions with Angular 20.
 - Deps: update `@angular/cli` to 20.0.4 and `@angular/core` to 20.0.5.
 - Deps: update `marked` to 16.0.0.
+- Deps (dev): update `@types/node` to 22.15.34.
 
 ### Breaking changes
 

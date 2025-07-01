@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+### Fixed
+
+- Finnish translation for `BasicActions.DontShowAgain`.
+
 ### Changed
 
 - Align supported browsers with Angular 20.

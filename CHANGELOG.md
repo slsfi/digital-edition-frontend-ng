@@ -11,8 +11,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 ### Changed
 
 - Align supported browsers with Angular 20.
+- Use Node.js 22 and align supported Node.js versions with Angular 20.
 - Deps: update `@angular/cli` to 20.0.4 and `@angular/core` to 20.0.5.
 - Deps: update `marked` to 16.0.0.
+
+### Breaking changes
+
+- Drop support for Node.js 18. Supported Node.js versions are ^20.19.0 || ^22.12.0 || ^24.0.0.
 
 
 

@@ -17,6 +17,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - Align supported browsers with Angular 20.
 - Use Node.js 22 and align supported Node.js versions with Angular 20.
 - Make the Angular server compatible with Express 5.
+- Migrate Sass `@import` to Dart Sass 3.0 compatible `@use` structure.
 - Deps: update `@angular/cli` to 20.0.4 and `@angular/core` to 20.0.5.
 - Deps: update `express` to 5.1.0.
 - Deps: update `marked` to 16.0.0.
@@ -30,7 +31,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ### Breaking changes
 
-- Drop support for Node.js 18. Supported Node.js versions are ^20.19.0 || ^22.12.0 || ^24.0.0.
+This is a detailed account of the breaking changes in this release:
+
+- Drop support for Node.js 18. Supported Node.js versions are ^20.19.0 || ^22.12.0 || ^24.0.0. The GitHub Actions build system will install Node.js 22 for future builds.
 - The style rule `.teiComment.noteReference` for references after comment notes has been removed from `_tei-comments.scss`. Projects that need the rule should add it to `custom.scss` instead:
 ```css
 div.tei .teiComment.noteReference {
@@ -40,6 +43,9 @@ div.tei .teiComment.noteReference {
   margin-top: 0.5em;
 }
 ```
+- Many `@import` rules in `global.scss` have been replaced with `@include meta.load-css()` in order to prepare the code base for future Dart Sass updates. As a consequence, customizations to `global.scss` will conflict with this release:
+    - Modifying imported font files should still be done in `global.scss`: use `@include meta.load-css()` instead of `@import` to include SCSS files with `@font-face` rules; to disable any of the four built-in fonts, comment out the respective `@include` lines.
+    - Modifying TEI styles and styles for info-overlays and tooltips is no longer done in `global.scss`: instead, comment out the `@use` lines for the unused features from `theme/_inc-global-tei.scss` and `theme/_inc-global-optional.scss`.
 
 
 

@@ -28,6 +28,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 ### Removed
 
 - Style rule `.teiComment.noteReference` from `_tei-comments.scss`.
+- Site logo from top menu bar.
 
 ### Breaking changes
 
@@ -46,6 +47,7 @@ div.tei .teiComment.noteReference {
 - Many `@import` rules in `global.scss` have been replaced with `@include meta.load-css()` in order to prepare the code base for future Dart Sass updates. As a consequence, customizations to `global.scss` will conflict with this release:
     - Modifying imported font files should still be done in `global.scss`: use `@include meta.load-css()` instead of `@import` to include SCSS files with `@font-face` rules; to disable any of the four built-in fonts, comment out the respective `@include` lines.
     - Modifying TEI styles and styles for info-overlays and tooltips is no longer done in `global.scss`: instead, comment out the `@use` lines for the unused features from `theme/_inc-global-tei.scss` and `theme/_inc-global-optional.scss`.
+- Remove the option to show a logo to the right in the top menu bar. The config options controlling the appearance of the logo have been removed from `config.ts`: `showSiteLogo`, `siteLogoDefaultImageURL`, `siteLogoMobileImageURL`, `siteLogoLinkURL`, `siteLogoDimensions`.
 
 
 

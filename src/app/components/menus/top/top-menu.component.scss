@@ -152,33 +152,4 @@ ul {
       margin-right: 1.5rem;
     }
   }
-
-  li.site-logo {
-    margin: 0 0.375rem 0 auto;
-
-    a {
-      display: block;
-      filter: none;
-      text-decoration: none;
-
-      img {
-        display: block;
-        height: var(--top-menu-logo-height, 56px);
-        width: auto;
-      }
-
-      img.mobile-logo {
-        display: none;
-      }
-
-      @media only screen and (max-width: 1150px) {
-        img.default-logo {
-          display: none;
-        }
-        img.mobile-logo {
-          display: block;
-        }
-      }
-    }
-  }
 }

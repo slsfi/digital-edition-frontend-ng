@@ -33,6 +33,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 - Style rule `.teiComment.noteReference` from `_tei-comments.scss`.
 - Site logo from top menu bar.
+- Home button from top menu bar.
 
 ### Breaking changes
 

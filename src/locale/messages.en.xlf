@@ -30,12 +30,6 @@
         <target>Close</target>
       </segment>
     </unit>
-    <unit id="BasicActions.DontShowAgain">
-      <segment state="initial">
-        <source>Visa inte igen</source>
-        <target>Don’t show again</target>
-      </segment>
-    </unit>
     <unit id="BasicActions.Download">
       <segment state="initial">
         <source>Ladda ner</source>
@@ -664,30 +658,6 @@
       <segment state="initial">
         <source>Texttyp</source>
         <target>Type</target>
-      </segment>
-    </unit>
-    <unit id="Epub.Contents">
-      <segment state="initial">
-        <source>Innehåll</source>
-        <target>Contents</target>
-      </segment>
-    </unit>
-    <unit id="Epub.FileNotFound">
-      <segment state="initial">
-        <source>Texten kunde inte laddas. Epub-filen saknas.</source>
-        <target>Unable to load the text. The epub-file cannot be found.</target>
-      </segment>
-    </unit>
-    <unit id="Epub.NoticeHeader">
-      <segment state="initial">
-        <source>Anmärkning</source>
-        <target>Notice</target>
-      </segment>
-    </unit>
-    <unit id="Epub.NoticeMessage">
-      <segment state="initial">
-        <source>Det här är en e-bok i epubformat som visas på webbsidan med hjälp av ett inbyggt läsprogram. Läsprogrammet fungerar bäst om din webbläsare är Firefox. I Chrome, Edge och Safari fungerar inte e-böckers länkar i läsprogrammet. Vi rekommenderar därför att du använder Firefox, eller laddar ner e-boken och läser den med ett läsprogram på din apparat.</source>
-        <target>This is an ebook in epub format. It’s displayed on the website using an integrated reading app. The reading app works best in Firefox. In Chrome, Edge and Safari the links in ebooks don’t work in the reading app. Hence we recommend you use Firefox, or download the ebook and read it on your device with a reading app of your choice.</target>
       </segment>
     </unit>
     <unit id="Facsimiles.AltText">

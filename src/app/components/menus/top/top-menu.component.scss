@@ -11,6 +11,43 @@
   overflow: visible;
 }
 
+.site-title {
+  font-family: var(--font-stack-top-site-title);
+  font-size: 1.0625rem;
+  letter-spacing: 1px;
+  line-height: 1.125em;
+  margin: 0 1rem 0 auto;
+  padding-inline-start: 1rem;
+  text-align: end;
+  text-transform: uppercase;
+
+  a {
+    color: var(--primary-color-contrast);
+    filter: var(--top-menu-button-filter, none);
+    text-decoration: none;
+    transition: opacity 0.2s;
+
+    &:hover {
+      opacity: 0.6;
+    }
+  }
+}
+
+@media only screen and (min-width: 540px) {
+  .site-title {
+    font-size: 1.375rem;
+    font-variant: small-caps;
+    padding-inline-start: 2rem;
+    text-transform: none;
+  }
+}
+
+ion-icon {
+  font-size: var(--top-menu-toolbar-button-icons-font-size, 1.875rem);
+  min-width: var(--top-menu-toolbar-button-icons-font-size, 1.875rem);
+  margin-inline-end: 0;
+}
+
 ul {
   list-style-type: none;
   display: flex;
@@ -18,7 +55,6 @@ ul {
   align-items: center;
   padding: 0;
   margin: 0 0 0 1rem;
-  width: 100%;
 
   li {
     display: flex;
@@ -104,10 +140,6 @@ ul {
     }
 
     ion-icon {
-      font-size: var(--top-menu-toolbar-button-icons-font-size, 1.875rem);
-      min-width: var(--top-menu-toolbar-button-icons-font-size, 1.875rem);
-      margin-right: 0;
-
       &.toggle-language-menu-icon {
         font-size: 1.25rem;
       }
@@ -150,6 +182,12 @@ ul {
   @media only screen and (max-width: 1020px) {
     li {
       margin-right: 1.5rem;
+    }
+  }
+
+  @media only screen and (max-width: 600px) {
+    li {
+      margin-right: 1rem;
     }
   }
 }

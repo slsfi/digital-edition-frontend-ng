@@ -1590,12 +1590,6 @@
         <target>Content</target>
       </segment>
     </unit>
-    <unit id="TopMenu.Home">
-      <segment state="initial">
-        <source>Hem</source>
-        <target>Home</target>
-      </segment>
-    </unit>
     <unit id="TopMenu.LogoAltText">
       <segment state="initial">
         <source>Logo</source>

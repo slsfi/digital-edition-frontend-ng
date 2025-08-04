@@ -24,6 +24,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - Use Node.js 22 and align supported Node.js versions with Angular 20.
 - Make the Angular server compatible with Express 5.
 - Migrate Sass `@import` to Dart Sass 3.0 compatible `@use` structure.
+- Optimize margins between top menu bar items on small screens.
 - Deps: update `@angular/cli` to 20.0.4 and `@angular/core` to 20.0.5.
 - Deps: update `express` to 5.1.0.
 - Deps: update `marked` to 16.0.0.

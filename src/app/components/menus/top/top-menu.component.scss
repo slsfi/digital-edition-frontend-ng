@@ -16,8 +16,8 @@
   font-size: 1.0625rem;
   letter-spacing: 1px;
   line-height: 1.125em;
-  margin: 0 1rem 0 auto;
-  padding-inline-start: 1rem;
+  margin: 0 0.5rem 0 auto;
+  padding-inline-start: 0.5rem;
   text-align: end;
   text-transform: uppercase;
 
@@ -33,15 +33,6 @@
   }
 }
 
-@media only screen and (min-width: 540px) {
-  .site-title {
-    font-size: 1.375rem;
-    font-variant: small-caps;
-    padding-inline-start: 2rem;
-    text-transform: none;
-  }
-}
-
 ion-icon {
   font-size: var(--top-menu-toolbar-button-icons-font-size, 1.875rem);
   min-width: var(--top-menu-toolbar-button-icons-font-size, 1.875rem);
@@ -54,7 +45,7 @@ ul {
   flex-flow: row nowrap;
   align-items: center;
   padding: 0;
-  margin: 0 0 0 1rem;
+  margin: 0 0 0 0.75rem;
 
   li {
     display: flex;
@@ -189,5 +180,31 @@ ul {
     li {
       margin-right: 1rem;
     }
+  }
+
+  @media only screen and (max-width: 360px) {
+    li {
+      margin-right: 0.625rem;
+    }
+  }
+}
+
+@media only screen and (min-width: 361px) {
+  .site-title {
+    margin-inline-end: 1rem;
+    padding-inline-start: 1rem;
+  }
+
+  ul {
+    margin-inline-start: 1rem;
+  }
+}
+
+@media only screen and (min-width: 540px) {
+  .site-title {
+    font-size: 1.375rem;
+    font-variant: small-caps;
+    padding-inline-start: 2rem;
+    text-transform: none;
   }
 }

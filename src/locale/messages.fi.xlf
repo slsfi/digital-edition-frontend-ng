@@ -1590,12 +1590,6 @@
         <target>Sisältö</target>
       </segment>
     </unit>
-    <unit id="TopMenu.Home">
-      <segment state="initial">
-        <source>Hem</source>
-        <target>Etusivu</target>
-      </segment>
-    </unit>
     <unit id="TopMenu.LogoAltText">
       <segment state="initial">
         <source>Logo</source>

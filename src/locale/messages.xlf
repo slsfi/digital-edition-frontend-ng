@@ -1326,11 +1326,6 @@
         <source>Innehåll</source>
       </segment>
     </unit>
-    <unit id="TopMenu.Home">
-      <segment>
-        <source>Hem</source>
-      </segment>
-    </unit>
     <unit id="TopMenu.LogoAltText">
       <segment>
         <source>Logo</source>

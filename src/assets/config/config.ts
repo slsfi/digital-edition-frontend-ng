@@ -370,7 +370,6 @@ export const config: Config = {
       showAboutButton: true,
       showContentButton: true,
       showElasticSearchButton: true,
-      showURNButton: false,
       showLanguageButton: true
     },
     variants: {

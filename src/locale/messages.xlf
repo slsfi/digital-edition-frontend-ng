@@ -1266,11 +1266,6 @@
         <source>Hänvisa till denna text</source>
       </segment>
     </unit>
-    <unit id="Reference.ReferToEdition">
-      <segment>
-        <source>Hänvisa till denna webbutgåva</source>
-      </segment>
-    </unit>
     <unit id="Reference.ReferToForeword">
       <segment>
         <source>Hänvisa till detta förord</source>

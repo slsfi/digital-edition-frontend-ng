@@ -1,6 +1,6 @@
 # Frontend App of the SLS Digital Edition Platform
 
-[`digital-edition-frontend-ng`][digital-edition-frontend-ng] is the frontend application of the [SLS][SLS] platform for building digital edition web apps. It supports features typically found in digital scholarly editions, like reading texts, manuscripts, facsimiles and commentaries in parallell views, as well as media collection libraries, indices of named entities and keywords, and an integrated EPUB-viewer.
+[`digital-edition-frontend-ng`][digital-edition-frontend-ng] is the frontend application of the [SLS][SLS] platform for building digital edition web apps. It supports features typically found in digital scholarly editions, like reading texts, manuscripts, facsimiles and commentaries in parallell views, as well as media collection libraries, indices of named entities and keywords, and an integrated PDF-viewer.
 
 Internationalization and server-side rendering are supported out of the box, meaning that your web app will be fully indexable by search engines and readable by AI bots. The frontend app utilizes a responsive design and works on both desktop and mobile devices. Many features of the user interface are easily configurable, and theming is straightforward.
 

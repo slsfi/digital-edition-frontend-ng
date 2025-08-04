@@ -100,6 +100,8 @@ export class MainSideMenuComponent implements OnInit, OnChanges {
         for (let i = 0; i < res.length; i++) {
           if (res[i].menuData && res[i].menuData.length) {
             for (let x = 0; x < res[i].menuData.length; x++) {
+              // Add the menu type to the menu data
+              res[i].menuData[x].menuType = res[i].menuType;
               menu.push(res[i].menuData[x]);
             }
           }
@@ -118,7 +120,13 @@ export class MainSideMenuComponent implements OnInit, OnChanges {
    * config.
    */
   private getMenuItemsArray(): Observable<any>[] {
-    const enabledPages = config.component?.mainSideMenu?.items ?? {};
+    // Get enabled menu items from config, and prepend with the home
+    // menu item, which is forced to always be shown.
+    let enabledPages = {
+      home: true,
+      ...(config.component?.mainSideMenu?.items ?? {})
+    };
+    enabledPages.home = true;
 
     const menuItemGetters: Record<string, () => Observable<any>> = {
       home: () => this.getHomePageMenuItem(),

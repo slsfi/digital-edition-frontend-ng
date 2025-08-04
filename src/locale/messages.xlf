@@ -846,6 +846,11 @@
         <source>Bildbank</source>
       </segment>
     </unit>
+    <unit id="MainSideMenu.Search">
+      <segment>
+        <source>Sök i utgåvan</source>
+      </segment>
+    </unit>
     <unit id="Manuscripts.ChangeManuscript">
       <segment>
         <source>Byt manuskript</source>

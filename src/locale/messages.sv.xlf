@@ -1014,6 +1014,12 @@
         <target>Bildbank</target>
       </segment>
     </unit>
+    <unit id="MainSideMenu.Search">
+      <segment state="initial">
+        <source>Sök i utgåvan</source>
+        <target>Sök i utgåvan</target>
+      </segment>
+    </unit>
     <unit id="Manuscripts.ChangeManuscript">
       <segment state="initial">
         <source>Byt manuskript</source>

@@ -356,7 +356,8 @@ export const config: Config = {
         indexKeywords: false,
         indexPersons: true,
         indexPlaces: true,
-        indexWorks: false
+        indexWorks: false,
+        search: true
       },
       defaultExpanded: false
     },

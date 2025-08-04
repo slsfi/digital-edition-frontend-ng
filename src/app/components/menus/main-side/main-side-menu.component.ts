@@ -137,7 +137,8 @@ export class MainSideMenuComponent implements OnInit, OnChanges {
       indexKeywords: () => this.getIndexPageMenuItem('keywords'),
       indexPersons: () => this.getIndexPageMenuItem('persons'),
       indexPlaces: () => this.getIndexPageMenuItem('places'),
-      indexWorks: () => this.getIndexPageMenuItem('works')
+      indexWorks: () => this.getIndexPageMenuItem('works'),
+      search: () => this.getSearchPageMenuItem()
     };
 
     return Object.entries(enabledPages)
@@ -260,6 +261,11 @@ export class MainSideMenuComponent implements OnInit, OnChanges {
       menuType: indexType,
       menuData: [{ id: '', title, parentPath: `/index/${indexType}` }]
     });
+  }
+
+  private getSearchPageMenuItem(): Observable<any> {
+    const menuData: any[] = [{ id: '', title: $localize`:@@MainSideMenu.Search:Sök i utgåvan`, parentPath: '/search' }];
+    return of({ menuType: 'search', menuData });
   }
 
   private groupCollections(collections: any) {

@@ -12,6 +12,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 - Site title to the top menu bar with link to the home page.
 - Home button to main side menu as an always present menu item.
+- Search button to main side menu. Can be toggled with the boolean config option `component.mainSideMenu.items.search`.
 
 ### Fixed
 

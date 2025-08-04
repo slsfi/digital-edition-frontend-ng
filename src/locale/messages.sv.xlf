@@ -1590,12 +1590,6 @@
         <target>Innehåll</target>
       </segment>
     </unit>
-    <unit id="TopMenu.LogoAltText">
-      <segment state="initial">
-        <source>Logo</source>
-        <target>Logo</target>
-      </segment>
-    </unit>
     <unit id="TopMenu.Menu">
       <segment state="initial">
         <source>Meny</source>

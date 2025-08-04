@@ -1326,11 +1326,6 @@
         <source>Innehåll</source>
       </segment>
     </unit>
-    <unit id="TopMenu.LogoAltText">
-      <segment>
-        <source>Logo</source>
-      </segment>
-    </unit>
     <unit id="TopMenu.Menu">
       <segment>
         <source>Meny</source>

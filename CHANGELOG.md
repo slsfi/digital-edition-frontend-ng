@@ -25,6 +25,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - Make the Angular server compatible with Express 5.
 - Migrate Sass `@import` to Dart Sass 3.0 compatible `@use` structure.
 - Optimize margins between top menu bar items on small screens.
+- Update `/ebook/` routes to use `/ebook/{extension}/{filename}` format. Requests to the old routes with `/ebook/{filename}.{extension}` format are redirected.
 - Deps: update `@angular/cli` to 20.0.4 and `@angular/core` to 20.0.5.
 - Deps: update `express` to 5.1.0.
 - Deps: update `marked` to 16.0.0.

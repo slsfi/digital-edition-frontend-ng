@@ -1518,12 +1518,6 @@
         <target>Hänvisa till denna text</target>
       </segment>
     </unit>
-    <unit id="Reference.ReferToEdition">
-      <segment state="initial">
-        <source>Hänvisa till denna webbutgåva</source>
-        <target>Hänvisa till denna webbutgåva</target>
-      </segment>
-    </unit>
     <unit id="Reference.ReferToForeword">
       <segment state="initial">
         <source>Hänvisa till detta förord</source>

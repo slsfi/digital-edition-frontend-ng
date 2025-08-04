@@ -1518,12 +1518,6 @@
         <target>Lähdeviittaus tähän tekstiin</target>
       </segment>
     </unit>
-    <unit id="Reference.ReferToEdition">
-      <segment state="initial">
-        <source>Hänvisa till denna webbutgåva</source>
-        <target>Lähdeviittaus tähän digitaaliseen editioon</target>
-      </segment>
-    </unit>
     <unit id="Reference.ReferToForeword">
       <segment state="initial">
         <source>Hänvisa till detta förord</source>

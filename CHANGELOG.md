@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+### Added
+
+- Site title to the top menu bar with link to the home page.
+
 ### Fixed
 
 - Finnish translation for `BasicActions.DontShowAgain`.

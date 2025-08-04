@@ -349,7 +349,6 @@ export const config: Config = {
     },
     mainSideMenu: {
       items: {
-        home: false,
         about: true,
         ebooks: true,
         collections: true,

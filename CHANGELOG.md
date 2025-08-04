@@ -38,6 +38,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - Site logo from top menu bar.
 - Home button from top menu bar.
 - Reference button from top menu bar.
+- The integrated EPUB-viewer.
 
 ### Breaking changes
 
@@ -59,6 +60,7 @@ div.tei .teiComment.noteReference {
 - Remove the option to show a logo to the right in the top menu bar. The config options controlling the appearance of the logo have been removed from `config.ts`: `showSiteLogo`, `siteLogoDefaultImageURL`, `siteLogoMobileImageURL`, `siteLogoLinkURL`, `siteLogoDimensions`.
 - Remove `component.mainSideMenu.items.home` from the config. The home button is always shown in the main side menu.
 - Remove the option to show the ”refer to edition” button in the top menu bar. The config option `component.topMenu.showURNButton` has been removed.
+- Remove support for viewing EPUB-files integrated in the web app. Integrated PDF-files are still supported.
 
 
 

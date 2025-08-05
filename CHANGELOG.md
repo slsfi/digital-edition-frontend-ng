@@ -28,7 +28,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - Update `/ebook/` routes to use `/ebook/{extension}/{filename}` format. Requests to the old routes with `/ebook/{filename}.{extension}` format are redirected.
 - Deps: update `@angular/cli` to 20.0.4 and `@angular/core` to 20.0.5.
 - Deps: update `express` to 5.1.0.
-- Deps: update `marked` to 16.0.0.
+- Deps: update `marked` to 16.1.2.
 - Deps (dev): update `@types/express` to 5.0.3.
 - Deps (dev): update `@types/node` to 22.15.34.
 - Deps (dev): update `gzipper` to 8.2.1.

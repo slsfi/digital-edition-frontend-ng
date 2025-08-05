@@ -34,6 +34,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - Deps (dev): update `@types/node` to 22.17.0.
 - Deps (dev): update `jasmine-core` to 5.9.0.
 - Deps (dev): update `gzipper` to 8.2.1.
+- Replace deprecated `@angular/platform-browser-dynamic` package with functions from `@angular/platform-browser`.
 
 ### Removed
 

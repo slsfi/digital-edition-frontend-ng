@@ -12,6 +12,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [2.0.0] – 2025-08-05
 
+> [!IMPORTANT]
+> This release includes breaking changes that are detailed further below.
+
 ### Added
 
 - Site title to the top menu bar with link to the home page. ([7065613](https://github.com/slsfi/digital-edition-frontend-ng/commit/7065613e60e0f4f7dbd361128be7577e67cb801f))
@@ -31,11 +34,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - Optimize margins between top menu bar items on small screens. ([9e66b57](https://github.com/slsfi/digital-edition-frontend-ng/commit/9e66b57a4687902e0faedae66642c64376012cbb))
 - Update `/ebook/` routes to use `/ebook/{extension}/{filename}` format. Requests to the old routes with `/ebook/{filename}.{extension}` format are redirected. ([a6c1cf8](https://github.com/slsfi/digital-edition-frontend-ng/commit/a6c1cf8f11dfc6945a30eb4ad51763f0da2a3a2a))
 - Deps: update `@angular/cli` and `@angular/core` to 20.1.4. ([12154a0](https://github.com/slsfi/digital-edition-frontend-ng/commit/12154a0527a70bf1b9870df2b1de55587c7e5499), [28972c1](https://github.com/slsfi/digital-edition-frontend-ng/commit/28972c15c2a4482c910561d60843f00eebe1dbf1))
-- Deps: update `express` to 5.1.0. ([]())
+- Deps: update `express` to 5.1.0. ([bd83c11](https://github.com/slsfi/digital-edition-frontend-ng/commit/bd83c113a33cecb0cef33e77865e752a52e29936))
 - Deps: update `marked` to 16.1.2. ([ef0b6fe](https://github.com/slsfi/digital-edition-frontend-ng/commit/ef0b6fe7580cc9f9ec7374e185954a1c76001d4e), [fe1dbdc](https://github.com/slsfi/digital-edition-frontend-ng/commit/fe1dbdca9eff487c05db57c48f1b70a27b06385c))
 - Deps: update `marked-footnote` to 1.4.0. ([07de434](https://github.com/slsfi/digital-edition-frontend-ng/commit/07de434c9f2313fad5f80e4bb77236d98b1bb112))
 - Deps: update transitive dependencies. ([afeb221](https://github.com/slsfi/digital-edition-frontend-ng/commit/afeb221cd6d068a177c909e159a353a7b80e62a4))
-- Deps (dev): update `@types/express` to 5.0.3. ([]())
+- Deps (dev): update `@types/express` to 5.0.3. ([bd83c11](https://github.com/slsfi/digital-edition-frontend-ng/commit/bd83c113a33cecb0cef33e77865e752a52e29936))
 - Deps (dev): update `@types/node` to 22.17.0. ([fbe944e](https://github.com/slsfi/digital-edition-frontend-ng/commit/fbe944ec98d909c7b9c92872a51a0e28c03ef586), [79b32e8](https://github.com/slsfi/digital-edition-frontend-ng/commit/79b32e81a3d7ef819044d7c4c3b5a36250d79eb9))
 - Deps (dev): update `jasmine-core` to 5.9.0. ([7945ce5](https://github.com/slsfi/digital-edition-frontend-ng/commit/7945ce5e701391d6c4d311c77641ef1be9c7db93))
 - Deps (dev): update `gzipper` to 8.2.1. ([2effc10](https://github.com/slsfi/digital-edition-frontend-ng/commit/2effc10880c4a6b85fd79b31cdff673ff2e3cec0))

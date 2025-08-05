@@ -31,7 +31,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - Deps: update `marked` to 16.1.2.
 - Deps: update `marked-footnote` to 1.4.0.
 - Deps (dev): update `@types/express` to 5.0.3.
-- Deps (dev): update `@types/node` to 22.15.34.
+- Deps (dev): update `@types/node` to 22.17.0.
 - Deps (dev): update `gzipper` to 8.2.1.
 
 ### Removed

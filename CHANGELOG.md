@@ -30,6 +30,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - Deps: update `express` to 5.1.0.
 - Deps: update `marked` to 16.1.2.
 - Deps: update `marked-footnote` to 1.4.0.
+- Deps: update transitive dependencies.
 - Deps (dev): update `@types/express` to 5.0.3.
 - Deps (dev): update `@types/node` to 22.17.0.
 - Deps (dev): update `jasmine-core` to 5.9.0.

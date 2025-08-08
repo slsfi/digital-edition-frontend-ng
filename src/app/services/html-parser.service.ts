@@ -9,6 +9,13 @@ import { config } from '@config';
 import { CollectionContentService } from '@services/collection-content.service';
 
 
+export interface HeadingNode {
+  id: string | null;
+  text: string;
+  level: number;
+  children: HeadingNode[];
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -319,6 +326,64 @@ export class HtmlParserService {
     } else {
       return text;
     }
+  }
+
+  /**
+   * Extracts all heading elements (h1–h6) with IDs from the given HTML string.
+   * Returns an array of headings with their level, id, and text content.
+   */
+  getHeadingsFromHtml(html: string): HeadingNode[] {
+    const handler = new DomHandler();
+    const parser = new Parser(handler);
+    parser.write(html);
+    parser.end();
+
+    const flatHeadings = findAll(
+      el => el.type === 'tag' && /^h[1-6]$/.test(el.name),
+      handler.dom
+    ).map(el => ({
+      id: el.attribs?.id ?? null,
+      text: this.getTextContent(el),
+      level: parseInt(el.name.substring(1), 10),
+      children: [] as HeadingNode[]
+    }));
+
+    return this.buildHeadingTree(flatHeadings);
+  }
+
+  /**
+   * Recursively extracts the text content of a node and its children.
+   */
+  private getTextContent(node: any): string {
+    if (!node.children) return '';
+    return node.children.map((child: any) => {
+      if (child.type === 'text') return child.data;
+      if (child.type === 'tag') return this.getTextContent(child);
+      return '';
+    }).join('').trim();
+  }
+
+  private buildHeadingTree(flat: HeadingNode[]): HeadingNode[] {
+    const root: HeadingNode[] = [];
+    const stack: HeadingNode[] = [];
+
+    for (const heading of flat) {
+      const node: HeadingNode = { ...heading, children: [] };
+
+      while (stack.length > 0 && heading.level <= stack[stack.length - 1].level) {
+        stack.pop();
+      }
+
+      if (stack.length === 0) {
+        root.push(node);
+      } else {
+        stack[stack.length - 1].children.push(node);
+      }
+
+      stack.push(node);
+    }
+
+    return root;
   }
 
 }

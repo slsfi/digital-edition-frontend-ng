@@ -1476,6 +1476,12 @@
         <target>Reference</target>
       </segment>
     </unit>
+    <unit id="Reference.ReferToArticle">
+      <segment state="initial">
+        <source>Hänvisa till denna artikel</source>
+        <target>Refer to this article</target>
+      </segment>
+    </unit>
     <unit id="Reference.ReferToCollection">
       <segment state="initial">
         <source>Hänvisa till denna delutgåva</source>

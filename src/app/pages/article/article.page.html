@@ -1,0 +1,16 @@
+@let renderedHtml = markdownText$ | async;
+
+<ion-header class="ion-no-border">
+  <ion-toolbar class="secondary">
+    <ion-buttons slot="end" class="secondary-toolbar-buttons-wrapper">
+      <ion-button (click)="showReference()">
+        <ion-icon slot="start" name="arrow-redo-sharp"></ion-icon>
+        <span class="side-title" i18n="@@Reference.Refer">Hänvisa</span>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <article class="md_content markdown" [innerHTML]="renderedHtml | trustHtml"></article>
+</ion-content>

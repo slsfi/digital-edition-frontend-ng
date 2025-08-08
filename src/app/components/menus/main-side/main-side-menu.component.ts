@@ -132,6 +132,7 @@ export class MainSideMenuComponent implements OnInit, OnChanges {
     const menuItemGetters: Record<string, () => Observable<any>> = {
       home: () => this.getHomePageMenuItem(),
       about: () => this.getAboutPagesMenu(),
+      articles: () => this.getArticlePagesMenu(),
       ebooks: () => this.getEbookPagesMenu(),
       collections: () => this.getCollectionPagesMenu(),
       mediaCollections: () => this.getMediaCollectionPagesMenu(),
@@ -159,11 +160,37 @@ export class MainSideMenuComponent implements OnInit, OnChanges {
       map((res: any) => {
         res = [res];
         this.recursivelyAddParentPagePath(res, '/about');
+
         return { menuType: 'about', menuData: res };
       }),
       catchError((error: any) => {
         console.error(error);
         return of({ menuType: 'about', menuData: [] });
+      })
+    );
+  }
+
+  private getArticlePagesMenu(): Observable<any> {
+    if (!config.articles?.length) {
+      return of({ menuType: 'article', menuData: [] });
+    }
+
+    return this.mdcontentService.getMenuTree(
+      this.activeLocale, '04'
+    ).pipe(
+      map((res: any) => {
+        res = [res];
+        if (config.component?.mainSideMenu?.ungroupArticles) {
+          res = res[0]?.children ?? [];
+        }
+        this.recursivelyAddParentPagePath(res, '/article');
+        this.recursivelyMapArticleIdToRouteName(res);
+
+        return { menuType: 'article', menuData: res };
+      }),
+      catchError((error: any) => {
+        console.error(error);
+        return of({ menuType: 'article', menuData: [] });
       })
     );
   }
@@ -315,6 +342,23 @@ export class MainSideMenuComponent implements OnInit, OnChanges {
       array[i]["nodeId"] = (parentNodeId ? parentNodeId + '-' : 'n') + (i+1);
       if (array[i]["children"] && array[i]["children"].length) {
         this.recursiveAddNodeIdsToMenu(array[i]["children"], array[i]["nodeId"]);
+      }
+    }
+  }
+
+  /**
+   * Goes through every object in @param array, including nested objects declared
+   * as in 'children' properties, and adds a new property 'articleId'
+   * with the value of the id property, and replaces the id property with the mapped
+   * value of the article routeName from the config.
+   */
+  private recursivelyMapArticleIdToRouteName(array: any[]) {
+    for (let i = 0; i < array.length; i++) {
+      array[i]["articleId"] = array[i]["id"];
+      const article = config.articles?.find((article: any) => article.id === array[i]["articleId"]) ?? {};
+      array[i]["id"] = article?.routeName ?? array[i]["articleId"];
+      if (array[i]["children"] && array[i]["children"].length) {
+        this.recursivelyMapArticleIdToRouteName(array[i]["children"]);
       }
     }
   }

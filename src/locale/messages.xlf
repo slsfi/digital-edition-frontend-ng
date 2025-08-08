@@ -1231,6 +1231,11 @@
         <source>Källhänvisning</source>
       </segment>
     </unit>
+    <unit id="Reference.ReferToArticle">
+      <segment>
+        <source>Hänvisa till denna artikel</source>
+      </segment>
+    </unit>
     <unit id="Reference.ReferToCollection">
       <segment>
         <source>Hänvisa till denna delutgåva</source>

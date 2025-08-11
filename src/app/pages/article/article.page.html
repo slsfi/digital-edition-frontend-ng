@@ -3,15 +3,32 @@
 <ion-header class="ion-no-border">
   <ion-toolbar class="secondary">
     <ion-buttons slot="end" class="secondary-toolbar-buttons-wrapper">
-      <ion-button (click)="showReference()">
-        <ion-icon slot="start" name="arrow-redo-sharp"></ion-icon>
-        <span class="side-title" i18n="@@Reference.Refer">Hänvisa</span>
+      @if (showTextDownloadButton) {
+        <a
+              [href]="article?.downloadOptions?.[0]?.url"
+              [attr.target]="(article?.downloadOptions?.[0]?.url | isExternalURL) ? '_blank' : null"
+        >
+          <ion-icon name="download"></ion-icon>
+          <span class="side-title" i18n="@@BasicActions.Download">Ladda ner</span>
+        </a>
+      }
+      @if (showURNButton) {
+        <ion-button (click)="showReference()">
+          <ion-icon slot="start" name="arrow-redo-sharp"></ion-icon>
+          <span class="side-title" i18n="@@Reference.Refer">Hänvisa</span>
+        </ion-button>
+      }
+      <ion-button (click)="showViewOptionsPopover($event)">
+        <ion-icon slot="start" class="settings-icon" name="settings-sharp"></ion-icon>
+        <span class="side-title" i18n="@@ViewOptions.Textsize">Textstorlek</span>
       </ion-button>
-      <ion-button [ngClass]="tocMenuOpen ? 'menuOpenTOC' : 'menuClosedTOC'" (click)="toggleTocMenu()">
-        <ion-icon slot="start" name="list" [class.visuallyhidden]="tocMenuOpen"></ion-icon>
-        <ion-icon slot="start" name="close" [class.visuallyhidden]="!tocMenuOpen"></ion-icon>
-        <span class="side-title" i18n="@@Article.Contents">Innehåll</span>
-      </ion-button>
+      @if (enableTOC) {
+        <ion-button [ngClass]="tocMenuOpen ? 'menuOpenTOC' : 'menuClosedTOC'" (click)="toggleTocMenu()">
+          <ion-icon slot="start" name="list" [class.visuallyhidden]="tocMenuOpen"></ion-icon>
+          <ion-icon slot="start" name="close" [class.visuallyhidden]="!tocMenuOpen"></ion-icon>
+          <span class="side-title" i18n="@@Article.Contents">Innehåll</span>
+        </ion-button>
+      }
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
@@ -22,17 +39,24 @@
       [scrollY]="false"
 >
   @defer {
-    <article-toc
-          [htmlContent]="renderedHtml"
-          [tocMenuOpen]="tocMenuOpen"
-          [ngClass]="tocMenuOpen ? 'menuOpen' : 'menuClosed'"
-          [class.screen-reader-only]="!tocMenuOpen"
-          [tabIndex]="tocMenuOpen ? '0' : '-1'"
-    ></article-toc>
+    @if (enableTOC && renderedHtml) {
+      <article-toc
+            [htmlContent]="renderedHtml"
+            [tocMenuOpen]="tocMenuOpen"
+            [ngClass]="tocMenuOpen ? 'menuOpen' : 'menuClosed'"
+            [class.screen-reader-only]="!tocMenuOpen"
+            [tabIndex]="tocMenuOpen ? '0' : '-1'"
+      ></article-toc>
+    }
   }
 
   <article
         class="scroll-content-container md_content markdown"
+        [class.xsmallFontSize]="textsize == TextsizeEnum.XSmall"
+        [class.smallFontSize]="textsize == TextsizeEnum.Small"
+        [class.mediumFontSize]="textsize == TextsizeEnum.Medium"
+        [class.largeFontSize]="textsize == TextsizeEnum.Large"
+        [class.xlargeFontSize]="textsize == TextsizeEnum.XLarge"
         tabindex="0"
         [innerHTML]="renderedHtml | trustHtml"
   ></article>

@@ -18,6 +18,18 @@
         <target>Sivun sisällön lataus epäonnistui.</target>
       </segment>
     </unit>
+    <unit id="Article.Contents">
+      <segment state="initial">
+        <source>Innehåll</source>
+        <target>Sisältö</target>
+      </segment>
+    </unit>
+    <unit id="Article.LoadingError">
+      <segment state="initial">
+        <source>Artikeln kunde inte laddas.</source>
+        <target>Artikkelin lataus epäonnistui.</target>
+      </segment>
+    </unit>
     <unit id="BasicActions.Cancel">
       <segment state="initial">
         <source>Avbryt</source>

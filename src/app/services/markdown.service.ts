@@ -39,6 +39,7 @@ export class MarkdownService {
       headingClass: '',
       prefixId: 'md-footnote-'
     }));
+
     // Configure this instance of Marked to use the
     // marked-custom-heading-id extension for enabling custom heading
     // ids with the Markdown Extended Syntax `# heading {#custom-id}`.

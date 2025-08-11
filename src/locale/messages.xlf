@@ -16,6 +16,16 @@
         <source>Sidans innehåll kunde inte laddas.</source>
       </segment>
     </unit>
+    <unit id="Article.Contents">
+      <segment>
+        <source>Innehåll</source>
+      </segment>
+    </unit>
+    <unit id="Article.LoadingError">
+      <segment>
+        <source>Artikeln kunde inte laddas.</source>
+      </segment>
+    </unit>
     <unit id="BasicActions.Cancel">
       <segment>
         <source>Avbryt</source>

@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { catchError, map, Observable, of } from 'rxjs';
 import { Parser } from 'htmlparser2';
 import { DomHandler } from 'domhandler';
-import { existsOne, findAll, getAttributeValue } from 'domutils';
+import { existsOne, findAll, findOne, getChildren, getAttributeValue, isTag } from 'domutils';
 import { render } from 'dom-serializer';
 
 import { config } from '@config';
@@ -325,46 +325,70 @@ export class HtmlParserService {
 
 
   /**
-   * Parses an HTML string and extracts all heading elements (`<h1>` to `<h6>`).
-   * The headings are returned as a nested tree structure based on their levels.
+   * Parses an HTML string and extracts all heading elements (`<h1>` to `<h6>`),
+   * returning them as a nested tree structure based on heading levels.
+   *
+   * For each heading, this method:
+   * - Uses the heading's own `id` attribute if present and non-empty.
+   * - If no `id` is present, checks its immediate children for a `<span>` element
+   *   with a non-empty `id` attribute and uses that instead.
+   * - Normalizes the chosen ID by trimming whitespace and discarding empty strings.
+   * - Extracts the heading's visible text (including content outside the `<span>`).
+   *
+   * The returned heading list is converted into a hierarchical tree where headings
+   * of deeper levels are nested under the nearest preceding heading of a shallower level.
    *
    * This method is SSR-compatible and uses htmlparser2 for parsing.
    *
    * @param html - The HTML string to extract headings from.
-   * @returns A nested array of HeadingNode objects representing the Table of
-   *          Contents structure.
+   * @returns A nested array of `HeadingNode` objects representing the Table of
+   *          Contents structure, where each node may contain child headings.
    *
    * Example:
    *   <h1 id="a">A</h1>
-   *   <h2 id="a-1">A.1</h2>
-   *   <h1 id="b">B</h1>
+   *   <h2><span id="a-1">A.1</span> continues here</h2>
+   *   <h2 id="a-2">A.2</h2>
    *
    *   Produces:
    *   [
    *     { id: "a", text: "A", level: 1, children: [
-   *         { id: "a-1", text: "A.1", level: 2, children: [] }
+   *         { id: "a-1", text: "A.1 continues here", level: 2, children: [] },
+   *         { id: "a-2", text: "A.2", level: 2, children: [] }
    *       ]
-   *     },
-   *     { id: "b", text: "B", level: 1, children: [] }
+   *     }
    *   ]
    */
   getHeadingsFromHtml(html: string): HeadingNode[] {
     const handler = new DomHandler();
-    const parser = new Parser(handler);
-    parser.write(html);
-    parser.end();
+    new Parser(handler).end(html);
 
-    const flatHeadings = findAll(
-      el => el.type === 'tag' && /^h[1-6]$/.test(el.name),
+    const flat = findAll(
+      n => isTag(n) && /^h[1-6]$/.test(n.name),
       handler.dom
-    ).map(el => ({
-      id: el.attribs?.id ?? null,
-      text: this.getTextContent(el),
-      level: parseInt(el.name.substring(1), 10),
-      children: [] as HeadingNode[]
-    }));
+    ).map(h => {
+      const ownId = h.attribs?.id ?? null;
 
-    return this.buildHeadingTree(flatHeadings);
+      // Only immediate children:
+      const span = ownId
+        ? null
+        : findOne(
+            (n): n is import('domhandler').Element =>
+              isTag(n) && n.name === 'span' && !!getAttributeValue(n, 'id'),
+            getChildren(h) ?? [],
+            /* recurse */ false
+          );
+
+      const id = this.normalizeId(ownId ?? (span ? getAttributeValue(span, 'id') : null));
+
+      return {
+        id,
+        text: this.getTextContent(h),
+        level: parseInt(h.name.substring(1), 10),
+        children: [] as HeadingNode[],
+      };
+    });
+
+    return this.buildHeadingTree(flat);
   }
 
 
@@ -454,6 +478,26 @@ export class HtmlParserService {
     }
 
     return root;
+  }
+
+
+  /**
+   * Normalizes an ID string by trimming whitespace and ensuring it is non-empty.
+   *
+   * This method returns the given ID string with leading and trailing whitespace
+   * removed. If the resulting string is empty, `null`, or `undefined`, it returns `null`
+   * to indicate that the element effectively has no usable ID.
+   *
+   * @param s - The ID string to normalize, or `null`/`undefined` if absent.
+   * @returns The trimmed ID string, or `null` if the input was empty or missing.
+   *
+   * Example:
+   *   normalizeId("  heading-1  ") -> "heading-1"
+   *   normalizeId("")              -> null
+   *   normalizeId(undefined)       -> null
+   */
+  private normalizeId(s: string | null | undefined): string | null {
+    return s && s.trim() ? s : null;
   }
 
 }

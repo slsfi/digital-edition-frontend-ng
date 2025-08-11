@@ -8,6 +8,7 @@ import { IonicModule } from '@ionic/angular';
 import { catchError, forkJoin, map, Observable, of } from 'rxjs';
 
 import { config } from '@config';
+import { Article } from '@models/article.model';
 import { ArrayIncludesPipe } from '@pipes/array-includes.pipe';
 import { ParentChildPagePathPipe } from '@pipes/parent-child-page-path.pipe';
 import { CollectionsService } from '@services/collections.service';
@@ -350,15 +351,22 @@ export class MainSideMenuComponent implements OnInit, OnChanges {
    * Goes through every object in @param array, including nested objects declared
    * as in 'children' properties, and adds a new property 'articleId'
    * with the value of the id property, and replaces the id property with the mapped
-   * value of the article routeName from the config.
+   * value of the article routeName from the config. Also replaces the 'title'
+   * property value with the mapped title from the config.
    */
   private recursivelyMapArticleIdToRouteName(array: any[]) {
     for (let i = 0; i < array.length; i++) {
-      array[i]["articleId"] = array[i]["id"];
-      const article = config.articles?.find((article: any) => article.id === array[i]["articleId"]) ?? {};
-      array[i]["id"] = article?.routeName ?? array[i]["articleId"];
-      if (array[i]["children"] && array[i]["children"].length) {
-        this.recursivelyMapArticleIdToRouteName(array[i]["children"]);
+      if (array[i]["type"] === "file") {
+        const origId = array[i]["id"];
+        const article: Article = config.articles?.find(
+          (article: Article) => (article.id === origId && article.language === this.activeLocale)
+        ) ?? null;
+        array[i]["id"] = article?.routeName ?? origId;
+        array[i]["title"] = article?.title ?? array[i]["title"];
+      } else {
+        if (array[i]["children"] && array[i]["children"].length) {
+          this.recursivelyMapArticleIdToRouteName(array[i]["children"]);
+        }
       }
     }
   }

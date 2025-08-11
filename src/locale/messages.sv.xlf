@@ -18,6 +18,18 @@
         <target>Sidans innehåll kunde inte laddas.</target>
       </segment>
     </unit>
+    <unit id="Article.Contents">
+      <segment state="initial">
+        <source>Innehåll</source>
+        <target>Innehåll</target>
+      </segment>
+    </unit>
+    <unit id="Article.LoadingError">
+      <segment state="initial">
+        <source>Artikeln kunde inte laddas.</source>
+        <target>Artikeln kunde inte laddas.</target>
+      </segment>
+    </unit>
     <unit id="BasicActions.Cancel">
       <segment state="initial">
         <source>Avbryt</source>

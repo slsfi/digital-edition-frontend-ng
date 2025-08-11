@@ -20,7 +20,7 @@ import { isBrowser } from '@utility-functions';
 export class ArticlePage implements OnInit, OnDestroy {
   markdownText$: Observable<string | null>;
   mobileMode: boolean = false;
-  tocMenuOpen: boolean = false;
+  tocMenuOpen: boolean = true;
 
   private fragmentSubscription?: Subscription;
   private unlistenClickEvents?: () => void;
@@ -79,11 +79,7 @@ export class ArticlePage implements OnInit, OnDestroy {
   }
 
   toggleTocMenu() {
-    if (this.tocMenuOpen) {
-      this.tocMenuOpen = false;
-    } else {
-      this.tocMenuOpen = true;
-    }
+    this.tocMenuOpen = !this.tocMenuOpen;
   }
 
   /**
@@ -137,8 +133,8 @@ export class ArticlePage implements OnInit, OnDestroy {
           'page-article:not([ion-page-hidden]):not(.ion-page-hidden) [id="' + targetElemId + '"]'
         );
         const scrollContainerElem = document.querySelector(
-          'page-article:not([ion-page-hidden]):not(.ion-page-hidden) ion-content'
-        )?.shadowRoot?.querySelector('[part="scroll"]');
+          'page-article:not([ion-page-hidden]):not(.ion-page-hidden) article'
+        );
   
         if (scrollTargetElem && scrollContainerElem) {
           this.scrollService.scrollElementIntoView(

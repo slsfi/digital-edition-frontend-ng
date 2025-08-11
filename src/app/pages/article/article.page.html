@@ -16,16 +16,24 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content [class.mobile-mode-content]="mobileMode">
+<ion-content class="collection-ion-content"
+      [class.mobile-mode-content]="mobileMode"
+      [scrollX]="false"
+      [scrollY]="false"
+>
   @defer {
     <article-toc
-          [markdownHtml]="renderedHtml"
+          [htmlContent]="renderedHtml"
           [tocMenuOpen]="tocMenuOpen"
           [ngClass]="tocMenuOpen ? 'menuOpen' : 'menuClosed'"
-          [class.mobile-mode-toc]="mobileMode"
+          [class.screen-reader-only]="!tocMenuOpen"
           [tabIndex]="tocMenuOpen ? '0' : '-1'"
     ></article-toc>
   }
 
-  <article class="md_content markdown" tabindex="0" [innerHTML]="renderedHtml | trustHtml"></article>
+  <article
+        class="scroll-content-container md_content markdown"
+        tabindex="0"
+        [innerHTML]="renderedHtml | trustHtml"
+  ></article>
 </ion-content>

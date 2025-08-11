@@ -1,5 +1,5 @@
-import { Component, Input, OnInit } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
+import { Component, Input, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
 import { HeadingNode } from '@models/article.model';
@@ -13,7 +13,7 @@ import { HtmlParserService } from '@services/html-parser.service';
   imports: [NgTemplateOutlet, RouterLink]
 })
 export class ArticleTocComponent implements OnInit {
-  @Input() markdownHtml: string | null = null;
+  @Input() htmlContent: string | null = null;
   @Input() tocMenuOpen: boolean = false;
   nestedHeadings: HeadingNode[] = [];
   
@@ -22,8 +22,8 @@ export class ArticleTocComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    if (this.markdownHtml) {
-      this.nestedHeadings = this.htmlParser.getHeadingsFromHtml(this.markdownHtml);
+    if (this.htmlContent) {
+      this.nestedHeadings = this.htmlParser.getHeadingsFromHtml(this.htmlContent);
     }
   }
 

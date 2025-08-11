@@ -1,46 +1,14 @@
 :host {
-  background-color: #f1f1f1;
-  box-shadow: -5px 0px 5px 1px rgba(0, 0, 0, 0.2);
-  clip-path: inset(0px 0px 0px -12px);
+  background-color: var(--intro-toc-background-color, --main-background-color);
   font-size: 1rem;
-  height: calc(100% - 50px);
-  line-height: 1.3;
-  max-width: 450px;
-  outline-offset: -0.125rem;
-  overflow-x: auto;
-  overflow-y: scroll;
-  padding: 1.75rem 1.75rem 5rem 1.75rem;
-  position: fixed;
-  right: -10px;
-  top: 50px;
-  transform: translateX(100%);
-  transition: transform 0.3s ease-in-out;
-  width: 65%;
-  z-index: 10001;
+  padding: 10px 20px 70px;
 
-  &.menuOpen {
-    margin-right: 10px;
-    transform: translateX(0);
-
-    &.mobile-mode-epub {
-      height: calc(100% - 46px);
-    }
-  }
-
-  @media screen and (max-width: 500px) {
-    width: 75%;
-  }
-
-  @media screen and (max-width: 450px) {
-    width: 80%;
-  }
-
-  > ul {
+  nav > ul {
     margin-left: 0;
     margin-top: 0;
   }
 
-  > ul > li > ul {
+  nav > ul > li > ul {
     margin-left: 0;
   }
 }

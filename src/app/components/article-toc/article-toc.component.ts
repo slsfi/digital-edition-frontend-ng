@@ -1,30 +1,24 @@
 import { NgTemplateOutlet } from '@angular/common';
-import { Component, Input, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
-
 import { HeadingNode } from '@models/article.model';
 import { HtmlParserService } from '@services/html-parser.service';
-
 
 @Component({
   selector: 'article-toc',
   templateUrl: './article-toc.component.html',
   styleUrls: ['./article-toc.component.scss'],
-  imports: [NgTemplateOutlet, RouterLink]
+  imports: [NgTemplateOutlet, RouterLink],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class ArticleTocComponent implements OnInit {
-  @Input() htmlContent: string | null = null;
-  @Input() tocMenuOpen: boolean = false;
-  nestedHeadings: HeadingNode[] = [];
-  
-  constructor(
-    private htmlParser: HtmlParserService
-  ) {}
+export class ArticleTocComponent {
+  htmlContent = input<string | null>(null);
+  tocMenuOpen = input<boolean>(false);
 
-  ngOnInit() {
-    if (this.htmlContent) {
-      this.nestedHeadings = this.htmlParser.getHeadingsFromHtml(this.htmlContent);
-    }
-  }
+  private readonly htmlParser = inject(HtmlParserService);
 
+  readonly nestedHeadings = computed<HeadingNode[]>(() => {
+    const html = this.htmlContent();
+    return html ? this.htmlParser.getHeadingsFromHtml(html) : [];
+  });
 }

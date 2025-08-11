@@ -1,18 +1,26 @@
 <nav>
-  @if (nestedHeadings.length) {
+  @if (nestedHeadings().length) {
     <ul class="article-toc-list" role="menu">
-      <ng-container *ngTemplateOutlet="renderList; context: { items: nestedHeadings }"></ng-container>
+      <ng-container *ngTemplateOutlet="renderList; context: { items: nestedHeadings() }"></ng-container>
     </ul>
   }
 
   <ng-template #renderList let-items="items">
-    @for (item of items; track $index) {
+    @for (item of items; track item.id ?? item.text ?? $index) {
       <li role="menuitem">
         @if (item.id) {
-          <a class="article-toc-level-{{item.level}}" [routerLink]="[]" [fragment]="item.id" [tabIndex]="tocMenuOpen ? '' : '-1'">{{ item.text }}</a>
+          <a
+                class="article-toc-level-{{ item.level }}"
+                [routerLink]="[]"
+                [fragment]="item.id"
+                [tabIndex]="tocMenuOpen() ? 0 : -1"
+          >
+            {{ item.text }}
+          </a>
         } @else {
-          <span class="article-toc-level-{{item.level}}">{{ item.text }}</span>
+          <span class="article-toc-level-{{ item.level }}">{{ item.text }}</span>
         }
+
         @if (item.children?.length) {
           <ul role="menu">
             <ng-container *ngTemplateOutlet="renderList; context: { items: item.children }"></ng-container>

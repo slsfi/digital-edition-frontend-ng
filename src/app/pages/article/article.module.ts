@@ -5,6 +5,7 @@ import { IonicModule } from '@ionic/angular';
 import { TrustHtmlPipe } from '@pipes/trust-html.pipe';
 import { ArticlePage } from './article.page';
 import { ArticlePageRoutingModule } from './article-routing.module';
+import { ArticleTocComponent } from '@components/article-toc/article-toc.component';
 
 @NgModule({
   declarations: [
@@ -15,6 +16,7 @@ import { ArticlePageRoutingModule } from './article-routing.module';
     IonicModule,
     TrustHtmlPipe,
     ArticlePageRoutingModule,
+    ArticleTocComponent
   ]
 })
 export class ArticlePageModule {}

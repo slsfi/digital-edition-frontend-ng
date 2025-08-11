@@ -7,10 +7,25 @@
         <ion-icon slot="start" name="arrow-redo-sharp"></ion-icon>
         <span class="side-title" i18n="@@Reference.Refer">Hänvisa</span>
       </ion-button>
+      <ion-button [ngClass]="tocMenuOpen ? 'menuOpenTOC' : 'menuClosedTOC'" (click)="toggleTocMenu()">
+        <ion-icon slot="start" name="list" [class.visuallyhidden]="tocMenuOpen"></ion-icon>
+        <ion-icon slot="start" name="close" [class.visuallyhidden]="!tocMenuOpen"></ion-icon>
+        <span class="side-title" i18n="@@Article.Contents">Innehåll</span>
+      </ion-button>
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
-<ion-content>
-  <article class="md_content markdown" [innerHTML]="renderedHtml | trustHtml"></article>
+<ion-content [class.mobile-mode-content]="mobileMode">
+  @defer {
+    <article-toc
+          [markdownHtml]="renderedHtml"
+          [tocMenuOpen]="tocMenuOpen"
+          [ngClass]="tocMenuOpen ? 'menuOpen' : 'menuClosed'"
+          [class.mobile-mode-toc]="mobileMode"
+          [tabIndex]="tocMenuOpen ? '0' : '-1'"
+    ></article-toc>
+  }
+
+  <article class="md_content markdown" tabindex="0" [innerHTML]="renderedHtml | trustHtml"></article>
 </ion-content>

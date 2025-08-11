@@ -1,12 +1,12 @@
 import { Component, ElementRef, Inject, LOCALE_ID, NgZone, OnDestroy, OnInit, Renderer2 } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ModalController } from '@ionic/angular';
-import { Observable, Subscription, switchMap, tap } from 'rxjs';
+import { Observable, Subscription, switchMap } from 'rxjs';
 
 import { config } from '@config';
 import { ReferenceDataModal } from '@modals/reference-data/reference-data.modal';
-import { HtmlParserService } from '@services/html-parser.service';
 import { MarkdownService } from '@services/markdown.service';
+import { PlatformService } from '@services/platform.service';
 import { ScrollService } from '@services/scroll.service';
 import { isBrowser } from '@utility-functions';
 
@@ -19,16 +19,18 @@ import { isBrowser } from '@utility-functions';
 })
 export class ArticlePage implements OnInit, OnDestroy {
   markdownText$: Observable<string | null>;
+  mobileMode: boolean = false;
+  tocMenuOpen: boolean = false;
 
   private fragmentSubscription?: Subscription;
   private unlistenClickEvents?: () => void;
 
   constructor(
     private elementRef: ElementRef,
-    private htmlParser: HtmlParserService,
     private mdService: MarkdownService,
     private modalController: ModalController,
     private ngZone: NgZone,
+    private platformService: PlatformService,
     private renderer2: Renderer2,
     private route: ActivatedRoute,
     private router: Router,
@@ -37,6 +39,7 @@ export class ArticlePage implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit() {
+    this.mobileMode = this.platformService.isMobile();
     if (isBrowser()) {
       this.setUpTextListeners();
 
@@ -56,14 +59,6 @@ export class ArticlePage implements OnInit, OnDestroy {
           this.activeLocale + '-' + id,
           '<p>' + $localize`:@@About.LoadingError:Sidans innehåll kunde inte laddas.` + '</p>'
         );
-      }),
-      tap((html: string | null) => {
-        if (html) {
-          const headings = this.htmlParser.getHeadingsFromHtml(html);
-          console.log(headings);
-        } else {
-          console.log('No html!');
-        }
       })
     );
   }
@@ -81,6 +76,14 @@ export class ArticlePage implements OnInit, OnDestroy {
     });
 
     modal.present();
+  }
+
+  toggleTocMenu() {
+    if (this.tocMenuOpen) {
+      this.tocMenuOpen = false;
+    } else {
+      this.tocMenuOpen = true;
+    }
   }
 
   /**

@@ -6,15 +6,9 @@ import { existsOne, findAll, getAttributeValue } from 'domutils';
 import { render } from 'dom-serializer';
 
 import { config } from '@config';
+import { HeadingNode } from '@models/article.model';
 import { CollectionContentService } from '@services/collection-content.service';
 
-
-export interface HeadingNode {
-  id: string | null;
-  text: string;
-  level: number;
-  children: HeadingNode[];
-}
 
 @Injectable({
   providedIn: 'root',
@@ -319,6 +313,7 @@ export class HtmlParserService {
     return parsed_text;
   }
 
+
   private fixImageAssetsPaths(text: string): string {
     // Fix image paths if config option for this enabled
     if (this.replaceImageAssetsPaths) {
@@ -328,9 +323,30 @@ export class HtmlParserService {
     }
   }
 
+
   /**
-   * Extracts all heading elements (h1–h6) with IDs from the given HTML string.
-   * Returns an array of headings with their level, id, and text content.
+   * Parses an HTML string and extracts all heading elements (`<h1>` to `<h6>`).
+   * The headings are returned as a nested tree structure based on their levels.
+   *
+   * This method is SSR-compatible and uses htmlparser2 for parsing.
+   *
+   * @param html - The HTML string to extract headings from.
+   * @returns A nested array of HeadingNode objects representing the Table of
+   *          Contents structure.
+   *
+   * Example:
+   *   <h1 id="a">A</h1>
+   *   <h2 id="a-1">A.1</h2>
+   *   <h1 id="b">B</h1>
+   *
+   *   Produces:
+   *   [
+   *     { id: "a", text: "A", level: 1, children: [
+   *         { id: "a-1", text: "A.1", level: 2, children: [] }
+   *       ]
+   *     },
+   *     { id: "b", text: "B", level: 1, children: [] }
+   *   ]
    */
   getHeadingsFromHtml(html: string): HeadingNode[] {
     const handler = new DomHandler();
@@ -351,18 +367,72 @@ export class HtmlParserService {
     return this.buildHeadingTree(flatHeadings);
   }
 
+
   /**
-   * Recursively extracts the text content of a node and its children.
+   * Recursively extracts and concatenates the plain text content from a
+   * given HTML element and all of its child nodes.
+   *
+   * This method is used to retrieve the visible text content from heading
+   * tags or other HTML elements parsed with htmlparser2. It skips
+   * non-text nodes and decodes nested structures into a clean, trimmed
+   * string.
+   *
+   * @param node A DOM node from htmlparser2 (usually of type 'tag').
+   * @returns A string containing all the concatenated text content within
+   *          the node.
+   *
+   * Example:
+   *   Given a heading element like:
+   *     <h2 id="example">Intro <span>Section</span></h2>
+   *   The output will be:
+   *     "Intro Section"
    */
   private getTextContent(node: any): string {
     if (!node.children) return '';
     return node.children.map((child: any) => {
-      if (child.type === 'text') return child.data;
-      if (child.type === 'tag') return this.getTextContent(child);
+      if (child.type === 'text') {
+        return child.data;
+      }
+      if (child.type === 'tag' && !child.attribs?.id?.startsWith('md-footnote-ref')) {
+        // Elements with @id with a value starting with 'md-footnote-ref' are suppressed
+        // since they are footnote references.
+        return this.getTextContent(child);
+      }
       return '';
     }).join('').trim();
   }
 
+
+  /**
+   * Converts a flat array of headings into a nested tree structure based
+   * on heading levels.
+   *
+   * Headings with a higher level are nested as children under the last
+   * heading of a lower level. This method assumes the flat input array is
+   * already sorted in document order.
+   *
+   * @param flat A flat array of HeadingNode objects (with `level`, `id`,
+   *             `text`).
+   * @returns A nested tree of HeadingNode objects, where children
+   *          represent subheadings.
+   *
+   * Example:
+   *   Input:
+   *   [
+   *     { level: 1, text: 'Intro', id: 'intro', children: [] },
+   *     { level: 2, text: 'Details', id: 'details', children: [] },
+   *     { level: 1, text: 'Conclusion', id: 'conclusion', children: [] }
+   *   ]
+   *
+   *   Output:
+   *   [
+   *     { level: 1, text: 'Intro', id: 'intro', children: [
+   *         { level: 2, text: 'Details', id: 'details', children: [] }
+   *       ]
+   *     },
+   *     { level: 1, text: 'Conclusion', id: 'conclusion', children: [] }
+   *   ]
+   */
   private buildHeadingTree(flat: HeadingNode[]): HeadingNode[] {
     const root: HeadingNode[] = [];
     const stack: HeadingNode[] = [];

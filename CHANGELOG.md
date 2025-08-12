@@ -12,10 +12,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 - Support for Markdown/HTML-based article pages (see details and instructions below).
 
-### Changed
-
-- Refactor ebooks listing in main side menu.
-
 #### Details and usage instructions for article pages
 
 ##### File structure
@@ -83,6 +79,14 @@ component: {
 ```
 
 By default, articles are grouped in the main side menu under a heading based on their backend folder name. To ungroup them and have them appear directly in the side menu, set `component.mainSideMenu.ungroupArticles` to `true`.
+
+### Changed
+
+- Refactor ebooks listing in main side menu.
+
+### Fixed
+
+- Incorrect generation of ebook router links.
 
 
 

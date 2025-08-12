@@ -83,6 +83,7 @@ By default, articles are grouped in the main side menu under a heading based on 
 ### Changed
 
 - Refactor ebooks listing in main side menu.
+- Deps (dev): update `@types/node` to 22.17.1.
 
 ### Fixed
 

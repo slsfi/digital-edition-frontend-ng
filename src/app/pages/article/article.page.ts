@@ -23,7 +23,7 @@ import { isBrowser } from '@utility-functions';
 })
 export class ArticlePage implements OnInit, OnDestroy {
   article: Article | null = null;
-  enableTOC: boolean = false;
+  enableTOC: boolean = true;
   markdownText$: Observable<string | null>;
   mobileMode: boolean = false;
   showTextDownloadButton: boolean = false;
@@ -79,7 +79,7 @@ export class ArticlePage implements OnInit, OnDestroy {
         this.article = config.articles?.find(
           (article: Article) => (article.routeName === name) && article.language === this.activeLocale
         ) ?? null;
-        this.enableTOC = this.article?.enableTOC ?? false;
+        this.enableTOC = this.article?.enableTOC ?? true;
       }),
       switchMap(({name}) => {
         const id = this.article?.id ?? name;

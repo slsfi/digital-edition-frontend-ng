@@ -55,27 +55,25 @@ export const config: Config = {
 - `routeName` (required): URL-safe name (0-9, a-zA-Z, -, _).
 - `title` (optional): Overrides title from filename. Must be provided if articles are shown in the content grid.
 - `coverURL` (optional): Image file path for content grid.
-- `enableTOC` (optional): Generate table of contents from headings (default: `false`).
+- `enableTOC` (optional): Generate table of contents from headings (default: `true`).
 - `downloadOptions` (optional): An array of objects with two keys: `url` and `label`. If only one download URL is given, `label` may be an empty string. Currently, only one download option is supported.
 
-#### Additional config options
+#### Additional `config` options
 
 ```typescript
-export const config: Config = {
-  article: {
-    showTextDownloadButton: false,
-    showURNButton: false
+article: {
+  showTextDownloadButton: false,
+  showURNButton: false
+},
+component: {
+  contentGrid: {
+    includeArticles: false
   },
-  component: {
-    contentGrid: {
-      includeArticles: false
+  mainSideMenu: {
+    items: {
+      articles: false
     },
-    mainSideMenu: {
-      items: {
-        articles: false
-      },
-      ungroupArticles: false
-    }
+    ungroupArticles: false
   }
 }
 ```

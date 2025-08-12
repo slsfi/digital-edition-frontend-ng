@@ -85,6 +85,7 @@ By default, articles are grouped in the main side menu under a heading based on 
 - Refactor ebooks listing in main side menu.
 - Deps (dev): update `@types/node` to 22.17.1.
 - Deps: update `@angular/cli` to 20.1.5 and `@angular/core` to 20.1.6.
+- Deps: update transitive dependencies.
 
 ### Fixed
 

@@ -37,7 +37,6 @@ import { addOrRemoveValueInNewArray, sortArrayOfObjectsAlphabetically, splitFile
 export class MainSideMenuComponent implements OnInit, OnChanges {
   @Input() urlSegments: UrlSegment[] = [];
 
-  ebooksList: any[] = [];
   highlightedMenu: string = '';
   mainMenu: any[] = [];
   selectedMenu: string[] = [];
@@ -54,16 +53,7 @@ export class MainSideMenuComponent implements OnInit, OnChanges {
     private mdcontentService: MarkdownService,
     private mediaCollectionService: MediaCollectionService,
     @Inject(LOCALE_ID) private activeLocale: string
-  ) {
-    this.ebooksList = config.ebooks ?? [];
-
-    if (this.ebooksList) {
-      this.ebooksList.forEach((ebook: any) => {
-        const filenameparts = splitFilename(ebook.filename);
-        ebook.id = filenameparts.name;
-      });
-    }
-  }
+  ) {}
 
   ngOnInit() {
     this.getMenuData().subscribe(
@@ -198,8 +188,8 @@ export class MainSideMenuComponent implements OnInit, OnChanges {
 
   private getEbookPagesMenu(): Observable<any> {
     let menuData: any[] = [];
-    if (this.ebooksList.length) {
-      this.ebooksList.forEach(ebook => {
+    if (config.ebooks?.length) {
+      config.ebooks.forEach((ebook: any) => {
         const filenameparts = splitFilename(ebook.filename);
         menuData.push({
           id: filenameparts.name,
@@ -207,7 +197,7 @@ export class MainSideMenuComponent implements OnInit, OnChanges {
           parentPath: `/ebook/${filenameparts.extension}`
         });
       });
-      if (this.ebooksList.length > 1) {
+      if (menuData.length > 1) {
         menuData = [{
           title: $localize`:@@MainSideMenu.Ebooks:E-böcker`,
           children: menuData

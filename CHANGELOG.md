@@ -12,6 +12,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 - Support for Markdown/HTML-based article pages (see details and instructions below).
 
+### Changed
+
+- Refactor ebooks listing in main side menu.
+
 #### Details and usage instructions for article pages
 
 ##### File structure

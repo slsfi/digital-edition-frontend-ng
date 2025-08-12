@@ -185,7 +185,7 @@ export class MainSideMenuComponent implements OnInit, OnChanges {
           res = res[0]?.children ?? [];
         }
         this.recursivelyAddParentPagePath(res, '/article');
-        this.recursivelyMapArticleIdToRouteName(res);
+        this.recursivelyMapArticleData(res);
 
         return { menuType: 'article', menuData: res };
       }),
@@ -354,7 +354,7 @@ export class MainSideMenuComponent implements OnInit, OnChanges {
    * value of the article routeName from the config. Also replaces the 'title'
    * property value with the mapped title from the config.
    */
-  private recursivelyMapArticleIdToRouteName(array: any[]) {
+  private recursivelyMapArticleData(array: any[]) {
     for (let i = 0; i < array.length; i++) {
       if (array[i]["type"] === "file") {
         const origId = array[i]["id"];
@@ -365,7 +365,7 @@ export class MainSideMenuComponent implements OnInit, OnChanges {
         array[i]["title"] = article?.title ?? array[i]["title"];
       } else {
         if (array[i]["children"] && array[i]["children"].length) {
-          this.recursivelyMapArticleIdToRouteName(array[i]["children"]);
+          this.recursivelyMapArticleData(array[i]["children"]);
         }
       }
     }

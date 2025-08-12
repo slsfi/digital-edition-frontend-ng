@@ -8,6 +8,80 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+### Added
+
+- Support for Markdown/HTML-based article pages (see details and instructions below).
+
+### Details and usage instructions for article pages
+
+#### File structure
+
+- Articles must be stored as `.md` files in the `md` folder on the backend (just like about pages).
+- The containing folder must:
+  - Be prefixed with a numeric ID (e.g., `04 - Articles`).
+  - Have an ID that does not conflict with any fixed IDs for other `md` folders.
+- Individual article files must:
+  - Be prefixed with IDs to determine their order (e.g., `01 - Title of article 1.md`, `02 - Title of article 2.md`).
+
+#### Metadata
+
+Metadata about articles must be defined in the `config`, for example:
+
+```typescript
+export const config: Config = {
+  /*...*/
+  article: [
+    {
+      id: "04-01",
+      language: "sv",
+      routeName: "brod-och-bot",
+      title: "Bröd och bot. Hushållsböcker och receptsamlingar under det långa 1700-talet",
+      coverURL: "assets/images/covers/cover_norrback-brod-och-bot_epub.jpg",
+      enableTOC: true,
+      downloadOptions: [
+        {
+          url: "https://urn.fi/URN:ISBN:978-951-583-582-6",
+          label: ""
+        }
+      ]
+    }
+  ],
+  /*...*/
+}
+```
+
+- `id` (required): Folder ID + article ID, joined with `-`.
+- `language` (required): Language code of the subfolder.
+- `routeName` (required): URL-safe name (0-9, a-zA-Z, -, _).
+- `title` (optional): Overrides title from filename. Must be provided if articles are shown in the content grid.
+- `coverURL` (optional): Image file path for content grid.
+- `enableTOC` (optional): Generate table of contents from headings (default: `false`).
+- `downloadOptions` (optional): An array of objects with two keys: `url` and `label`. If only one download URL is given, `label` may be an empty string. Currently, only one download option is supported.
+
+#### Additional config options
+
+```typescript
+export const config: Config = {
+  article: {
+    showTextDownloadButton: false,
+    showURNButton: false
+  },
+  component: {
+    contentGrid: {
+      includeArticles: false
+    },
+    mainSideMenu: {
+      items: {
+        articles: false
+      },
+      ungroupArticles: false
+    }
+  }
+}
+```
+
+By default, articles are grouped in the main side menu under a heading based on their backend folder name. To ungroup them and have them appear directly in the side menu, set `component.mainSideMenu.ungroupArticles` to `true`.
+
 
 
 ## [2.0.0] – 2025-08-05

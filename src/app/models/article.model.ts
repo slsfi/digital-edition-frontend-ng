@@ -14,10 +14,10 @@ export interface Article {
   id: string;
   language: string;
   routeName: string;
-  title: string;
-  coverURL: string;
-  enableTOC: boolean;
-  downloadOptions: DownloadOption[];
+  title?: string;
+  coverURL?: string;
+  enableTOC?: boolean;
+  downloadOptions?: DownloadOption[];
 }
 
 export interface ArticlesData {

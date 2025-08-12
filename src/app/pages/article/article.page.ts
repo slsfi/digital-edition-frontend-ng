@@ -23,10 +23,10 @@ import { isBrowser } from '@utility-functions';
 })
 export class ArticlePage implements OnInit, OnDestroy {
   article: Article | null = null;
+  enableTOC: boolean = false;
   markdownText$: Observable<string | null>;
   mobileMode: boolean = false;
   showTextDownloadButton: boolean = false;
-  enableTOC: boolean = false;
   showURNButton: boolean = true;
   textsize: Textsize = Textsize.Small;
   textsizeSubscription: Subscription | null = null;
@@ -77,7 +77,7 @@ export class ArticlePage implements OnInit, OnDestroy {
     this.markdownText$ = this.route.params.pipe(
       tap(({name}) => {
         this.article = config.articles?.find(
-          (article: any) => (article.routeName === name) && article.language === this.activeLocale
+          (article: Article) => (article.routeName === name) && article.language === this.activeLocale
         ) ?? null;
         this.enableTOC = this.article?.enableTOC ?? false;
       }),
@@ -188,13 +188,13 @@ export class ArticlePage implements OnInit, OnDestroy {
         const scrollTargetElem = document.querySelector<HTMLElement>(
           'page-article:not([ion-page-hidden]):not(.ion-page-hidden) [id="' + targetElemId + '"]'
         );
-        const scrollContainerElem = document.querySelector(
+        const scrollContainerElem = document.querySelector<HTMLElement>(
           'page-article:not([ion-page-hidden]):not(.ion-page-hidden) article'
         );
   
         if (scrollTargetElem && scrollContainerElem) {
           this.scrollService.scrollElementIntoView(
-            scrollTargetElem, 'top', 0, 'smooth', scrollContainerElem as HTMLElement
+            scrollTargetElem, 'top', 0, 'smooth', scrollContainerElem
           );
 
           // If scrolling to footnote or footnote reference, move focus so navigating

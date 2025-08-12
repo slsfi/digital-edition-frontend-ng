@@ -8,13 +8,28 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+
+
+## [2.1.0] – 2025-08-12
+
 ### Added
 
-- Support for Markdown/HTML-based article pages (see details and instructions below).
+- Support for Markdown/HTML-based article pages (see details and instructions below). ([85bbde9](https://github.com/slsfi/digital-edition-frontend-ng/commit/85bbde9b77b65fd9429a38bd87e7200e149afeb0))
 
-#### Details and usage instructions for article pages
+### Changed
 
-##### File structure
+- Refactor ebooks listing in main side menu. ([0861b93](https://github.com/slsfi/digital-edition-frontend-ng/commit/0861b933fcfb29eabc30293aced8cf3f3aabdd05))
+- Deps (dev): update `@types/node` to 22.17.1. ([28542ae](https://github.com/slsfi/digital-edition-frontend-ng/commit/28542ae81d00b3ed6bc9a4355195781296269c1b))
+- Deps: update `@angular/cli` to 20.1.5 and `@angular/core` to 20.1.6. ([19c9fbb](https://github.com/slsfi/digital-edition-frontend-ng/commit/19c9fbb027004e69a83d5c4d1fbe7ae01f982beb))
+- Deps: update transitive dependencies. ([9a80852](https://github.com/slsfi/digital-edition-frontend-ng/commit/9a808521bb84507b05ba2a1307a7c94e6c851154))
+
+### Fixed
+
+- Incorrect generation of ebook router links. ([01e0454](https://github.com/slsfi/digital-edition-frontend-ng/commit/01e04549c79287a37138110c3efb354b14e58aa0))
+
+### Details and usage instructions for article pages
+
+#### File structure
 
 - Articles must be stored as `.md` files in the `md` folder on the backend (just like about pages).
 - The containing folder must:
@@ -23,7 +38,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - Individual article files must:
   - Be prefixed with IDs to determine their order (e.g., `01 - Title of article 1.md`, `02 - Title of article 2.md`).
 
-##### Metadata
+#### Metadata
 
 Metadata about articles must be defined in the `config`, for example:
 
@@ -58,7 +73,7 @@ export const config: Config = {
 - `enableTOC` (optional): Generate table of contents from headings (default: `true`).
 - `downloadOptions` (optional): An array of objects with two keys: `url` and `label`. If only one download URL is given, `label` may be an empty string. Currently, only one download option is supported.
 
-##### Additional `config` options
+#### Additional `config` options
 
 ```typescript
 article: {
@@ -79,17 +94,6 @@ component: {
 ```
 
 By default, articles are grouped in the main side menu under a heading based on their backend folder name. To ungroup them and have them appear directly in the side menu, set `component.mainSideMenu.ungroupArticles` to `true`.
-
-### Changed
-
-- Refactor ebooks listing in main side menu.
-- Deps (dev): update `@types/node` to 22.17.1.
-- Deps: update `@angular/cli` to 20.1.5 and `@angular/core` to 20.1.6.
-- Deps: update transitive dependencies.
-
-### Fixed
-
-- Incorrect generation of ebook router links.
 
 
 
@@ -934,7 +938,8 @@ siteLogoDimensions: {
 
 
 
-[unreleased]: https://github.com/slsfi/digital-edition-frontend-ng/compare/2.0.0...HEAD
+[unreleased]: https://github.com/slsfi/digital-edition-frontend-ng/compare/2.1.0...HEAD
+[2.1.0]: https://github.com/slsfi/digital-edition-frontend-ng/compare/2.0.0...2.1.0
 [2.0.0]: https://github.com/slsfi/digital-edition-frontend-ng/compare/1.8.2...2.0.0
 [1.8.2]: https://github.com/slsfi/digital-edition-frontend-ng/compare/1.8.1...1.8.2
 [1.8.1]: https://github.com/slsfi/digital-edition-frontend-ng/compare/1.8.0...1.8.1

@@ -8,9 +8,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+
+
+## [2.1.1] – 2025-08-12
+
 ### Fixed
 
-- Include articles in sitemap.
+- Include articles in sitemap. ([eb3a0ff](https://github.com/slsfi/digital-edition-frontend-ng/commit/eb3a0ffe5d9c9adb30af335ea02226d72140870c))
 
 
 
@@ -942,7 +946,8 @@ siteLogoDimensions: {
 
 
 
-[unreleased]: https://github.com/slsfi/digital-edition-frontend-ng/compare/2.1.0...HEAD
+[unreleased]: https://github.com/slsfi/digital-edition-frontend-ng/compare/2.1.1...HEAD
+[2.1.1]: https://github.com/slsfi/digital-edition-frontend-ng/compare/2.1.0...2.1.1
 [2.1.0]: https://github.com/slsfi/digital-edition-frontend-ng/compare/2.0.0...2.1.0
 [2.0.0]: https://github.com/slsfi/digital-edition-frontend-ng/compare/1.8.2...2.0.0
 [1.8.2]: https://github.com/slsfi/digital-edition-frontend-ng/compare/1.8.1...1.8.2

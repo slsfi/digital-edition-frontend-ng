@@ -50,14 +50,20 @@
     }
   }
 
-  <article
-        class="scroll-content-container md_content markdown"
-        [class.xsmallFontSize]="textsize == TextsizeEnum.XSmall"
-        [class.smallFontSize]="textsize == TextsizeEnum.Small"
-        [class.mediumFontSize]="textsize == TextsizeEnum.Medium"
-        [class.largeFontSize]="textsize == TextsizeEnum.Large"
-        [class.xlargeFontSize]="textsize == TextsizeEnum.XLarge"
-        tabindex="0"
-        [innerHTML]="renderedHtml | trustHtml"
-  ></article>
+  @if (renderedHtml) {
+    <article
+          class="scroll-content-container md_content markdown"
+          [class.xsmallFontSize]="textsize == TextsizeEnum.XSmall"
+          [class.smallFontSize]="textsize == TextsizeEnum.Small"
+          [class.mediumFontSize]="textsize == TextsizeEnum.Medium"
+          [class.largeFontSize]="textsize == TextsizeEnum.Large"
+          [class.xlargeFontSize]="textsize == TextsizeEnum.XLarge"
+          tabindex="0"
+          [innerHTML]="renderedHtml | trustHtml"
+    ></article>
+  } @else {
+    <article class="scroll-content-container md_content markdown">
+      <ion-spinner class="loading" name="crescent"></ion-spinner>
+    </article>
+  }
 </ion-content>

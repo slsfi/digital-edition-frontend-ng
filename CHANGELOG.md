@@ -30,7 +30,7 @@ Metadata about articles must be defined in the `config`, for example:
 ```typescript
 export const config: Config = {
   /*...*/
-  article: [
+  articles: [
     {
       id: "04-01",
       language: "sv",

@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+### Fixed
+
+- Include articles in sitemap.
+
 
 
 ## [2.1.0] – 2025-08-12

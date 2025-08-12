@@ -2,7 +2,8 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { catchError, map, Observable, of } from 'rxjs';
 import { Marked } from 'marked';
-import markedFootnote from 'marked-footnote'
+import markedFootnote from 'marked-footnote';
+import customHeadingId from "marked-custom-heading-id";
 
 import { config } from '@config';
 
@@ -38,6 +39,13 @@ export class MarkdownService {
       headingClass: '',
       prefixId: 'md-footnote-'
     }));
+
+    // Configure this instance of Marked to use the
+    // marked-custom-heading-id extension for enabling custom heading
+    // ids with the Markdown Extended Syntax `# heading {#custom-id}`.
+    // https://www.markdownguide.org/extended-syntax/#heading-ids
+    // https://github.com/markedjs/marked-custom-heading-id
+    this.marked.use(customHeadingId());
   }
 
   getMenuTree(language: string, rootNodeID: string): Observable<any> {

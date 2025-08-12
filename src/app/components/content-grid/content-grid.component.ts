@@ -5,6 +5,7 @@ import { IonicModule } from '@ionic/angular';
 import { catchError, filter, forkJoin, from, map, mergeMap, Observable, of, toArray } from 'rxjs';
 
 import { config } from '@config';
+import { Article } from '@models/article.model';
 import { ContentItem } from '@models/content-item.model';
 import { ParentChildPagePathPipe } from '@pipes/parent-child-page-path.pipe';
 import { CollectionsService } from '@services/collections.service';
@@ -18,9 +19,11 @@ import { MarkdownService } from '@services/markdown.service';
   imports: [AsyncPipe, IonicModule, RouterLink, ParentChildPagePathPipe]
 })
 export class ContentGridComponent implements OnInit {
+  availableArticles: Article[] = [];
   availableEbooks: any[] = [];
   flattenedCollectionSortOrder: number[] = [];
   contentItems$: Observable<ContentItem[]>;
+  includeArticles: boolean = false;
   includeEbooks: boolean = false;
   includeMediaCollection: boolean = false;
   showTitles: boolean = true;
@@ -30,8 +33,10 @@ export class ContentGridComponent implements OnInit {
     private mdService: MarkdownService,
     @Inject(LOCALE_ID) private activeLocale: string
   ) {
+    this.availableArticles = config.articles ?? [];
     this.availableEbooks = config.ebooks ?? [];
     this.flattenedCollectionSortOrder = (config.collections?.order ?? []).flat();
+    this.includeArticles = config.component?.contentGrid?.includeArticles ?? false;
     this.includeEbooks = config.component?.contentGrid?.includeEbooks ?? false;
     this.includeMediaCollection = config.component?.contentGrid?.includeMediaCollection ?? false;
     this.showTitles = config.component?.contentGrid?.showTitles ?? true;
@@ -40,6 +45,7 @@ export class ContentGridComponent implements OnInit {
   ngOnInit() {
     this.contentItems$ = forkJoin(
       [
+        this.getArticles(),
         this.getEbooks(),
         this.getCollections(),
         this.getMediaCollection()
@@ -57,6 +63,17 @@ export class ContentGridComponent implements OnInit {
         return items;
       })
     );
+  }
+
+  private getArticles(): Observable<ContentItem[]> {
+    let itemsList: ContentItem[] = [];
+    if (this.includeArticles && this.availableArticles.length) {
+      this.availableArticles.forEach((article: Article) => {
+        const item = new ContentItem(article);
+        itemsList.push(item);
+      });
+    }
+    return of(itemsList);
   }
 
   private getEbooks(): Observable<ContentItem[]> {

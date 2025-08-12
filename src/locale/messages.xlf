@@ -16,6 +16,16 @@
         <source>Sidans innehåll kunde inte laddas.</source>
       </segment>
     </unit>
+    <unit id="Article.Contents">
+      <segment>
+        <source>Innehåll</source>
+      </segment>
+    </unit>
+    <unit id="Article.LoadingError">
+      <segment>
+        <source>Artikeln kunde inte laddas.</source>
+      </segment>
+    </unit>
     <unit id="BasicActions.Cancel">
       <segment>
         <source>Avbryt</source>
@@ -1229,6 +1239,11 @@
     <unit id="Reference.Reference">
       <segment>
         <source>Källhänvisning</source>
+      </segment>
+    </unit>
+    <unit id="Reference.ReferToArticle">
+      <segment>
+        <source>Hänvisa till denna artikel</source>
       </segment>
     </unit>
     <unit id="Reference.ReferToCollection">

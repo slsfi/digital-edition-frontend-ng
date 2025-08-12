@@ -12,9 +12,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 - Support for Markdown/HTML-based article pages (see details and instructions below).
 
-### Details and usage instructions for article pages
+#### Details and usage instructions for article pages
 
-#### File structure
+##### File structure
 
 - Articles must be stored as `.md` files in the `md` folder on the backend (just like about pages).
 - The containing folder must:
@@ -23,7 +23,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - Individual article files must:
   - Be prefixed with IDs to determine their order (e.g., `01 - Title of article 1.md`, `02 - Title of article 2.md`).
 
-#### Metadata
+##### Metadata
 
 Metadata about articles must be defined in the `config`, for example:
 
@@ -58,7 +58,7 @@ export const config: Config = {
 - `enableTOC` (optional): Generate table of contents from headings (default: `true`).
 - `downloadOptions` (optional): An array of objects with two keys: `url` and `label`. If only one download URL is given, `label` may be an empty string. Currently, only one download option is supported.
 
-#### Additional `config` options
+##### Additional `config` options
 
 ```typescript
 article: {

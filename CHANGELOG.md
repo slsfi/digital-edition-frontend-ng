@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+### Fixed
+
+- Error message for missing collection text comments.
+
 
 
 ## [2.1.1] – 2025-08-12

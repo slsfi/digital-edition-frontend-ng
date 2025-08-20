@@ -64,7 +64,7 @@ export class CommentsComponent implements OnInit, OnDestroy {
   loadCommentsText() {
     this.commentService.getComments(this.textItemID).subscribe({
       next: (text) => {
-        if (text) {
+        if (text && String(text) !== 'File not found') {
           this.text = this.parserService.insertSearchMatchTags(String(text), this.searchMatches);
           if (this.searchMatches.length) {
             this.scrollService.scrollToFirstSearchMatch(this.elementRef.nativeElement, this.intervalTimerId);

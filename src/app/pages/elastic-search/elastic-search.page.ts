@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, LOCALE_ID, OnDestroy, OnInit, ViewChild, inject } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, LOCALE_ID, OnDestroy, OnInit, inject, viewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { IonContent } from '@ionic/angular';
 import { map, merge, Observable, of, Subject, Subscription, switchMap } from 'rxjs';
@@ -30,7 +30,7 @@ export class ElasticSearchPage implements OnDestroy, OnInit {
   private urlService = inject(UrlService);
   private activeLocale = inject(LOCALE_ID);
 
-  @ViewChild(IonContent) content: IonContent;
+  readonly content = viewChild(IonContent);
   
   activeFilters: any[] = [];
   aggregations: object = {};
@@ -877,7 +877,7 @@ export class ElasticSearchPage implements OnDestroy, OnInit {
       if (searchBarElem) {
         const topMenuElem: HTMLElement | null = document.querySelector('top-menu');
         if (topMenuElem) {
-          this.content.scrollByPoint(0, searchBarElem.getBoundingClientRect().top - topMenuElem.offsetHeight, 500);
+          this.content()?.scrollByPoint(0, searchBarElem.getBoundingClientRect().top - topMenuElem.offsetHeight, 500);
         }
       }
     }

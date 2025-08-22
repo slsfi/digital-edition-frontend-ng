@@ -1,4 +1,4 @@
-import { Directive, ElementRef, EventEmitter, Input, NgZone, OnDestroy, OnInit, Output, Renderer2, inject } from '@angular/core';
+import { Directive, ElementRef, Input, NgZone, OnDestroy, OnInit, Renderer2, inject, output } from '@angular/core';
 
 
 @Directive({
@@ -14,7 +14,7 @@ export class DraggableImageDirective implements OnInit, OnDestroy {
   @Input() angle: number = 0;
   @Input() zoom: number = 1;
   @Input() mouseOnly: boolean = false;
-  @Output() finalCoordinates = new EventEmitter<number[]>();
+  readonly finalCoordinates = output<number[]>();
 
   private activeDrag: boolean = false;
   private currentCoordinates: number[] = [0, 0];

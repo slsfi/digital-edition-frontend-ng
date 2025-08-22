@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, LOCALE_ID, OnDestroy, OnInit, Output, DOCUMENT, inject } from '@angular/core';
+import { Component, Input, LOCALE_ID, OnDestroy, OnInit, DOCUMENT, inject, output } from '@angular/core';
 import { NgStyle } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { IonicModule } from '@ionic/angular';
@@ -19,7 +19,7 @@ export class TopMenuComponent implements OnDestroy, OnInit {
 
   @Input() currentRouterUrl: string = '';
   @Input() showSideNav: boolean = false;
-  @Output() sideNavClick = new EventEmitter();
+  readonly sideNavClick = output();
 
   currentLanguageLabel: string = '';
   firstAboutPageId: string = '';

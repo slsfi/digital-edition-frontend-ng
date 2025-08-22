@@ -1,4 +1,4 @@
-import { Component, Input, ElementRef, EventEmitter, OnInit, Output, Renderer2, NgZone, SimpleChanges, OnChanges, OnDestroy, inject } from '@angular/core';
+import { Component, Input, ElementRef, OnInit, Renderer2, NgZone, SimpleChanges, OnChanges, OnDestroy, inject, output } from '@angular/core';
 import { IonicModule, ModalController } from '@ionic/angular';
 
 import { config } from '@config';
@@ -34,8 +34,8 @@ export class ReadingTextComponent implements OnChanges, OnDestroy, OnInit {
   @Input() searchMatches: string[] = [];
   @Input() textItemID: string = '';
   @Input() textPosition: string = '';
-  @Output() openNewIllustrView: EventEmitter<any> = new EventEmitter();
-  @Output() selectedIllustration: EventEmitter<any> = new EventEmitter();
+  readonly openNewIllustrView = output<any>();
+  readonly selectedIllustration = output<any>();
 
   illustrationsViewAvailable: boolean = false;
   inlineVisibleIllustrations: boolean = false;

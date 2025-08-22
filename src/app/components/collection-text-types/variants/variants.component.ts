@@ -1,4 +1,4 @@
-import { Component, ElementRef, EventEmitter, Input, OnInit, Output, inject } from '@angular/core';
+import { Component, ElementRef, Input, OnInit, inject, output } from '@angular/core';
 import { AlertButton, AlertController, AlertInput, IonicModule } from '@ionic/angular';
 
 import { config } from '@config';
@@ -27,11 +27,11 @@ export class VariantsComponent implements OnInit {
   @Input() sortOrder: number | undefined = undefined;
   @Input() textItemID: string = '';
   @Input() varID: number | undefined = undefined;
-  @Output() openNewLegendView: EventEmitter<any> = new EventEmitter();
-  @Output() openNewVarView: EventEmitter<any> = new EventEmitter();
-  @Output() selectedVarID = new EventEmitter<number>();
-  @Output() selectedVarName = new EventEmitter<string>();
-  @Output() selectedVarSortOrder = new EventEmitter<number>();
+  readonly openNewLegendView = output<any>();
+  readonly openNewVarView = output<any>();
+  readonly selectedVarID = output<number>();
+  readonly selectedVarName = output<string>();
+  readonly selectedVarSortOrder = output<number>();
 
   intervalTimerId: number = 0;
   selectedVariant: any = undefined;

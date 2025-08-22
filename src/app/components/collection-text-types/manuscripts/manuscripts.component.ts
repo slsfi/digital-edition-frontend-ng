@@ -1,4 +1,4 @@
-import { Component, ElementRef, EventEmitter, Input, OnInit, Output, inject } from '@angular/core';
+import { Component, ElementRef, Input, OnInit, inject, output } from '@angular/core';
 import { AlertButton, AlertController, AlertInput, IonicModule } from '@ionic/angular';
 
 import { config } from '@config';
@@ -26,10 +26,10 @@ export class ManuscriptsComponent implements OnInit {
   @Input() msID: number | undefined = undefined;
   @Input() searchMatches: string[] = [];
   @Input() textItemID: string = '';
-  @Output() openNewLegendView = new EventEmitter<any>();
-  @Output() openNewManView = new EventEmitter<any>();
-  @Output() selectedMsID = new EventEmitter<number>();
-  @Output() selectedMsName = new EventEmitter<string>();
+  readonly openNewLegendView = output<any>();
+  readonly openNewManView = output<any>();
+  readonly selectedMsID = output<number>();
+  readonly selectedMsName = output<string>();
 
   intervalTimerId: number = 0;
   manuscripts: any[] = [];

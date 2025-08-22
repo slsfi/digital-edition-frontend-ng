@@ -1,7 +1,4 @@
-import {
-  ChangeDetectionStrategy, ChangeDetectorRef, Component, Inject, Input,
-  LOCALE_ID, OnChanges, OnInit
-} from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, LOCALE_ID, OnChanges, OnInit, inject } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
 import { RouterLink, UrlSegment } from '@angular/router';
 import { IonicModule } from '@ionic/angular';
@@ -35,6 +32,13 @@ import { addOrRemoveValueInNewArray, sortArrayOfObjectsAlphabetically, splitFile
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class MainSideMenuComponent implements OnInit, OnChanges {
+  private cdr = inject(ChangeDetectorRef);
+  private collectionsService = inject(CollectionsService);
+  private headService = inject(DocumentHeadService);
+  private mdcontentService = inject(MarkdownService);
+  private mediaCollectionService = inject(MediaCollectionService);
+  private activeLocale = inject(LOCALE_ID);
+
   @Input() urlSegments: UrlSegment[] = [];
 
   highlightedMenu: string = '';
@@ -44,16 +48,7 @@ export class MainSideMenuComponent implements OnInit, OnChanges {
     '/',
     '/content',
     '/search'
-  ]; // app.component handles setting html-title for these
-
-  constructor(
-    private cdr: ChangeDetectorRef,
-    private collectionsService: CollectionsService,
-    private headService: DocumentHeadService,
-    private mdcontentService: MarkdownService,
-    private mediaCollectionService: MediaCollectionService,
-    @Inject(LOCALE_ID) private activeLocale: string
-  ) {}
+  ];
 
   ngOnInit() {
     this.getMenuData().subscribe(

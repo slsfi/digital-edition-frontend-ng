@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, inject } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { IonicModule } from '@ionic/angular';
 import { take } from 'rxjs';
@@ -20,6 +20,9 @@ import { sortArrayOfObjectsAlphabetically } from '@utility-functions';
   imports: [IonicModule, RouterModule, CollectionPagePathPipe, OccurrenceCollectionTextPageQueryparamsPipe]
 })
 export class OccurrencesAccordionComponent implements OnInit {
+  private namedEntityService = inject(NamedEntityService);
+  private tocService = inject(CollectionTableOfContentsService);
+
   @Input() id: number | undefined = undefined;
   @Input() type: string = '';
 
@@ -29,10 +32,7 @@ export class OccurrencesAccordionComponent implements OnInit {
   showPublishedStatus: number = 2;
   simpleWorkMetadata: boolean = false;
 
-  constructor(
-    private namedEntityService: NamedEntityService,
-    private tocService: CollectionTableOfContentsService
-  ) {
+  constructor() {
     this.simpleWorkMetadata = config.modal?.namedEntity?.useSimpleWorkMetadata ?? false;
   }
 

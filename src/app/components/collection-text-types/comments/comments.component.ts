@@ -1,4 +1,4 @@
-import { Component, ElementRef, EventEmitter, Input, NgZone, OnDestroy, OnInit, Output, Renderer2 } from '@angular/core';
+import { Component, ElementRef, EventEmitter, Input, NgZone, OnDestroy, OnInit, Output, Renderer2, inject } from '@angular/core';
 import { IonicModule, ModalController } from '@ionic/angular';
 
 import { IllustrationModal } from '@modals/illustration/illustration.modal';
@@ -18,6 +18,16 @@ import { concatenateNames, isBrowser } from '@utility-functions';
   imports: [IonicModule, TrustHtmlPipe]
 })
 export class CommentsComponent implements OnInit, OnDestroy {
+  private commentService = inject(CommentService);
+  private elementRef = inject(ElementRef);
+  private modalController = inject(ModalController);
+  private ngZone = inject(NgZone);
+  private parserService = inject(HtmlParserService);
+  private platformService = inject(PlatformService);
+  private renderer2 = inject(Renderer2);
+  private scrollService = inject(ScrollService);
+  viewOptionsService = inject(ViewOptionsService);
+
   @Input() searchMatches: string[] = [];
   @Input() textItemID: string = '';
   @Output() openNewReadingTextView: EventEmitter<string> = new EventEmitter();
@@ -32,18 +42,6 @@ export class CommentsComponent implements OnInit, OnDestroy {
   text: string = '';
 
   private unlistenClickEvents?: () => void;
-
-  constructor(
-    private commentService: CommentService,
-    private elementRef: ElementRef,
-    private modalController: ModalController,
-    private ngZone: NgZone,
-    private parserService: HtmlParserService,
-    private platformService: PlatformService,
-    private renderer2: Renderer2,
-    private scrollService: ScrollService,
-    public viewOptionsService: ViewOptionsService
-  ) {}
 
   ngOnInit() {
     this.mobileMode = this.platformService.isMobile();

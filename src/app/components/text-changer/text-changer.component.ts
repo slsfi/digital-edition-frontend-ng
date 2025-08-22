@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
+import { Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges, inject } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { IonicModule } from '@ionic/angular';
 import { combineLatestWith, distinctUntilChanged, filter, map, Subscription } from 'rxjs';
@@ -26,6 +26,11 @@ import { enableFrontMatterPageOrTextViewType } from '@utility-functions';
   imports: [RouterLink, IonicModule, CollectionPagePathPipe, CollectionPagePositionQueryparamPipe]
 })
 export class TextChangerComponent implements OnChanges, OnDestroy, OnInit {
+  private headService = inject(DocumentHeadService);
+  private platformService = inject(PlatformService);
+  private route = inject(ActivatedRoute);
+  private tocService = inject(CollectionTableOfContentsService);
+
   @Input() parentPageType: string = 'text';
   // ionViewActive is true when the parent page component is active in the DOM,
   // i.e. the component has entered the Ionic life cycle hook ionViewWillEnter.
@@ -45,13 +50,6 @@ export class TextChangerComponent implements OnChanges, OnDestroy, OnInit {
   textPosition: string = '';
   tocItemId: string = '';
   tocSubscr: Subscription | null = null;
-
-  constructor(
-    private headService: DocumentHeadService,
-    private platformService: PlatformService,
-    private route: ActivatedRoute,
-    private tocService: CollectionTableOfContentsService
-  ) {}
 
   ngOnChanges(changes: SimpleChanges) {
     if (changes.ionViewActive?.currentValue && !changes.ionViewActive?.firstChange) {

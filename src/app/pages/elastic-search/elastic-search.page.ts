@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, Inject, LOCALE_ID, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, LOCALE_ID, OnDestroy, OnInit, ViewChild, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { IonContent } from '@ionic/angular';
 import { map, merge, Observable, of, Subject, Subscription, switchMap } from 'rxjs';
@@ -20,6 +20,16 @@ import { isBrowser, isEmptyObject, sortArrayOfObjectsNumerically } from '@utilit
   standalone: false
 })
 export class ElasticSearchPage implements OnDestroy, OnInit {
+  private cf = inject(ChangeDetectorRef);
+  private elasticService = inject(ElasticSearchService);
+  private elementRef = inject(ElementRef);
+  private mdService = inject(MarkdownService);
+  private platformService = inject(PlatformService);
+  private route = inject(ActivatedRoute);
+  private router = inject(Router);
+  private urlService = inject(UrlService);
+  private activeLocale = inject(LOCALE_ID);
+
   @ViewChild(IonContent) content: IonContent;
   
   activeFilters: any[] = [];
@@ -55,17 +65,7 @@ export class ElasticSearchPage implements OnDestroy, OnInit {
   textTitleHighlightType: string = 'fvh';
   total: number = -1;
 
-  constructor(
-    private cf: ChangeDetectorRef,
-    private elasticService: ElasticSearchService,
-    private elementRef: ElementRef,
-    private mdService: MarkdownService,
-    private platformService: PlatformService,
-    private route: ActivatedRoute,
-    private router: Router,
-    private urlService: UrlService,
-    @Inject(LOCALE_ID) private activeLocale: string
-  ) {
+  constructor() {
     this.enableFilters = config.page?.elasticSearch?.enableFilters ?? true;
     this.enableSortOptions = config.page?.elasticSearch?.enableSortOptions ?? true;
     this.hitsPerPage = config.page?.elasticSearch?.hitsPerPage ?? 20;

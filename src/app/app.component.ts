@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { NavigationEnd, Params, PRIMARY_OUTLET, Router, UrlSegment, UrlTree } from '@angular/router';
 import { filter, Subscription } from 'rxjs';
 
@@ -16,6 +16,11 @@ import { isBrowser } from '@utility-functions';
   standalone: false
 })
 export class AppComponent implements OnDestroy, OnInit {
+  private headService = inject(DocumentHeadService);
+  private platformService = inject(PlatformService);
+  private router = inject(Router);
+  private tocService = inject(CollectionTableOfContentsService);
+
   appIsStarting: boolean = true;
   collectionID: string = '';
   collSideMenuUrlSegments: UrlSegment[];
@@ -32,12 +37,7 @@ export class AppComponent implements OnDestroy, OnInit {
   showCollectionSideMenu: boolean = false;
   showSideNav: boolean = false;
 
-  constructor(
-    private headService: DocumentHeadService,
-    private platformService: PlatformService,
-    private router: Router,
-    private tocService: CollectionTableOfContentsService
-  ) {
+  constructor() {
     this.enableCollectionSideMenuSSR = config.app?.ssr?.collectionSideMenu ?? false;
     this.enableRouterLoadingBar = config.app?.enableRouterLoadingBar ?? false;
   }

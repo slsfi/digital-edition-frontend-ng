@@ -1,4 +1,4 @@
-import { Component, ElementRef, Inject, LOCALE_ID, NgZone, OnDestroy, OnInit, Renderer2 } from '@angular/core';
+import { Component, ElementRef, LOCALE_ID, NgZone, OnDestroy, OnInit, Renderer2, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ModalController, PopoverController } from '@ionic/angular';
 import { Observable, Subscription, switchMap, tap } from 'rxjs';
@@ -22,6 +22,19 @@ import { isBrowser } from '@utility-functions';
   standalone: false
 })
 export class ArticlePage implements OnInit, OnDestroy {
+  private elementRef = inject(ElementRef);
+  private mdService = inject(MarkdownService);
+  private modalController = inject(ModalController);
+  private ngZone = inject(NgZone);
+  private platformService = inject(PlatformService);
+  private popoverCtrl = inject(PopoverController);
+  private renderer2 = inject(Renderer2);
+  private route = inject(ActivatedRoute);
+  private router = inject(Router);
+  private scrollService = inject(ScrollService);
+  viewOptionsService = inject(ViewOptionsService);
+  private activeLocale = inject(LOCALE_ID);
+
   article: Article | null = null;
   enableTOC: boolean = true;
   markdownText$: Observable<string | null>;
@@ -37,20 +50,7 @@ export class ArticlePage implements OnInit, OnDestroy {
   private fragmentSubscription?: Subscription;
   private unlistenClickEvents?: () => void;
 
-  constructor(
-    private elementRef: ElementRef,
-    private mdService: MarkdownService,
-    private modalController: ModalController,
-    private ngZone: NgZone,
-    private platformService: PlatformService,
-    private popoverCtrl: PopoverController,
-    private renderer2: Renderer2,
-    private route: ActivatedRoute,
-    private router: Router,
-    private scrollService: ScrollService,
-    public viewOptionsService: ViewOptionsService,
-    @Inject(LOCALE_ID) private activeLocale: string
-  ) {
+  constructor() {
     this.showTextDownloadButton = config.page?.article?.showTextDownloadButton ?? true;
     this.showURNButton = config.page?.article?.showURNButton ?? true;
   }

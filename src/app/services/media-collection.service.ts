@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
@@ -10,11 +10,11 @@ import { convertNamedEntityTypeForBackend } from '@utility-functions';
   providedIn: 'root',
 })
 export class MediaCollectionService {
+  private http = inject(HttpClient);
+
   private apiURL: string = '';
 
-  constructor(
-    private http: HttpClient
-  ) {
+  constructor() {
     const apiBaseURL = config.app?.backendBaseURL ?? '';
     const projectName = config.app?.projectNameDB ?? '';
     this.apiURL = apiBaseURL + '/' + projectName;

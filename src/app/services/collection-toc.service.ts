@@ -1,4 +1,4 @@
-import { Inject, Injectable, LOCALE_ID } from '@angular/core';
+import { Injectable, LOCALE_ID, inject } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { BehaviorSubject, catchError, map, Observable, of } from 'rxjs';
 
@@ -10,6 +10,9 @@ import { flattenObjectTree, sortArrayOfObjectsAlphabetically, sortArrayOfObjects
   providedIn: 'root',
 })
 export class CollectionTableOfContentsService {
+  private http = inject(HttpClient);
+  private activeLocale = inject(LOCALE_ID);
+
   private activeTocOrder: string = '';
   private apiURL: string = '';
   private categoricalTocPrimarySortKey: string = 'date';
@@ -22,10 +25,7 @@ export class CollectionTableOfContentsService {
   private currentFlattenedToc$ = new BehaviorSubject<any>(null);
   private multilingualToc: boolean = false;
 
-  constructor(
-    private http: HttpClient,
-    @Inject(LOCALE_ID) private activeLocale: string
-  ) {
+  constructor() {
     const apiBaseURL = config.app?.backendBaseURL ?? '';
     const projectName = config.app?.projectNameDB ?? '';
     this.apiURL = apiBaseURL + '/' + projectName;

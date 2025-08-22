@@ -1,4 +1,4 @@
-import { Component, ElementRef, Inject, LOCALE_ID, NgZone, OnDestroy, OnInit, Renderer2 } from '@angular/core';
+import { Component, ElementRef, LOCALE_ID, NgZone, OnDestroy, OnInit, Renderer2, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ModalController, PopoverController } from '@ionic/angular';
 import { combineLatest, map, Subscription } from 'rxjs';
@@ -27,6 +27,22 @@ import { isBrowser } from '@utility-functions';
   standalone: false
 })
 export class CollectionIntroductionPage implements OnInit, OnDestroy {
+  private collectionContentService = inject(CollectionContentService);
+  private collectionsService = inject(CollectionsService);
+  private elementRef = inject(ElementRef);
+  private modalCtrl = inject(ModalController);
+  private ngZone = inject(NgZone);
+  private parserService = inject(HtmlParserService);
+  private platformService = inject(PlatformService);
+  private popoverCtrl = inject(PopoverController);
+  private renderer2 = inject(Renderer2);
+  private tooltipService = inject(TooltipService);
+  private route = inject(ActivatedRoute);
+  private router = inject(Router);
+  private scrollService = inject(ScrollService);
+  viewOptionsService = inject(ViewOptionsService);
+  private activeLocale = inject(LOCALE_ID);
+
   _activeComponent: boolean = true;
   collectionID: string = '';
   collectionLegacyId: string = '';
@@ -75,23 +91,7 @@ export class CollectionIntroductionPage implements OnInit, OnDestroy {
   private unlistenMouseoutEvents?: () => void;
   private unlistenFirstTouchStartEvent?: () => void;
 
-  constructor(
-    private collectionContentService: CollectionContentService,
-    private collectionsService: CollectionsService,
-    private elementRef: ElementRef,
-    private modalCtrl: ModalController,
-    private ngZone: NgZone,
-    private parserService: HtmlParserService,
-    private platformService: PlatformService,
-    private popoverCtrl: PopoverController,
-    private renderer2: Renderer2,
-    private tooltipService: TooltipService,
-    private route: ActivatedRoute,
-    private router: Router,
-    private scrollService: ScrollService,
-    public viewOptionsService: ViewOptionsService,
-    @Inject(LOCALE_ID) private activeLocale: string
-  ) {
+  constructor() {
     this.hasSeparateIntroToc = config.page?.introduction?.hasSeparateTOC ?? false;
     this.replaceImageAssetsPaths = config.collections?.replaceImageAssetsPaths ?? true;
     this.showTextDownloadButton = config.page?.introduction?.showTextDownloadButton ?? false;

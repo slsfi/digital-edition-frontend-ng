@@ -1,4 +1,4 @@
-import { Component, Inject, LOCALE_ID, OnInit, ViewChild } from '@angular/core';
+import { Component, LOCALE_ID, OnInit, ViewChild, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { IonContent, ModalController } from '@ionic/angular';
 import { Observable, Subscription } from 'rxjs';
@@ -22,6 +22,14 @@ import { isBrowser, sortArrayOfObjectsAlphabetically } from '@utility-functions'
   standalone: false
 })
 export class IndexPage implements OnInit {
+  private mdService = inject(MarkdownService);
+  private modalCtrl = inject(ModalController);
+  private namedEntityService = inject(NamedEntityService);
+  route = inject(ActivatedRoute);
+  private router = inject(Router);
+  private tooltipService = inject(TooltipService);
+  private activeLocale = inject(LOCALE_ID);
+
   @ViewChild(IonContent) content: IonContent;
 
   agg_after_key: Record<string, any> = {};
@@ -44,16 +52,6 @@ export class IndexPage implements OnInit {
   searchText: string = '';
   showFilter: boolean = false;
   showLoading: boolean = true;
-
-  constructor(
-    private mdService: MarkdownService,
-    private modalCtrl: ModalController,
-    private namedEntityService: NamedEntityService,
-    public route: ActivatedRoute,
-    private router: Router,
-    private tooltipService: TooltipService,
-    @Inject(LOCALE_ID) private activeLocale: string
-  ) {}
 
   ngOnInit() {
     this.routeParamsSubscription = this.route.params.subscribe(params => {

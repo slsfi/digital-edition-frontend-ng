@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, Input, OnChanges, SimpleChanges, inject } from '@angular/core';
 import { AsyncPipe } from '@angular/common';
 import { Observable, of } from 'rxjs';
 
@@ -14,15 +14,15 @@ import { isBrowser } from '@utility-functions';
   imports: [AsyncPipe]
 })
 export class StaticHtmlComponent implements OnChanges {
+  private tocService = inject(CollectionTableOfContentsService);
+
   @Input() type: string = '';
   @Input() id: string = '';
 
   prebuiltCollectionMenus: boolean = true;
   staticContent$: Observable<string>;
 
-  constructor(
-    private tocService: CollectionTableOfContentsService
-  ) {
+  constructor() {
     this.prebuiltCollectionMenus = config.app?.prebuild?.staticCollectionMenus ?? true;
   }
 

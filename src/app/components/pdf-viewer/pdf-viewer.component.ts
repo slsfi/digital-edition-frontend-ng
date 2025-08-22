@@ -1,4 +1,4 @@
-import { Component, Inject, Input, LOCALE_ID, OnInit, ViewChild, DOCUMENT } from '@angular/core';
+import { Component, Input, LOCALE_ID, OnInit, ViewChild, DOCUMENT, inject } from '@angular/core';
 import { AsyncPipe, NgStyle } from '@angular/common';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { ActivatedRoute } from '@angular/router';
@@ -18,6 +18,12 @@ import { ReferenceDataModal } from '@modals/reference-data/reference-data.modal'
   host: { ngSkipHydration: 'true' }
 })
 export class PdfViewerComponent implements OnInit {
+  private modalController = inject(ModalController);
+  private route = inject(ActivatedRoute);
+  private sanitizer = inject(DomSanitizer);
+  private activeLocale = inject(LOCALE_ID);
+  private document = inject<Document>(DOCUMENT);
+
   @Input() pdfFileName: string = '';
   @ViewChild('downloadOptionsPopover') downloadOptionsPopover: any;
   
@@ -28,13 +34,7 @@ export class PdfViewerComponent implements OnInit {
   showURNButton: boolean = false;
   _window: Window | null = null;
 
-  constructor(
-    private modalController: ModalController,
-    private route: ActivatedRoute,
-    private sanitizer: DomSanitizer,
-    @Inject(LOCALE_ID) private activeLocale: string,
-    @Inject(DOCUMENT) private document: Document
-  ) {
+  constructor() {
     this.showURNButton = config.component?.epub?.showURNButton ?? false;
     this._window = <any>this.document.defaultView;
   }

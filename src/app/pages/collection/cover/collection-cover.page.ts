@@ -1,4 +1,4 @@
-import { Component, Inject, LOCALE_ID, OnInit } from '@angular/core';
+import { Component, LOCALE_ID, OnInit, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { catchError, map, Observable, of, switchMap, tap } from 'rxjs';
 
@@ -13,17 +13,15 @@ import { PlatformService } from '@services/platform.service';
   standalone: false
 })
 export class CollectionCoverPage implements OnInit {
+  private mdService = inject(MarkdownService);
+  private platformService = inject(PlatformService);
+  private route = inject(ActivatedRoute);
+  private activeLocale = inject(LOCALE_ID);
+
   _activeComponent: boolean = true;
   collectionID: string = '';
   coverData$: Observable<any>;
   mobileMode: boolean = false;
-
-  constructor(
-    private mdService: MarkdownService,
-    private platformService: PlatformService,
-    private route: ActivatedRoute,
-    @Inject(LOCALE_ID) private activeLocale: string
-  ) {}
 
   ngOnInit() {
     this.mobileMode = this.platformService.isMobile();

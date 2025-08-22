@@ -1,4 +1,4 @@
-import { Component, Inject, Input, OnInit, DOCUMENT } from '@angular/core';
+import { Component, Input, OnInit, DOCUMENT, inject } from '@angular/core';
 
 import { PRIMARY_OUTLET, Router, RouterModule, UrlSegment, UrlTree } from '@angular/router';
 import { IonicModule, ModalController } from '@ionic/angular';
@@ -13,6 +13,11 @@ import { ReferenceDataService } from '@services/reference-data.service';
   imports: [IonicModule, RouterModule]
 })
 export class ReferenceDataModal implements OnInit {
+  private modalCtrl = inject(ModalController);
+  private referenceDataService = inject(ReferenceDataService);
+  private router = inject(Router);
+  private document = inject<Document>(DOCUMENT);
+
   @Input() origin: string = '';
 
   currentUrl: string = '';
@@ -21,12 +26,7 @@ export class ReferenceDataModal implements OnInit {
   thisPageTranslation: boolean = false;
   urnResolverUrl: string = '';
 
-  constructor(
-    private modalCtrl: ModalController,
-    private referenceDataService: ReferenceDataService,
-    private router: Router,
-    @Inject(DOCUMENT) private document: Document
-  ) {
+  constructor() {
     // Check if these label translations exist
     this.thisPageTranslation = $localize`:@@Reference.ReferToThisPage:Hänvisa till denna sida` ? true : false;
     this.permaLinkTranslation = $localize`:@@Reference.Permalink:Beständig webbadress` ? true : false;

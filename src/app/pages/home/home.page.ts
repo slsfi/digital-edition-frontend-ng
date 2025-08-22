@@ -1,4 +1,4 @@
-import { Component, Inject, LOCALE_ID, OnInit } from '@angular/core';
+import { Component, LOCALE_ID, OnInit, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { Observable } from 'rxjs';
 
@@ -13,6 +13,10 @@ import { MarkdownService } from '@services/markdown.service';
   standalone: false
 })
 export class HomePage implements OnInit {
+  private mdService = inject(MarkdownService);
+  private router = inject(Router);
+  private activeLocale = inject(LOCALE_ID);
+
   descriptionText$: Observable<string | null>;
   footerText$: Observable<string | null>;
   imageAltText: string = '';
@@ -31,11 +35,7 @@ export class HomePage implements OnInit {
   siteHasSubtitle: boolean = false;
   titleOnImage: boolean = false;
 
-  constructor(
-    private mdService: MarkdownService,
-    private router: Router,
-    @Inject(LOCALE_ID) private activeLocale: string
-  ) {
+  constructor() {
     this.imageAltText = config.page?.home?.bannerImage?.altTexts?.[this.activeLocale] ?? 'image';
     this.imageOnRight = config.page?.home?.portraitOrientationSettings?.imagePlacement?.onRight ?? false;
     this.imageOrientationPortrait = config.page?.home?.bannerImage?.orientationPortrait ?? false;

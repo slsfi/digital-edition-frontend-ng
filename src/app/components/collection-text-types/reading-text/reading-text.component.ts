@@ -1,4 +1,4 @@
-import { Component, Input, ElementRef, EventEmitter, OnInit, Output, Renderer2, NgZone, SimpleChanges, OnChanges, OnDestroy } from '@angular/core';
+import { Component, Input, ElementRef, EventEmitter, OnInit, Output, Renderer2, NgZone, SimpleChanges, OnChanges, OnDestroy, inject } from '@angular/core';
 import { IonicModule, ModalController } from '@ionic/angular';
 
 import { config } from '@config';
@@ -20,6 +20,16 @@ import { enableFrontMatterPageOrTextViewType, isBrowser } from '@utility-functio
   imports: [IonicModule, MathJaxDirective, TrustHtmlPipe]
 })
 export class ReadingTextComponent implements OnChanges, OnDestroy, OnInit {
+  private collectionContentService = inject(CollectionContentService);
+  private elementRef = inject(ElementRef);
+  private modalController = inject(ModalController);
+  private ngZone = inject(NgZone);
+  private parserService = inject(HtmlParserService);
+  private platformService = inject(PlatformService);
+  private renderer2 = inject(Renderer2);
+  private scrollService = inject(ScrollService);
+  viewOptionsService = inject(ViewOptionsService);
+
   @Input() language: string = '';
   @Input() searchMatches: string[] = [];
   @Input() textItemID: string = '';
@@ -35,18 +45,6 @@ export class ReadingTextComponent implements OnChanges, OnDestroy, OnInit {
   textLanguage: string = '';
 
   private unlistenClickEvents?: () => void;
-
-  constructor(
-    private collectionContentService: CollectionContentService,
-    private elementRef: ElementRef,
-    private modalController: ModalController,
-    private ngZone: NgZone,
-    private parserService: HtmlParserService,
-    private platformService: PlatformService,
-    private renderer2: Renderer2,
-    private scrollService: ScrollService,
-    public viewOptionsService: ViewOptionsService
-  ) {}
 
   ngOnChanges(changes: SimpleChanges) {
     for (const propName in changes) {

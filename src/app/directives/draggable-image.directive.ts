@@ -1,4 +1,4 @@
-import { Directive, ElementRef, EventEmitter, Input, NgZone, OnDestroy, OnInit, Output, Renderer2 } from '@angular/core';
+import { Directive, ElementRef, EventEmitter, Input, NgZone, OnDestroy, OnInit, Output, Renderer2, inject } from '@angular/core';
 
 
 @Directive({
@@ -6,6 +6,10 @@ import { Directive, ElementRef, EventEmitter, Input, NgZone, OnDestroy, OnInit, 
   selector: '[draggableImage]'
 })
 export class DraggableImageDirective implements OnInit, OnDestroy {
+  private elRef = inject(ElementRef);
+  private ngZone = inject(NgZone);
+  private renderer = inject(Renderer2);
+
   @Input('draggableImage') initialCoordinates: number[] = [0, 0];
   @Input() angle: number = 0;
   @Input() zoom: number = 1;
@@ -25,12 +29,6 @@ export class DraggableImageDirective implements OnInit, OnDestroy {
   private unlistenTouchStartEvents: () => void;
   private unlistenTouchMoveEvents: () => void;
   private unlistenTouchEndEvents: () => void;
-
-  constructor(
-    private elRef: ElementRef,
-    private ngZone: NgZone,
-    private renderer: Renderer2
-  ) {}
 
   ngOnInit() {
     this.unlistenMouseDownEvents = this.renderer.listen(

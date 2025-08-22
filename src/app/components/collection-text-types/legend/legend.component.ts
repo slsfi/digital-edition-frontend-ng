@@ -1,4 +1,4 @@
-import { Component, ElementRef, Inject, Input, LOCALE_ID, NgZone, OnDestroy, OnInit, Renderer2 } from '@angular/core';
+import { Component, ElementRef, Input, LOCALE_ID, NgZone, OnDestroy, OnInit, Renderer2, inject } from '@angular/core';
 import { AsyncPipe } from '@angular/common';
 import { IonicModule } from '@ionic/angular';
 import { catchError, map, Observable, of } from 'rxjs';
@@ -16,6 +16,13 @@ import { isBrowser } from '@utility-functions';
   imports: [AsyncPipe, IonicModule, TrustHtmlPipe]
 })
 export class LegendComponent implements OnDestroy, OnInit {
+  private elementRef = inject(ElementRef);
+  private mdService = inject(MarkdownService);
+  private ngZone = inject(NgZone);
+  private renderer2 = inject(Renderer2);
+  private scrollService = inject(ScrollService);
+  private activeLocale = inject(LOCALE_ID);
+
   @Input() itemId?: string;
   @Input() scrollToElementId?: string;
 
@@ -26,15 +33,6 @@ export class LegendComponent implements OnDestroy, OnInit {
   text$: Observable<string>;
 
   private unlistenClickEvents?: () => void;
-
-  constructor(
-    private elementRef: ElementRef,
-    private mdService: MarkdownService,
-    private ngZone: NgZone,
-    private renderer2: Renderer2,
-    private scrollService: ScrollService,
-    @Inject(LOCALE_ID) private activeLocale: string
-  ) {}
 
   ngOnInit() {
     this.collectionId = this.itemId?.split('_')[0] || '';

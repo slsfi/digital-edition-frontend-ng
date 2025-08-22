@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges, inject } from '@angular/core';
 import { NgClass } from '@angular/common';
 import { IonicModule, ModalController } from '@ionic/angular';
 
@@ -15,6 +15,11 @@ import { ScrollService } from '@services/scroll.service';
   imports: [NgClass, IonicModule]
 })
 export class IllustrationsComponent implements OnChanges, OnInit {
+  private modalCtrl = inject(ModalController);
+  private parserService = inject(HtmlParserService);
+  private platformService = inject(PlatformService);
+  private scrollService = inject(ScrollService);
+
   @Input() singleImage: Record<string, any> | undefined = undefined;
   @Input() textItemID: string = '';
   @Output() showAllImages: EventEmitter<any> = new EventEmitter();
@@ -27,13 +32,6 @@ export class IllustrationsComponent implements OnChanges, OnInit {
   selectedImage: Array<string> = [];
   imgLoading: boolean = true;
   viewAll: boolean = true;
-
-  constructor(
-    private modalCtrl: ModalController,
-    private parserService: HtmlParserService,
-    private platformService: PlatformService,
-    private scrollService: ScrollService
-  ) {}
 
   ngOnChanges(changes: SimpleChanges) {
     for (const propName in changes) {

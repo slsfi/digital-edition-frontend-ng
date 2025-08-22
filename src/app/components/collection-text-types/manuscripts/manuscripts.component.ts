@@ -1,4 +1,4 @@
-import { Component, ElementRef, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, ElementRef, EventEmitter, Input, OnInit, Output, inject } from '@angular/core';
 import { AlertButton, AlertController, AlertInput, IonicModule } from '@ionic/angular';
 
 import { config } from '@config';
@@ -16,6 +16,13 @@ import { ViewOptionsService } from '@services/view-options.service';
   imports: [IonicModule, TrustHtmlPipe]
 })
 export class ManuscriptsComponent implements OnInit {
+  private alertCtrl = inject(AlertController);
+  private collectionContentService = inject(CollectionContentService);
+  private elementRef = inject(ElementRef);
+  private parserService = inject(HtmlParserService);
+  private scrollService = inject(ScrollService);
+  viewOptionsService = inject(ViewOptionsService);
+
   @Input() msID: number | undefined = undefined;
   @Input() searchMatches: string[] = [];
   @Input() textItemID: string = '';
@@ -34,14 +41,7 @@ export class ManuscriptsComponent implements OnInit {
   text: string = '';
   textLanguage: string = '';
 
-  constructor(
-    private alertCtrl: AlertController,
-    private collectionContentService: CollectionContentService,
-    private elementRef: ElementRef,
-    private parserService: HtmlParserService,
-    private scrollService: ScrollService,
-    public viewOptionsService: ViewOptionsService
-  ) {
+  constructor() {
     this.showNormalizedToggle = config.component?.manuscripts?.showNormalizedToggle ?? true;
     this.showOpenLegendButton = config.component?.manuscripts?.showOpenLegendButton ?? false;
     this.showTitle = config.component?.manuscripts?.showTitle ?? true;

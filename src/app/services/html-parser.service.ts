@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { catchError, map, Observable, of } from 'rxjs';
 import { Parser } from 'htmlparser2';
 import { DomHandler } from 'domhandler';
@@ -14,14 +14,14 @@ import { CollectionContentService } from '@services/collection-content.service';
   providedIn: 'root',
 })
 export class HtmlParserService {
+  private collectionContentService = inject(CollectionContentService);
+
   private addTEIClassNames: boolean = true;
   private apiURL: string = '';
   private mediaCollectionMappings: any = {};
   private replaceImageAssetsPaths: boolean = true;
 
-  constructor(
-    private collectionContentService: CollectionContentService
-  ) {
+  constructor() {
     const apiBaseURL = config.app?.backendBaseURL ?? '';
     const projectName = config.app?.projectNameDB ?? '';
     this.apiURL = apiBaseURL + '/' + projectName;

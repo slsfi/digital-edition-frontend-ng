@@ -1,4 +1,4 @@
-import { Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit, inject } from '@angular/core';
 import { AsyncPipe } from '@angular/common';
 import { NavigationEnd, Router, RouterModule } from '@angular/router';
 import { IonicModule, ModalController } from '@ionic/angular';
@@ -18,6 +18,11 @@ import { isEmptyObject } from '@utility-functions';
   imports: [AsyncPipe, IonicModule, OccurrencesAccordionComponent, RouterModule]
 })
 export class NamedEntityModal implements OnDestroy, OnInit {
+  private modalCtrl = inject(ModalController);
+  private namedEntityService = inject(NamedEntityService);
+  private router = inject(Router);
+  private tooltipService = inject(TooltipService);
+
   @Input() id: string = '';
   @Input() type: string = '';
 
@@ -35,12 +40,7 @@ export class NamedEntityModal implements OnDestroy, OnInit {
   showType: boolean = false;
   simpleWorkMetadata: boolean = false;
 
-  constructor(
-    private modalCtrl: ModalController,
-    private namedEntityService: NamedEntityService,
-    private router: Router,
-    private tooltipService: TooltipService
-  ) {
+  constructor() {
     this.showAliasAndPrevLastName = config.modal?.namedEntity?.showAliasAndPrevLastName ?? true;
     this.showArticleData = config.modal?.namedEntity?.showArticleData ?? false;
     this.showCityRegionCountry = config.modal?.namedEntity?.showCityRegionCountry ?? false;

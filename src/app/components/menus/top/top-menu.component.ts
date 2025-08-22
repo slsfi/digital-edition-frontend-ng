@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Inject, Input, LOCALE_ID, OnDestroy, OnInit, Output, DOCUMENT } from '@angular/core';
+import { Component, EventEmitter, Input, LOCALE_ID, OnDestroy, OnInit, Output, DOCUMENT, inject } from '@angular/core';
 import { NgStyle } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { IonicModule } from '@ionic/angular';
@@ -14,6 +14,9 @@ import { isBrowser } from '@utility-functions';
   imports: [NgStyle, IonicModule, RouterLink]
 })
 export class TopMenuComponent implements OnDestroy, OnInit {
+  activeLocale = inject(LOCALE_ID);
+  private document = inject<Document>(DOCUMENT);
+
   @Input() currentRouterUrl: string = '';
   @Input() showSideNav: boolean = false;
   @Output() sideNavClick = new EventEmitter();
@@ -32,11 +35,6 @@ export class TopMenuComponent implements OnDestroy, OnInit {
   showTopContentButton: boolean = true;
   showTopSearchButton: boolean = true;
   _window: Window;
-
-  constructor(
-    @Inject(LOCALE_ID) public activeLocale: string,
-    @Inject(DOCUMENT) private document: Document
-  ) {}
 
   ngOnInit() {
     this._window = <any>this.document.defaultView;

@@ -1,4 +1,4 @@
-import { Directive, ElementRef, Input, OnChanges } from '@angular/core';
+import { Directive, ElementRef, Input, OnChanges, inject } from '@angular/core';
 import { SafeHtml } from '@angular/platform-browser';
 
 import { config } from '@config';
@@ -16,13 +16,13 @@ declare var MathJax: {
   selector: '[MathJax]'
 })
 export class MathJaxDirective implements OnChanges {
+  private elRef = inject(ElementRef);
+
   @Input('MathJax') mathJaxInput: string | SafeHtml | null = null;
 
   private mathJaxEnabled: boolean = false;
 
-  constructor(
-    private elRef: ElementRef
-  ) {
+  constructor() {
     this.mathJaxEnabled = config.collections?.enableMathJax ?? false;
   }
 

@@ -1,4 +1,4 @@
-import { Component, Inject, Input, LOCALE_ID, OnDestroy, OnInit, DOCUMENT } from '@angular/core';
+import { Component, Input, LOCALE_ID, OnDestroy, OnInit, DOCUMENT, inject } from '@angular/core';
 import { AsyncPipe, NgClass, NgStyle, NgTemplateOutlet } from '@angular/common';
 import { PRIMARY_OUTLET, Router, UrlSegment, UrlTree } from '@angular/router';
 import { IonicModule, ModalController } from '@ionic/angular';
@@ -25,6 +25,20 @@ import { concatenateNames } from '@utility-functions';
   imports: [AsyncPipe, NgClass, NgStyle, NgTemplateOutlet, IonicModule, TrustHtmlPipe]
 })
 export class DownloadTextsModal implements OnDestroy, OnInit {
+  private collectionContentService = inject(CollectionContentService);
+  private collectionsService = inject(CollectionsService);
+  private commentService = inject(CommentService);
+  private headService = inject(DocumentHeadService);
+  private mdService = inject(MarkdownService);
+  private modalCtrl = inject(ModalController);
+  private parserService = inject(HtmlParserService);
+  private referenceDataService = inject(ReferenceDataService);
+  private router = inject(Router);
+  private tocService = inject(CollectionTableOfContentsService);
+  private viewOptionsService = inject(ViewOptionsService);
+  private activeLocale = inject(LOCALE_ID);
+  private document = inject<Document>(DOCUMENT);
+
   @Input() origin: string = '';
   @Input() textItemID: string = '';
 
@@ -65,21 +79,7 @@ export class DownloadTextsModal implements OnDestroy, OnInit {
   textSizeTranslation: string = '';
   urnResolverUrl: string = '';
 
-  constructor(
-    private collectionContentService: CollectionContentService,
-    private collectionsService: CollectionsService,
-    private commentService: CommentService,
-    private headService: DocumentHeadService,
-    private mdService: MarkdownService,
-    private modalCtrl: ModalController,
-    private parserService: HtmlParserService,
-    private referenceDataService: ReferenceDataService,
-    private router: Router,
-    private tocService: CollectionTableOfContentsService,
-    private viewOptionsService: ViewOptionsService,
-    @Inject(LOCALE_ID) private activeLocale: string,
-    @Inject(DOCUMENT) private document: Document
-  ) {
+  constructor() {
     // Get configs
     this.readTextLanguages = config.app?.i18n?.multilingualReadingTextLanguages ?? [];
     if (this.readTextLanguages.length < 2) {

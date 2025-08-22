@@ -1,4 +1,4 @@
-import { Component, Inject, LOCALE_ID, OnInit } from '@angular/core';
+import { Component, LOCALE_ID, OnInit, inject } from '@angular/core';
 import { AsyncPipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { IonicModule } from '@ionic/angular';
@@ -19,6 +19,10 @@ import { MarkdownService } from '@services/markdown.service';
   imports: [AsyncPipe, IonicModule, RouterLink, ParentChildPagePathPipe]
 })
 export class ContentGridComponent implements OnInit {
+  private collectionsService = inject(CollectionsService);
+  private mdService = inject(MarkdownService);
+  private activeLocale = inject(LOCALE_ID);
+
   availableArticles: Article[] = [];
   availableEbooks: any[] = [];
   flattenedCollectionSortOrder: number[] = [];
@@ -28,11 +32,7 @@ export class ContentGridComponent implements OnInit {
   includeMediaCollection: boolean = false;
   showTitles: boolean = true;
 
-  constructor(
-    private collectionsService: CollectionsService,
-    private mdService: MarkdownService,
-    @Inject(LOCALE_ID) private activeLocale: string
-  ) {
+  constructor() {
     this.availableArticles = config.articles ?? [];
     this.availableEbooks = config.ebooks ?? [];
     this.flattenedCollectionSortOrder = (config.collections?.order ?? []).flat();

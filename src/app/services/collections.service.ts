@@ -1,4 +1,4 @@
-import { Inject, Injectable, LOCALE_ID } from '@angular/core';
+import { Injectable, LOCALE_ID, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { map, Observable, of } from 'rxjs';
 
@@ -9,13 +9,13 @@ import { config } from '@config';
   providedIn: 'root',
 })
 export class CollectionsService {
+  private http = inject(HttpClient);
+  private activeLocale = inject(LOCALE_ID);
+
   private apiURL: string = '';
   private multilingualTOC: boolean = false;
 
-  constructor(
-    private http: HttpClient,
-    @Inject(LOCALE_ID) private activeLocale: string
-  ) {
+  constructor() {
     const apiBaseURL = config.app?.backendBaseURL ?? '';
     const projectName = config.app?.projectNameDB ?? '';
     this.apiURL = apiBaseURL + '/' + projectName;

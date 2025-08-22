@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, inject } from '@angular/core';
 import { NgStyle } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AlertButton, AlertController, AlertInput, IonicModule, ModalController } from '@ionic/angular';
@@ -20,6 +20,11 @@ import { sortArrayOfObjectsNumerically } from '@utility-functions';
   imports: [NgStyle, FormsModule, IonicModule, DraggableImageDirective, TrustHtmlPipe]
 })
 export class FacsimilesComponent implements OnInit {
+  private alertCtrl = inject(AlertController);
+  private collectionContentService = inject(CollectionContentService);
+  private modalCtrl = inject(ModalController);
+  private platformService = inject(PlatformService);
+
   @Input() facsID: number | undefined = undefined;
   @Input() imageNr: number | undefined = undefined;
   @Input() sortOrder: number | undefined = undefined;
@@ -47,12 +52,7 @@ export class FacsimilesComponent implements OnInit {
   text: string = '';
   zoom: number = 1.0;
 
-  constructor(
-    private alertCtrl: AlertController,
-    private collectionContentService: CollectionContentService,
-    private modalCtrl: ModalController,
-    private platformService: PlatformService
-  ) {
+  constructor() {
     this.facsSize = config.component?.facsimiles?.imageQuality ?? 1;
     this.facsURLAlternate = config.app?.alternateFacsimileBaseURL ?? '';
     this.replaceImageAssetsPaths = config.collections?.replaceImageAssetsPaths ?? true;

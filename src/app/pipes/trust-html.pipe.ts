@@ -1,4 +1,4 @@
-import { Pipe, PipeTransform } from '@angular/core';
+import { Pipe, PipeTransform, inject } from '@angular/core';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 
 
@@ -10,7 +10,8 @@ import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
   standalone: true
 })
 export class TrustHtmlPipe implements PipeTransform {
-  constructor(private sanitizer: DomSanitizer) {}
+  private sanitizer = inject(DomSanitizer);
+
 
   transform(html: string | null): SafeHtml {
     return this.sanitizer.bypassSecurityTrustHtml(html ?? '');

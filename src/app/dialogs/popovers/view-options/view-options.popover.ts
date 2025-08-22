@@ -1,4 +1,4 @@
-import { Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { IonicModule, PopoverController } from '@ionic/angular';
 import { Subscription } from 'rxjs';
@@ -15,6 +15,9 @@ import { ViewOptionsService } from '@services/view-options.service';
   imports: [FormsModule, IonicModule]
 })
 export class ViewOptionsPopover implements OnDestroy, OnInit {
+  private popoverCtrl = inject(PopoverController);
+  protected viewOptionsService = inject(ViewOptionsService);
+
   @Input() toggles: any = undefined;
 
   availableToggles: any = undefined;
@@ -38,10 +41,7 @@ export class ViewOptionsPopover implements OnDestroy, OnInit {
 
   TextsizeEnum = Textsize;
 
-  constructor(
-    private popoverCtrl: PopoverController,
-    protected viewOptionsService: ViewOptionsService
-  ) {
+  constructor() {
     this.availableToggles = config.page?.text?.viewOptions ?? undefined;
     this.showVariationTypeOption = config.page?.text?.variantViewOptions?.showVariationTypeOption ?? false;
   }

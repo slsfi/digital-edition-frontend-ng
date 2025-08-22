@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+### Changed
+
+- Migrate constructor-based injection to the `inject` function.
+
 ### Fixed
 
 - Error message for missing collection text comments.

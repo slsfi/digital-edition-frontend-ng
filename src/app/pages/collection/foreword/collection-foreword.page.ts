@@ -1,4 +1,4 @@
-import { Component, ElementRef, Inject, LOCALE_ID, OnDestroy, OnInit } from '@angular/core';
+import { Component, ElementRef, LOCALE_ID, OnDestroy, OnInit, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { ModalController, PopoverController } from '@ionic/angular';
 import { catchError, combineLatest, map, Observable, of, Subscription, switchMap, tap } from 'rxjs';
@@ -21,6 +21,17 @@ import { ViewOptionsService } from '@services/view-options.service';
   standalone: false
 })
 export class CollectionForewordPage implements OnDestroy, OnInit {
+  private collectionContentService = inject(CollectionContentService);
+  private elementRef = inject(ElementRef);
+  private modalController = inject(ModalController);
+  private parserService = inject(HtmlParserService);
+  private platformService = inject(PlatformService);
+  private popoverCtrl = inject(PopoverController);
+  private route = inject(ActivatedRoute);
+  private scrollService = inject(ScrollService);
+  private viewOptionsService = inject(ViewOptionsService);
+  private activeLocale = inject(LOCALE_ID);
+
   _activeComponent: boolean = true;
   collectionID: string = '';
   intervalTimerId: number = 0;
@@ -35,18 +46,7 @@ export class CollectionForewordPage implements OnDestroy, OnInit {
 
   TextsizeEnum = Textsize;
 
-  constructor(
-    private collectionContentService: CollectionContentService,
-    private elementRef: ElementRef,
-    private modalController: ModalController,
-    private parserService: HtmlParserService,
-    private platformService: PlatformService,
-    private popoverCtrl: PopoverController,
-    private route: ActivatedRoute,
-    private scrollService: ScrollService,
-    private viewOptionsService: ViewOptionsService,
-    @Inject(LOCALE_ID) private activeLocale: string
-  ) {
+  constructor() {
     this.replaceImageAssetsPaths = config.collections?.replaceImageAssetsPaths ?? true;
     this.showURNButton = config.page?.foreword?.showURNButton ?? false;
     this.showViewOptionsButton = config.page?.foreword?.showViewOptionsButton ?? true;

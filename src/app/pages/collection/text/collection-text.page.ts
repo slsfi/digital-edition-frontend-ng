@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, ElementRef, Inject, LOCALE_ID, NgZone, OnDestroy, OnInit, QueryList, Renderer2, ViewChild, ViewChildren } from '@angular/core';
+import { ChangeDetectorRef, Component, ElementRef, LOCALE_ID, NgZone, OnDestroy, OnInit, QueryList, Renderer2, ViewChild, ViewChildren, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { IonFabButton, IonFabList, IonPopover, ModalController, PopoverController } from '@ionic/angular';
 import { combineLatest, Observable, Subscription } from 'rxjs';
@@ -28,6 +28,25 @@ import { enableFrontMatterPageOrTextViewType, isBrowser, moveArrayItem } from '@
   standalone: false
 })
 export class CollectionTextPage implements OnDestroy, OnInit {
+  private cdRef = inject(ChangeDetectorRef);
+  private collectionContentService = inject(CollectionContentService);
+  private collectionsService = inject(CollectionsService);
+  private elementRef = inject(ElementRef);
+  private headService = inject(DocumentHeadService);
+  private modalCtrl = inject(ModalController);
+  private ngZone = inject(NgZone);
+  private parserService = inject(HtmlParserService);
+  private platformService = inject(PlatformService);
+  private popoverCtrl = inject(PopoverController);
+  private renderer2 = inject(Renderer2);
+  private route = inject(ActivatedRoute);
+  private router = inject(Router);
+  private scrollService = inject(ScrollService);
+  private tooltipService = inject(TooltipService);
+  private urlService = inject(UrlService);
+  viewOptionsService = inject(ViewOptionsService);
+  private activeLocale = inject(LOCALE_ID);
+
   @ViewChild('addViewPopover') addViewPopover: IonPopover;
   @ViewChildren('fabColumnOptions') fabColumnOptions: QueryList<IonFabList>;
   @ViewChildren('fabColumnOptionsButton') fabColumnOptionsButton: QueryList<IonFabButton>;
@@ -83,26 +102,7 @@ export class CollectionTextPage implements OnDestroy, OnInit {
   private unlistenMouseoverEvents?: () => void;
   private unlistenMouseoutEvents?: () => void;
 
-  constructor(
-    private cdRef: ChangeDetectorRef,
-    private collectionContentService: CollectionContentService,
-    private collectionsService: CollectionsService,
-    private elementRef: ElementRef,
-    private headService: DocumentHeadService,
-    private modalCtrl: ModalController,
-    private ngZone: NgZone,
-    private parserService: HtmlParserService,
-    private platformService: PlatformService,
-    private popoverCtrl: PopoverController,
-    private renderer2: Renderer2,
-    private route: ActivatedRoute,
-    private router: Router,
-    private scrollService: ScrollService,
-    private tooltipService: TooltipService,
-    private urlService: UrlService,
-    public viewOptionsService: ViewOptionsService,
-    @Inject(LOCALE_ID) private activeLocale: string
-  ) {
+  constructor() {
     this.multilingualReadingTextLanguages = config.app?.i18n?.multilingualReadingTextLanguages ?? [];
     this.showTextDownloadButton = config.page?.text?.showTextDownloadButton ?? false;
     this.showURNButton = config.page?.text?.showURNButton ?? true;

@@ -1,4 +1,4 @@
-import { Injectable, NgZone } from '@angular/core';
+import { Injectable, NgZone, inject } from '@angular/core';
 
 import { isBrowser } from '@utility-functions';
 
@@ -7,6 +7,8 @@ import { isBrowser } from '@utility-functions';
   providedIn: 'root',
 })
 export class ScrollService {
+  private ngZone = inject(NgZone);
+
   private activeComHighl: Record<string, any> = {
     commentTimeOutId: null,
     commentLemmaElement: null,
@@ -16,10 +18,6 @@ export class ScrollService {
     lemmaElement: null,
   };
   private intervalTimerId: number = 0;
-
-  constructor(
-    private ngZone: NgZone
-  ) {}
 
   /**
    * This function can be used to scroll a container so that the element which it

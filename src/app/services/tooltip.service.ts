@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { catchError, map, Observable, of } from 'rxjs';
 
 import { config } from '@config';
@@ -11,6 +11,10 @@ import { PlatformService } from '@services/platform.service';
   providedIn: 'root',
 })
 export class TooltipService {
+  private commentService = inject(CommentService);
+  private namedEntityService = inject(NamedEntityService);
+  private platformService = inject(PlatformService);
+
   private cachedTooltips: Record<string, any> = {
     'comments': new Map(),
     'footnotes': new Map(),
@@ -21,11 +25,7 @@ export class TooltipService {
   private maxTooltipCacheSize: number = 50;
   private simpleWorkMetadata: boolean = false;
 
-  constructor(
-    private commentService: CommentService,
-    private namedEntityService: NamedEntityService,
-    private platformService: PlatformService
-  ) {
+  constructor() {
     this.simpleWorkMetadata = config.modal?.namedEntity?.useSimpleWorkMetadata ?? false;
   }
 

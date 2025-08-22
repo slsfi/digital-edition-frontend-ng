@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { catchError, map, Observable, of } from 'rxjs';
 
@@ -9,14 +9,14 @@ import { config } from '@config';
   providedIn: 'root',
 })
 export class CommentService {
+  private http = inject(HttpClient);
+
   private addTEIClassNames: boolean = true;
   private apiURL: string = '';
   private cachedCollectionComments: Record<string, any> = {};
   private replaceImageAssetsPaths: boolean = true;
 
-  constructor(
-    private http: HttpClient
-  ) {
+  constructor() {
     const apiBaseURL = config.app?.backendBaseURL ?? '';
     const projectName = config.app?.projectNameDB ?? '';
     this.apiURL = apiBaseURL + '/' + projectName;

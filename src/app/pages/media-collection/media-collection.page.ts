@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Inject, LOCALE_ID, OnDestroy, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, LOCALE_ID, OnDestroy, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ModalController } from '@ionic/angular';
 import { combineLatest, forkJoin, map, Observable, Subscription } from 'rxjs';
@@ -22,6 +22,16 @@ import { isEmptyObject, sortArrayOfObjectsAlphabetically, sortArrayOfObjectsNume
   standalone: false
 })
 export class MediaCollectionPage implements OnDestroy, OnInit {
+  private cdRef = inject(ChangeDetectorRef);
+  private headService = inject(DocumentHeadService);
+  private mdService = inject(MarkdownService);
+  private mediaCollectionService = inject(MediaCollectionService);
+  private modalController = inject(ModalController);
+  private route = inject(ActivatedRoute);
+  private router = inject(Router);
+  private urlService = inject(UrlService);
+  private activeLocale = inject(LOCALE_ID);
+
   activeKeywordFilters: number[] = [];
   activePersonFilters: number[] = [];
   activePlaceFilters: number[] = [];
@@ -51,17 +61,7 @@ export class MediaCollectionPage implements OnDestroy, OnInit {
   showURNButton: boolean = false;
   urlParametersSubscription: Subscription | null = null;
 
-  constructor(
-    private cdRef: ChangeDetectorRef,
-    private headService: DocumentHeadService,
-    private mdService: MarkdownService,
-    private mediaCollectionService: MediaCollectionService,
-    private modalController: ModalController,
-    private route: ActivatedRoute,
-    private router: Router,
-    private urlService: UrlService,
-    @Inject(LOCALE_ID) private activeLocale: string
-  ) {
+  constructor() {
     this.apiEndPoint = config.app?.backendBaseURL ?? '';
     this.projectName = config.app?.projectNameDB ?? '';
     this.showURNButton = config.page?.mediaCollection?.showURNButton ?? false;

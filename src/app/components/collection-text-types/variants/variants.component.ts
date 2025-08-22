@@ -1,4 +1,4 @@
-import { Component, ElementRef, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, ElementRef, EventEmitter, Input, OnInit, Output, inject } from '@angular/core';
 import { AlertButton, AlertController, AlertInput, IonicModule } from '@ionic/angular';
 
 import { config } from '@config';
@@ -16,6 +16,13 @@ import { ViewOptionsService } from '@services/view-options.service';
   imports: [IonicModule, TrustHtmlPipe]
 })
 export class VariantsComponent implements OnInit {
+  private alertCtrl = inject(AlertController);
+  private collectionContentService = inject(CollectionContentService);
+  private elementRef = inject(ElementRef);
+  private parserService = inject(HtmlParserService);
+  private scrollService = inject(ScrollService);
+  viewOptionsService = inject(ViewOptionsService);
+
   @Input() searchMatches: Array<string> = [];
   @Input() sortOrder: number | undefined = undefined;
   @Input() textItemID: string = '';
@@ -32,14 +39,7 @@ export class VariantsComponent implements OnInit {
   text: string = '';
   variants: any[] = [];
 
-  constructor(
-    private alertCtrl: AlertController,
-    private collectionContentService: CollectionContentService,
-    private elementRef: ElementRef,
-    private parserService: HtmlParserService,
-    private scrollService: ScrollService,
-    public viewOptionsService: ViewOptionsService
-  ) {
+  constructor() {
     this.showOpenLegendButton = config.component?.variants?.showOpenLegendButton ?? false;
   }
 

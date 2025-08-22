@@ -1,4 +1,4 @@
-import { Inject, Injectable, LOCALE_ID } from '@angular/core';
+import { Injectable, LOCALE_ID, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
@@ -10,6 +10,9 @@ import { convertNamedEntityTypeForBackend, isEmptyObject } from '@utility-functi
   providedIn: 'root',
 })
 export class NamedEntityService {
+  private http = inject(HttpClient);
+  private activeLocale = inject(LOCALE_ID);
+
   private apiURL: string = '';
   private elasticLocationIndex: string = 'location';
   private elasticSubjectIndex: string = 'subject';
@@ -17,10 +20,7 @@ export class NamedEntityService {
   private elasticWorkIndex: string = 'work';
   private multilingual: boolean = false;
 
-  constructor(
-    private http: HttpClient,
-    @Inject(LOCALE_ID) private activeLocale: string
-  ) {
+  constructor() {
     const apiBaseURL = config.app?.backendBaseURL ?? '';
     const projectName = config.app?.projectNameDB ?? '';
     this.apiURL = apiBaseURL + '/' + projectName;

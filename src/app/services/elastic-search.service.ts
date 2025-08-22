@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
@@ -10,6 +10,8 @@ import { AggregationQuery, Facets, SearchQuery, TimeRange } from '@models/elasti
   providedIn: 'root',
 })
 export class ElasticSearchService {
+  private http = inject(HttpClient);
+
   private aggregations: any = {};
   private fixedFilters?: object[];
   private indices: string[] = [];
@@ -17,9 +19,7 @@ export class ElasticSearchService {
   private source: string[] = [];
   private textTypes: string[] = [];
 
-  constructor(
-    private http: HttpClient
-  ) {
+  constructor() {
     this.aggregations = config.page?.elasticSearch?.aggregations ?? undefined;
     this.indices = config.page?.elasticSearch?.indices ?? [];
     this.fixedFilters = config.page?.elasticSearch?.fixedFilters ?? [];

@@ -1,7 +1,4 @@
-import {
-  ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnChanges,
-  OnDestroy, OnInit, SimpleChanges
-} from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges, inject } from '@angular/core';
 import { NgClass, NgTemplateOutlet } from '@angular/common';
 import { Params, RouterLink, UrlSegment } from '@angular/router';
 import { IonicModule } from '@ionic/angular';
@@ -35,6 +32,10 @@ import { addOrRemoveValueInNewArray, enableFrontMatterPageOrTextViewType, isBrow
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CollectionSideMenuComponent implements OnInit, OnChanges, OnDestroy {
+  private cdr = inject(ChangeDetectorRef);
+  private scrollService = inject(ScrollService);
+  private tocService = inject(CollectionTableOfContentsService);
+
   @Input() collectionID: string = '';
   @Input() routeQueryParams: Params;
   @Input() routeUrlSegments: UrlSegment[];
@@ -58,11 +59,7 @@ export class CollectionSideMenuComponent implements OnInit, OnChanges, OnDestroy
   titlePageName: string = '';
   tocSubscr: Subscription | null = null;
 
-  constructor(
-    private cdr: ChangeDetectorRef,
-    private scrollService: ScrollService,
-    private tocService: CollectionTableOfContentsService
-  ) {
+  constructor() {
     this.sortSelectOptions = {
       header: $localize`:@@CollectionSideMenu.SortOptions.SelectSorting:Välj sortering för innehållsförteckningen`,
       cssClass: 'custom-select-alert'

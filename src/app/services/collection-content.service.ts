@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
@@ -9,6 +9,8 @@ import { config } from '@config';
   providedIn: 'root',
 })
 export class CollectionContentService {
+  private http = inject(HttpClient);
+
   activeCollectionTextMobileModeView: number | undefined = undefined;
   previousReadViewTextId: string = '';
   readViewTextId: string = '';
@@ -16,9 +18,7 @@ export class CollectionContentService {
 
   private apiURL: string = '';
 
-  constructor(
-    private http: HttpClient
-  ) {
+  constructor() {
     const apiBaseURL = config.app?.backendBaseURL ?? '';
     const projectName = config.app?.projectNameDB ?? '';
     this.apiURL = apiBaseURL + '/' + projectName;

@@ -1,4 +1,4 @@
-import { Inject, Injectable, LOCALE_ID, OnDestroy, Renderer2, RendererFactory2, DOCUMENT } from '@angular/core';
+import { Injectable, LOCALE_ID, OnDestroy, Renderer2, RendererFactory2, DOCUMENT, inject } from '@angular/core';
 
 import { Meta, Title } from '@angular/platform-browser';
 import { BehaviorSubject, Observable } from 'rxjs';
@@ -10,6 +10,12 @@ import { config } from '@config';
   providedIn: 'root',
 })
 export class DocumentHeadService implements OnDestroy {
+  private meta = inject(Meta);
+  private rendererFactory = inject(RendererFactory2);
+  private title = inject(Title);
+  private document = inject<Document>(DOCUMENT);
+  private activeLocale = inject(LOCALE_ID);
+
   private addedHeadElements: HTMLElement[] = [];
   private currentPageTitle$: BehaviorSubject<string> = new BehaviorSubject('');
   private currentRouterUrl: string | undefined = undefined;
@@ -17,13 +23,7 @@ export class DocumentHeadService implements OnDestroy {
   private languages: any[] = [];
   private renderer: Renderer2;
 
-  constructor(
-    private meta: Meta,
-    private rendererFactory: RendererFactory2,
-    private title: Title,
-    @Inject(DOCUMENT) private document: Document,
-    @Inject(LOCALE_ID) private activeLocale: string
-  ) {
+  constructor() {
     this.openGraphTags = config.app?.openGraphMetaTags ?? undefined;
     this.languages = config.app?.i18n?.languages ?? [];
     this.renderer = this.rendererFactory.createRenderer(null, null);

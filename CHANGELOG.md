@@ -20,6 +20,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 ### Fixed
 
 - Error message for missing collection text comments.
+- Broken relative non-fragment links in the legend component.
 
 
 

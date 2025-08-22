@@ -75,27 +75,21 @@ export class LegendComponent implements OnDestroy, OnInit {
       this.unlistenClickEvents = this.renderer2.listen(nElement, 'click', (event) => {
         try {
           const clickedElem = event.target as HTMLElement;
+          const targetHref = clickedElem.getAttribute('href');
 
-          if (
-            clickedElem.hasAttribute('href') === true &&
-            clickedElem.getAttribute('href')?.startsWith('http') === false &&
-            clickedElem.getAttribute('href')?.startsWith('/') === false
-          ) {
+          if (targetHref && targetHref.startsWith('#')) {
+            // Fragment href -> assume link to data-id in same legend text
+            // -> find element and scroll it into view
             event.preventDefault();
-            const targetHref = clickedElem.getAttribute('href');
-
-            if (targetHref && targetHref.startsWith('#')) {
-              // Assume link to data-id in same legend text --> find element and scroll it into view
-              let containerElem = clickedElem.parentElement;
-              while (containerElem !== null && containerElem.tagName !== 'TEXT-LEGEND') {
-                containerElem = containerElem.parentElement;
-              }
-              if (containerElem) {
-                const targetElem = containerElem.querySelector(
-                  '[data-id="' + targetHref.slice(1) + '"]'
-                ) as HTMLElement;
-                this.scrollService.scrollElementIntoView(targetElem, 'top');
-              }
+            let containerElem = clickedElem.parentElement;
+            while (containerElem !== null && containerElem.tagName !== 'TEXT-LEGEND') {
+              containerElem = containerElem.parentElement;
+            }
+            if (containerElem) {
+              const targetElem = containerElem.querySelector(
+                '[data-id="' + targetHref.slice(1) + '"]'
+              ) as HTMLElement;
+              this.scrollService.scrollElementIntoView(targetElem, 'top');
             }
           }
         } catch (e) {

@@ -1,4 +1,4 @@
-import { Component, LOCALE_ID, OnInit, ViewChild, inject } from '@angular/core';
+import { Component, LOCALE_ID, OnInit, inject, viewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { IonContent, ModalController } from '@ionic/angular';
 import { Observable, Subscription } from 'rxjs';
@@ -30,7 +30,7 @@ export class IndexPage implements OnInit {
   private tooltipService = inject(TooltipService);
   private activeLocale = inject(LOCALE_ID);
 
-  @ViewChild(IonContent) content: IonContent;
+  readonly content = viewChild(IonContent);
 
   agg_after_key: Record<string, any> = {};
   alphabet: string[] = [
@@ -416,7 +416,7 @@ export class IndexPage implements OnInit {
   }
 
   scrollToTop() {
-    this.content.scrollToTop(500);
+    this.content()?.scrollToTop(500);
   }
 
   clearFilters() {

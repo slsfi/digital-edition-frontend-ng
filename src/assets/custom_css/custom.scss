@@ -188,4 +188,8 @@
     --variant-background-color:                 #c5c5c5;
   }
 
+  article-toc[class][class] {
+    --article-toc-background-color: var(--intro-toc-background-color, --main-background-color);
+  }
+
 */

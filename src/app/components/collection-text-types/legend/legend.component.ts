@@ -1,4 +1,4 @@
-import { Component, ElementRef, Input, LOCALE_ID, NgZone, OnDestroy, OnInit, Renderer2, inject } from '@angular/core';
+import { Component, ElementRef, LOCALE_ID, NgZone, OnDestroy, OnInit, Renderer2, inject, input } from '@angular/core';
 import { AsyncPipe } from '@angular/common';
 import { IonicModule } from '@ionic/angular';
 import { catchError, map, Observable, of } from 'rxjs';
@@ -23,8 +23,8 @@ export class LegendComponent implements OnDestroy, OnInit {
   private scrollService = inject(ScrollService);
   private activeLocale = inject(LOCALE_ID);
 
-  @Input() itemId?: string;
-  @Input() scrollToElementId?: string;
+  readonly itemId = input<string>();
+  readonly scrollToElementId = input<string>();
 
   collectionId: string = '';
   intervalTimerId: number = 0;
@@ -35,8 +35,8 @@ export class LegendComponent implements OnDestroy, OnInit {
   private unlistenClickEvents?: () => void;
 
   ngOnInit() {
-    this.collectionId = this.itemId?.split('_')[0] || '';
-    this.publicationId = this.itemId?.split('_')[1].split(';')[0] || '';
+    this.collectionId = this.itemId()?.split('_')[0] || '';
+    this.publicationId = this.itemId()?.split('_')[1].split(';')[0] || '';
 
     this.text$ = this.getMdContent(this.activeLocale + '-' + this.staticMdLegendFolderNumber + '-' + this.collectionId + '-' + this.publicationId);
     if (isBrowser()) {
@@ -104,7 +104,7 @@ export class LegendComponent implements OnDestroy, OnInit {
    * last text-legend-element into view.
    */
   scrollToInitialTextPosition() {
-    if (this.scrollToElementId) {
+    if (this.scrollToElementId()) {
       const that = this;
       this.ngZone.runOutsideAngular(() => {
         let iterationsLeft = 10;
@@ -116,7 +116,7 @@ export class LegendComponent implements OnDestroy, OnInit {
           } else {
             iterationsLeft -= 1;
             const legendElements = document.querySelectorAll('page-text:not([ion-page-hidden]):not(.ion-page-hidden) text-legend');
-            const element = legendElements[legendElements.length - 1].querySelector('[data-id="' + that.scrollToElementId + '"]') as any;
+            const element = legendElements[legendElements.length - 1].querySelector('[data-id="' + that.scrollToElementId() + '"]') as any;
             if (element) {
               that.scrollService.scrollElementIntoView(element, 'top');
               clearInterval(that.intervalTimerId);

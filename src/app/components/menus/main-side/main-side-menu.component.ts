@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, LOCALE_ID, OnChanges, OnInit, inject } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, LOCALE_ID, OnChanges, OnInit, inject, input } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
 import { RouterLink, UrlSegment } from '@angular/router';
 import { IonicModule } from '@ionic/angular';
@@ -39,7 +39,7 @@ export class MainSideMenuComponent implements OnInit, OnChanges {
   private mediaCollectionService = inject(MediaCollectionService);
   private activeLocale = inject(LOCALE_ID);
 
-  @Input() urlSegments: UrlSegment[] = [];
+  readonly urlSegments = input<UrlSegment[]>([]);
 
   highlightedMenu: string = '';
   mainMenu: any[] = [];
@@ -364,7 +364,7 @@ export class MainSideMenuComponent implements OnInit, OnChanges {
   private updateHighlightedMenuItem() {
     // Create a path string from all route segments, prefixed with a slash
     // (e.g., '/ebook/pdf/title-of-the-ebook')
-    const currentPath = '/' + (this.urlSegments?.map(segment => segment.path).join('/') || '');
+    const currentPath = '/' + (this.urlSegments()?.map(segment => segment.path).join('/') || '');
 
     const currentItemRoot = this.recursiveFindCurrentMenuItem(this.mainMenu, currentPath);
     if (!currentItemRoot) {
@@ -390,7 +390,7 @@ export class MainSideMenuComponent implements OnInit, OnChanges {
           this.headService.setTitle([String(item.title), $localize`:@@MainSideMenu.MediaCollections:Bildbank`]);
         } else if (
           !this.topMenuItems.includes(item.parentPath) &&
-          this.urlSegments[0]?.path !== 'collection'
+          this.urlSegments()[0]?.path !== 'collection'
         ) {
           // For top menu items the title is set by app.component, and
           // for collections the title is set by the text-changer component

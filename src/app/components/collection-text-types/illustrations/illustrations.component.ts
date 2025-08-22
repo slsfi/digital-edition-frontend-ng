@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges, OnInit, SimpleChanges, inject, output } from '@angular/core';
+import { Component, OnChanges, OnInit, SimpleChanges, inject, output, input } from '@angular/core';
 import { NgClass } from '@angular/common';
 import { IonicModule, ModalController } from '@ionic/angular';
 
@@ -20,8 +20,8 @@ export class IllustrationsComponent implements OnChanges, OnInit {
   private platformService = inject(PlatformService);
   private scrollService = inject(ScrollService);
 
-  @Input() singleImage: Record<string, any> | undefined = undefined;
-  @Input() textItemID: string = '';
+  readonly singleImage = input<Record<string, any>>();
+  readonly textItemID = input<string>('');
   readonly showAllImages = output<any>();
   readonly setMobileModeActiveText = output<string>();
   
@@ -37,13 +37,14 @@ export class IllustrationsComponent implements OnChanges, OnInit {
     for (const propName in changes) {
       if (changes.hasOwnProperty(propName)) {
         if (propName === 'singleImage') {
+          const singleImage = this.singleImage();
           if (
             !changes.singleImage.firstChange &&
-            typeof this.singleImage !== 'undefined' &&
-            this.singleImage
+            typeof singleImage !== 'undefined' &&
+            singleImage
           ) {
             this.images = [];
-            this.images.push(this.singleImage);
+            this.images.push(singleImage);
             this.viewAll = false;
           }
         }
@@ -54,20 +55,21 @@ export class IllustrationsComponent implements OnChanges, OnInit {
   ngOnInit() {
     this.mobileMode = this.platformService.isMobile();
 
-    if (this.textItemID) {
+    if (this.textItemID()) {
       this.getIllustrationImages();
     }
   }
 
   private getIllustrationImages() {
-    this.parserService.getReadingTextIllustrations(this.textItemID).subscribe(
+    this.parserService.getReadingTextIllustrations(this.textItemID()).subscribe(
       (images: any[]) => {
         this.images = images;
         this.imageCountTotal = this.images.length;
         this.imagesCache = this.images;
-        if (typeof this.singleImage !== 'undefined' && this.singleImage) {
+        const singleImage = this.singleImage();
+        if (typeof singleImage !== 'undefined' && singleImage) {
           this.images = [];
-          this.images.push(this.singleImage);
+          this.images.push(singleImage);
           this.viewAll = false;
         }
         this.imgLoading = false;

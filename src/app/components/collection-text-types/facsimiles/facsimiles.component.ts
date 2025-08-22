@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, inject, output } from '@angular/core';
+import { Component, OnInit, inject, output, input } from '@angular/core';
 import { NgStyle } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AlertButton, AlertController, AlertInput, IonicModule, ModalController } from '@ionic/angular';
@@ -25,10 +25,10 @@ export class FacsimilesComponent implements OnInit {
   private modalCtrl = inject(ModalController);
   private platformService = inject(PlatformService);
 
-  @Input() facsID: number | undefined = undefined;
-  @Input() imageNr: number | undefined = undefined;
-  @Input() sortOrder: number | undefined = undefined;
-  @Input() textItemID: string = '';
+  readonly facsID = input<number>();
+  readonly imageNr = input<number>();
+  readonly sortOrder = input<number>();
+  readonly textItemID = input<string>('');
   readonly selectedFacsID = output<number>();
   readonly selectedFacsName = output<string>();
   readonly selectedImageNr = output<number | null>();
@@ -62,19 +62,19 @@ export class FacsimilesComponent implements OnInit {
   ngOnInit() {
     this.mobileMode = this.platformService.isMobile();
 
-    if (this.textItemID) {
+    if (this.textItemID()) {
       this.loadFacsimiles();
     }
   }
 
   loadFacsimiles() {
-    this.collectionContentService.getFacsimiles(this.textItemID).subscribe({
+    this.collectionContentService.getFacsimiles(this.textItemID()).subscribe({
       next: (facs) => {
         if (facs && facs.length > 0) {
-          const sectionId = this.textItemID.split('_')[2]?.split(';')[0]?.replace('ch', '') || '';
+          const sectionId = this.textItemID().split('_')[2]?.split(';')[0]?.replace('ch', '') || '';
           for (const f of facs) {
             const facsimile = new Facsimile(f);
-            facsimile.itemId = this.textItemID;
+            facsimile.itemId = this.textItemID();
             facsimile.manuscript_id = f.publication_manuscript_id;
             if (!f['external_url']) {
               facsimile.title = f['title'];
@@ -111,20 +111,21 @@ export class FacsimilesComponent implements OnInit {
 
   setInitialFacsimile() {
     if (this.facsimiles.length > 0) {
-      if (this.facsID !== undefined && this.facsID > 0) {
+      const facsID = this.facsID();
+      if (facsID !== undefined && facsID > 0) {
         const inputFacsimile = this.facsimiles.filter((item: any) => {
-          return (item.facsimile_id === this.facsID);
+          return (item.facsimile_id === this.facsID());
         })[0];
         this.selectedFacsimile = inputFacsimile ? inputFacsimile : this.facsimiles[0];
-      } else if (this.sortOrder) {
+      } else if (this.sortOrder()) {
         const inputFacsimile = this.facsimiles.filter((item: any) => {
-          return (item.priority === this.sortOrder);
+          return (item.priority === this.sortOrder());
         })[0];
         this.selectedFacsimile = inputFacsimile ? inputFacsimile : this.facsimiles[0];
       } else if (
         this.externalFacsimiles.length > 0 && 
         (
-          (this.facsID !== undefined && this.facsID < 1) ||
+          (facsID !== undefined && facsID < 1) ||
           this.externalFacsimiles[0]['priority'] < this.facsimiles[0]['priority']
         )
       ) {
@@ -136,7 +137,7 @@ export class FacsimilesComponent implements OnInit {
       }
   
       if (this.selectedFacsimile) {
-        this.initializeDisplayedFacsimile(this.selectedFacsimile, this.imageNr);
+        this.initializeDisplayedFacsimile(this.selectedFacsimile, this.imageNr());
       }
     } else {
       this.selectedFacsimileIsExternal = true;

@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges, inject } from '@angular/core';
+import { Component, OnChanges, OnDestroy, OnInit, SimpleChanges, inject, input } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { IonicModule } from '@ionic/angular';
 import { combineLatestWith, distinctUntilChanged, filter, map, Subscription } from 'rxjs';
@@ -31,13 +31,13 @@ export class TextChangerComponent implements OnChanges, OnDestroy, OnInit {
   private route = inject(ActivatedRoute);
   private tocService = inject(CollectionTableOfContentsService);
 
-  @Input() parentPageType: string = 'text';
+  readonly parentPageType = input<string>('text');
   // ionViewActive is true when the parent page component is active in the DOM,
   // i.e. the component has entered the Ionic life cycle hook ionViewWillEnter.
   // Set to false when the parent component has entered ionViewWillLeave life
   // cycle hook. This way we can react to ActivatedRoute changes only in active
   // components.
-  @Input() ionViewActive: boolean = true;
+  readonly ionViewActive = input<boolean>(true);
 
   activeMenuOrder: string = '';
   collectionId: string = '';
@@ -65,7 +65,7 @@ export class TextChangerComponent implements OnChanges, OnDestroy, OnInit {
     // (the received TOC is already properly ordered) and to route
     // parameters, then act on changes to either.
     this.tocSubscr = this.tocService.getCurrentFlattenedCollectionToc().pipe(
-      filter(toc => this.ionViewActive && !!toc),
+      filter(toc => this.ionViewActive() && !!toc),
       combineLatestWith(this.route.paramMap, this.route.queryParamMap),
       map(([toc, paramMap, queryParamMap]) => ({
         toc,
@@ -169,7 +169,7 @@ export class TextChangerComponent implements OnChanges, OnDestroy, OnInit {
       if (!item.page && item.itemId === this.tocItemId) {
         return true;
       }
-      return item.page === this.parentPageType;
+      return item.page === this.parentPageType();
     });
   }
 }

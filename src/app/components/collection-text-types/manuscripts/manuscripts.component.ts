@@ -1,4 +1,4 @@
-import { Component, ElementRef, Input, OnInit, inject, output } from '@angular/core';
+import { Component, ElementRef, OnInit, inject, output, input } from '@angular/core';
 import { AlertButton, AlertController, AlertInput, IonicModule } from '@ionic/angular';
 
 import { config } from '@config';
@@ -23,9 +23,9 @@ export class ManuscriptsComponent implements OnInit {
   private scrollService = inject(ScrollService);
   viewOptionsService = inject(ViewOptionsService);
 
-  @Input() msID: number | undefined = undefined;
-  @Input() searchMatches: string[] = [];
-  @Input() textItemID: string = '';
+  readonly msID = input<number>();
+  readonly searchMatches = input<string[]>([]);
+  readonly textItemID = input<string>('');
   readonly openNewLegendView = output<any>();
   readonly openNewManView = output<any>();
   readonly selectedMsID = output<number>();
@@ -48,13 +48,13 @@ export class ManuscriptsComponent implements OnInit {
   }
 
   ngOnInit() {
-    if (this.textItemID) {
+    if (this.textItemID()) {
       this.loadManuscriptTexts();
     }
   }
 
   loadManuscriptTexts() {
-    this.collectionContentService.getManuscripts(this.textItemID).subscribe({
+    this.collectionContentService.getManuscripts(this.textItemID()).subscribe({
       next: (res) => {
         if (
           res?.manuscripts?.length > 0 &&
@@ -62,7 +62,7 @@ export class ManuscriptsComponent implements OnInit {
         ) {
           this.manuscripts = res.manuscripts;
           this.setManuscript();
-          if (this.searchMatches.length) {
+          if (this.searchMatches().length) {
             this.scrollService.scrollToFirstSearchMatch(this.elementRef.nativeElement, this.intervalTimerId);
           }
         } else {
@@ -77,9 +77,9 @@ export class ManuscriptsComponent implements OnInit {
   }
 
   setManuscript() {
-    if (this.msID) {
+    if (this.msID()) {
       const inputManuscript = this.manuscripts.filter((item: any) => {
-        return (item.id === this.msID);
+        return (item.id === this.msID());
       })[0];
       if (inputManuscript) {
         this.selectedManuscript = inputManuscript;
@@ -112,7 +112,7 @@ export class ManuscriptsComponent implements OnInit {
             ? this.selectedManuscript.manuscript_normalized
             : this.selectedManuscript.manuscript_changes;
       text = this.parserService.postprocessManuscriptText(text);
-      this.text = this.parserService.insertSearchMatchTags(text, this.searchMatches);
+      this.text = this.parserService.insertSearchMatchTags(text, this.searchMatches());
 
       this.textLanguage = this.selectedManuscript.language
             ? this.selectedManuscript.language

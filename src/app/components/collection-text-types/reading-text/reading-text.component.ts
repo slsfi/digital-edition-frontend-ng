@@ -1,4 +1,4 @@
-import { Component, Input, ElementRef, OnInit, Renderer2, NgZone, SimpleChanges, OnChanges, OnDestroy, inject, output } from '@angular/core';
+import { Component, ElementRef, OnInit, Renderer2, NgZone, SimpleChanges, OnChanges, OnDestroy, inject, output, input } from '@angular/core';
 import { IonicModule, ModalController } from '@ionic/angular';
 
 import { config } from '@config';
@@ -30,10 +30,10 @@ export class ReadingTextComponent implements OnChanges, OnDestroy, OnInit {
   private scrollService = inject(ScrollService);
   viewOptionsService = inject(ViewOptionsService);
 
-  @Input() language: string = '';
-  @Input() searchMatches: string[] = [];
-  @Input() textItemID: string = '';
-  @Input() textPosition: string = '';
+  readonly language = input<string>('');
+  readonly searchMatches = input<string[]>([]);
+  readonly textItemID = input<string>('');
+  readonly textPosition = input<string>('');
   readonly openNewIllustrView = output<any>();
   readonly selectedIllustration = output<any>();
 
@@ -70,8 +70,9 @@ export class ReadingTextComponent implements OnChanges, OnDestroy, OnInit {
   ngOnInit() {
     this.mobileMode = this.platformService.isMobile();
 
-    if (this.textItemID) {
-      const collectionID = this.textItemID.split('_')[0];
+    const textItemID = this.textItemID();
+    if (textItemID) {
+      const collectionID = textItemID.split('_')[0];
       this.illustrationsViewAvailable = enableFrontMatterPageOrTextViewType(
         'text', collectionID, config, 'illustrations'
       );
@@ -87,19 +88,19 @@ export class ReadingTextComponent implements OnChanges, OnDestroy, OnInit {
   }
 
   private loadReadingText() {
-    this.collectionContentService.getReadingText(this.textItemID, this.language).subscribe({
+    this.collectionContentService.getReadingText(this.textItemID(), this.language()).subscribe({
       next: (res) => {
         if (
           res?.content &&
           res?.content !== '<html xmlns="http://www.w3.org/1999/xhtml"><head></head><body>File not found</body></html>'
         ) {
-          let text: string = this.parserService.postprocessReadingText(res.content, this.textItemID.split('_')[0]);
-          this.text = this.parserService.insertSearchMatchTags(text, this.searchMatches);
+          let text: string = this.parserService.postprocessReadingText(res.content, this.textItemID().split('_')[0]);
+          this.text = this.parserService.insertSearchMatchTags(text, this.searchMatches());
           this.inlineVisibleIllustrations = this.parserService.readingTextHasVisibleIllustrations(text);
 
-          if (this.textPosition) {
+          if (this.textPosition()) {
             this.scrollToTextPosition();
-          } else if (this.searchMatches.length) {
+          } else if (this.searchMatches().length) {
             this.scrollService.scrollToFirstSearchMatch(this.elementRef.nativeElement, this.intervalTimerId);
           }
         } else {
@@ -142,7 +143,7 @@ export class ReadingTextComponent implements OnChanges, OnDestroy, OnInit {
           if (eventTarget.classList.contains('doodle') && eventTarget.hasAttribute('src')) {
             // Click on a pictogram ("doodle")
             image = {
-              src: this.parserService.getMappedMediaCollectionURL(this.textItemID.split('_')[0])
+              src: this.parserService.getMappedMediaCollectionURL(this.textItemID().split('_')[0])
                    + String(eventTarget.dataset['id']).replace('tag_', '') + '.jpg',
               class: 'doodle'
             };
@@ -224,7 +225,7 @@ export class ReadingTextComponent implements OnChanges, OnDestroy, OnInit {
 
   private scrollToTextPosition() {
     // Scroll to textPosition if defined.
-    if (isBrowser() && this.textPosition) {
+    if (isBrowser() && this.textPosition()) {
       this.ngZone.runOutsideAngular(() => {
         let iterationsLeft = 10;
         clearInterval(this.intervalTimerId);
@@ -237,7 +238,7 @@ export class ReadingTextComponent implements OnChanges, OnDestroy, OnInit {
           } else {
             iterationsLeft -= 1;
             let target = nElement.querySelector(
-              '[name="' + that.textPosition + '"]'
+              '[name="' + that.textPosition() + '"]'
             ) as HTMLAnchorElement;
             if (
               target && (
@@ -246,7 +247,7 @@ export class ReadingTextComponent implements OnChanges, OnDestroy, OnInit {
               )
             ) {
               target = nElement.querySelectorAll(
-                '[name="' + that.textPosition + '"]'
+                '[name="' + that.textPosition() + '"]'
               )[1] as HTMLAnchorElement;
             }
             if (target) {

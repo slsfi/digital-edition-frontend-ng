@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, input } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { IonicModule } from '@ionic/angular';
 import { take } from 'rxjs';
@@ -23,8 +23,8 @@ export class OccurrencesAccordionComponent implements OnInit {
   private namedEntityService = inject(NamedEntityService);
   private tocService = inject(CollectionTableOfContentsService);
 
-  @Input() id: number | undefined = undefined;
-  @Input() type: string = '';
+  readonly id = input<number>();
+  readonly type = input<string>('');
 
   groupedTexts: any[] = [];
   isLoading: boolean = true;
@@ -37,26 +37,28 @@ export class OccurrencesAccordionComponent implements OnInit {
   }
 
   ngOnInit() {
-    if (this.type === 'keyword') {
+    const type = this.type();
+    if (type === 'keyword') {
       this.showPublishedStatus = config.page?.index?.keywords?.publishedStatus ?? 2;
-    } else if (this.type === 'person') {
+    } else if (type === 'person') {
       this.showPublishedStatus = config.page?.index?.persons?.publishedStatus ?? 2;
-    } else if (this.type === 'place') {
+    } else if (type === 'place') {
       this.showPublishedStatus = config.page?.index?.places?.publishedStatus ?? 2;
-    } else if (this.type === 'work') {
+    } else if (type === 'work') {
       this.showPublishedStatus = config.page?.index?.works?.publishedStatus ?? 2;
     }
 
-    if (this.type === 'work' && this.simpleWorkMetadata) {
+    const id = this.id();
+    if (type === 'work' && this.simpleWorkMetadata) {
       this.isLoading = false;
-    } else if (this.id && this.type) {
-      this.getOccurrenceData(this.id);
+    } else if (id && type) {
+      this.getOccurrenceData(id);
     }
   }
 
   private getOccurrenceData(id: any) {
     this.isLoading = true;
-    let objectType = this.type;
+    let objectType = this.type();
     if (objectType === 'work') {
       objectType = 'work_manifestation';
     }

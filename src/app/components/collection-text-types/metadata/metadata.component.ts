@@ -1,4 +1,4 @@
-import { Component, Input, LOCALE_ID, OnInit, inject } from '@angular/core';
+import { Component, LOCALE_ID, OnInit, inject, input } from '@angular/core';
 import { AsyncPipe } from '@angular/common';
 import { IonicModule } from '@ionic/angular';
 import { catchError, Observable, of, Subject } from 'rxjs';
@@ -16,14 +16,14 @@ export class MetadataComponent implements OnInit {
   private collectionContentService = inject(CollectionContentService);
   private activeLocale = inject(LOCALE_ID);
 
-  @Input() textItemID: string = '';
+  readonly textItemID = input<string>('');
 
   loadingError$: Subject<boolean> = new Subject<boolean>();
   metadata$: Observable<any>;
 
   ngOnInit() {
     this.metadata$ = this.collectionContentService.getMetadata(
-      this.textItemID.split('_')[1] || '0', this.activeLocale
+      this.textItemID().split('_')[1] || '0', this.activeLocale
     ).pipe(
       catchError((error) => {
         console.error('Error loading metadata', error);

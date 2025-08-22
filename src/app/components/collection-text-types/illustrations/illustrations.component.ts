@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges, inject } from '@angular/core';
+import { Component, Input, OnChanges, OnInit, SimpleChanges, inject, output } from '@angular/core';
 import { NgClass } from '@angular/common';
 import { IonicModule, ModalController } from '@ionic/angular';
 
@@ -22,8 +22,8 @@ export class IllustrationsComponent implements OnChanges, OnInit {
 
   @Input() singleImage: Record<string, any> | undefined = undefined;
   @Input() textItemID: string = '';
-  @Output() showAllImages: EventEmitter<any> = new EventEmitter();
-  @Output() setMobileModeActiveText: EventEmitter<string> = new EventEmitter();
+  readonly showAllImages = output<any>();
+  readonly setMobileModeActiveText = output<string>();
   
   imageCountTotal: number = 0;
   images: Array<any> = [];

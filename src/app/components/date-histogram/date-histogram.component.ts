@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnChanges, Output } from '@angular/core'
+import { Component, Input, OnChanges, output } from '@angular/core'
 import { NgClass } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
@@ -18,7 +18,7 @@ export class DateHistogramComponent implements OnChanges {
   @Input() selectedRange?: any = undefined;
   @Input() years?: [any] = undefined;
   @Input() yearsAll?: [any] = undefined;
-  @Output() rangeChange = new EventEmitter<any>();
+  readonly rangeChange = output<any>();
 
   firstUpdate: boolean = true;
   firstYear?: string = undefined;

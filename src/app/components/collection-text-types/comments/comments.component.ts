@@ -1,4 +1,4 @@
-import { Component, ElementRef, EventEmitter, Input, NgZone, OnDestroy, OnInit, Output, Renderer2, inject } from '@angular/core';
+import { Component, ElementRef, Input, NgZone, OnDestroy, OnInit, Renderer2, inject, output } from '@angular/core';
 import { IonicModule, ModalController } from '@ionic/angular';
 
 import { IllustrationModal } from '@modals/illustration/illustration.modal';
@@ -30,8 +30,8 @@ export class CommentsComponent implements OnInit, OnDestroy {
 
   @Input() searchMatches: string[] = [];
   @Input() textItemID: string = '';
-  @Output() openNewReadingTextView: EventEmitter<string> = new EventEmitter();
-  @Output() setMobileModeActiveText: EventEmitter<string> = new EventEmitter();
+  readonly openNewReadingTextView = output<string>();
+  readonly setMobileModeActiveText = output<string>();
 
   intervalTimerId: number = 0;
   letter: any = undefined;

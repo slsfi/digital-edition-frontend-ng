@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, Output, inject } from '@angular/core';
+import { Component, Input, OnInit, inject, output } from '@angular/core';
 import { NgStyle } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AlertButton, AlertController, AlertInput, IonicModule, ModalController } from '@ionic/angular';
@@ -29,10 +29,10 @@ export class FacsimilesComponent implements OnInit {
   @Input() imageNr: number | undefined = undefined;
   @Input() sortOrder: number | undefined = undefined;
   @Input() textItemID: string = '';
-  @Output() selectedFacsID = new EventEmitter<number>();
-  @Output() selectedFacsName = new EventEmitter<string>();
-  @Output() selectedImageNr = new EventEmitter<number | null>();
-  @Output() selectedFacsSortOrder = new EventEmitter<number | null>();
+  readonly selectedFacsID = output<number>();
+  readonly selectedFacsName = output<string>();
+  readonly selectedImageNr = output<number | null>();
+  readonly selectedFacsSortOrder = output<number | null>();
 
   angle: number = 0;
   externalFacsimiles: any[] = [];

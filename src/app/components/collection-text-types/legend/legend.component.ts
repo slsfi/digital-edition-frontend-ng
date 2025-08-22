@@ -77,7 +77,7 @@ export class LegendComponent implements OnDestroy, OnInit {
           const clickedElem = event.target as HTMLElement;
           const targetHref = clickedElem.getAttribute('href');
 
-          if (targetHref && targetHref.startsWith('#')) {
+          if (targetHref?.startsWith('#')) {
             // Fragment href -> assume link to data-id in same legend text
             // -> find element and scroll it into view
             event.preventDefault();

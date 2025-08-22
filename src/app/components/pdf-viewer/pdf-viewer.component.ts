@@ -1,4 +1,4 @@
-import { Component, Input, LOCALE_ID, OnInit, ViewChild, DOCUMENT, inject } from '@angular/core';
+import { Component, LOCALE_ID, OnInit, ViewChild, DOCUMENT, inject, input } from '@angular/core';
 import { AsyncPipe, NgStyle } from '@angular/common';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { ActivatedRoute } from '@angular/router';
@@ -24,7 +24,7 @@ export class PdfViewerComponent implements OnInit {
   private activeLocale = inject(LOCALE_ID);
   private document = inject<Document>(DOCUMENT);
 
-  @Input() pdfFileName: string = '';
+  readonly pdfFileName = input<string>('');
   @ViewChild('downloadOptionsPopover') downloadOptionsPopover: any;
   
   downloadPopoverIsOpen: boolean = false;
@@ -41,8 +41,9 @@ export class PdfViewerComponent implements OnInit {
 
   ngOnInit() {
     const availableEbooks: any[] = config.ebooks ?? [];
+    const pdfFileName = this.pdfFileName();
     for (const ebook of availableEbooks) {
-      if (ebook.filename === this.pdfFileName) {
+      if (ebook.filename === pdfFileName) {
         this.pdfData = ebook;
         break;
       }
@@ -56,7 +57,7 @@ export class PdfViewerComponent implements OnInit {
                   this._window?.location.pathname.split('/')[1] === this.activeLocale
                   ? '/' + this.activeLocale : ''
                 )
-              + '/assets/ebooks/' + this.pdfFileName
+              + '/assets/ebooks/' + pdfFileName
             );
 
     this.pdfURL$ = this.route.queryParamMap.pipe(

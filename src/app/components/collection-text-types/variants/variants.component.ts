@@ -1,4 +1,4 @@
-import { Component, ElementRef, Input, OnInit, inject, output } from '@angular/core';
+import { Component, ElementRef, OnInit, inject, output, input } from '@angular/core';
 import { AlertButton, AlertController, AlertInput, IonicModule } from '@ionic/angular';
 
 import { config } from '@config';
@@ -23,10 +23,10 @@ export class VariantsComponent implements OnInit {
   private scrollService = inject(ScrollService);
   viewOptionsService = inject(ViewOptionsService);
 
-  @Input() searchMatches: Array<string> = [];
-  @Input() sortOrder: number | undefined = undefined;
-  @Input() textItemID: string = '';
-  @Input() varID: number | undefined = undefined;
+  readonly searchMatches = input<Array<string>>([]);
+  readonly sortOrder = input<number>();
+  readonly textItemID = input<string>('');
+  readonly varID = input<number>();
   readonly openNewLegendView = output<any>();
   readonly openNewVarView = output<any>();
   readonly selectedVarID = output<number>();
@@ -44,18 +44,18 @@ export class VariantsComponent implements OnInit {
   }
 
   ngOnInit() {
-    if (this.textItemID) {
+    if (this.textItemID()) {
       this.loadVariantTexts();
     }
   }
 
   loadVariantTexts() {
-    this.collectionContentService.getVariants(this.textItemID).subscribe({
+    this.collectionContentService.getVariants(this.textItemID()).subscribe({
       next: (res) => {
         if (res?.variations?.length > 0) {
           this.variants = res.variations;
           this.setVariant();
-          if (this.searchMatches.length) {
+          if (this.searchMatches().length) {
             this.scrollService.scrollToFirstSearchMatch(this.elementRef.nativeElement, this.intervalTimerId);
           }
         } else {
@@ -70,14 +70,14 @@ export class VariantsComponent implements OnInit {
   }
 
   setVariant() {
-    if (this.varID) {
+    if (this.varID()) {
       const inputVariant = this.variants.filter((item: any) => {
-        return (item.id === this.varID);
+        return (item.id === this.varID());
       })[0];
       this.selectedVariant = inputVariant ? inputVariant : this.variants[0];
-    } else if (this.sortOrder) {
+    } else if (this.sortOrder()) {
       const inputVariant = this.variants.filter((item: any) => {
-        return (item.sort_order === this.sortOrder);
+        return (item.sort_order === this.sortOrder());
       })[0];
       this.selectedVariant = inputVariant ? inputVariant : this.variants[0];
     } else {
@@ -97,7 +97,7 @@ export class VariantsComponent implements OnInit {
     }
     if (this.selectedVariant) {
       let text = this.parserService.postprocessVariantText(this.selectedVariant.content);
-      this.text = this.parserService.insertSearchMatchTags(text, this.searchMatches);
+      this.text = this.parserService.insertSearchMatchTags(text, this.searchMatches());
     }
   }
 

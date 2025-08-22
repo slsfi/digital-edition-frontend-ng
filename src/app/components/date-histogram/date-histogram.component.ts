@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges, output } from '@angular/core'
+import { Component, OnChanges, output, input } from '@angular/core'
 import { NgClass } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
@@ -15,11 +15,12 @@ import { IonicModule } from '@ionic/angular';
   imports: [NgClass, FormsModule, IonicModule]
 })
 export class DateHistogramComponent implements OnChanges {
-  @Input() selectedRange?: any = undefined;
-  @Input() years?: [any] = undefined;
-  @Input() yearsAll?: [any] = undefined;
+  readonly selectedRange = input<any>();
+  readonly years = input<[any]>();
+  readonly yearsAll = input<[any]>();
   readonly rangeChange = output<any>();
 
+  currentRange: any = undefined;
   firstUpdate: boolean = true;
   firstYear?: string = undefined;
   from?: string = undefined;
@@ -27,32 +28,35 @@ export class DateHistogramComponent implements OnChanges {
   max: number = 0;
   to?: string = undefined;
 
-  constructor() {}
-
   ngOnChanges() {
     this.updateMax();
     this.updateData();
   }
 
   private updateMax() {
-    this.max = this.years?.reduce(function (current, year) {
+    this.max = this.years()?.reduce(function (current, year) {
       return Math.max(current, year.doc_count)
     }, 0) || 0;
   }
 
   private updateData() {
-    if (this.yearsAll && this.years) {
+    const years = this.years();
+    const yearsAll = this.yearsAll();
+    const selectedRange = this.selectedRange();
+    this.currentRange = selectedRange !== undefined ? {...selectedRange} : undefined;
+
+    if (yearsAll && years) {
       if (this.firstUpdate) {
         this.firstUpdate = false;
 
-        if (this.yearsAll.length) {
-          this.firstYear = this.yearsAll[0]['key_as_string'];
-          this.lastYear = this.yearsAll[this.yearsAll.length - 1]['key_as_string'];
+        if (yearsAll.length) {
+          this.firstYear = yearsAll[0]['key_as_string'];
+          this.lastYear = yearsAll[yearsAll.length - 1]['key_as_string'];
 
-          let first = Number(this.yearsAll[0]['key_as_string']);
+          let first = Number(yearsAll[0]['key_as_string']);
           while (first % 10 !== 0) {
             first = first - 1;
-            this.yearsAll.unshift(
+            yearsAll.unshift(
               {
                 key: new Date(String(first)).getTime(),
                 key_as_string: String(first),
@@ -61,10 +65,10 @@ export class DateHistogramComponent implements OnChanges {
             );
           }
 
-          let last = Number(this.yearsAll[this.yearsAll.length - 1]['key_as_string']);
+          let last = Number(yearsAll[yearsAll.length - 1]['key_as_string']);
           while (last % 10 !== 0) {
             last = last + 1;
-            this.yearsAll.push(
+            yearsAll.push(
               {
                 key: new Date(String(last)).getTime(),
                 key_as_string: String(last),
@@ -74,22 +78,22 @@ export class DateHistogramComponent implements OnChanges {
           }
         }
         // console.log('yearsAll', this.yearsAll);
-      } else if (this.selectedRange?.from && this.selectedRange?.to) {
-        // console.log(this.selectedRange);
-        this.from = this.selectedRange?.from;
-        this.to = this.selectedRange?.to;
-      } else if (!this.selectedRange) {
+      } else if (this.currentRange?.from && this.currentRange?.to) {
+        // console.log(this.currentRange);
+        this.from = this.currentRange?.from;
+        this.to = this.currentRange?.to;
+      } else if (!this.currentRange) {
         this.from = undefined;
         this.to = undefined;
       }
 
       // console.log('years', this.years);
 
-      for (let a = 0; a < this.yearsAll.length; a++) {
-        this.yearsAll[a]['doc_count_current'] = 0;
-        for (let y = 0; y < this.years.length; y++) {
-          if (this.yearsAll[a]['key_as_string'] === this.years[y]['key_as_string']) {
-            this.yearsAll[a]['doc_count_current'] = this.years[y]['doc_count'];
+      for (let a = 0; a < yearsAll.length; a++) {
+        yearsAll[a]['doc_count_current'] = 0;
+        for (let y = 0; y < years.length; y++) {
+          if (yearsAll[a]['key_as_string'] === years[y]['key_as_string']) {
+            yearsAll[a]['doc_count_current'] = years[y]['doc_count'];
             break;
           }
         }
@@ -123,7 +127,7 @@ export class DateHistogramComponent implements OnChanges {
   }
 
   selectYear(selected: any) {
-    this.selectedRange = undefined;
+    this.currentRange = undefined;
     if (!this.from) {
       this.from = selected.key_as_string;
     } else if (!this.to && parseInt(selected.key_as_string || '') >= parseInt(this.from)) {
@@ -151,7 +155,7 @@ export class DateHistogramComponent implements OnChanges {
 
   updateYearFrom(event: any) {
     if (event?.detail?.value) {
-      this.selectedRange = undefined;
+      this.currentRange = undefined;
       if (!this.to || this.to && parseInt(event?.detail?.value) > parseInt(this.to || '')) {
         this.from = event?.detail?.value;
         this.to = undefined;
@@ -164,7 +168,7 @@ export class DateHistogramComponent implements OnChanges {
 
   updateYearTo(event: any) {
     if (event?.detail?.value) {
-      this.selectedRange = undefined;
+      this.currentRange = undefined;
       if (!this.from || this.from && parseInt(event?.detail?.value) < parseInt(this.from || '')) {
         this.to = event?.detail?.value;
         this.from = undefined;

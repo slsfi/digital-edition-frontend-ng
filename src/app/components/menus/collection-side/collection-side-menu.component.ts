@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges, inject } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnChanges, OnDestroy, OnInit, SimpleChanges, inject, input } from '@angular/core';
 import { NgClass, NgTemplateOutlet } from '@angular/common';
 import { Params, RouterLink, UrlSegment } from '@angular/router';
 import { IonicModule } from '@ionic/angular';
@@ -36,10 +36,10 @@ export class CollectionSideMenuComponent implements OnInit, OnChanges, OnDestroy
   private scrollService = inject(ScrollService);
   private tocService = inject(CollectionTableOfContentsService);
 
-  @Input() collectionID: string = '';
-  @Input() routeQueryParams: Params;
-  @Input() routeUrlSegments: UrlSegment[];
-  @Input() sideMenuToggled: boolean = true;
+  readonly collectionID = input<string>('');
+  readonly routeQueryParams = input<Params>();
+  readonly routeUrlSegments = input<UrlSegment[]>();
+  readonly sideMenuToggled = input<boolean>(true);
 
   activeMenuOrder: string = '';
   collectionMenu: any[] = [];
@@ -76,7 +76,7 @@ export class CollectionSideMenuComponent implements OnInit, OnChanges, OnDestroy
     ) {
       // Collection changed, the new menu will be loaded in the subscription
       // in ngOnInit(). Update collection frontmatter pages if collectionID set.
-      if (this.collectionID) {
+      if (this.collectionID()) {
         this.updateFrontmatterPages();
       }
       return;
@@ -144,7 +144,7 @@ export class CollectionSideMenuComponent implements OnInit, OnChanges, OnDestroy
           this.collectionMenu = toc.children;
         }
 
-        this.sortOptions = this.setSortOptions(this.collectionID);
+        this.sortOptions = this.setSortOptions(this.collectionID());
 
         this.isLoading = false;
         this.updateHighlightedMenuItem(scrollTimeout);
@@ -157,17 +157,17 @@ export class CollectionSideMenuComponent implements OnInit, OnChanges, OnDestroy
   }
 
   private updateFrontmatterPages() {
-    this.enableCover = enableFrontMatterPageOrTextViewType('cover', this.collectionID, config);
-    this.enableTitle = enableFrontMatterPageOrTextViewType('title', this.collectionID, config);
-    this.enableForeword = enableFrontMatterPageOrTextViewType('foreword', this.collectionID, config);
-    this.enableIntroduction = enableFrontMatterPageOrTextViewType('introduction', this.collectionID, config);
+    this.enableCover = enableFrontMatterPageOrTextViewType('cover', this.collectionID(), config);
+    this.enableTitle = enableFrontMatterPageOrTextViewType('title', this.collectionID(), config);
+    this.enableForeword = enableFrontMatterPageOrTextViewType('foreword', this.collectionID(), config);
+    this.enableIntroduction = enableFrontMatterPageOrTextViewType('introduction', this.collectionID(), config);
     this.cdr.markForCheck();
   }
 
   private updateHighlightedMenuItem(scrollTimeout: number = 600) {
     const itemId = this.getItemId();
     this.currentMenuItemId = itemId;
-    if (this.routeUrlSegments[2].path === 'text') {
+    if (this.routeUrlSegments()?.[2]?.path === 'text') {
       const item = this.recursiveFindMenuItem(this.collectionMenu, itemId);
       if (item && !this.selectedMenu.includes(item.itemId || item.nodeId)) {
         this.selectedMenu = addOrRemoveValueInNewArray(
@@ -200,13 +200,15 @@ export class CollectionSideMenuComponent implements OnInit, OnChanges, OnDestroy
   }
 
   private getItemId(): string {
+    const routeUrlSegments = this.routeUrlSegments();
     const parts = [
-      this.routeUrlSegments[1]?.path,
-      this.routeUrlSegments[3]?.path,
-      this.routeUrlSegments[4]?.path
+      routeUrlSegments?.[1]?.path,
+      routeUrlSegments?.[3]?.path,
+      routeUrlSegments?.[4]?.path
     ].filter(Boolean).join('_');
 
-    return this.routeQueryParams.position ? `${parts};${this.routeQueryParams.position}` : parts;
+    const routeQueryParams = this.routeQueryParams();
+    return routeQueryParams?.position ? `${parts};${routeQueryParams.position}` : parts;
   }
 
   /**
@@ -265,9 +267,10 @@ export class CollectionSideMenuComponent implements OnInit, OnChanges, OnDestroy
   ) {
     if (isBrowser()) {
       setTimeout(() => {
-        const dataIdValue = this.routeUrlSegments[2].path === 'text'
+        const routeUrlSegments = this.routeUrlSegments();
+        const dataIdValue = routeUrlSegments?.[2]?.path === 'text'
               ? `toc_${itemId}`
-              : `toc_${this.routeUrlSegments[2].path}`;
+              : `toc_${routeUrlSegments?.[2]?.path}`;
         const container = document.querySelector('.side-navigation') as HTMLElement;
         const target = document.querySelector(
           'collection-side-menu [data-id="' + dataIdValue + '"] .menu-highlight'
@@ -306,7 +309,7 @@ export class CollectionSideMenuComponent implements OnInit, OnChanges, OnDestroy
   async setActiveMenuSorting(event: any) {
     if (this.activeMenuOrder !== event.detail.value) {
       this.tocService.setCurrentCollectionToc(
-        this.collectionID, event.detail.value
+        this.collectionID(), event.detail.value
       );
     }
   }

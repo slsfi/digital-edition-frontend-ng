@@ -4,11 +4,11 @@
     <button (click)="toggleSideMenu($event)"
           type="button"
           aria-haspopup="menu"
-          [attr.aria-expanded]="showSideNav"
+          [attr.aria-expanded]="showSideNav()"
           aria-controls="side-navigation"
     >
-      <ion-icon [class.visuallyhidden]="showSideNav" name="menu-sharp"></ion-icon>
-      <ion-icon [class.visuallyhidden]="!showSideNav" name="close-sharp"></ion-icon>
+      <ion-icon [class.visuallyhidden]="showSideNav()" name="menu-sharp"></ion-icon>
+      <ion-icon [class.visuallyhidden]="!showSideNav()" name="close-sharp"></ion-icon>
       <span class="side-title" i18n="@@TopMenu.Menu">Meny</span>
     </button>
   </li>
@@ -54,7 +54,7 @@
         @for (lang of languages; track lang.code) {
           @if (lang.code !== activeLocale) {
             <li lang="{{lang.code}}" role="menuitem">
-              <a href="{{_window.location.origin + '/' + lang.code + currentRouterUrl}}">{{lang.label}} ({{lang.code}})</a>
+              <a href="{{_window.location.origin + '/' + lang.code + currentRouterUrl()}}">{{lang.label}} ({{lang.code}})</a>
             </li>
           }
         }

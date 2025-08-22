@@ -85,7 +85,7 @@
 
 <div class="histogram-wrapper">
   <div class="diagram">
-    @for (year of yearsAll; track year.key_as_string) {
+    @for (year of yearsAll(); track year.key_as_string) {
       <div class="year" [ngClass]="{'yearIsDecade': isDecade(year)}" (click)="selectYear(year)">
         <div class="yearBar" [ngClass]="{'yearBarInRange': isYearInRange(year)}" [style.width]="getYearRelativeToMax(year)"></div>
         <div class="yearDetails">{{year.key_as_string}}: {{year.doc_count_current}}</div>

@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges, SimpleChanges, inject } from '@angular/core';
+import { Component, OnChanges, SimpleChanges, inject, input } from '@angular/core';
 import { AsyncPipe } from '@angular/common';
 import { Observable, of } from 'rxjs';
 
@@ -16,8 +16,8 @@ import { isBrowser } from '@utility-functions';
 export class StaticHtmlComponent implements OnChanges {
   private tocService = inject(CollectionTableOfContentsService);
 
-  @Input() type: string = '';
-  @Input() id: string = '';
+  readonly type = input<string>('');
+  readonly id = input<string>('');
 
   prebuiltCollectionMenus: boolean = true;
   staticContent$: Observable<string>;
@@ -46,7 +46,7 @@ export class StaticHtmlComponent implements OnChanges {
       }
     }
 
-    if (inputChanged && this.type && this.id) {
+    if (inputChanged && this.type() && this.id()) {
       this.staticContent$ = this.getStaticContent();
     }
   }
@@ -56,8 +56,8 @@ export class StaticHtmlComponent implements OnChanges {
     // TOC files is enabled in config and running on the server. In the
     // browser the dynamic TOC is loaded, so no need to first render the
     // static one.
-    if (this.type === 'collection-toc' && this.prebuiltCollectionMenus && !isBrowser()) {
-      return this.tocService.getStaticTableOfContents(this.id);
+    if (this.type() === 'collection-toc' && this.prebuiltCollectionMenus && !isBrowser()) {
+      return this.tocService.getStaticTableOfContents(this.id());
     }
 
     return of('');

@@ -12,6 +12,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 - Migrate constructor-based injection to the `inject` function.
 - Migrate `@Output` custom events to the `output()` API.
+- Migrate `@Input` fields to the `input()` API.
 - Deps: update `@angular/cli` to 20.2.0 and `@angular/core` to 20.2.1.
 - Deps: update `marked` to 16.2.0.
 - Deps (dev): update `@types/jasmine` to 5.1.9.

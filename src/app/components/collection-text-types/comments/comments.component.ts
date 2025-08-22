@@ -1,4 +1,4 @@
-import { Component, ElementRef, Input, NgZone, OnDestroy, OnInit, Renderer2, inject, output } from '@angular/core';
+import { Component, ElementRef, NgZone, OnDestroy, OnInit, Renderer2, inject, output, input } from '@angular/core';
 import { IonicModule, ModalController } from '@ionic/angular';
 
 import { IllustrationModal } from '@modals/illustration/illustration.modal';
@@ -28,8 +28,8 @@ export class CommentsComponent implements OnInit, OnDestroy {
   private scrollService = inject(ScrollService);
   viewOptionsService = inject(ViewOptionsService);
 
-  @Input() searchMatches: string[] = [];
-  @Input() textItemID: string = '';
+  readonly searchMatches = input<string[]>([]);
+  readonly textItemID = input<string>('');
   readonly openNewReadingTextView = output<string>();
   readonly setMobileModeActiveText = output<string>();
 
@@ -46,7 +46,7 @@ export class CommentsComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.mobileMode = this.platformService.isMobile();
 
-    if (this.textItemID) {
+    if (this.textItemID()) {
       this.loadCommentsText();
       this.getCorrespondanceMetadata();
     }
@@ -60,11 +60,11 @@ export class CommentsComponent implements OnInit, OnDestroy {
   }
 
   loadCommentsText() {
-    this.commentService.getComments(this.textItemID).subscribe({
+    this.commentService.getComments(this.textItemID()).subscribe({
       next: (text) => {
         if (text && String(text) !== 'File not found') {
-          this.text = this.parserService.insertSearchMatchTags(String(text), this.searchMatches);
-          if (this.searchMatches.length) {
+          this.text = this.parserService.insertSearchMatchTags(String(text), this.searchMatches());
+          if (this.searchMatches().length) {
             this.scrollService.scrollToFirstSearchMatch(this.elementRef.nativeElement, this.intervalTimerId);
           }
         } else {
@@ -79,7 +79,7 @@ export class CommentsComponent implements OnInit, OnDestroy {
   }
 
   getCorrespondanceMetadata() {
-    this.commentService.getCorrespondanceMetadata(this.textItemID.split('_')[1]).subscribe(
+    this.commentService.getCorrespondanceMetadata(this.textItemID().split('_')[1]).subscribe(
       (text: any) => {
         if (text?.subjects?.length > 0) {
           const senders: string[] = [];

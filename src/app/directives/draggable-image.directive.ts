@@ -1,4 +1,4 @@
-import { Directive, ElementRef, Input, NgZone, OnDestroy, OnInit, Renderer2, inject, output } from '@angular/core';
+import { Directive, ElementRef, NgZone, OnDestroy, OnInit, Renderer2, inject, output, input } from '@angular/core';
 
 
 @Directive({
@@ -10,10 +10,10 @@ export class DraggableImageDirective implements OnInit, OnDestroy {
   private ngZone = inject(NgZone);
   private renderer = inject(Renderer2);
 
-  @Input('draggableImage') initialCoordinates: number[] = [0, 0];
-  @Input() angle: number = 0;
-  @Input() zoom: number = 1;
-  @Input() mouseOnly: boolean = false;
+  readonly initialCoordinates = input<number[]>([0, 0], { alias: "draggableImage" });
+  readonly angle = input<number>(0);
+  readonly zoom = input<number>(1);
+  readonly mouseOnly = input<boolean>(false);
   readonly finalCoordinates = output<number[]>();
 
   private activeDrag: boolean = false;
@@ -53,7 +53,7 @@ export class DraggableImageDirective implements OnInit, OnDestroy {
       }
     );
 
-    if (!this.mouseOnly) {
+    if (!this.mouseOnly()) {
       this.unlistenTouchStartEvents = this.renderer.listen(
         this.elRef.nativeElement, 'touchstart', (event: any) => {
           this.ngZone.runOutsideAngular(() => {
@@ -121,7 +121,7 @@ export class DraggableImageDirective implements OnInit, OnDestroy {
       if (this.elRef.nativeElement) {
         this.renderer.setStyle(
           this.elRef.nativeElement,
-          'transform', 'scale(' + this.zoom + ') translate3d(' + this.currentCoordinates[0] + 'px, ' + this.currentCoordinates[1] + 'px, 0px) rotate(' + this.angle + 'deg)'
+          'transform', 'scale(' + this.zoom() + ') translate3d(' + this.currentCoordinates[0] + 'px, ' + this.currentCoordinates[1] + 'px, 0px) rotate(' + this.angle() + 'deg)'
         );
       }
     }
@@ -149,8 +149,8 @@ export class DraggableImageDirective implements OnInit, OnDestroy {
       deltaY = event.clientY - this.offsetY;
     }
 
-    x = this.initialCoordinates[0] + deltaX / this.zoom;
-    y = this.initialCoordinates[1] + deltaY / this.zoom;
+    x = this.initialCoordinates()[0] + deltaX / this.zoom();
+    y = this.initialCoordinates()[1] + deltaY / this.zoom();
 
     return [x, y];
   }

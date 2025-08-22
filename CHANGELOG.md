@@ -11,6 +11,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 ### Changed
 
 - Migrate constructor-based injection to the `inject` function.
+- Deps: update `@angular/cli` to 20.2.0 and `@angular/core` to 20.2.1.
 
 ### Fixed
 

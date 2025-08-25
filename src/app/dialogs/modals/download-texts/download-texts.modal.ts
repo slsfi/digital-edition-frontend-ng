@@ -5,10 +5,10 @@ import { IonicModule, ModalController } from '@ionic/angular';
 import { catchError, forkJoin, map, Observable, of, Subscription, tap } from 'rxjs';
 
 import { config } from '@config';
+import { TextKey } from '@models/collection.model';
 import { TrustHtmlPipe } from '@pipes/trust-html.pipe';
 import { CollectionContentService } from '@services/collection-content.service';
 import { CollectionsService } from '@services/collections.service';
-import { CollectionTableOfContentsService } from '@services/collection-toc.service';
 import { CommentService } from '@services/comment.service';
 import { DocumentHeadService } from '@services/document-head.service';
 import { HtmlParserService } from '@services/html-parser.service';
@@ -34,15 +34,14 @@ export class DownloadTextsModal implements OnDestroy, OnInit {
   private parserService = inject(HtmlParserService);
   private referenceDataService = inject(ReferenceDataService);
   private router = inject(Router);
-  private tocService = inject(CollectionTableOfContentsService);
   private viewOptionsService = inject(ViewOptionsService);
   private activeLocale = inject(LOCALE_ID);
   private document = inject<Document>(DOCUMENT);
 
   @Input() origin: string = '';
-  @Input() textItemID: string = '';
+  @Input() textKey: TextKey | undefined = undefined;
+  @Input() collectionId: string | undefined = undefined;
 
-  collectionId: string = '';
   collectionTitle: string = '';
   commentTitle: string = '';
   copyrightText: string = '';
@@ -158,14 +157,10 @@ export class DownloadTextsModal implements OnDestroy, OnInit {
     this.setTranslations();
     this.setReferenceData();
 
-    if (this.textItemID) {
-      // Parse text item id
-      const idParts = this.textItemID.split(';')[0].split('_');
-      this.collectionId = idParts[0];
-
+    if (this.textKey || this.collectionId) {
       this.setCollectionTitle();
 
-      if (this.readTextsMode) {
+      if (this.readTextsMode && this.textKey) {
         // Get publication title
         this.pageTitleSubscr = this.headService.getCurrentPageTitle().subscribe(
           (pubTitle: string) => {
@@ -180,7 +175,7 @@ export class DownloadTextsModal implements OnDestroy, OnInit {
           // comments are available. original_filename is used to determine if
           // reading-texts exist, and publication_comment_id if comments exist.
           this.publicationData$ = this.collectionsService.getPublication(
-            idParts[1]
+            this.textKey.publicationID ?? ''
           ).pipe(
             tap((res: any) => {
               if (res?.original_filename) {
@@ -197,7 +192,7 @@ export class DownloadTextsModal implements OnDestroy, OnInit {
         if (this.downloadFormatsMs.length) {
           // Get a list of all manuscripts in the publication
           this.manuscriptsList$ = this.collectionContentService.getManuscriptsList(
-            this.textItemID
+            this.textKey
           ).pipe(
             tap((res: any) => {
               if (res?.manuscripts?.length) {
@@ -250,22 +245,22 @@ export class DownloadTextsModal implements OnDestroy, OnInit {
     if (textType === 'intro') {
       this.loadingIntro = true;
       dlText$ = this.collectionContentService.getDownloadableIntroduction(
-        this.textItemID, format, this.activeLocale
+        this.collectionId!, format, this.activeLocale
       );
     } else if (textType === 'rt') {
       this.loadingEst = true;
       dlText$ = this.collectionContentService.getDownloadableReadingText(
-        this.textItemID, format, language
+        this.textKey!, format, language
       );
     } else if (textType === 'com') {
       this.loadingCom = true;
       dlText$ = this.commentService.getDownloadableComments(
-        this.textItemID, format
+        this.textKey!, format
       );
     } else if (textType === 'ms') {
       this.loadingMs = true;
       dlText$ = this.collectionContentService.getDownloadableManuscript(
-        this.textItemID, typeID || 0, format
+        this.textKey!, typeID || 0, format
       );
     }
 
@@ -283,15 +278,15 @@ export class DownloadTextsModal implements OnDestroy, OnInit {
           } else if (textType === 'rt') {
             const langForFilename = language ? '_' + language : '';
             fileName = this.convertToFilename(this.publicationTitle)
-                  + langForFilename + '-id-' + this.textItemID.split('_')[1]
+                  + langForFilename + '-id-' + this.textKey!.publicationID
                   + '.' + fileExtension;
           } else if (textType === 'com') {
             fileName = this.convertToFilename(
               this.commentTitle + ' ' + this.publicationTitle
-            ) + '-id-' + this.textItemID.split('_')[1] + '.' + fileExtension;
+            ) + '-id-' + this.textKey!.publicationID + '.' + fileExtension;
           } else if (textType === 'ms') {
             fileName = this.convertToFilename(this.publicationTitle)
-                  + '-id-' + this.textItemID.split('_')[1]
+                  + '-id-' + this.textKey!.publicationID
                   + '-ms-' + typeID + '.' + fileExtension;
           }
 
@@ -337,17 +332,17 @@ export class DownloadTextsModal implements OnDestroy, OnInit {
 
     if (textType === 'intro') {
       this.loadingIntro = true;
-      text$ = this.collectionContentService.getIntroduction(this.textItemID, this.activeLocale);
+      text$ = this.collectionContentService.getIntroduction(this.collectionId!, this.activeLocale);
     } else if (textType === 'rt') {
       this.loadingEst = true;
-      text$ = this.collectionContentService.getReadingText(this.textItemID, language);
+      text$ = this.collectionContentService.getReadingText(this.textKey!, language);
     } else if (textType === 'com') {
       this.loadingCom = true;
       text$ = forkJoin([
-        this.commentService.getComments(this.textItemID).pipe(
+        this.commentService.getComments(this.textKey!).pipe(
           catchError(error => of({ error }))
         ),
-        this.commentService.getCorrespondanceMetadata(this.textItemID.split('_')[1]).pipe(
+        this.commentService.getCorrespondanceMetadata(this.textKey!.publicationID).pipe(
           catchError(error => of({ error }))
         )
       ]).pipe(
@@ -357,7 +352,7 @@ export class DownloadTextsModal implements OnDestroy, OnInit {
       );
     } else if (textType === 'ms') {
       this.loadingMs = true;
-      text$ = this.collectionContentService.getManuscripts(this.textItemID, typeID);
+      text$ = this.collectionContentService.getManuscripts(this.textKey!, typeID);
     }
 
     if (text$) {
@@ -440,7 +435,7 @@ export class DownloadTextsModal implements OnDestroy, OnInit {
   }
 
   private getProcessedPrintReadText(text: string, language?: string): string {
-    text = this.parserService.postprocessReadingText(text, this.textItemID.split('_')[0]);
+    text = this.parserService.postprocessReadingText(text, this.textKey!.collectionID);
     text = text.replace('<p> </p><p> </p><section role="doc-endnotes"><ol class="tei footnotesList"></ol></section>', '');
     text = this.fixImagePaths(text);
     return this.constructHtmlForPrint(text, 'rt', language);
@@ -760,8 +755,9 @@ export class DownloadTextsModal implements OnDestroy, OnInit {
 
   private setCollectionTitle() {
     // Get collection title from database
-    if (this.collectionId) {
-      this.collectionsService.getCollection(this.collectionId).subscribe(
+    const coll_id = this.textKey?.collectionID ?? this.collectionId;
+    if (coll_id) {
+      this.collectionsService.getCollection(coll_id).subscribe(
         (collectionData: any) => {
           if (collectionData?.[0]?.['name']) {
             this.collectionTitle = collectionData[0]['name'];

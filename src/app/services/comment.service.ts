@@ -1,8 +1,9 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { catchError, map, Observable, of } from 'rxjs';
+import { map, Observable, of } from 'rxjs';
 
 import { config } from '@config';
+import { TextKey } from '@models/collection.model';
 
 
 @Injectable({
@@ -30,18 +31,15 @@ export class CommentService {
    * <chapterID> is optional.
    * @returns Observable of string.
    */
-  getComments(textItemID: string): Observable<any> {
-    textItemID = textItemID.replace('_com', '').split(';')[0];
+  getComments(textKey: TextKey): Observable<any> {
+    const textItemID = textKey.textItemID;
 
     if (this.cachedCollectionComments.hasOwnProperty(textItemID)) {
       // The comments for the text are cached
       return of(this.cachedCollectionComments[textItemID]);
     } else {
-      const textIDParts = textItemID.split('_');
-      const ch_id = textIDParts.length > 2
-            ? '/' + textIDParts[2] + '/' + textIDParts[2]
-            : '';
-      const endpoint = `${this.apiURL}/text/${textIDParts[0]}/${textIDParts[1]}/com${ch_id}`;
+      const ch_id = textKey.chapterID ? `/${textKey.chapterID}/${textKey.chapterID}` : '';
+      const endpoint = `${this.apiURL}/text/${textKey.collectionID}/${textKey.publicationID}/com${ch_id}`;
 
       return this.http.get(endpoint).pipe(
         map((body: any) => {
@@ -58,15 +56,16 @@ export class CommentService {
 
   /**
    * Returns the html fragment of a single comment as a string observable.
-   * @param textItemID The full text id: <collectionID>_<publicationID>_<chapterID>.
-   * <chapterID> is optional.
+   * @param textKey TextKey object with collectionId, publicationId and optional chapterId.
    * @param elementID Unique class name of the html element wrapping the comment.
    * @returns Observable of string.
    */
-  getSingleComment(textItemID: string, elementID: string): Observable<any> {
+  getSingleComment(textKey: TextKey, elementID: string): Observable<any> {
     if (!elementID) {
       return of('');
     }
+
+    const textItemID = textKey.textItemID;
 
     if (this.cachedCollectionComments.hasOwnProperty(textItemID)) {
       // The comments for the text are cached
@@ -77,7 +76,7 @@ export class CommentService {
       );
     } else {
       // Comments not cached, get them from backend and then extract single comment
-      return this.getComments(textItemID).pipe(
+      return this.getComments(textKey).pipe(
         map((comments: string) => {
           return comments ? this.extractSingleComment(elementID, comments) : '';
         })
@@ -85,16 +84,15 @@ export class CommentService {
     }
   }
 
-  getCorrespondanceMetadata(pub_id: any): Observable<any> {
-    const endpoint = `${this.apiURL}/correspondence/publication/metadata/${pub_id}`;
+  getCorrespondanceMetadata(publicationId: string): Observable<any> {
+    const endpoint = `${this.apiURL}/correspondence/publication/metadata/${publicationId}`;
     return this.http.get(endpoint);
   }
 
-  getDownloadableComments(textItemID: string, format: string): Observable<any> {
-    const textIDParts = textItemID.replace('_com', '').split(';')[0].split('_');
-    const ch_id = textIDParts.length > 2 ? '/' + textIDParts[2] : '';
+  getDownloadableComments(textKey: TextKey, format: string): Observable<any> {
+    const ch_id = textKey.chapterID ? `/${textKey.chapterID}` : '';
     const endpoint = `${this.apiURL}/text/downloadable/${format}`
-          + `/${textIDParts[0]}/${textIDParts[1]}/com${ch_id}`;
+          + `/${textKey.collectionID}/${textKey.publicationID}/com${ch_id}`;
     return this.http.get(endpoint);
   }
 

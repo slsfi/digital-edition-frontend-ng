@@ -2,6 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { catchError, map, Observable, of } from 'rxjs';
 
 import { config } from '@config';
+import { TextKey } from '@models/collection.model';
 import { CommentService } from '@services/comment.service';
 import { NamedEntityService } from '@services/named-entity.service';
 import { PlatformService } from '@services/platform.service';
@@ -90,7 +91,7 @@ export class TooltipService {
    * <img src=".." data-id="en5929">
    * <span class="tooltip"></span>
    */
-  getCommentTooltip(textItemID: string, elementID: string): Observable<any> {
+  getCommentTooltip(textKey: TextKey, elementID: string): Observable<any> {
     elementID = elementID.replace('end', 'en');
     const cachedTooltip = this.cachedTooltips.comments.has(elementID)
       ? this.cachedTooltips.comments.get(elementID) : '';
@@ -99,7 +100,7 @@ export class TooltipService {
       return of({ name: 'Comment', description: cachedTooltip });
     }
 
-    return this.commentService.getSingleComment(textItemID, elementID).pipe(
+    return this.commentService.getSingleComment(textKey, elementID).pipe(
       map((comment: any) => {
         this.cachedTooltips.comments.size > this.maxTooltipCacheSize && this.cachedTooltips.comments.clear();
         !this.platformService.isMobile() && this.cachedTooltips.comments.set(elementID, comment);

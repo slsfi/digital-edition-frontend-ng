@@ -7,6 +7,7 @@ import { render } from 'dom-serializer';
 
 import { config } from '@config';
 import { HeadingNode } from '@models/article.model';
+import { TextKey } from '@models/collection.model';
 import { CollectionContentService } from '@services/collection-content.service';
 
 
@@ -71,8 +72,8 @@ export class HtmlParserService {
     return text;
   }
 
-  getReadingTextIllustrations(id: string): Observable<any> {
-    return this.collectionContentService.getReadingText(id).pipe(
+  getReadingTextIllustrations(textKey: TextKey): Observable<any> {
+    return this.collectionContentService.getReadingText(textKey).pipe(
       map((res) => {
         const images: any[] = [];
         if (
@@ -81,7 +82,7 @@ export class HtmlParserService {
           res.content !== '<html xmlns="http://www.w3.org/1999/xhtml"><head></head><body>File not found</body></html>'
         ) {
           const _apiURL = this.apiURL;
-          const collectionID = String(id).split('_')[0];
+          const collectionID = textKey.collectionID;
           let text = res.content as string;
           text = this.postprocessReadingText(text, collectionID);
 

@@ -2,6 +2,7 @@ import { Component, ElementRef, OnInit, inject, output, input } from '@angular/c
 import { AlertButton, AlertController, AlertInput, IonicModule } from '@ionic/angular';
 
 import { config } from '@config';
+import { TextKey } from '@models/collection.model';
 import { TrustHtmlPipe } from '@pipes/trust-html.pipe';
 import { CollectionContentService } from '@services/collection-content.service';
 import { HtmlParserService } from '@services/html-parser.service';
@@ -25,7 +26,7 @@ export class ManuscriptsComponent implements OnInit {
 
   readonly msID = input<number>();
   readonly searchMatches = input<string[]>([]);
-  readonly textItemID = input<string>('');
+  readonly textKey = input.required<TextKey>();
   readonly openNewLegendView = output<any>();
   readonly openNewManView = output<any>();
   readonly selectedMsID = output<number>();
@@ -48,13 +49,11 @@ export class ManuscriptsComponent implements OnInit {
   }
 
   ngOnInit() {
-    if (this.textItemID()) {
-      this.loadManuscriptTexts();
-    }
+    this.loadManuscriptTexts(this.textKey());
   }
 
-  loadManuscriptTexts() {
-    this.collectionContentService.getManuscripts(this.textItemID()).subscribe({
+  loadManuscriptTexts(textKey: TextKey) {
+    this.collectionContentService.getManuscripts(textKey).subscribe({
       next: (res) => {
         if (
           res?.manuscripts?.length > 0 &&

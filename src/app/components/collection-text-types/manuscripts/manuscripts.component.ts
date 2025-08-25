@@ -32,27 +32,22 @@ export class ManuscriptsComponent implements OnInit {
   readonly selectedMsID = output<number>();
   readonly selectedMsName = output<string>();
 
+  readonly showNormalizedToggle: boolean = config.component?.manuscripts?.showNormalizedToggle ?? true;
+  readonly showOpenLegendButton: boolean = config.component?.manuscripts?.showOpenLegendButton ?? false;
+  readonly showTitle: boolean = config.component?.manuscripts?.showTitle ?? true;
+
   intervalTimerId: number = 0;
   manuscripts: any[] = [];
   selectedManuscript: any = undefined;
   showNormalizedMs: boolean = false;
-  showNormalizedToggle: boolean = true;
-  showOpenLegendButton: boolean = false;
-  showTitle: boolean = true;
   text: string = '';
   textLanguage: string = '';
-
-  constructor() {
-    this.showNormalizedToggle = config.component?.manuscripts?.showNormalizedToggle ?? true;
-    this.showOpenLegendButton = config.component?.manuscripts?.showOpenLegendButton ?? false;
-    this.showTitle = config.component?.manuscripts?.showTitle ?? true;
-  }
 
   ngOnInit() {
     this.loadManuscriptTexts(this.textKey());
   }
 
-  loadManuscriptTexts(textKey: TextKey) {
+  private loadManuscriptTexts(textKey: TextKey) {
     this.collectionContentService.getManuscripts(textKey).subscribe({
       next: (res) => {
         if (

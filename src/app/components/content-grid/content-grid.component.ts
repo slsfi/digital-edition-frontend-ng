@@ -23,24 +23,15 @@ export class ContentGridComponent implements OnInit {
   private mdService = inject(MarkdownService);
   private activeLocale = inject(LOCALE_ID);
 
-  availableArticles: Article[] = [];
-  availableEbooks: any[] = [];
-  flattenedCollectionSortOrder: number[] = [];
-  contentItems$: Observable<ContentItem[]>;
-  includeArticles: boolean = false;
-  includeEbooks: boolean = false;
-  includeMediaCollection: boolean = false;
-  showTitles: boolean = true;
+  readonly availableArticles: Article[] = config.articles ?? [];
+  readonly availableEbooks: any[] = config.ebooks ?? [];
+  readonly flattenedCollectionSortOrder: number[] = (config.collections?.order ?? []).flat();
+  readonly includeArticles: boolean = config.component?.contentGrid?.includeArticles ?? false;
+  readonly includeEbooks: boolean = config.component?.contentGrid?.includeEbooks ?? false;
+  readonly includeMediaCollection: boolean = config.component?.contentGrid?.includeMediaCollection ?? false;
+  readonly showTitles: boolean = config.component?.contentGrid?.showTitles ?? true;
 
-  constructor() {
-    this.availableArticles = config.articles ?? [];
-    this.availableEbooks = config.ebooks ?? [];
-    this.flattenedCollectionSortOrder = (config.collections?.order ?? []).flat();
-    this.includeArticles = config.component?.contentGrid?.includeArticles ?? false;
-    this.includeEbooks = config.component?.contentGrid?.includeEbooks ?? false;
-    this.includeMediaCollection = config.component?.contentGrid?.includeMediaCollection ?? false;
-    this.showTitles = config.component?.contentGrid?.showTitles ?? true;
-  }
+  contentItems$: Observable<ContentItem[]>;
 
   ngOnInit() {
     this.contentItems$ = forkJoin(

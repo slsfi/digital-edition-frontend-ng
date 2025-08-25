@@ -12,13 +12,7 @@ import { convertNamedEntityTypeForBackend } from '@utility-functions';
 export class MediaCollectionService {
   private http = inject(HttpClient);
 
-  private apiURL: string = '';
-
-  constructor() {
-    const apiBaseURL = config.app?.backendBaseURL ?? '';
-    const projectName = config.app?.projectNameDB ?? '';
-    this.apiURL = apiBaseURL + '/' + projectName;
-  }
+  private readonly apiURL: string = `${config.app?.backendBaseURL ?? ''}/${config.app?.projectNameDB ?? ''}`;
 
   getMediaCollections(language: string): Observable<any> {
     const endpoint = `${this.apiURL}/gallery/data/${language}`;

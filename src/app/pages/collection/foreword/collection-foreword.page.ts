@@ -32,25 +32,20 @@ export class CollectionForewordPage implements OnDestroy, OnInit {
   private viewOptionsService = inject(ViewOptionsService);
   private activeLocale = inject(LOCALE_ID);
 
+  readonly replaceImageAssetsPaths: boolean = config.collections?.replaceImageAssetsPaths ?? true;
+  readonly showURNButton: boolean = config.page?.foreword?.showURNButton ?? false;
+  readonly showViewOptionsButton: boolean = config.page?.foreword?.showViewOptionsButton ?? true;
+
   _activeComponent: boolean = true;
   collectionID: string = '';
   intervalTimerId: number = 0;
   mobileMode: boolean = false;
-  replaceImageAssetsPaths: boolean = true;
   searchMatches: string[] = [];
-  showURNButton: boolean = false;
-  showViewOptionsButton: boolean = true;
   text$: Observable<string>;
   textsize: Textsize = Textsize.Small;
   textsizeSubscription: Subscription | null = null;
 
   TextsizeEnum = Textsize;
-
-  constructor() {
-    this.replaceImageAssetsPaths = config.collections?.replaceImageAssetsPaths ?? true;
-    this.showURNButton = config.page?.foreword?.showURNButton ?? false;
-    this.showViewOptionsButton = config.page?.foreword?.showViewOptionsButton ?? true;
-  }
 
   ngOnInit() {
     this.mobileMode = this.platformService.isMobile();

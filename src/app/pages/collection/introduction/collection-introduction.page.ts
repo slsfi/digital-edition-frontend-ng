@@ -43,10 +43,16 @@ export class CollectionIntroductionPage implements OnInit, OnDestroy {
   viewOptionsService = inject(ViewOptionsService);
   private activeLocale = inject(LOCALE_ID);
 
+  hasSeparateIntroToc: boolean = config.page?.introduction?.hasSeparateTOC ?? false;
+  readonly replaceImageAssetsPaths: boolean = config.collections?.replaceImageAssetsPaths ?? true;
+  readonly showTextDownloadButton: boolean = config.page?.introduction?.showTextDownloadButton ?? false;
+  readonly showURNButton: boolean = config.page?.introduction?.showURNButton ?? true;
+  readonly showViewOptionsButton: boolean = config.page?.introduction?.showViewOptionsButton ?? true;
+  viewOptionsTogglesIntro: any = config.page?.introduction?.viewOptions ?? undefined;
+
   _activeComponent: boolean = true;
   collectionID: string = '';
   collectionLegacyId: string = '';
-  hasSeparateIntroToc: boolean = false;
   infoOverlayPosition: any = {
     bottom: 0 + 'px',
     left: -1500 + 'px'
@@ -59,11 +65,7 @@ export class CollectionIntroductionPage implements OnInit, OnDestroy {
   intervalTimerId: number = 0;
   mobileMode: boolean = false;
   pos: string | null = null;
-  replaceImageAssetsPaths: boolean = true;
   searchMatches: string[] = [];
-  showTextDownloadButton: boolean = false;
-  showURNButton: boolean = true;
-  showViewOptionsButton: boolean = true;
   text: string = '';
   textLoading: boolean = true;
   textMenu: string = '';
@@ -81,7 +83,6 @@ export class CollectionIntroductionPage implements OnInit, OnDestroy {
   tooltipVisible: boolean = false;
   urlParametersSubscription: Subscription | null = null;
   userIsTouching: boolean = false;
-  viewOptionsTogglesIntro: any = {};
 
   TextsizeEnum = Textsize;
 
@@ -92,13 +93,6 @@ export class CollectionIntroductionPage implements OnInit, OnDestroy {
   private unlistenFirstTouchStartEvent?: () => void;
 
   constructor() {
-    this.hasSeparateIntroToc = config.page?.introduction?.hasSeparateTOC ?? false;
-    this.replaceImageAssetsPaths = config.collections?.replaceImageAssetsPaths ?? true;
-    this.showTextDownloadButton = config.page?.introduction?.showTextDownloadButton ?? false;
-    this.showURNButton = config.page?.introduction?.showURNButton ?? true;
-    this.showViewOptionsButton = config.page?.introduction?.showViewOptionsButton ?? true;
-    this.viewOptionsTogglesIntro = config.page?.introduction?.viewOptions ?? undefined;
-
     if (
       this.viewOptionsTogglesIntro === undefined ||
       this.viewOptionsTogglesIntro === null ||

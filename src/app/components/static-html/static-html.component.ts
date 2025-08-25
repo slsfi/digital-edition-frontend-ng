@@ -19,12 +19,9 @@ export class StaticHtmlComponent implements OnChanges {
   readonly type = input<string>('');
   readonly id = input<string>('');
 
-  prebuiltCollectionMenus: boolean = true;
-  staticContent$: Observable<string>;
+  readonly prebuiltCollectionMenus: boolean = config.app?.prebuild?.staticCollectionMenus ?? true;
 
-  constructor() {
-    this.prebuiltCollectionMenus = config.app?.prebuild?.staticCollectionMenus ?? true;
-  }
+  staticContent$: Observable<string>;
 
   ngOnChanges(changes: SimpleChanges): void {
     let inputChanged = false;

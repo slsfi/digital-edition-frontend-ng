@@ -20,17 +20,12 @@ export class ReferenceDataModal implements OnInit {
 
   @Input() origin: string = '';
 
-  currentUrl: string = '';
-  permaLinkTranslation: boolean = false;
-  referenceData: any = null;
-  thisPageTranslation: boolean = false;
-  urnResolverUrl: string = '';
+  readonly thisPageTranslation: boolean = $localize`:@@Reference.ReferToThisPage:Hänvisa till denna sida` ? true : false;
+  readonly permaLinkTranslation: boolean = $localize`:@@Reference.Permalink:Beständig webbadress` ? true : false;
 
-  constructor() {
-    // Check if these label translations exist
-    this.thisPageTranslation = $localize`:@@Reference.ReferToThisPage:Hänvisa till denna sida` ? true : false;
-    this.permaLinkTranslation = $localize`:@@Reference.Permalink:Beständig webbadress` ? true : false;
-  }
+  currentUrl: string = '';
+  referenceData: any = null;
+  urnResolverUrl: string = '';
 
   ngOnInit() {
     // Get URL to use for resolving URNs

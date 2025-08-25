@@ -20,11 +20,7 @@ export class MathJaxDirective implements OnChanges {
 
   readonly mathJaxInput = input<string | SafeHtml | null>(null, { alias: "MathJax" });
 
-  private mathJaxEnabled: boolean = false;
-
-  constructor() {
-    this.mathJaxEnabled = config.collections?.enableMathJax ?? false;
-  }
+  readonly mathJaxEnabled: boolean = config.collections?.enableMathJax ?? false;
 
   ngOnChanges() {
     if (isBrowser() && this.mathJaxEnabled && this.mathJaxInput()) {

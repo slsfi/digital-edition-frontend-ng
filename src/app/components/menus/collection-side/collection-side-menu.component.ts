@@ -41,6 +41,11 @@ export class CollectionSideMenuComponent implements OnInit, OnChanges, OnDestroy
   readonly routeUrlSegments = input<UrlSegment[]>();
   readonly sideMenuToggled = input<boolean>(true);
 
+  readonly sortSelectOptions: Record<string, string> = {
+    header: $localize`:@@CollectionSideMenu.SortOptions.SelectSorting:Välj sortering för innehållsförteckningen`,
+    cssClass: 'custom-select-alert'
+  };
+
   activeMenuOrder: string = '';
   collectionMenu: any[] = [];
   collectionTitle: string = '';
@@ -55,16 +60,8 @@ export class CollectionSideMenuComponent implements OnInit, OnChanges, OnDestroy
   isLoading: boolean = true;
   selectedMenu: string[] = []; // list of all open menu items in the menu tree
   sortOptions: string[] = [];
-  sortSelectOptions: Record<string, any> = {};
   titlePageName: string = '';
   tocSubscr: Subscription | null = null;
-
-  constructor() {
-    this.sortSelectOptions = {
-      header: $localize`:@@CollectionSideMenu.SortOptions.SelectSorting:Välj sortering för innehållsförteckningen`,
-      cssClass: 'custom-select-alert'
-    };
-  }
 
   ngOnChanges(changes: SimpleChanges) {
     // Check if the changed input values are relevant, i.e. require the side

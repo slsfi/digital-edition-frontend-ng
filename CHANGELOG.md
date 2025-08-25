@@ -19,6 +19,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - Migrate `@Input` fields to the `input()` API.
 - Migrate decorator query fields to signal queries.
 - Refactor collection text id handling.
+- Migrate constructor-based initializers to class field initializers where possible.
 - Deps: update `@angular/cli` to 20.2.0 and `@angular/core` to 20.2.1.
 - Deps: update `marked` to 16.2.0.
 - Deps (dev): update `@types/jasmine` to 5.1.9.

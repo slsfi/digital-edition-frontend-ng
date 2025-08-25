@@ -17,19 +17,10 @@ import { CollectionContentService } from '@services/collection-content.service';
 export class HtmlParserService {
   private collectionContentService = inject(CollectionContentService);
 
-  private addTEIClassNames: boolean = true;
-  private apiURL: string = '';
-  private mediaCollectionMappings: any = {};
-  private replaceImageAssetsPaths: boolean = true;
-
-  constructor() {
-    const apiBaseURL = config.app?.backendBaseURL ?? '';
-    const projectName = config.app?.projectNameDB ?? '';
-    this.apiURL = apiBaseURL + '/' + projectName;
-    this.mediaCollectionMappings = config.collections?.mediaCollectionMappings ?? {};
-    this.addTEIClassNames = config.collections?.addTEIClassNames ?? true;
-    this.replaceImageAssetsPaths = config.collections?.replaceImageAssetsPaths ?? true;
-  }
+  private readonly addTEIClassNames: boolean = config.collections?.addTEIClassNames ?? true;
+  private readonly apiURL: string = `${config.app?.backendBaseURL ?? ''}/${config.app?.projectNameDB ?? ''}`;
+  private readonly mediaCollectionMappings: any = config.collections?.mediaCollectionMappings ?? {};
+  private readonly replaceImageAssetsPaths: boolean = config.collections?.replaceImageAssetsPaths ?? true;
 
   postprocessReadingText(text: string, collectionId: string): string {
     // Fix image paths if config option for this enabled

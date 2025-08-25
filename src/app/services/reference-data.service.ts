@@ -13,11 +13,7 @@ export class ReferenceDataService {
   private http = inject(HttpClient);
   private activeLocale = inject(LOCALE_ID);
 
-  private urnResolverUrl: string = 'https://urn.fi/';
-
-  constructor() {
-    this.urnResolverUrl = config.modal?.referenceData?.URNResolverURL ?? 'https://urn.fi/';
-  }
+  private readonly urnResolverUrl: string = config.modal?.referenceData?.URNResolverURL ?? 'https://urn.fi/';
 
   getReferenceData(urlSegments: UrlSegment[]): Observable<any> {
     let url = '/';

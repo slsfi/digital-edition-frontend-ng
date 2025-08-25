@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, ElementRef, LOCALE_ID, NgZone, OnDestroy, OnInit, QueryList, Renderer2, ViewChild, ViewChildren, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, ElementRef, LOCALE_ID, NgZone, OnDestroy, OnInit, QueryList, Renderer2, ViewChild, ViewChildren, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { IonFabButton, IonFabList, IonPopover, ModalController, PopoverController } from '@ionic/angular';
 import { combineLatest, Observable, Subscription } from 'rxjs';
@@ -7,6 +7,7 @@ import { config } from '@config';
 import { DownloadTextsModal } from '@modals/download-texts/download-texts.modal';
 import { NamedEntityModal } from '@modals/named-entity/named-entity.modal';
 import { ReferenceDataModal } from '@modals/reference-data/reference-data.modal';
+import { TextKey } from '@models/collection.model';
 import { Textsize } from '@models/textsize.model';
 import { ViewOptionsPopover } from '@popovers/view-options/view-options.popover';
 import { CollectionContentService } from '@services/collection-content.service';
@@ -70,15 +71,12 @@ export class CollectionTextPage implements OnDestroy, OnInit {
   legacyId: string = '';
   mobileMode: boolean = false;
   multilingualReadingTextLanguages: string[] = [];
-  paramCollectionID: string;
-  paramPublicationID: string;
-  paramChapterID: string;
   routeParamsSubscription: Subscription | null = null;
   searchMatches: string[] = [];
   showTextDownloadButton: boolean = false;
   showURNButton: boolean = true;
   showViewOptionsButton: boolean = true;
-  textItemID: string = '';
+  textKey = signal<TextKey>({collectionID: '', publicationID: '', textItemID: ''});
   textPosition: string = '';
   textsize: Textsize = Textsize.Small;
   textsizeSubscription: Subscription | null = null;
@@ -120,35 +118,40 @@ export class CollectionTextPage implements OnDestroy, OnInit {
       }
     );
 
-    let latestTextItemID: string = '';
+    let routeTextItemID: string = '';
 
     this.routeParamsSubscription = combineLatest([
       this.route.params,
       this.route.queryParams
     ]).subscribe(([params, queryParams]) => {
       // Compute new textItemID to see if route params have changed
-      const { collectionID = '', publicationID = '', chapterID = '' } = params;
+      const { collectionID = '', publicationID= '', chapterID = undefined } = params;
 
-      latestTextItemID = chapterID
+      routeTextItemID = chapterID
         ? `${collectionID}_${publicationID}_${chapterID}`
         : `${collectionID}_${publicationID}`;
 
-      if (this.textItemID !== latestTextItemID) {
+      if (this.textKey().textItemID !== routeTextItemID) {
         // Route params have changed
-        this.textItemID = latestTextItemID;
-        this.paramCollectionID = collectionID;
-        this.paramPublicationID = publicationID;
-        this.paramChapterID = chapterID;
+
+        const newTextKey: TextKey = {
+          collectionID: collectionID ?? '',
+          publicationID: publicationID ?? '',
+          ...(chapterID ? { chapterID: chapterID } : {}),
+          textItemID: routeTextItemID
+        };
+        this.textKey.set(newTextKey);
+
         // Save the id of the previous and current read view text in textService.
         this.collectionContentService.previousReadViewTextId = this.collectionContentService.readViewTextId;
-        this.collectionContentService.readViewTextId = this.textItemID;
+        this.collectionContentService.readViewTextId = routeTextItemID;
 
         if (config.collections?.enableLegacyIDs) {
-          this.setCollectionAndPublicationLegacyId(this.paramPublicationID);
+          this.setCollectionAndPublicationLegacyId(publicationID);
         }
 
         this.enabledViewTypes = this.computeEnabledViewTypes(
-          this.paramCollectionID, this.multilingualReadingTextLanguages
+          collectionID, this.multilingualReadingTextLanguages
         );
       }
 
@@ -320,7 +323,7 @@ export class CollectionTextPage implements OnDestroy, OnInit {
     } else if (this.collectionContentService.recentCollectionTextViews.length > 0) {
       // b) show recent view types
       // if different collection than previously pass type of views only
-      const typesOnly = this.textItemID.split('_')[0] !== this.collectionContentService.previousReadViewTextId.split('_')[0] ? true : false;
+      const typesOnly = this.textKey().collectionID !== this.collectionContentService.previousReadViewTextId.split('_')[0] ? true : false;
 
       let newViews = this.collectionContentService.recentCollectionTextViews;
 
@@ -836,10 +839,11 @@ export class CollectionTextPage implements OnDestroy, OnInit {
             const hrefTargetItems: Array<string> = decodeURIComponent(
               String(hrefLink).split('/').pop() || ''
             ).trim().split(' ');
-            let publicationId = '';
-            let textId = '';
-            let chapterId = '';
-            let positionId = '';
+            let targetCollId = '';
+            let targetPubId = '';
+            let targetChapterId = '';
+            let targetPositionId = '';
+            const textKey = this.textKey();
 
             if (
               anchorElem.classList.contains('ref_readingtext') ||
@@ -852,34 +856,29 @@ export class CollectionTextPage implements OnDestroy, OnInit {
               if (hrefTargetItems.length === 1 && hrefTargetItems[0].startsWith('#')) {
                 // If only a position starting with a hash, assume it's
                 // in the same collection, text and chapter.
-                if (this.paramChapterID) {
-                  comparePageId = this.paramCollectionID
-                        + '_' + this.paramPublicationID + '_' + this.paramChapterID;
-                } else {
-                  comparePageId = this.paramCollectionID + '_' + this.paramPublicationID;
-                }
+                comparePageId = textKey.textItemID;
               } else if (hrefTargetItems.length > 1) {
-                publicationId = hrefTargetItems[0];
-                textId = hrefTargetItems[1];
-                comparePageId = publicationId + '_' + textId;
+                targetCollId = hrefTargetItems[0];
+                targetPubId = hrefTargetItems[1];
+                comparePageId = targetCollId + '_' + targetPubId;
                 if (hrefTargetItems.length > 2 && !hrefTargetItems[2].startsWith('#')) {
-                  chapterId = hrefTargetItems[2];
-                  comparePageId += '_' + chapterId;
+                  targetChapterId = hrefTargetItems[2];
+                  comparePageId += '_' + targetChapterId;
                 }
               }
 
               let legacyPageId = this.collectionAndPublicationLegacyId;
-              if (legacyPageId && this.paramChapterID) {
-                legacyPageId += '_' + this.paramChapterID;
+              if (legacyPageId && textKey?.chapterID) {
+                legacyPageId += '_' + textKey.chapterID;
               }
 
               // Check if we are already on the same page.
               if (
-                (comparePageId === this.textItemID || comparePageId === legacyPageId) &&
+                (comparePageId === textKey.textItemID || comparePageId === legacyPageId) &&
                 hrefTargetItems[hrefTargetItems.length - 1].startsWith('#')
               ) {
                 // We are on the same page and the last item in the target href is a textposition.
-                positionId = hrefTargetItems[hrefTargetItems.length - 1].replace('#', '');
+                targetPositionId = hrefTargetItems[hrefTargetItems.length - 1].replace('#', '');
 
                 // Find element in the correct column (reading-text or comments) based on ref type.
                 let refType = 'reading-text';
@@ -904,7 +903,7 @@ export class CollectionTextPage implements OnDestroy, OnInit {
                   // TODO: ideally get rid of setTimeout for this functionality
                   setTimeout(() => {
                     let targetElement = this.scrollService.findElementInColumnByAttribute(
-                      'name', positionId, refType
+                      'name', targetPositionId, refType
                     );
                     if (targetElement?.classList.contains('anchor')) {
                       this.scrollService.scrollToHTMLElement(targetElement);
@@ -913,7 +912,7 @@ export class CollectionTextPage implements OnDestroy, OnInit {
                 } else {
                   if (!this.mobileMode) {
                     let targetElement = this.scrollService.findElementInColumnByAttribute(
-                      'name', positionId, refType
+                      'name', targetPositionId, refType
                     );
                     if (targetElement?.classList.contains('anchor')) {
                       this.scrollService.scrollToHTMLElement(targetElement);
@@ -924,7 +923,7 @@ export class CollectionTextPage implements OnDestroy, OnInit {
                     });
                     setTimeout(() => {
                       let targetElement = this.scrollService.findElementInColumnByAttribute(
-                        'name', positionId, refType
+                        'name', targetPositionId, refType
                       );
                       if (targetElement?.classList.contains('anchor')) {
                         this.scrollService.scrollToHTMLElement(targetElement);
@@ -939,24 +938,24 @@ export class CollectionTextPage implements OnDestroy, OnInit {
                 const newWindowRef = window.open();
 
                 this.collectionsService.getCollectionAndPublicationByLegacyId(
-                  publicationId + '_' + textId
+                  targetCollId + '_' + targetPubId
                 ).subscribe(
                   (data: any) => {
                     if (data?.length && data[0]['coll_id'] && data[0]['pub_id']) {
-                      publicationId = data[0]['coll_id'];
-                      textId = data[0]['pub_id'];
+                      targetCollId = data[0]['coll_id'];
+                      targetPubId = data[0]['pub_id'];
                     }
 
-                    let hrefString = '/collection/' + publicationId + '/text/' + textId;
-                    if (chapterId) {
-                      hrefString += '/' + chapterId;
+                    let hrefString = '/collection/' + targetCollId + '/text/' + targetPubId;
+                    if (targetChapterId) {
+                      hrefString += '/' + targetChapterId;
                       if (hrefTargetItems.length > 3 && hrefTargetItems[3].startsWith('#')) {
-                        positionId = hrefTargetItems[3].replace('#', '');
-                        hrefString += '?position=' + positionId;
+                        targetPositionId = hrefTargetItems[3].replace('#', '');
+                        hrefString += '?position=' + targetPositionId;
                       }
                     } else if (hrefTargetItems.length > 2 && hrefTargetItems[2].startsWith('#')) {
-                      positionId = hrefTargetItems[2].replace('#', '');
-                      hrefString += '?position=' + positionId;
+                      targetPositionId = hrefTargetItems[2].replace('#', '');
+                      hrefString += '?position=' + targetPositionId;
                     }
                     if (newWindowRef) {
                       newWindowRef.location.href = '/' + this.activeLocale + hrefString;
@@ -967,21 +966,21 @@ export class CollectionTextPage implements OnDestroy, OnInit {
 
             } else if (anchorElem.classList.contains('ref_introduction')) {
               // Link to introduction, open in new window/tab.
-              publicationId = hrefTargetItems[0];
+              targetCollId = hrefTargetItems[0];
 
               const newWindowRef = window.open();
 
               this.collectionsService.getCollectionAndPublicationByLegacyId(
-                publicationId
+                targetCollId
               ).subscribe(
                 (data: any) => {
                   if (data?.length && data[0]['coll_id']) {
-                    publicationId = data[0]['coll_id'];
+                    targetCollId = data[0]['coll_id'];
                   }
-                  let hrefString = '/collection/' + publicationId + '/introduction';
+                  let hrefString = '/collection/' + targetCollId + '/introduction';
                   if (hrefTargetItems.length > 1 && hrefTargetItems[1].startsWith('#')) {
-                    positionId = hrefTargetItems[1].replace('#', '');
-                    hrefString += '?position=' + positionId;
+                    targetPositionId = hrefTargetItems[1].replace('#', '');
+                    hrefString += '?position=' + targetPositionId;
                   }
                   // Open the link in a new window/tab.
                   if (newWindowRef) {
@@ -1188,7 +1187,7 @@ export class CollectionTextPage implements OnDestroy, OnInit {
   }
 
   private showCommentTooltip(id: string, targetElem: HTMLElement) {
-    this.tooltipService.getCommentTooltip(this.textItemID, id).subscribe({
+    this.tooltipService.getCommentTooltip(this.textKey(), id).subscribe({
       next: (tooltip: any) => {
         this.setToolTipPosition(targetElem, tooltip.description);
         this.setToolTipText(tooltip.description);
@@ -1230,7 +1229,7 @@ export class CollectionTextPage implements OnDestroy, OnInit {
   }
 
   private showCommentInfoOverlay(id: string, targetElem: HTMLElement) {
-    this.tooltipService.getCommentTooltip(this.textItemID, id).subscribe({
+    this.tooltipService.getCommentTooltip(this.textKey(), id).subscribe({
       next: (tooltip: any) => {
         this.setInfoOverlayTitle($localize`:@@ViewOptions.ExplanatoryNote:Punktkommentar`);
         this.setInfoOverlayPositionAndWidth(targetElem);
@@ -1512,7 +1511,7 @@ export class CollectionTextPage implements OnDestroy, OnInit {
   async showDownloadModal() {
     const modal = await this.modalCtrl.create({
       component: DownloadTextsModal,
-      componentProps: { origin: 'page-text', textItemID: this.textItemID }
+      componentProps: { origin: 'page-text', textKey: this.textKey() }
     });
 
     modal.present();

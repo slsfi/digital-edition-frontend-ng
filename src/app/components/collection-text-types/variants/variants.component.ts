@@ -2,6 +2,7 @@ import { Component, ElementRef, OnInit, inject, output, input } from '@angular/c
 import { AlertButton, AlertController, AlertInput, IonicModule } from '@ionic/angular';
 
 import { config } from '@config';
+import { TextKey } from '@models/collection.model';
 import { TrustHtmlPipe } from '@pipes/trust-html.pipe';
 import { CollectionContentService } from '@services/collection-content.service';
 import { HtmlParserService } from '@services/html-parser.service';
@@ -25,7 +26,7 @@ export class VariantsComponent implements OnInit {
 
   readonly searchMatches = input<Array<string>>([]);
   readonly sortOrder = input<number>();
-  readonly textItemID = input<string>('');
+  readonly textKey = input.required<TextKey>();
   readonly varID = input<number>();
   readonly openNewLegendView = output<any>();
   readonly openNewVarView = output<any>();
@@ -44,13 +45,11 @@ export class VariantsComponent implements OnInit {
   }
 
   ngOnInit() {
-    if (this.textItemID()) {
-      this.loadVariantTexts();
-    }
+    this.loadVariantTexts(this.textKey());
   }
 
-  loadVariantTexts() {
-    this.collectionContentService.getVariants(this.textItemID()).subscribe({
+  loadVariantTexts(textKey: TextKey) {
+    this.collectionContentService.getVariants(textKey).subscribe({
       next: (res) => {
         if (res?.variations?.length > 0) {
           this.variants = res.variations;

@@ -7,6 +7,7 @@ import { config } from '@config';
 import { DraggableImageDirective } from '@directives/draggable-image.directive';
 import { FullscreenImageViewerModal } from '@modals/fullscreen-image-viewer/fullscreen-image-viewer.modal';
 import { Facsimile } from '@models/facsimile.model';
+import { TextKey } from '@models/collection.model';
 import { TrustHtmlPipe } from '@pipes/trust-html.pipe';
 import { CollectionContentService } from '@services/collection-content.service';
 import { PlatformService } from '@services/platform.service';
@@ -28,7 +29,7 @@ export class FacsimilesComponent implements OnInit {
   readonly facsID = input<number>();
   readonly imageNr = input<number>();
   readonly sortOrder = input<number>();
-  readonly textItemID = input<string>('');
+  readonly textKey = input.required<TextKey>();
   readonly selectedFacsID = output<number>();
   readonly selectedFacsName = output<string>();
   readonly selectedImageNr = output<number | null>();
@@ -61,20 +62,17 @@ export class FacsimilesComponent implements OnInit {
 
   ngOnInit() {
     this.mobileMode = this.platformService.isMobile();
-
-    if (this.textItemID()) {
-      this.loadFacsimiles();
-    }
+    this.loadFacsimiles(this.textKey());
   }
 
-  loadFacsimiles() {
-    this.collectionContentService.getFacsimiles(this.textItemID()).subscribe({
+  loadFacsimiles(textKey: TextKey) {
+    this.collectionContentService.getFacsimiles(textKey).subscribe({
       next: (facs) => {
         if (facs && facs.length > 0) {
-          const sectionId = this.textItemID().split('_')[2]?.split(';')[0]?.replace('ch', '') || '';
+          const sectionId = textKey.chapterID?.replace('ch', '') || '';
           for (const f of facs) {
             const facsimile = new Facsimile(f);
-            facsimile.itemId = this.textItemID();
+            facsimile.itemId = textKey.textItemID;
             facsimile.manuscript_id = f.publication_manuscript_id;
             if (!f['external_url']) {
               facsimile.title = f['title'];

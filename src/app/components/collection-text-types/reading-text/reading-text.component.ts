@@ -4,6 +4,7 @@ import { IonicModule, ModalController } from '@ionic/angular';
 import { config } from '@config';
 import { MathJaxDirective } from '@directives/math-jax.directive';
 import { IllustrationModal } from '@modals/illustration/illustration.modal';
+import { TextKey } from '@models/collection.model';
 import { TrustHtmlPipe } from '@pipes/trust-html.pipe';
 import { CollectionContentService } from '@services/collection-content.service';
 import { HtmlParserService } from '@services/html-parser.service';
@@ -32,7 +33,7 @@ export class ReadingTextComponent implements OnChanges, OnDestroy, OnInit {
 
   readonly language = input<string>('');
   readonly searchMatches = input<string[]>([]);
-  readonly textItemID = input<string>('');
+  readonly textKey = input.required<TextKey>();
   readonly textPosition = input<string>('');
   readonly openNewIllustrView = output<any>();
   readonly selectedIllustration = output<any>();
@@ -70,14 +71,12 @@ export class ReadingTextComponent implements OnChanges, OnDestroy, OnInit {
   ngOnInit() {
     this.mobileMode = this.platformService.isMobile();
 
-    const textItemID = this.textItemID();
-    if (textItemID) {
-      const collectionID = textItemID.split('_')[0];
-      this.illustrationsViewAvailable = enableFrontMatterPageOrTextViewType(
-        'text', collectionID, config, 'illustrations'
-      );
-      this.loadReadingText();
-    }
+    const textKey = this.textKey();
+    this.illustrationsViewAvailable = enableFrontMatterPageOrTextViewType(
+      'text', textKey.collectionID, config, 'illustrations'
+    );
+    this.loadReadingText(textKey);
+
     if (isBrowser()) {
       this.setUpTextListeners();
     }
@@ -87,14 +86,14 @@ export class ReadingTextComponent implements OnChanges, OnDestroy, OnInit {
     this.unlistenClickEvents?.();
   }
 
-  private loadReadingText() {
-    this.collectionContentService.getReadingText(this.textItemID(), this.language()).subscribe({
+  private loadReadingText(textKey: TextKey) {
+    this.collectionContentService.getReadingText(textKey, this.language()).subscribe({
       next: (res) => {
         if (
           res?.content &&
           res?.content !== '<html xmlns="http://www.w3.org/1999/xhtml"><head></head><body>File not found</body></html>'
         ) {
-          let text: string = this.parserService.postprocessReadingText(res.content, this.textItemID().split('_')[0]);
+          let text: string = this.parserService.postprocessReadingText(res.content, textKey.collectionID);
           this.text = this.parserService.insertSearchMatchTags(text, this.searchMatches());
           this.inlineVisibleIllustrations = this.parserService.readingTextHasVisibleIllustrations(text);
 
@@ -143,7 +142,7 @@ export class ReadingTextComponent implements OnChanges, OnDestroy, OnInit {
           if (eventTarget.classList.contains('doodle') && eventTarget.hasAttribute('src')) {
             // Click on a pictogram ("doodle")
             image = {
-              src: this.parserService.getMappedMediaCollectionURL(this.textItemID().split('_')[0])
+              src: this.parserService.getMappedMediaCollectionURL(this.textKey()?.collectionID ?? '')
                    + String(eventTarget.dataset['id']).replace('tag_', '') + '.jpg',
               class: 'doodle'
             };

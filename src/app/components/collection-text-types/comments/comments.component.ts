@@ -2,6 +2,7 @@ import { Component, ElementRef, NgZone, OnDestroy, OnInit, Renderer2, inject, ou
 import { IonicModule, ModalController } from '@ionic/angular';
 
 import { IllustrationModal } from '@modals/illustration/illustration.modal';
+import { TextKey } from '@models/collection.model';
 import { TrustHtmlPipe } from '@pipes/trust-html.pipe';
 import { CommentService } from '@services/comment.service';
 import { HtmlParserService } from '@services/html-parser.service';
@@ -29,7 +30,7 @@ export class CommentsComponent implements OnInit, OnDestroy {
   viewOptionsService = inject(ViewOptionsService);
 
   readonly searchMatches = input<string[]>([]);
-  readonly textItemID = input<string>('');
+  readonly textKey = input.required<TextKey>();
   readonly openNewReadingTextView = output<string>();
   readonly setMobileModeActiveText = output<string>();
 
@@ -46,10 +47,10 @@ export class CommentsComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.mobileMode = this.platformService.isMobile();
 
-    if (this.textItemID()) {
-      this.loadCommentsText();
-      this.getCorrespondanceMetadata();
-    }
+    const textKey = this.textKey();
+    this.loadCommentsText(textKey);
+    this.getCorrespondanceMetadata(textKey);
+
     if (isBrowser()) {
       this.setUpTextListeners();
     }
@@ -59,8 +60,8 @@ export class CommentsComponent implements OnInit, OnDestroy {
     this.unlistenClickEvents?.();
   }
 
-  loadCommentsText() {
-    this.commentService.getComments(this.textItemID()).subscribe({
+  loadCommentsText(textKey: TextKey) {
+    this.commentService.getComments(textKey).subscribe({
       next: (text) => {
         if (text && String(text) !== 'File not found') {
           this.text = this.parserService.insertSearchMatchTags(String(text), this.searchMatches());
@@ -78,8 +79,8 @@ export class CommentsComponent implements OnInit, OnDestroy {
     });
   }
 
-  getCorrespondanceMetadata() {
-    this.commentService.getCorrespondanceMetadata(this.textItemID().split('_')[1]).subscribe(
+  getCorrespondanceMetadata(textKey: TextKey) {
+    this.commentService.getCorrespondanceMetadata(textKey.publicationID).subscribe(
       (text: any) => {
         if (text?.subjects?.length > 0) {
           const senders: string[] = [];

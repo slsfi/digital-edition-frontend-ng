@@ -3,6 +3,7 @@ import { AsyncPipe } from '@angular/common';
 import { IonicModule } from '@ionic/angular';
 import { catchError, map, Observable, of } from 'rxjs';
 
+import { TextKey } from '@models/collection.model';
 import { TrustHtmlPipe } from '@pipes/trust-html.pipe';
 import { MarkdownService } from '@services/markdown.service';
 import { ScrollService } from '@services/scroll.service';
@@ -23,22 +24,20 @@ export class LegendComponent implements OnDestroy, OnInit {
   private scrollService = inject(ScrollService);
   private activeLocale = inject(LOCALE_ID);
 
-  readonly itemId = input<string>();
+  readonly textKey = input.required<TextKey>();
   readonly scrollToElementId = input<string>();
 
-  collectionId: string = '';
   intervalTimerId: number = 0;
-  publicationId: string = '';
   staticMdLegendFolderNumber: string = '13';
   text$: Observable<string>;
 
   private unlistenClickEvents?: () => void;
 
   ngOnInit() {
-    this.collectionId = this.itemId()?.split('_')[0] || '';
-    this.publicationId = this.itemId()?.split('_')[1].split(';')[0] || '';
+    const textKey = this.textKey();
+    const mdId = `${this.activeLocale}-${this.staticMdLegendFolderNumber}-${textKey.collectionID}-${textKey.publicationID}`;
+    this.text$ = this.getMdContent(mdId);
 
-    this.text$ = this.getMdContent(this.activeLocale + '-' + this.staticMdLegendFolderNumber + '-' + this.collectionId + '-' + this.publicationId);
     if (isBrowser()) {
       this.setUpTextListeners();
     }
@@ -58,7 +57,7 @@ export class LegendComponent implements OnDestroy, OnInit {
       }),
       catchError(e => {
         if (fileID.split('-').length > 3) {
-          return this.getMdContent(this.activeLocale + '-' + this.staticMdLegendFolderNumber + '-' + this.collectionId);
+          return this.getMdContent(this.activeLocale + '-' + this.staticMdLegendFolderNumber + '-' + this.textKey()?.collectionID);
         } else if (fileID.split('-')[2] !== '00') {
           return this.getMdContent(this.activeLocale + '-' + this.staticMdLegendFolderNumber + '-' + '00');
         } else {

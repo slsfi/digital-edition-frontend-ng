@@ -861,7 +861,7 @@ export class CollectionIntroductionPage implements OnInit, OnDestroy {
   async showDownloadModal() {
     const modal = await this.modalCtrl.create({
       component: DownloadTextsModal,
-      componentProps: { origin: 'page-introduction', textItemID: this.collectionID }
+      componentProps: { origin: 'page-introduction', collectionId: this.collectionID }
     });
 
     modal.present();

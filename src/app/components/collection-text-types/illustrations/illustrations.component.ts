@@ -3,6 +3,7 @@ import { NgClass } from '@angular/common';
 import { IonicModule, ModalController } from '@ionic/angular';
 
 import { FullscreenImageViewerModal } from '@modals/fullscreen-image-viewer/fullscreen-image-viewer.modal';
+import { TextKey } from '@models/collection.model';
 import { HtmlParserService } from '@services/html-parser.service';
 import { PlatformService } from '@services/platform.service';
 import { ScrollService } from '@services/scroll.service';
@@ -21,7 +22,7 @@ export class IllustrationsComponent implements OnChanges, OnInit {
   private scrollService = inject(ScrollService);
 
   readonly singleImage = input<Record<string, any>>();
-  readonly textItemID = input<string>('');
+  readonly textKey = input.required<TextKey>();
   readonly showAllImages = output<any>();
   readonly setMobileModeActiveText = output<string>();
   
@@ -54,14 +55,11 @@ export class IllustrationsComponent implements OnChanges, OnInit {
 
   ngOnInit() {
     this.mobileMode = this.platformService.isMobile();
-
-    if (this.textItemID()) {
-      this.getIllustrationImages();
-    }
+    this.getIllustrationImages(this.textKey());
   }
 
-  private getIllustrationImages() {
-    this.parserService.getReadingTextIllustrations(this.textItemID()).subscribe(
+  private getIllustrationImages(textKey: TextKey) {
+    this.parserService.getReadingTextIllustrations(textKey).subscribe(
       (images: any[]) => {
         this.images = images;
         this.imageCountTotal = this.images.length;

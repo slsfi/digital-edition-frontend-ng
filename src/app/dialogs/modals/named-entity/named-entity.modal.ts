@@ -26,32 +26,20 @@ export class NamedEntityModal implements OnDestroy, OnInit {
   @Input() id: string = '';
   @Input() type: string = '';
 
+  readonly showAliasAndPrevLastName: boolean = config.modal?.namedEntity?.showAliasAndPrevLastName ?? true;
+  readonly showArticleData: boolean = config.modal?.namedEntity?.showArticleData ?? false;
+  readonly showCityRegionCountry: boolean = config.modal?.namedEntity?.showCityRegionCountry ?? false;
+  readonly showDescriptionLabel: boolean = config.modal?.namedEntity?.showDescriptionLabel ?? false;
+  readonly showGalleryOccurrences: boolean = config.modal?.namedEntity?.showGalleryOccurrences ?? false;
+  readonly showMediaData: boolean = config.modal?.namedEntity?.showMediaData ?? false;
+  readonly showOccupation: boolean = config.modal?.namedEntity?.showOccupation ?? false;
+  readonly showOccurrences: boolean = config.modal?.namedEntity?.showOccurrences ?? true;
+  readonly showType: boolean = config.modal?.namedEntity?.showType ?? false;
+  readonly simpleWorkMetadata: boolean = config.modal?.namedEntity?.useSimpleWorkMetadata ?? false;
+
   loadingErrorData$: Subject<boolean> = new Subject<boolean>();
   objectData$: Observable<any>;
   routerEventsSubscription: Subscription;
-  showAliasAndPrevLastName: boolean = true;
-  showArticleData: boolean = false;
-  showCityRegionCountry: boolean = false;
-  showDescriptionLabel: boolean = false;
-  showGalleryOccurrences: boolean = false;
-  showMediaData: boolean = false;
-  showOccupation: boolean = false;
-  showOccurrences: boolean = true;
-  showType: boolean = false;
-  simpleWorkMetadata: boolean = false;
-
-  constructor() {
-    this.showAliasAndPrevLastName = config.modal?.namedEntity?.showAliasAndPrevLastName ?? true;
-    this.showArticleData = config.modal?.namedEntity?.showArticleData ?? false;
-    this.showCityRegionCountry = config.modal?.namedEntity?.showCityRegionCountry ?? false;
-    this.showDescriptionLabel = config.modal?.namedEntity?.showDescriptionLabel ?? false;
-    this.showGalleryOccurrences = config.modal?.namedEntity?.showGalleryOccurrences ?? false;
-    this.showMediaData = config.modal?.namedEntity?.showMediaData ?? false;
-    this.showOccupation = config.modal?.namedEntity?.showOccupation ?? false;
-    this.showOccurrences = config.modal?.namedEntity?.showOccurrences ?? true;
-    this.showType = config.modal?.namedEntity?.showType ?? false;
-    this.simpleWorkMetadata = config.modal?.namedEntity?.useSimpleWorkMetadata ?? false;
-  }
 
   ngOnInit() {
     this.objectData$ = this.getNamedEntityData(this.type, this.id);

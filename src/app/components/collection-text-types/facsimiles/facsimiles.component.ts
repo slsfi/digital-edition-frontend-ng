@@ -35,30 +35,24 @@ export class FacsimilesComponent implements OnInit {
   readonly selectedImageNr = output<number | null>();
   readonly selectedFacsSortOrder = output<number | null>();
 
+  readonly facsSize: number | null = config.component?.facsimiles?.imageQuality ?? 1;
+  readonly facsURLAlternate: string = config.app?.alternateFacsimileBaseURL ?? '';
+  readonly replaceImageAssetsPaths: boolean = config.collections?.replaceImageAssetsPaths ?? true;
+  readonly showTitle: boolean = config.component?.facsimiles?.showTitle ?? true;
+
   angle: number = 0;
   externalFacsimiles: any[] = [];
-  facsURLAlternate: string = '';
   facsNumber: number = 1;
   facsimiles: any[] = [];
-  facsSize: number | null = 1;
   facsURLDefault: string = '';
   mobileMode: boolean = false;
   numberOfImages: number = 0;
   prevX: number = 0;
   prevY: number = 0;
-  replaceImageAssetsPaths: boolean = true;
   selectedFacsimile: any | null = null;
   selectedFacsimileIsExternal: boolean = false;
-  showTitle: boolean = true;
   text: string = '';
   zoom: number = 1.0;
-
-  constructor() {
-    this.facsSize = config.component?.facsimiles?.imageQuality ?? 1;
-    this.facsURLAlternate = config.app?.alternateFacsimileBaseURL ?? '';
-    this.replaceImageAssetsPaths = config.collections?.replaceImageAssetsPaths ?? true;
-    this.showTitle = config.component?.facsimiles?.showTitle ?? true;
-  }
 
   ngOnInit() {
     this.mobileMode = this.platformService.isMobile();

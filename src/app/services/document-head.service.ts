@@ -16,18 +16,13 @@ export class DocumentHeadService implements OnDestroy {
   private document = inject<Document>(DOCUMENT);
   private activeLocale = inject(LOCALE_ID);
 
+  private readonly languages: any[] = config.app?.i18n?.languages ?? [];
+  private readonly openGraphTags: any = config.app?.openGraphMetaTags ?? undefined;
+
   private addedHeadElements: HTMLElement[] = [];
   private currentPageTitle$: BehaviorSubject<string> = new BehaviorSubject('');
   private currentRouterUrl: string | undefined = undefined;
-  private openGraphTags: any = undefined;
-  private languages: any[] = [];
-  private renderer: Renderer2;
-
-  constructor() {
-    this.openGraphTags = config.app?.openGraphMetaTags ?? undefined;
-    this.languages = config.app?.i18n?.languages ?? [];
-    this.renderer = this.rendererFactory.createRenderer(null, null);
-  }
+  private renderer: Renderer2 = this.rendererFactory.createRenderer(null, null);
 
   ngOnDestroy(): void {
     this.cleanupAddedHeadElements();

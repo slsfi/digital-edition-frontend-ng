@@ -34,27 +34,21 @@ export class CollectionTitlePage implements OnDestroy, OnInit {
   private viewOptionsService = inject(ViewOptionsService);
   private activeLocale = inject(LOCALE_ID);
 
+  readonly loadContentFromMarkdown: boolean = config.page?.title?.loadContentFromMarkdown ?? false;
+  readonly replaceImageAssetsPaths: boolean = config.collections?.replaceImageAssetsPaths ?? true;
+  readonly showURNButton: boolean = config.page?.title?.showURNButton ?? false;
+  readonly showViewOptionsButton: boolean = config.page?.title?.showViewOptionsButton ?? true;
+
   _activeComponent: boolean = true;
   collectionID: string = '';
   intervalTimerId: number = 0;
-  loadContentFromMarkdown: boolean = false;
   mobileMode: boolean = false;
-  replaceImageAssetsPaths: boolean = true;
   searchMatches: string[] = [];
-  showURNButton: boolean = false;
-  showViewOptionsButton: boolean = true;
   text$: Observable<string | null>;
   textsize: Textsize = Textsize.Small;
   textsizeSubscription: Subscription | null = null;
 
   TextsizeEnum = Textsize;
-
-  constructor() {
-    this.loadContentFromMarkdown = config.page?.title?.loadContentFromMarkdown ?? false;
-    this.replaceImageAssetsPaths = config.collections?.replaceImageAssetsPaths ?? true;
-    this.showURNButton = config.page?.title?.showURNButton ?? false;
-    this.showViewOptionsButton = config.page?.title?.showViewOptionsButton ?? true;
-  }
 
   ngOnInit() {
     this.mobileMode = this.platformService.isMobile();

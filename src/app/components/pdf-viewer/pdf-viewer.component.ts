@@ -26,16 +26,16 @@ export class PdfViewerComponent implements OnInit {
 
   readonly pdfFileName = input<string>('');
   @ViewChild('downloadOptionsPopover') downloadOptionsPopover: any;
-  
+
+  readonly showURNButton: boolean = config.component?.epub?.showURNButton ?? false;
+
   downloadPopoverIsOpen: boolean = false;
   pageNumber: number | null = null;
   pdfData: Record<string, any> = {};
   pdfURL$: Observable<SafeResourceUrl | undefined>;
-  showURNButton: boolean = false;
   _window: Window | null = null;
 
   constructor() {
-    this.showURNButton = config.component?.epub?.showURNButton ?? false;
     this._window = <any>this.document.defaultView;
   }
 

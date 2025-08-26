@@ -12,21 +12,19 @@ import { AggregationQuery, Facets, SearchQuery, TimeRange } from '@models/elasti
 export class ElasticSearchService {
   private http = inject(HttpClient);
 
-  private aggregations: any = {};
-  private fixedFilters?: object[];
-  private indices: string[] = [];
+  private readonly aggregations: any = config.page?.elasticSearch?.aggregations ?? undefined;
+  private readonly fixedFilters: object[] = config.page?.elasticSearch?.fixedFilters ?? [];
+  private readonly textTypes: string[] = config.page?.elasticSearch?.typeFilterGroupOptions ?? [];
+
   private searchURL: string = '';
   private source: string[] = [];
-  private textTypes: string[] = [];
 
   constructor() {
-    this.aggregations = config.page?.elasticSearch?.aggregations ?? undefined;
-    this.indices = config.page?.elasticSearch?.indices ?? [];
-    this.fixedFilters = config.page?.elasticSearch?.fixedFilters ?? [];
-    this.textTypes = config.page?.elasticSearch?.typeFilterGroupOptions ?? [];
-    const apiBaseURL = config.app?.backendBaseURL ?? '';
-    const projectName = config.app?.projectNameDB ?? '';
-    this.searchURL = apiBaseURL + '/' + projectName + '/search/elastic/' + this.indices.join(',');
+    const apiBaseURL: string = config.app?.backendBaseURL ?? '';
+    const projectName: string = config.app?.projectNameDB ?? '';
+    const indices: string[] = config.page?.elasticSearch?.indices ?? [];
+
+    this.searchURL = `${apiBaseURL}/${projectName}/search/elastic/${indices.join(',')}`;
 
     // Add fields that should always be returned in hits
     this.source = [

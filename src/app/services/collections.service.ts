@@ -12,15 +12,8 @@ export class CollectionsService {
   private http = inject(HttpClient);
   private activeLocale = inject(LOCALE_ID);
 
-  private apiURL: string = '';
-  private multilingualTOC: boolean = false;
-
-  constructor() {
-    const apiBaseURL = config.app?.backendBaseURL ?? '';
-    const projectName = config.app?.projectNameDB ?? '';
-    this.apiURL = apiBaseURL + '/' + projectName;
-    this.multilingualTOC = config.app?.i18n?.multilingualCollectionTableOfContents ?? false;
-  }
+  private readonly apiURL: string = `${config.app?.backendBaseURL ?? ''}/${config.app?.projectNameDB ?? ''}`;
+  private readonly multilingualTOC: boolean = config.app?.i18n?.multilingualCollectionTableOfContents ?? false;
 
   getCollections(): Observable<any> {
     const locale = this.multilingualTOC ? '/' + this.activeLocale : '';

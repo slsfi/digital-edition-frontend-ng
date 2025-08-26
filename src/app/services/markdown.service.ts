@@ -14,13 +14,11 @@ import { config } from '@config';
 export class MarkdownService {
   private http = inject(HttpClient);
 
-  private apiURL: string = '';
+  private readonly apiURL: string = `${config.app?.backendBaseURL ?? ''}/${config.app?.projectNameDB ?? ''}`;
+
   private marked: Marked;
 
   constructor() {
-    const apiBaseURL = config.app?.backendBaseURL ?? '';
-    const projectName = config.app?.projectNameDB ?? '';
-    this.apiURL = apiBaseURL + '/' + projectName;
 
     // * Create new instance of Marked to keep options and extensions
     // * locally scoped. Adding the marked-footnote extension to the

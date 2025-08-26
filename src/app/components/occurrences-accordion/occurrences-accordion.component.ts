@@ -26,15 +26,12 @@ export class OccurrencesAccordionComponent implements OnInit {
   readonly id = input<number>();
   readonly type = input<string>('');
 
+  readonly simpleWorkMetadata: boolean = config.modal?.namedEntity?.useSimpleWorkMetadata ?? false;
+
   groupedTexts: any[] = [];
   isLoading: boolean = true;
   occurrenceData: any[] = [];
   showPublishedStatus: number = 2;
-  simpleWorkMetadata: boolean = false;
-
-  constructor() {
-    this.simpleWorkMetadata = config.modal?.namedEntity?.useSimpleWorkMetadata ?? false;
-  }
 
   ngOnInit() {
     const type = this.type();

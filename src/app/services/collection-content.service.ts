@@ -12,18 +12,12 @@ import { TextKey } from '@models/collection.model';
 export class CollectionContentService {
   private http = inject(HttpClient);
 
+  private readonly apiURL: string = `${config.app?.backendBaseURL ?? ''}/${config.app?.projectNameDB ?? ''}`;
+
   activeCollectionTextMobileModeView: number | undefined = undefined;
   previousReadViewTextId: string = '';
   readViewTextId: string = '';
   recentCollectionTextViews: any[] = [];
-
-  private apiURL: string = '';
-
-  constructor() {
-    const apiBaseURL = config.app?.backendBaseURL ?? '';
-    const projectName = config.app?.projectNameDB ?? '';
-    this.apiURL = apiBaseURL + '/' + projectName;
-  }
 
   getTitle(collectionId: string, language: string): Observable<any> {
     const endpoint = `${this.apiURL}/text/${collectionId}/1/tit/${language}`;

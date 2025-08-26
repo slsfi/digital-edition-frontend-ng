@@ -31,19 +31,23 @@ export class ElasticSearchPage implements OnDestroy, OnInit {
   private activeLocale = inject(LOCALE_ID);
 
   readonly content = viewChild(IonContent);
-  
+
+  readonly enableFilters: boolean = config.page?.elasticSearch?.enableFilters ?? true;
+  readonly enableSortOptions: boolean = config.page?.elasticSearch?.enableSortOptions ?? true;
+  readonly hitsPerPage: number = config.page?.elasticSearch?.hitsPerPage ?? 20;
+  readonly textHighlightFragmentSize: number = config.page?.elasticSearch?.textHighlightFragmentSize ?? 150;
+  textHighlightType: string = config.page?.elasticSearch?.textHighlightType ?? 'fvh';
+  textTitleHighlightType: string = config.page?.elasticSearch?.textTitleHighlightType ?? 'fvh';
+
   activeFilters: any[] = [];
   aggregations: object = {};
   dateHistogramData: any = undefined;
   disableFilterCheckboxes: boolean = true;
   elasticError: boolean = false;
-  enableFilters: boolean = true;
-  enableSortOptions: boolean = true;
   filterGroups: any[] = [];
   filtersVisible: boolean = true;
   from: number = 0;
   hits: any = [];
-  hitsPerPage: number = 10;
   initializing: boolean = true;
   loading: boolean = true;
   loadingMoreHits: boolean = false;
@@ -60,19 +64,9 @@ export class ElasticSearchPage implements OnDestroy, OnInit {
   sort: string = '';
   sortSelectOptions: Record<string, any> = {};
   submittedQuery: string = '';
-  textHighlightFragmentSize: number = 150;
-  textHighlightType: string = 'fvh';
-  textTitleHighlightType: string = 'fvh';
   total: number = -1;
 
   constructor() {
-    this.enableFilters = config.page?.elasticSearch?.enableFilters ?? true;
-    this.enableSortOptions = config.page?.elasticSearch?.enableSortOptions ?? true;
-    this.hitsPerPage = config.page?.elasticSearch?.hitsPerPage ?? 20;
-    this.textHighlightFragmentSize = config.page?.elasticSearch?.textHighlightFragmentSize ?? 150;
-    this.textHighlightType = config.page?.elasticSearch?.textHighlightType ?? 'fvh';
-    this.textTitleHighlightType = config.page?.elasticSearch?.textTitleHighlightType ?? 'fvh';
-
     this.filtersVisible = this.platformService.isMobile() ? false : true;
     
     if (

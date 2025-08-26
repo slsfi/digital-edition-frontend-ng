@@ -34,15 +34,12 @@ export class VariantsComponent implements OnInit {
   readonly selectedVarName = output<string>();
   readonly selectedVarSortOrder = output<number>();
 
+  readonly showOpenLegendButton: boolean = config.component?.variants?.showOpenLegendButton ?? false;
+
   intervalTimerId: number = 0;
   selectedVariant: any = undefined;
-  showOpenLegendButton: boolean = false;
   text: string = '';
   variants: any[] = [];
-
-  constructor() {
-    this.showOpenLegendButton = config.component?.variants?.showOpenLegendButton ?? false;
-  }
 
   ngOnInit() {
     this.loadVariantTexts(this.textKey());

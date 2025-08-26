@@ -35,12 +35,13 @@ export class ArticlePage implements OnInit, OnDestroy {
   viewOptionsService = inject(ViewOptionsService);
   private activeLocale = inject(LOCALE_ID);
 
+  readonly showTextDownloadButton: boolean = config.page?.article?.showTextDownloadButton ?? false;
+  readonly showURNButton: boolean = config.page?.article?.showURNButton ?? false;
+
   article: Article | null = null;
   enableTOC: boolean = true;
   markdownText$: Observable<string | null>;
   mobileMode: boolean = false;
-  showTextDownloadButton: boolean = false;
-  showURNButton: boolean = true;
   textsize: Textsize = Textsize.Small;
   textsizeSubscription: Subscription | null = null;
   tocMenuOpen: boolean = true;
@@ -49,11 +50,6 @@ export class ArticlePage implements OnInit, OnDestroy {
 
   private fragmentSubscription?: Subscription;
   private unlistenClickEvents?: () => void;
-
-  constructor() {
-    this.showTextDownloadButton = config.page?.article?.showTextDownloadButton ?? true;
-    this.showURNButton = config.page?.article?.showURNButton ?? true;
-  }
 
   ngOnInit() {
     this.mobileMode = this.platformService.isMobile();

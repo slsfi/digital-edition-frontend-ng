@@ -16,6 +16,9 @@ export class TooltipService {
   private namedEntityService = inject(NamedEntityService);
   private platformService = inject(PlatformService);
 
+  private readonly maxTooltipCacheSize: number = 50;
+  private readonly simpleWorkMetadata: boolean = config.modal?.namedEntity?.useSimpleWorkMetadata ?? false;
+
   private cachedTooltips: Record<string, any> = {
     'comments': new Map(),
     'footnotes': new Map(),
@@ -23,12 +26,6 @@ export class TooltipService {
     'places': new Map(),
     'works': new Map()
   };
-  private maxTooltipCacheSize: number = 50;
-  private simpleWorkMetadata: boolean = false;
-
-  constructor() {
-    this.simpleWorkMetadata = config.modal?.namedEntity?.useSimpleWorkMetadata ?? false;
-  }
 
   getSemanticDataObjectTooltip(id: string, type: string, targetElem: HTMLElement): Observable<string> {
     const cachedTooltip =

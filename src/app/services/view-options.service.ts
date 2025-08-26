@@ -9,6 +9,8 @@ import { Textsize } from '@models/textsize.model';
   providedIn: 'root',
 })
 export class ViewOptionsService {
+  private epubAlertDismissed: boolean = false;
+  selectedVariationType: string = config.page?.text?.variantViewOptions?.defaultVariationType ?? 'all';
   show: Record<string, boolean> = {
     comments: false,
     personInfo: false,
@@ -21,9 +23,6 @@ export class ViewOptionsService {
     pageBreakOriginal: false,
     pageBreakEdition: false
   };
-  selectedVariationType: string = 'all';
-
-  private epubAlertDismissed: boolean = false;
   private textsizeSubject$: BehaviorSubject<Textsize> = new BehaviorSubject<Textsize>(Textsize.Small);
 
   constructor() {
@@ -33,7 +32,6 @@ export class ViewOptionsService {
         this.show[key] = true;
       }
     });
-    this.selectedVariationType = config.page?.text?.variantViewOptions?.defaultVariationType ?? 'all';
   }
 
   getTextsize(): Observable<Textsize> {

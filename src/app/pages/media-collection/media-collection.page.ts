@@ -32,18 +32,34 @@ export class MediaCollectionPage implements OnDestroy, OnInit {
   private urlService = inject(UrlService);
   private activeLocale = inject(LOCALE_ID);
 
+  readonly apiEndPoint: string = config.app?.backendBaseURL ?? '';
+  readonly filterSelectOptions: Record<string, any> = {
+    person: {
+      header: $localize`:@@MediaCollection.FilterPerson:Avgränsa enligt person`,
+      cssClass: 'custom-select-alert'
+    },
+    place: {
+      header: $localize`:@@MediaCollection.FilterPlace:Avgränsa enligt plats`,
+      cssClass: 'custom-select-alert'
+    },
+    keyword: {
+      header: $localize`:@@MediaCollection.FilterKeyword:Avgränsa enligt ämnesord`,
+      cssClass: 'custom-select-alert'
+    }
+  };
+  readonly projectName: string = config.app?.projectNameDB ?? '';
+  readonly showURNButton: boolean = config.page?.mediaCollection?.showURNButton ?? false;
+
   activeKeywordFilters: number[] = [];
   activePersonFilters: number[] = [];
   activePlaceFilters: number[] = [];
   allMediaCollections: GalleryItem[] = [];
   allMediaConnections: any = {};
-  apiEndPoint: string = '';
   filterOptionsKeywords: any[] = [];
   filterOptionsPersons: any[] = [];
   filterOptionsPlaces: any[] = [];
   filterOptionsSubscription: Subscription | null = null;
   filterResultCount: number = -1;
-  filterSelectOptions: Record<string, any> = {};
   galleryBacksideImageURLs: (string | undefined)[] = [];
   galleryData: GalleryItem[] = [];
   galleryDescriptions: (string | undefined)[] = [];
@@ -57,30 +73,7 @@ export class MediaCollectionPage implements OnDestroy, OnInit {
   mediaCollectionTitle: string = '';
   namedEntityID: string = '';
   namedEntityType: string = '';
-  projectName: string = '';
-  showURNButton: boolean = false;
   urlParametersSubscription: Subscription | null = null;
-
-  constructor() {
-    this.apiEndPoint = config.app?.backendBaseURL ?? '';
-    this.projectName = config.app?.projectNameDB ?? '';
-    this.showURNButton = config.page?.mediaCollection?.showURNButton ?? false;
-
-    this.filterSelectOptions = {
-      person: {
-        header: $localize`:@@MediaCollection.FilterPerson:Avgränsa enligt person`,
-        cssClass: 'custom-select-alert'
-      },
-      place: {
-        header: $localize`:@@MediaCollection.FilterPlace:Avgränsa enligt plats`,
-        cssClass: 'custom-select-alert'
-      },
-      keyword: {
-        header: $localize`:@@MediaCollection.FilterKeyword:Avgränsa enligt ämnesord`,
-        cssClass: 'custom-select-alert'
-      }
-    };
-  }
 
   ngOnInit() {
     this.urlParametersSubscription = combineLatest(

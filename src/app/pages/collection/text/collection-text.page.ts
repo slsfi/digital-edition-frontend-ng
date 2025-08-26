@@ -52,6 +52,11 @@ export class CollectionTextPage implements OnDestroy, OnInit {
   @ViewChildren('fabColumnOptions') fabColumnOptions: QueryList<IonFabList>;
   @ViewChildren('fabColumnOptionsButton') fabColumnOptionsButton: QueryList<IonFabButton>;
 
+  readonly multilingualReadingTextLanguages: string[] = config.app?.i18n?.multilingualReadingTextLanguages ?? [];
+  readonly showTextDownloadButton: boolean = config.page?.text?.showTextDownloadButton ?? false;
+  readonly showURNButton: boolean = config.page?.text?.showURNButton ?? true;
+  readonly showViewOptionsButton: boolean = config.page?.text?.showViewOptionsButton ?? true;
+
   _activeComponent: boolean = true;
   activeMobileModeViewIndex: number = 0;
   addViewPopoverisOpen: boolean = false;
@@ -70,12 +75,8 @@ export class CollectionTextPage implements OnDestroy, OnInit {
   infoOverlayWidth: string | null = null;
   legacyId: string = '';
   mobileMode: boolean = false;
-  multilingualReadingTextLanguages: string[] = [];
   routeParamsSubscription: Subscription | null = null;
   searchMatches: string[] = [];
-  showTextDownloadButton: boolean = false;
-  showURNButton: boolean = true;
-  showViewOptionsButton: boolean = true;
   textKey = signal<TextKey>({collectionID: '', publicationID: '', textItemID: ''});
   textPosition: string = '';
   textsize: Textsize = Textsize.Small;
@@ -99,13 +100,6 @@ export class CollectionTextPage implements OnDestroy, OnInit {
   private unlistenKeyUpEnterEvents?: () => void;
   private unlistenMouseoverEvents?: () => void;
   private unlistenMouseoutEvents?: () => void;
-
-  constructor() {
-    this.multilingualReadingTextLanguages = config.app?.i18n?.multilingualReadingTextLanguages ?? [];
-    this.showTextDownloadButton = config.page?.text?.showTextDownloadButton ?? false;
-    this.showURNButton = config.page?.text?.showURNButton ?? true;
-    this.showViewOptionsButton = config.page?.text?.showViewOptionsButton ?? true;
-  }
 
   ngOnInit() {
     this.mobileMode = this.platformService.isMobile();

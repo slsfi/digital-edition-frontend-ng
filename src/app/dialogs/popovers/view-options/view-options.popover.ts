@@ -20,7 +20,9 @@ export class ViewOptionsPopover implements OnDestroy, OnInit {
 
   @Input() toggles: any = undefined;
 
-  availableToggles: any = undefined;
+  availableToggles: any = config.page?.text?.viewOptions ?? undefined;
+  showVariationTypeOption: boolean = config.page?.text?.variantViewOptions?.showVariationTypeOption ?? false;
+
   checkedToggles: number = 0;
   show: Record<string, boolean> = {
     comments: false,
@@ -34,17 +36,11 @@ export class ViewOptionsPopover implements OnDestroy, OnInit {
     pageBreakOriginal: false,
     pageBreakEdition: false
   };
-  showVariationTypeOption: boolean = false;
   textsize: Textsize = Textsize.Small;
   textsizeSubscription: Subscription | null = null;
   togglesCounter: number;
 
   TextsizeEnum = Textsize;
-
-  constructor() {
-    this.availableToggles = config.page?.text?.viewOptions ?? undefined;
-    this.showVariationTypeOption = config.page?.text?.variantViewOptions?.showVariationTypeOption ?? false;
-  }
 
   ngOnInit() {
     if (

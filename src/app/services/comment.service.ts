@@ -12,18 +12,11 @@ import { TextKey } from '@models/collection.model';
 export class CommentService {
   private http = inject(HttpClient);
 
-  private addTEIClassNames: boolean = true;
-  private apiURL: string = '';
-  private cachedCollectionComments: Record<string, any> = {};
-  private replaceImageAssetsPaths: boolean = true;
+  private readonly apiURL: string = `${config.app?.backendBaseURL ?? ''}/${config.app?.projectNameDB ?? ''}`;
+  private readonly addTEIClassNames: boolean = config.collections?.addTEIClassNames ?? true;
+  private readonly replaceImageAssetsPaths: boolean = config.collections?.replaceImageAssetsPaths ?? true;
 
-  constructor() {
-    const apiBaseURL = config.app?.backendBaseURL ?? '';
-    const projectName = config.app?.projectNameDB ?? '';
-    this.apiURL = apiBaseURL + '/' + projectName;
-    this.addTEIClassNames = config.collections?.addTEIClassNames ?? true;
-    this.replaceImageAssetsPaths = config.collections?.replaceImageAssetsPaths ?? true;
-  }
+  private cachedCollectionComments: Record<string, any> = {};
 
   /**
    * Returns an html fragment as a string observable of all comments for the specified text.

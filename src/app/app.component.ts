@@ -21,14 +21,15 @@ export class AppComponent implements OnDestroy, OnInit {
   private router = inject(Router);
   private tocService = inject(CollectionTableOfContentsService);
 
+  readonly enableCollectionSideMenuSSR: boolean = config.app?.ssr?.collectionSideMenu ?? false;
+  readonly enableRouterLoadingBar: boolean = config.app?.enableRouterLoadingBar ?? false;
+
   appIsStarting: boolean = true;
   collectionID: string = '';
   collSideMenuUrlSegments: UrlSegment[];
   collSideMenuQueryParams: Params;
   currentRouterUrl: string = '';
   currentUrlSegments: UrlSegment[] = [];
-  enableRouterLoadingBar: boolean = false;
-  enableCollectionSideMenuSSR: boolean = false;
   loadingBarHidden: boolean = false;
   mobileMode: boolean = true;
   mountMainSideMenu: boolean = false;
@@ -36,11 +37,6 @@ export class AppComponent implements OnDestroy, OnInit {
   routerEventsSubscription: Subscription;
   showCollectionSideMenu: boolean = false;
   showSideNav: boolean = false;
-
-  constructor() {
-    this.enableCollectionSideMenuSSR = config.app?.ssr?.collectionSideMenu ?? false;
-    this.enableRouterLoadingBar = config.app?.enableRouterLoadingBar ?? false;
-  }
 
   ngOnInit(): void {
     this.mobileMode = this.platformService.isMobile();

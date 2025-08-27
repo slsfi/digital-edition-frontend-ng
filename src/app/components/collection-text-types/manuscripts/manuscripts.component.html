@@ -10,7 +10,7 @@
   @if (text && msCount && (showTitle || showOpenLegendButton || showNormalizedToggle || msCount > 1)) {
     <div class="text-select-wrapper">
       @if (showTitle) {
-        <h3 [innerHTML]="selectedManuscript()?.name"></h3>
+        <div class="tsw-text-title" [innerHTML]="selectedManuscript()?.name"></div>
       }
       @if (msCount > 1 || showOpenLegendButton) {
         <div class="flex-buttons">

@@ -6,10 +6,10 @@
         [class.mobile-mode]="mobileMode"
   >
     @if (!selectedFacsimileIsExternal && showTitle) {
-      <h3 [innerHTML]="selectedFacsimile.title | trustHtml"></h3>
+      <div class="tsw-text-title" [innerHTML]="selectedFacsimile.title | trustHtml"></div>
     }
     @if (selectedFacsimileIsExternal) {
-      <h3 i18n="@@Facsimiles.ExternalFacsimiles">Externa faksimil</h3>
+      <div class="tsw-text-title" i18n="@@Facsimiles.ExternalFacsimiles">Externa faksimil</div>
     }
     @if (facsimiles.length > 1 || (facsimiles.length == 1 && externalFacsimiles.length > 0)) {
       <div class="flex-buttons">

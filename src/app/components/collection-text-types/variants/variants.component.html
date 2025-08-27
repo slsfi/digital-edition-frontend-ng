@@ -4,7 +4,7 @@
 
 @if (text && variants.length>0) {
   <div class="text-select-wrapper">
-    <h3 [innerHTML]="selectedVariant.name"></h3>
+    <div class="tsw-text-title" [innerHTML]="selectedVariant.name"></div>
     <div class="flex-buttons">
       <ion-button class="custom-button"
             (click)="selectVariant($event)"

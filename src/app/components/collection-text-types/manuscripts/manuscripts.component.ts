@@ -26,7 +26,7 @@ import { ViewOptionsService } from '@services/view-options.service';
 })
 export class ManuscriptsComponent {
   // ─────────────────────────────────────────────────────────────────────────────
-  // Dependency injection
+  // Dependency injection, Input/Output signals, Fields, Local state signals
   // ─────────────────────────────────────────────────────────────────────────────
   private alertCtrl = inject(AlertController);
   private collectionContentService = inject(CollectionContentService);
@@ -37,9 +37,6 @@ export class ManuscriptsComponent {
   private scrollService = inject(ScrollService);
   viewOptionsService = inject(ViewOptionsService);
 
-  // ─────────────────────────────────────────────────────────────────────────────
-  // Input/Output signals
-  // ─────────────────────────────────────────────────────────────────────────────
   readonly msID = input<number>();
   readonly searchMatches = input<string[]>([]);
   readonly textKey = input.required<TextKey>();
@@ -47,31 +44,22 @@ export class ManuscriptsComponent {
   readonly selectedMsID = output<number>();
   readonly selectedMsName = output<string>();
 
-  // ─────────────────────────────────────────────────────────────────────────────
-  // Static config flags
-  // ─────────────────────────────────────────────────────────────────────────────
   readonly showNormalizedToggle: boolean = config.component?.manuscripts?.showNormalizedToggle ?? true;
   readonly showOpenLegendButton: boolean = config.component?.manuscripts?.showOpenLegendButton ?? false;
   readonly showTitle: boolean = config.component?.manuscripts?.showTitle ?? true;
 
-  // ─────────────────────────────────────────────────────────────────────────────
-  // Private fields (non-reactive)
-  // ─────────────────────────────────────────────────────────────────────────────
   intervalTimerId: number = 0;
   private _lastScrollKey: string | null = null;
 
-  // ─────────────────────────────────────────────────────────────────────────────
-  // Local state signals (mutable, owned by this component)
-  // ─────────────────────────────────────────────────────────────────────────────
   manuscripts = signal<Manuscript[] | null>(null);
   private pickedMsId = signal<number | undefined>(undefined);
   private showNormalizedMs = signal(false);
   private statusMessage = signal<string | null>(null);
 
+
   // ─────────────────────────────────────────────────────────────────────────────
   // Derived computeds (pure, no side-effects)
   // ─────────────────────────────────────────────────────────────────────────────
-
   selectedManuscript = computed<Manuscript | undefined> (() => {
     const list = this.manuscripts();
     if (!list || list.length === 0) {
@@ -82,6 +70,7 @@ export class ManuscriptsComponent {
   });
 
   textLanguage = computed<string>(() => this.selectedManuscript()?.language ?? '');
+
 
   // ─────────────────────────────────────────────────────────────────────────────
   // Constructor: wire side effects (data load, emits, after-render hook)
@@ -154,6 +143,7 @@ export class ManuscriptsComponent {
 
   }
 
+
   // ─────────────────────────────────────────────────────────────────────────────
   // Derived computed that builds the final HTML for the template
   //    - Returns:
@@ -187,15 +177,16 @@ export class ManuscriptsComponent {
     return this.parserService.insertSearchMatchTags(post, this.searchMatches());
   });
 
+
   // ─────────────────────────────────────────────────────────────────────────────
   // Template-facing Observable (consumed via AsyncPipe)
   // ─────────────────────────────────────────────────────────────────────────────
   text$ = toObservable(this.html);
 
+
   // ─────────────────────────────────────────────────────────────────────────────
   // Public UI actions (called from template)
   // ─────────────────────────────────────────────────────────────────────────────
-
   toggleNormalizedManuscript() {
     this.showNormalizedMs.update(v => !v);
   }

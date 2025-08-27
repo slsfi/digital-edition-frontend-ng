@@ -1,9 +1,10 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, map } from 'rxjs';
 
 import { config } from '@config';
 import { TextKey } from '@models/collection.model';
+import { Manuscript, ManuscriptsApiResponse, toManuscript } from '@models/manuscript.models';
 
 
 @Injectable({
@@ -43,11 +44,17 @@ export class CollectionContentService {
     return this.http.get(endpoint);
   }
 
-  getManuscripts(textKey: TextKey, ms_id?: number | string): Observable<any> {
-    const ch_id = textKey.chapterID ? `/${textKey.chapterID}` : '';
-    ms_id = ms_id ? '/' + ms_id : '';
-    const endpoint = `${this.apiURL}/text/${textKey.collectionID}/${textKey.publicationID}/ms${ms_id}${ch_id}`;
-    return this.http.get(endpoint);
+  getManuscripts(textKey: TextKey, msId?: number | string): Observable<Manuscript[]> {
+    const chId = textKey.chapterID ? `/${textKey.chapterID}` : '';
+    msId = msId ? `/${msId}` : '';
+    const endpoint = `${this.apiURL}/text/${textKey.collectionID}/${textKey.publicationID}/ms${msId}${chId}`;
+
+    return this.http.get<ManuscriptsApiResponse>(endpoint).pipe(
+      map((res: ManuscriptsApiResponse) => (res.manuscripts ?? [])
+        .filter(m => !!m.manuscript_changes)  // filter out manuscripts with empty manuscript_changes
+        .map(toManuscript)
+      )
+    );
   }
 
   getManuscriptsList(textKey: TextKey): Observable<any> {

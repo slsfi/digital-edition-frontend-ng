@@ -2,10 +2,11 @@ import { ChangeDetectionStrategy, Component, DestroyRef, ElementRef, Injector, a
 import { AsyncPipe } from '@angular/common';
 import { AlertButton, AlertController, AlertInput, IonicModule } from '@ionic/angular';
 import { toObservable, takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { catchError, map, of, switchMap, tap } from 'rxjs';
+import { catchError, of, switchMap, tap } from 'rxjs';
 
 import { config } from '@config';
 import { TextKey } from '@models/collection.model';
+import { Manuscript } from '@models/manuscript.models';
 import { TrustHtmlPipe } from '@pipes/trust-html.pipe';
 import { CollectionContentService } from '@services/collection-content.service';
 import { HtmlParserService } from '@services/html-parser.service';
@@ -13,6 +14,9 @@ import { ScrollService } from '@services/scroll.service';
 import { ViewOptionsService } from '@services/view-options.service';
 
 
+// ─────────────────────────────────────────────────────────────────────────────
+// * This component is zoneless-ready. *
+// ─────────────────────────────────────────────────────────────────────────────
 @Component({
   selector: 'manuscripts',
   templateUrl: './manuscripts.component.html',
@@ -21,6 +25,9 @@ import { ViewOptionsService } from '@services/view-options.service';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ManuscriptsComponent {
+  // ─────────────────────────────────────────────────────────────────────────────
+  // Dependency injection
+  // ─────────────────────────────────────────────────────────────────────────────
   private alertCtrl = inject(AlertController);
   private collectionContentService = inject(CollectionContentService);
   private destroyRef = inject(DestroyRef);
@@ -30,6 +37,9 @@ export class ManuscriptsComponent {
   private scrollService = inject(ScrollService);
   viewOptionsService = inject(ViewOptionsService);
 
+  // ─────────────────────────────────────────────────────────────────────────────
+  // Input/Output signals
+  // ─────────────────────────────────────────────────────────────────────────────
   readonly msID = input<number>();
   readonly searchMatches = input<string[]>([]);
   readonly textKey = input.required<TextKey>();
@@ -37,21 +47,32 @@ export class ManuscriptsComponent {
   readonly selectedMsID = output<number>();
   readonly selectedMsName = output<string>();
 
+  // ─────────────────────────────────────────────────────────────────────────────
+  // Static config flags
+  // ─────────────────────────────────────────────────────────────────────────────
   readonly showNormalizedToggle: boolean = config.component?.manuscripts?.showNormalizedToggle ?? true;
   readonly showOpenLegendButton: boolean = config.component?.manuscripts?.showOpenLegendButton ?? false;
   readonly showTitle: boolean = config.component?.manuscripts?.showTitle ?? true;
 
-  private _lastScrollKey: string | null = null;
+  // ─────────────────────────────────────────────────────────────────────────────
+  // Private fields (non-reactive)
+  // ─────────────────────────────────────────────────────────────────────────────
   intervalTimerId: number = 0;
+  private _lastScrollKey: string | null = null;
 
-  // local signals
-  private showNormalizedMs = signal(false);
-  manuscripts = signal<any[] | null>(null);
+  // ─────────────────────────────────────────────────────────────────────────────
+  // Local state signals (mutable, owned by this component)
+  // ─────────────────────────────────────────────────────────────────────────────
+  manuscripts = signal<Manuscript[] | null>(null);
   private pickedMsId = signal<number | undefined>(undefined);
+  private showNormalizedMs = signal(false);
   private statusMessage = signal<string | null>(null);
 
-  // selection derived from signals
-  selectedManuscript = computed(() => {
+  // ─────────────────────────────────────────────────────────────────────────────
+  // Derived computeds (pure, no side-effects)
+  // ─────────────────────────────────────────────────────────────────────────────
+
+  selectedManuscript = computed<Manuscript | undefined> (() => {
     const list = this.manuscripts();
     if (!list || list.length === 0) {
       return undefined;
@@ -60,30 +81,32 @@ export class ManuscriptsComponent {
     return list.find(m => m.id === id) ?? list[0];
   });
 
-  textLanguage = computed(() => this.selectedManuscript()?.language ?? '');
+  textLanguage = computed<string>(() => this.selectedManuscript()?.language ?? '');
 
-  // load manuscripts when input signal changes
+  // ─────────────────────────────────────────────────────────────────────────────
+  // Constructor: wire side effects (data load, emits, after-render hook)
+  // ─────────────────────────────────────────────────────────────────────────────
   constructor() {
+    // (a) Load manuscripts when textKey changes
     toObservable(this.textKey).pipe(
       tap(() => {
-        // start a new load
+        // reset state for a new load
         this.manuscripts.set(null);
         this.statusMessage.set(null);
-        this.pickedMsId.set(undefined); // optional: reset selection on textKey change
+        this.pickedMsId.set(undefined);
         this._lastScrollKey = null;
       }),
       switchMap((tk: TextKey) =>
         this.collectionContentService.getManuscripts(tk).pipe(
-          map(res => res?.manuscripts?.filter((m: any) => !!m?.manuscript_changes) ?? []),
           catchError(err => {
             console.error(err);
             this.statusMessage.set($localize`:@@Manuscripts.Error:Ett fel har uppstått. Manuskript kunde inte hämtas.`);
-            return of([] as any[]);
+            return of<Manuscript[]>([]);
           })
         )
       ),
       takeUntilDestroyed(this.destroyRef)
-    ).subscribe(list => {
+    ).subscribe((list: Manuscript[]) => {
       this.manuscripts.set(list);
       // If loaded but empty, show "None" message (unless an error already set one)
       if (list.length === 0 && !this.statusMessage()) {
@@ -91,7 +114,7 @@ export class ManuscriptsComponent {
       }
     });
 
-    // emit outputs when selection changes (only meaningful if >1 item)
+    // (b) Emit outputs when user-visible selection changes (only if multiple manuscripts)
     effect(() => {
       const list = this.manuscripts();
       const m = this.selectedManuscript();
@@ -101,17 +124,23 @@ export class ManuscriptsComponent {
       }
     });
 
+    // (c) After-render hook: scroll to first search match
+    //     Triggers only when:
+    //       - manuscripts finished loading (null -> array)
+    //       - searchMatches changed
+    //       - textKey changed
+    //     Not triggered when user just switches selected manuscript.
     afterRenderEffect({
       write: () => {
-        const ms = this.manuscripts();         // any[] | null
-        const matches = this.searchMatches();  // string[]
-        const tk = this.textKey();             // TextKey
+        const ms = this.manuscripts();
+        const matches = this.searchMatches();
+        const tk = this.textKey();
 
         // only after data finished loading and we have matches
         if (!Array.isArray(ms) || ms.length === 0) return;
         if (matches.length === 0) return;
 
-        // de-dupe: key does NOT include manuscript id → won’t re-scroll on manual change
+        // de-dupe by textKey + matches (no manuscript id)
         const key = `${tk.textItemID}|${matches.join(',')}`;
         if (this._lastScrollKey === key) return;
         this._lastScrollKey = key;
@@ -125,36 +154,48 @@ export class ManuscriptsComponent {
 
   }
 
-  // build final HTML as a computed signal
-  private html = computed(() => {
-    // Show status message (none/error) when present
+  // ─────────────────────────────────────────────────────────────────────────────
+  // Derived computed that builds the final HTML for the template
+  //    - Returns:
+  //        undefined  → "loading" (spinner)
+  //        string     → final HTML or a user-facing status message
+  // ─────────────────────────────────────────────────────────────────────────────
+  private html = computed<string | undefined>(() => {
+    // Show status (None/Error) when present
     const message = this.statusMessage();
     if (message) {
       return message;
     }
 
-    // While loading, return undefined → spinner in template
+    // Loading state: manuscripts === null → spinner in template
     const list = this.manuscripts();
     if (list === null) {
       return undefined;
     }
 
     const m = this.selectedManuscript();
+    // No manuscripts (handled above with a message), but defend anyway
     if (!m) {
-      return ''; // defensive (should be covered by message above)
+      return '';
     }
 
+    // Compose final HTML
     const raw = this.showNormalizedMs()
-          ? m.manuscript_normalized
-          : m.manuscript_changes;
+          ? m.normalizedHtml
+          : m.changesHtml;
     const post = this.parserService.postprocessManuscriptText(raw);
     return this.parserService.insertSearchMatchTags(post, this.searchMatches());
   });
 
-  // and expose it as an Observable for the template
+  // ─────────────────────────────────────────────────────────────────────────────
+  // Template-facing Observable (consumed via AsyncPipe)
+  // ─────────────────────────────────────────────────────────────────────────────
   text$ = toObservable(this.html);
 
-  // UI actions
+  // ─────────────────────────────────────────────────────────────────────────────
+  // Public UI actions (called from template)
+  // ─────────────────────────────────────────────────────────────────────────────
+
   toggleNormalizedManuscript() {
     this.showNormalizedMs.update(v => !v);
   }

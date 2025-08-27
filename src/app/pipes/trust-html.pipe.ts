@@ -13,7 +13,7 @@ export class TrustHtmlPipe implements PipeTransform {
   private sanitizer = inject(DomSanitizer);
 
 
-  transform(html: string | null): SafeHtml {
+  transform(html: string | null | undefined): SafeHtml {
     return this.sanitizer.bypassSecurityTrustHtml(html ?? '');
   }
 }

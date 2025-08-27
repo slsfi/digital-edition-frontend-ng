@@ -369,8 +369,8 @@ export class DownloadTextsModal implements OnDestroy, OnInit {
             (textType === 'com' && res?.comments && !res.comments.error) ||
             (
               textType === 'ms' &&
-              res?.manuscripts?.length > 0 &&
-              res?.manuscripts[0]?.manuscript_changes
+              res?.length > 0 &&
+              res[0]?.changesHtml
             )
           ) {
             let text: string = '';
@@ -382,7 +382,7 @@ export class DownloadTextsModal implements OnDestroy, OnInit {
             } else if (textType === 'com') {
               text = this.getProcessedPrintComments(res);
             } else if (textType === 'ms') {
-              text = this.getProcessedPrintManuscripts(res.manuscripts[0].manuscript_changes, res.manuscripts[0].language, typeTitle);
+              text = this.getProcessedPrintManuscripts(res[0].changesHtml, res[0].language, typeTitle);
             }
 
             try {

@@ -15,7 +15,7 @@ import { HtmlParserService } from '@services/html-parser.service';
 import { MarkdownService } from '@services/markdown.service';
 import { ReferenceDataService } from '@services/reference-data.service';
 import { ViewOptionsService } from '@services/view-options.service';
-import { concatenateNames } from '@utility-functions';
+import { concatenateNames, isFileNotFoundHtml } from '@utility-functions';
 
 
 @Component({
@@ -362,9 +362,7 @@ export class DownloadTextsModal implements OnDestroy, OnInit {
           if (
             (textType === 'intro' && res?.content) ||
             (
-              textType === 'rt' &&
-              res?.content &&
-              res?.content !== '<html xmlns="http://www.w3.org/1999/xhtml"><head></head><body>File not found</body></html>'
+              textType === 'rt' && res?.html && !isFileNotFoundHtml(res.html)
             ) ||
             (textType === 'com' && res?.comments && !res.comments.error) ||
             (
@@ -378,7 +376,7 @@ export class DownloadTextsModal implements OnDestroy, OnInit {
             if (textType === 'intro') {
               text = this.getProcessedPrintIntro(res.content);
             } else if (textType === 'rt') {
-              text = this.getProcessedPrintReadText(res.content, language);
+              text = this.getProcessedPrintReadText(res.html, language);
             } else if (textType === 'com') {
               text = this.getProcessedPrintComments(res);
             } else if (textType === 'ms') {

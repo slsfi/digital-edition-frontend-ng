@@ -1,32 +1,43 @@
-import { Component, ElementRef, OnInit, Renderer2, NgZone, SimpleChanges, OnChanges, OnDestroy, inject, output, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, ElementRef, Injector, NgZone, Renderer2, afterRenderEffect, computed, inject, input, output, signal } from '@angular/core';
+import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
+import { AsyncPipe } from '@angular/common';
 import { IonicModule, ModalController } from '@ionic/angular';
+import { catchError, combineLatest, map, of, switchMap, tap } from 'rxjs';
 
 import { config } from '@config';
 import { MathJaxDirective } from '@directives/math-jax.directive';
 import { IllustrationModal } from '@modals/illustration/illustration.modal';
 import { TextKey } from '@models/collection.model';
+import { ReadingText } from '@models/readingtext.model'
 import { TrustHtmlPipe } from '@pipes/trust-html.pipe';
 import { CollectionContentService } from '@services/collection-content.service';
 import { HtmlParserService } from '@services/html-parser.service';
-import { PlatformService } from '@services/platform.service';
 import { ScrollService } from '@services/scroll.service';
 import { ViewOptionsService } from '@services/view-options.service';
-import { enableFrontMatterPageOrTextViewType, isBrowser } from '@utility-functions';
+import { enableFrontMatterPageOrTextViewType, isBrowser, isFileNotFoundHtml } from '@utility-functions';
 
 
+// ─────────────────────────────────────────────────────────────────────────────
+// * This component is zoneless-ready. *
+// ─────────────────────────────────────────────────────────────────────────────
 @Component({
   selector: 'reading-text',
   templateUrl: './reading-text.component.html',
   styleUrls: ['./reading-text.component.scss'],
-  imports: [IonicModule, MathJaxDirective, TrustHtmlPipe]
+  imports: [AsyncPipe, IonicModule, MathJaxDirective, TrustHtmlPipe],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class ReadingTextComponent implements OnChanges, OnDestroy, OnInit {
+export class ReadingTextComponent {
+  // ─────────────────────────────────────────────────────────────────────────────
+  // Dependency injection, Input/Output signals, Fields, Local state signals
+  // ─────────────────────────────────────────────────────────────────────────────
   private collectionContentService = inject(CollectionContentService);
+  private destroyRef = inject(DestroyRef);
   private elementRef = inject(ElementRef);
+  private injector = inject(Injector);
   private modalController = inject(ModalController);
   private ngZone = inject(NgZone);
   private parserService = inject(HtmlParserService);
-  private platformService = inject(PlatformService);
   private renderer2 = inject(Renderer2);
   private scrollService = inject(ScrollService);
   viewOptionsService = inject(ViewOptionsService);
@@ -38,89 +49,203 @@ export class ReadingTextComponent implements OnChanges, OnDestroy, OnInit {
   readonly openNewIllustrView = output<any>();
   readonly selectedIllustration = output<any>();
 
-  illustrationsViewAvailable: boolean = false;
-  inlineVisibleIllustrations: boolean = false;
   intervalTimerId: number = 0;
-  mobileMode: boolean = false;
-  text: string = '';
-  textLanguage: string = '';
-
   private unlistenClickEvents?: () => void;
+  private _lastScrollKey: string | null = null;
+  private _lastTextPosition: string | null = null;
+  private _listenersAttached = false;
 
-  ngOnChanges(changes: SimpleChanges) {
-    for (const propName in changes) {
-      if (changes.hasOwnProperty(propName)) {
-        if (propName === 'textPosition') {
-          if (
-            !changes.textPosition.firstChange &&
-            changes.textPosition.currentValue &&
-            changes.textPosition.currentValue !== changes.textPosition.previousValue
-          ) {
-            this.scrollToTextPosition();
-          } else if (
-            changes.textPosition.previousValue &&
-            changes.textPosition.currentValue === undefined
-          ) {
-            this.scrollReadingTextToTop();
-          }
-        }
-      }
+  private readingText = signal<ReadingText | null>(null);
+  private statusMessage = signal<string | null>(null);
+
+  illustrationsViewAvailable = computed<boolean>(() =>
+    enableFrontMatterPageOrTextViewType('text', this.textKey().collectionID, config, 'illustrations')
+  );
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // Derived computeds (pure, no side-effects)
+  // ─────────────────────────────────────────────────────────────────────────────
+  textLanguage = computed<string>(() => this.readingText()?.language ?? '');
+
+  // Derived computed that builds the final HTML for the template
+  //    - Returns:
+  //        undefined  → "loading" (spinner)
+  //        string     → final HTML or a user-facing status message
+  private html = computed<string | undefined>(() => {
+    // When status message exists, show that (none/error)
+    const message = this.statusMessage();
+    if (message) {
+      return message;
     }
-  }
 
-  ngOnInit() {
-    this.mobileMode = this.platformService.isMobile();
-
-    const textKey = this.textKey();
-    this.illustrationsViewAvailable = enableFrontMatterPageOrTextViewType(
-      'text', textKey.collectionID, config, 'illustrations'
-    );
-    this.loadReadingText(textKey);
-
-    if (isBrowser()) {
-      this.setUpTextListeners();
+    // Loading (spinner)
+    const data = this.readingText();
+    if (data === null) {
+      return undefined;
     }
-  }
 
-  ngOnDestroy() {
-    this.unlistenClickEvents?.();
-  }
+    // Compose final HTML
+    const tk = this.textKey(); // collection may affect postprocessing
+    const post = this.parserService.postprocessReadingText(data.html, tk.collectionID);
+    return this.parserService.insertSearchMatchTags(post, this.searchMatches());
+  });
 
-  private loadReadingText(textKey: TextKey) {
-    this.collectionContentService.getReadingText(textKey, this.language()).subscribe({
-      next: (res) => {
-        if (
-          res?.content &&
-          res?.content !== '<html xmlns="http://www.w3.org/1999/xhtml"><head></head><body>File not found</body></html>'
-        ) {
-          let text: string = this.parserService.postprocessReadingText(res.content, textKey.collectionID);
-          this.text = this.parserService.insertSearchMatchTags(text, this.searchMatches());
-          this.inlineVisibleIllustrations = this.parserService.readingTextHasVisibleIllustrations(text);
+  /** Whether the postprocessed text contains inline-visible illustrations */
+  inlineVisibleIllustrations = computed(() =>
+    this.parserService.readingTextHasVisibleIllustrations(this.html() ?? '')
+  );
 
-          if (this.textPosition()) {
-            this.scrollToTextPosition();
-          } else if (this.searchMatches().length) {
-            this.scrollService.scrollToFirstSearchMatch(this.elementRef.nativeElement, this.intervalTimerId);
-          }
-        } else {
-          this.text = $localize`:@@ReadingText.None:Det finns ingen utskriven lästext, se faksimil.`;
-        }
-        if (res?.language) {
-          this.textLanguage = res.language;
-        } else {
-          this.textLanguage = '';
-        }
-      },
-      error: (e) => {
-        console.error(e);
-        this.text = $localize`:@@ReadingText.Error:Ett fel har uppstått. Lästexten kunde inte hämtas.`;
+  // ─────────────────────────────────────────────────────────────────────────────
+  // Template-facing Observable (consumed via AsyncPipe)
+  // ─────────────────────────────────────────────────────────────────────────────
+  text$ = toObservable(this.html);
+  
+  // ─────────────────────────────────────────────────────────────────────────────
+  // Constructor: wire side-effects (load, outputs, after-render, listeners, cleanup)
+  // ─────────────────────────────────────────────────────────────────────────────
+  constructor() {
+    // Load whenever textKey or language changes
+    combineLatest([
+      toObservable(this.textKey),
+      toObservable(this.language)
+    ]).pipe(
+      // reset for a new load
+      map(([tk, lang]) => ({ tk, lang })),
+      tap(() => {
+        this.readingText.set(null);
+        this.statusMessage.set(null);
+        this._lastScrollKey = null;
+        // Track last textPosition so we can detect "unset" → scroll to top
+        this._lastTextPosition = this.textPosition() || null;
+      }),
+      switchMap(({ tk, lang }) =>
+        this.collectionContentService.getReadingText(tk, lang).pipe(
+          // If backend ever sends a "File not found" HTML
+          map((rt: ReadingText) => {
+            if (!rt?.html || isFileNotFoundHtml(rt.html)) {
+              this.statusMessage.set($localize`:@@ReadingText.None:Det finns ingen utskriven lästext, se faksimil.`);
+              // Still return object so language is available; UI shows message via statusMessage
+              return rt;
+            }
+            return rt;
+          }),
+          catchError(err => {
+            console.error(err);
+            this.statusMessage.set($localize`:@@ReadingText.Error:Ett fel har uppstått. Lästexten kunde inte hämtas.`);
+            // Keep reading as null (spinner will stop due to statusMessage)
+            return of<ReadingText | null>(null);
+          })
+        )
+      ),
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe(rt => {
+      if (rt) {
+        this.readingText.set(rt);
+      } else if (!this.statusMessage()) {
+        // defensive: if we got null without a message, show a generic one
+        this.statusMessage.set($localize`:@@ReadingText.Error:Ett fel har uppstått. Lästexten kunde inte hämtas.`);
       }
     });
+
+    // Clean up attached listeners and interval timer on destroy
+    this.destroyRef.onDestroy(() => {
+      this.unlistenClickEvents?.();
+      clearInterval(this.intervalTimerId);
+    });
+
+    // After-render: perform scrolling when appropriate.
+    // Triggers when:
+    //  - content finished loading,
+    //  - textKey changed,
+    //  - textPosition changed,
+    //  - searchMatches changed (only when no textPosition).
+    afterRenderEffect({
+      write: () => {
+        const data = this.readingText();           // null (loading) or ReadingText
+        const tk = this.textKey();
+        const pos = this.textPosition();
+        const matches = this.searchMatches();
+
+        // Only act when content exists
+        if (data === null) {
+          return;
+        }
+
+        // Attach listeners once (browser only) after first render (safe for zoneless)
+        if (!this._listenersAttached && isBrowser()) {
+          this._listenersAttached = true;
+          this.setUpTextListeners();
+        }
+
+        // Detect "pos changed → scroll to anchor" or "pos unset after being set → top"
+        const prevPos = this._lastTextPosition;
+        this._lastTextPosition = pos || null;
+
+        if (pos) {
+          const key = `${tk.textItemID};${pos}`;
+          if (this._lastScrollKey !== key) {
+            this._lastScrollKey = key;
+            this.scrollToTextPosition();
+          }
+          return;
+        }
+
+        // If previously had a pos but now it's empty → scroll to top
+        if (prevPos && !pos) {
+          this.scrollReadingTextToTop();
+          // fall through to maybe handle first-search-match in a new navigation
+        }
+
+        // No textPosition: optionally scroll to first search match (once per tk+matches)
+        if (matches.length > 0) {
+          const key = `${tk.textItemID}|matches:${matches.join(',')}`;
+          if (this._lastScrollKey !== key) {
+            this._lastScrollKey = key;
+            this.scrollService.scrollToFirstSearchMatch(this.elementRef.nativeElement, this.intervalTimerId);
+          }
+        }
+      }
+    }, { injector: this.injector });
   }
 
+  // ─────────────────────────────────────────────────────────────────────────────
+  // Public UI actions (called from template or event handlers)
+  // ─────────────────────────────────────────────────────────────────────────────
+
+  /** Open a clicked image in a new illustrations view */
+  private openIllustrationInNewView(image: any) {
+    image.viewType = 'illustrations';
+    this.openNewIllustrView.emit(image);
+  }
+
+  /** Update the currently selected image in an existing illustrations view */
+  private updateSelectedIllustrationImage(image: any) {
+    image.viewType = 'illustrations';
+    this.selectedIllustration.emit(image);
+  }
+
+  /** Open a specific illustration in a modal dialog */
+  private async openIllustration(imageNumber: string) {
+    const modal = await this.modalController.create({
+      component: IllustrationModal,
+      componentProps: { 'imageNumber': imageNumber }
+    });
+    modal.present();
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // DOM listeners / scrolling helpers (zoneless-safe)
+  // ─────────────────────────────────────────────────────────────────────────────
+
+  /** Attach a single click listener to the component root and delegate */
   private setUpTextListeners() {
+    if (!isBrowser()) {
+      return;
+    }
+
     const nElement: HTMLElement = this.elementRef.nativeElement;
 
+    // Attach the listener outside Angular so clicks don’t trigger global CD
     this.ngZone.runOutsideAngular(() => {
 
       /* CLICK EVENTS */
@@ -130,43 +255,43 @@ export class ReadingTextComponent implements OnChanges, OnDestroy, OnInit {
 
           // Some of the texts, e.g. ordsprak.sls.fi, have links to external sites
           if (
-            eventTarget.hasAttribute('href') === true &&
-            eventTarget.getAttribute('href')?.includes('http') === false
+            eventTarget.hasAttribute('href') &&
+            !eventTarget.getAttribute('href')?.includes('http')
           ) {
             event.preventDefault();
           }
 
-          let image: any = null;
+          let image: { src: string; class: string } | null = null;
 
           // Check if click on an illustration or icon representing an illustration
           if (eventTarget.classList.contains('doodle') && eventTarget.hasAttribute('src')) {
             // Click on a pictogram ("doodle")
             image = {
               src: this.parserService.getMappedMediaCollectionURL(this.textKey()?.collectionID ?? '')
-                   + String(eventTarget.dataset['id']).replace('tag_', '') + '.jpg',
+                   + String((eventTarget as any).dataset['id']).replace('tag_', '') + '.jpg',
               class: 'doodle'
             };
-          } else if (this.inlineVisibleIllustrations) {
+          } else if (this.inlineVisibleIllustrations()) {
             // There are possibly visible illustrations in the read text. Check if click on such an image.
             if (
               eventTarget.classList.contains('est_figure_graphic') &&
               eventTarget.hasAttribute('src')
             ) {
-              image = { src: event.target.src, class: 'visible-illustration' };
+              image = { src: (eventTarget as HTMLImageElement).src, class: 'visible-illustration' };
             }
           } else {
             // Check if click on an icon representing an image which is NOT visible in the reading text
+            const prev = eventTarget.previousElementSibling as (HTMLElement | null);
             if (
-              eventTarget.previousElementSibling !== null &&
-              eventTarget.previousElementSibling.classList.contains('est_figure_graphic') &&
-              eventTarget.previousElementSibling.hasAttribute('src')
+              prev?.classList.contains('est_figure_graphic') &&
+              prev?.hasAttribute('src')
             ) {
-              image = { src: event.target.previousElementSibling.src, class: 'illustration' };
+              image = { src: (prev as HTMLImageElement).src, class: 'illustration' };
             }
           }
 
           // Check if we have an image to show in the illustrations-view
-          if (image !== null) {
+          if (image) {
             // Check if we have an illustrations-view open, if not, open and display the clicked image there
             if (document.querySelector(
               'page-text:not([ion-page-hidden]):not(.ion-page-hidden) illustrations'
@@ -186,11 +311,13 @@ export class ReadingTextComponent implements OnChanges, OnDestroy, OnInit {
         }
 
         // Check if click on an icon which links to an illustration that should be opened in a modal
+        const target = event.target as HTMLElement;
+        const parent = target.parentElement;
         if (
-          event.target.classList.contains('ref_illustration') ||
-          event.target.parentNode.classList.contains('ref_illustration')
+          target.classList.contains('ref_illustration') ||
+          parent?.classList.contains('ref_illustration')
         ) {
-          const hashNumber = event.target.parentNode.hash ?? event.target.hash;
+          const hashNumber = (parent as HTMLAnchorElement)?.hash ?? (target as HTMLAnchorElement)?.hash;
           const imageNumber = hashNumber?.split('#')[1] || '';
           this.ngZone.run(() => {
             this.openIllustration(imageNumber);
@@ -201,75 +328,59 @@ export class ReadingTextComponent implements OnChanges, OnDestroy, OnInit {
     });
   }
 
-  /**
-   * Function for opening the passed image in a new illustrations-view.
-   */
-  private openIllustrationInNewView(image: any) {
-    image.viewType = 'illustrations';
-    this.openNewIllustrView.emit(image);
-  }
-
-  private updateSelectedIllustrationImage(image: any) {
-    image.viewType = 'illustrations';
-    this.selectedIllustration.emit(image);
-  }
-
-  private async openIllustration(imageNumber: string) {
-    const modal = await this.modalController.create({
-      component: IllustrationModal,
-      componentProps: { 'imageNumber': imageNumber }
-    });
-    modal.present();
-  }
-
   private scrollToTextPosition() {
     // Scroll to textPosition if defined.
-    if (isBrowser() && this.textPosition()) {
-      this.ngZone.runOutsideAngular(() => {
-        let iterationsLeft = 10;
-        clearInterval(this.intervalTimerId);
-        const that = this;
-        const nElement: HTMLElement = this.elementRef.nativeElement;
-
-        this.intervalTimerId = window.setInterval(function() {
-          if (iterationsLeft < 1) {
-            clearInterval(that.intervalTimerId);
-          } else {
-            iterationsLeft -= 1;
-            let target = nElement.querySelector(
-              '[name="' + that.textPosition() + '"]'
-            ) as HTMLAnchorElement;
-            if (
-              target && (
-                (target.parentElement && target.parentElement.classList.contains('ttFixed')) ||
-                (target.parentElement?.parentElement && target.parentElement?.parentElement.classList.contains('ttFixed'))
-              )
-            ) {
-              target = nElement.querySelectorAll(
-                '[name="' + that.textPosition() + '"]'
-              )[1] as HTMLAnchorElement;
-            }
-            if (target) {
-              that.scrollService.scrollToHTMLElement(target);
-              clearInterval(that.intervalTimerId);
-            }
-          }
-        }.bind(this), 1000);
-      });
+    if (!isBrowser()) {
+      return;
     }
+    const targetName = this.textPosition();
+    if (!targetName) {
+      return;
+    }
+
+    const nElement: HTMLElement = this.elementRef.nativeElement;
+    let iterationsLeft = 10;
+    clearInterval(this.intervalTimerId);
+
+    this.intervalTimerId = window.setInterval(() => {
+      if (iterationsLeft-- < 1) {
+        clearInterval(this.intervalTimerId);
+        return;
+      }
+      let target = nElement.querySelector(
+        `[name="${targetName}"]`
+      ) as (HTMLAnchorElement | null);
+      const parent = target?.parentElement;
+
+      // If the first anchor lives inside a fixed header, pick the second occurrence
+      if (
+        parent?.classList.contains('ttFixed') ||
+        parent?.parentElement?.classList.contains('ttFixed')
+      ) {
+        const all = nElement.querySelectorAll(`[name="${targetName}"]`);
+        target = all.length > 1 ? (all[1] as HTMLAnchorElement) : target;
+      }
+
+      if (target) {
+        this.scrollService.scrollToHTMLElement(target);
+        clearInterval(this.intervalTimerId);
+      }
+    }, 1000);
   }
 
   private scrollReadingTextToTop() {
-    if (isBrowser()) {
-      this.ngZone.runOutsideAngular(() => {
-        const target = document.querySelector(
-          'page-text:not([ion-page-hidden]):not(.ion-page-hidden) reading-text'
-        ) as HTMLElement;
-        if (target) {
-          this.scrollService.scrollElementIntoView(target, 'top', 50);
-        }
-      });
+    if (!isBrowser()) {
+      return;
     }
+
+    this.ngZone.runOutsideAngular(() => {
+      const target = document.querySelector(
+        'page-text:not([ion-page-hidden]):not(.ion-page-hidden) reading-text'
+      ) as (HTMLElement | null);
+      if (target) {
+        this.scrollService.scrollElementIntoView(target, 'top', 50);
+      }
+    });
   }
 
 }

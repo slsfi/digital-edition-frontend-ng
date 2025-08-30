@@ -8,7 +8,9 @@ import { render } from 'dom-serializer';
 import { config } from '@config';
 import { HeadingNode } from '@models/article.model';
 import { TextKey } from '@models/collection.model';
+import { ReadingText } from '@models/readingtext.model';
 import { CollectionContentService } from '@services/collection-content.service';
+import { isFileNotFoundHtml } from '@utility-functions';
 
 
 @Injectable({
@@ -65,19 +67,13 @@ export class HtmlParserService {
 
   getReadingTextIllustrations(textKey: TextKey): Observable<any> {
     return this.collectionContentService.getReadingText(textKey).pipe(
-      map((res) => {
+      map((rt: ReadingText) => {
         const images: any[] = [];
-        if (
-          res &&
-          res.content &&
-          res.content !== '<html xmlns="http://www.w3.org/1999/xhtml"><head></head><body>File not found</body></html>'
-        ) {
+        if (rt?.html && !isFileNotFoundHtml(rt.html)) {
           const _apiURL = this.apiURL;
           const collectionID = textKey.collectionID;
-          let text = res.content as string;
-          text = this.postprocessReadingText(text, collectionID);
-
           const galleryId = this.mediaCollectionMappings?.[collectionID];
+          let text = this.postprocessReadingText(rt.html, collectionID);
 
           // Parse the read text html to get all illustrations in it using
           // SSR compatible htmlparser2

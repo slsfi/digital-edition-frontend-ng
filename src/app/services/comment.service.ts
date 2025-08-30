@@ -4,6 +4,7 @@ import { map, Observable, of } from 'rxjs';
 
 import { config } from '@config';
 import { TextKey } from '@models/collection.model';
+import { Comments, CommentsApiResponse, toComments } from '@models/comments.model';
 
 
 @Injectable({
@@ -24,24 +25,26 @@ export class CommentService {
    * <chapterID> is optional.
    * @returns Observable of string.
    */
-  getComments(textKey: TextKey): Observable<any> {
+  getComments(textKey: TextKey): Observable<string> {
     const textItemID = textKey.textItemID;
 
     if (this.cachedCollectionComments.hasOwnProperty(textItemID)) {
       // The comments for the text are cached
       return of(this.cachedCollectionComments[textItemID]);
     } else {
-      const ch_id = textKey.chapterID ? `/${textKey.chapterID}/${textKey.chapterID}` : '';
-      const endpoint = `${this.apiURL}/text/${textKey.collectionID}/${textKey.publicationID}/com${ch_id}`;
+      const chId = textKey.chapterID ? `/${textKey.chapterID}/${textKey.chapterID}` : '';
+      const endpoint = `${this.apiURL}/text/${textKey.collectionID}/${textKey.publicationID}/com${chId}`;
 
-      return this.http.get(endpoint).pipe(
-        map((body: any) => {
-          if (body?.content) {
-            body = this.postprocessCommentsText(body.content);
+      return this.http.get<CommentsApiResponse>(endpoint).pipe(
+        map(toComments),
+        map((com: Comments) => {
+          if (com?.html) {
+            const html = this.postprocessCommentsText(com.html);
             this.clearCachedCollectionComments();
-            this.cachedCollectionComments[textItemID] = body;
+            this.cachedCollectionComments[textItemID] = html;
+            return html;
           }
-          return body || '';
+          return '';
         })
       );
     }
@@ -53,7 +56,7 @@ export class CommentService {
    * @param elementID Unique class name of the html element wrapping the comment.
    * @returns Observable of string.
    */
-  getSingleComment(textKey: TextKey, elementID: string): Observable<any> {
+  getSingleComment(textKey: TextKey, elementID: string): Observable<string> {
     if (!elementID) {
       return of('');
     }

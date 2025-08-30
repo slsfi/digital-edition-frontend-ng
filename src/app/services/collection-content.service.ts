@@ -5,6 +5,7 @@ import { Observable, map } from 'rxjs';
 import { config } from '@config';
 import { TextKey } from '@models/collection.model';
 import { Manuscript, ManuscriptsApiResponse, toManuscript } from '@models/manuscript.models';
+import { ReadingText, ReadingTextApiResponse, toReadingText } from '@models/readingtext.model';
 
 
 @Injectable({
@@ -35,13 +36,15 @@ export class CollectionContentService {
     return this.http.get(endpoint);
   }
 
-  getReadingText(textKey: TextKey, language: string = ''): Observable<any> {
+  getReadingText(textKey: TextKey, language: string = ''): Observable<ReadingText> {
     const estFolder = language ? 'est-i18n' : 'est';
-    const ch_id = textKey.chapterID ? `/${textKey.chapterID}` : '';
+    const chId = textKey.chapterID ? `/${textKey.chapterID}` : '';
     const lang = language ? `/${language}` : '';
     const endpoint = `${this.apiURL}/text/`
-          + `${textKey.collectionID}/${textKey.publicationID}/${estFolder}${ch_id}${lang}`;
-    return this.http.get(endpoint);
+          + `${textKey.collectionID}/${textKey.publicationID}/${estFolder}${chId}${lang}`;
+    return this.http.get<ReadingTextApiResponse>(endpoint).pipe(
+      map(toReadingText)
+    );
   }
 
   getManuscripts(textKey: TextKey, msId?: number | string): Observable<Manuscript[]> {

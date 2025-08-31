@@ -3,6 +3,7 @@ import { IonicModule, ModalController } from '@ionic/angular';
 
 import { IllustrationModal } from '@modals/illustration/illustration.modal';
 import { TextKey } from '@models/collection.model';
+import { CorrespondenceMetadata, CorrespondentData, LetterData } from '@models/metadata.model';
 import { TrustHtmlPipe } from '@pipes/trust-html.pipe';
 import { CommentService } from '@services/comment.service';
 import { HtmlParserService } from '@services/html-parser.service';
@@ -35,7 +36,7 @@ export class CommentsComponent implements OnInit, OnDestroy {
   readonly setMobileModeActiveText = output<string>();
 
   intervalTimerId: number = 0;
-  letter: any = undefined;
+  letter?: LetterData = undefined;
   manuscript: any = undefined;
   mobileMode: boolean = true;
   receiver: string = '';
@@ -81,24 +82,27 @@ export class CommentsComponent implements OnInit, OnDestroy {
 
   getCorrespondanceMetadata(textKey: TextKey) {
     this.commentService.getCorrespondanceMetadata(textKey.publicationID).subscribe(
-      (text: any) => {
-        if (text?.subjects?.length > 0) {
+      (cm: CorrespondenceMetadata | null) => {
+        if (cm === null) {
+          return;
+        }
+        if (cm.subjects?.length > 0) {
           const senders: string[] = [];
           const receivers: string[] = [];
-          text.subjects.forEach((subject: any) => {
-            if (subject['avs\u00e4ndare']) {
-              senders.push(subject['avs\u00e4ndare']);
+          cm.subjects.forEach((subject: CorrespondentData) => {
+            if (subject.sender) {
+              senders.push(subject.sender);
             }
-            if (subject['mottagare']) {
-              receivers.push(subject['mottagare']);
+            if (subject.receiver) {
+              receivers.push(subject.receiver);
             }
           });
           this.sender = concatenateNames(senders);
           this.receiver = concatenateNames(receivers);
         }
 
-        if (text?.letter) {
-          this.letter = text.letter;
+        if (cm.letter) {
+          this.letter = cm.letter;
         }
       }
     );

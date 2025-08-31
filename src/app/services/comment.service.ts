@@ -4,7 +4,8 @@ import { map, Observable, of } from 'rxjs';
 
 import { config } from '@config';
 import { TextKey } from '@models/collection.model';
-import { Comments, CommentsApiResponse, toComments } from '@models/comments.model';
+import { CommentsApiResponse } from '@models/comments.model';
+import { CorrespondenceMetadata, CorrespondenceMetadataApiResponse, toCorrespondenceMetadata } from '@models/metadata.model';
 
 
 @Injectable({
@@ -36,10 +37,9 @@ export class CommentService {
       const endpoint = `${this.apiURL}/text/${textKey.collectionID}/${textKey.publicationID}/com${chId}`;
 
       return this.http.get<CommentsApiResponse>(endpoint).pipe(
-        map(toComments),
-        map((com: Comments) => {
-          if (com?.html) {
-            const html = this.postprocessCommentsText(com.html);
+        map((com: CommentsApiResponse) => {
+          if (com?.content) {
+            const html = this.postprocessCommentsText(com.content);
             this.clearCachedCollectionComments();
             this.cachedCollectionComments[textItemID] = html;
             return html;
@@ -80,15 +80,24 @@ export class CommentService {
     }
   }
 
-  getCorrespondanceMetadata(publicationId: string): Observable<any> {
+  getCorrespondanceMetadata(publicationId: string): Observable<CorrespondenceMetadata | null> {
     const endpoint = `${this.apiURL}/correspondence/publication/metadata/${publicationId}`;
-    return this.http.get(endpoint);
+    return this.http.get<CorrespondenceMetadataApiResponse | []>(endpoint).pipe(
+      map((response) => {
+        if (Array.isArray(response)) {
+          // Backend sent []
+          return null;
+        }
+        // Transform the API response to CorrespondenceMetadata
+        return toCorrespondenceMetadata(response);
+      })
+    );
   }
 
   getDownloadableComments(textKey: TextKey, format: string): Observable<any> {
-    const ch_id = textKey.chapterID ? `/${textKey.chapterID}` : '';
+    const chId = textKey.chapterID ? `/${textKey.chapterID}` : '';
     const endpoint = `${this.apiURL}/text/downloadable/${format}`
-          + `/${textKey.collectionID}/${textKey.publicationID}/com${ch_id}`;
+          + `/${textKey.collectionID}/${textKey.publicationID}/com${chId}`;
     return this.http.get(endpoint);
   }
 

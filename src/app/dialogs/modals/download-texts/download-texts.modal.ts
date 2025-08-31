@@ -16,6 +16,7 @@ import { MarkdownService } from '@services/markdown.service';
 import { ReferenceDataService } from '@services/reference-data.service';
 import { ViewOptionsService } from '@services/view-options.service';
 import { concatenateNames, isFileNotFoundHtml } from '@utility-functions';
+import { CorrespondentData, LetterData } from '@models/metadata.model';
 
 
 @Component({
@@ -443,32 +444,30 @@ export class DownloadTextsModal implements OnDestroy, OnInit {
     let text = this.constructHtmlForPrint(commentsData.comments, 'com');
     let metaContent = '';
 
-    if (commentsData.metadata?.letter) {
+    if (commentsData.metadata !== null && commentsData.metadata?.letter) {
       let concatSenders = '';
       let concatReceivers = '';
 
       if (commentsData.metadata?.subjects?.length > 0) {
         const senders: string[] = [];
         const receivers: string[] = [];
-        commentsData.metadata.subjects.forEach((subject: any) => {
-          if (subject['avs\u00e4ndare']) {
-            senders.push(subject['avs\u00e4ndare']);
+        commentsData.metadata.subjects.forEach((subject: CorrespondentData) => {
+          if (subject.sender) {
+            senders.push(subject.sender);
           }
-          if (subject['mottagare']) {
-            receivers.push(subject['mottagare']);
+          if (subject.receiver) {
+            receivers.push(subject.receiver);
           }
         });
         concatSenders = concatenateNames(senders);
         concatReceivers = concatenateNames(receivers);
       }
 
-      if (commentsData.metadata.letter) {
-        metaContent = this.getCorrespondenceDataAsHtml(
-          commentsData.metadata.letter, concatSenders, concatReceivers
-        );
-        const contentParts = text.split('</div>\n</comments>');
-        text = contentParts[0] + metaContent + '</div>\n</comments>' + contentParts[1];
-      }
+      metaContent = this.getCorrespondenceDataAsHtml(
+        commentsData.metadata.letter, concatSenders, concatReceivers
+      );
+      const contentParts = text.split('</div>\n</comments>');
+      text = contentParts[0] + metaContent + '</div>\n</comments>' + contentParts[1];
     }
     return text;
   }
@@ -790,7 +789,7 @@ export class DownloadTextsModal implements OnDestroy, OnInit {
     return filename;
   }
 
-  private getCorrespondenceDataAsHtml(data: any, concatSenders: string, concatReceivers: string): string {
+  private getCorrespondenceDataAsHtml(data: LetterData, concatSenders: string, concatReceivers: string): string {
     let mContent = '';
     mContent += '<div class="ms">\n';
     mContent += '<h3>' + $localize`:@@Commentary.Manuscript.Title:Manuskriptbeskrivning` + '</h3>\n';

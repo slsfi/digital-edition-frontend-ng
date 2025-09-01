@@ -126,18 +126,19 @@ export class ManuscriptsComponent {
         const tk = this.textKey();
 
         // only after data finished loading and we have matches
-        if (!Array.isArray(ms) || ms.length === 0) return;
-        if (matches.length === 0) return;
+        if (!Array.isArray(ms) || ms.length === 0 || matches.length === 0) {
+          return;
+        }
 
-        // de-dupe by textKey + matches (no manuscript id)
-        const key = `${tk.textItemID}|${matches.join(',')}`;
-        if (this._lastScrollKey === key) return;
-        this._lastScrollKey = key;
+        const key = `${tk.textItemID}|matches:${matches.join(',')}`;
+        if (this._lastScrollKey !== key) {
+          this._lastScrollKey = key;
 
-        this.scrollService.scrollToFirstSearchMatch(
-          this.elementRef.nativeElement,
-          this.intervalTimerId
-        );
+          this.scrollService.scrollToFirstSearchMatch(
+            this.elementRef.nativeElement,
+            this.intervalTimerId
+          );
+        }
       }
     }, { injector: this.injector });
 

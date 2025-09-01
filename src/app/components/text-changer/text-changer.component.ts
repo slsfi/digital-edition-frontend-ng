@@ -141,20 +141,33 @@ export class TextChangerComponent implements OnChanges, OnDestroy, OnInit {
    * text, the parent text title is set as the document title.
    */
   private updateCurrentText() {
-    const foundTextIndex = this.getCurrentTextIndex();
-    if (foundTextIndex > -1) {
-      this.currentTocTextIndex = foundTextIndex;
+    const pageType = this.parentPageType()
+
+    // Initially search for ToC item matching tocItemId, which includes position.
+    // If not found, search for ToC item matching textItemId, which excludes
+    // position.
+    const tocItemIdIndex = this.getCurrentTextIndex(this.tocItemId, pageType);
+    const textItemIdIndex = tocItemIdIndex < 0
+          ? this.getCurrentTextIndex(this.textItemID, pageType)
+          : -1;
+    
+    if (tocItemIdIndex > -1) {
+      this.currentTocTextIndex = tocItemIdIndex;
+    } else if (textItemIdIndex > -1) {
+      this.currentTocTextIndex = textItemIdIndex;
     } else {
       console.error('Unable to find the current text in flattenedTOC in text-changer component.');
       this.currentTocTextIndex = 0;
     }
 
     // Set the document title to the current text title.
-    // Positioned item's title should not be set. Instead, if a frontmatter
-    // page ("page" key present), we have to search for the non-positioned
+    // Positioned item's title should not be set. Instead, if not a frontmatter
+    // page ("page" key missing), we have to search for the non-positioned
     // item's title.
-    const titleItemIndex = this.textPosition && !this.flattenedToc[this.currentTocTextIndex].page
-          ? this.flattenedToc.findIndex(({ itemId }) => itemId === this.textItemID)
+    const titleItemIndex = this.textPosition && pageType === 'text'
+          ? (textItemIdIndex < 0
+                ? this.getCurrentTextIndex(this.textItemID, pageType)
+                : textItemIdIndex)
           : this.currentTocTextIndex;
 
     const itemTitle = titleItemIndex > -1
@@ -164,12 +177,12 @@ export class TextChangerComponent implements OnChanges, OnDestroy, OnInit {
     this.headService.setTitle([itemTitle, this.collectionTitle]);
   }
 
-  private getCurrentTextIndex() {
+  private getCurrentTextIndex(searchItemId: string, pageType: string): number {
     return this.flattenedToc.findIndex(item => {
-      if (!item.page && item.itemId === this.tocItemId) {
+      if (!item.page && item.itemId === searchItemId) {
         return true;
       }
-      return item.page === this.parentPageType();
+      return item.page === pageType;
     });
   }
 }

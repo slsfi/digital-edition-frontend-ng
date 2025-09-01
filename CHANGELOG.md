@@ -35,6 +35,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - Error message for missing collection text comments.
 - Broken relative non-fragment links in the legend component.
 - Missing CSS variable for setting the background color of the article table of contents (added `--article-toc-background-color`).
+- Current text title in text-changer for non-ToC text positions.
 
 
 

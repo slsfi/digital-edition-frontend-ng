@@ -4,6 +4,8 @@ import { map, Observable, of } from 'rxjs';
 
 import { config } from '@config';
 import { TextKey } from '@models/collection.model';
+import { CommentsApiResponse } from '@models/comments.model';
+import { CorrespondenceMetadata, CorrespondenceMetadataApiResponse, toCorrespondenceMetadata } from '@models/metadata.model';
 
 
 @Injectable({
@@ -24,24 +26,25 @@ export class CommentService {
    * <chapterID> is optional.
    * @returns Observable of string.
    */
-  getComments(textKey: TextKey): Observable<any> {
+  getComments(textKey: TextKey): Observable<string> {
     const textItemID = textKey.textItemID;
 
     if (this.cachedCollectionComments.hasOwnProperty(textItemID)) {
       // The comments for the text are cached
       return of(this.cachedCollectionComments[textItemID]);
     } else {
-      const ch_id = textKey.chapterID ? `/${textKey.chapterID}/${textKey.chapterID}` : '';
-      const endpoint = `${this.apiURL}/text/${textKey.collectionID}/${textKey.publicationID}/com${ch_id}`;
+      const chId = textKey.chapterID ? `/${textKey.chapterID}/${textKey.chapterID}` : '';
+      const endpoint = `${this.apiURL}/text/${textKey.collectionID}/${textKey.publicationID}/com${chId}`;
 
-      return this.http.get(endpoint).pipe(
-        map((body: any) => {
-          if (body?.content) {
-            body = this.postprocessCommentsText(body.content);
+      return this.http.get<CommentsApiResponse>(endpoint).pipe(
+        map((com: CommentsApiResponse) => {
+          if (com?.content) {
+            const html = this.postprocessCommentsText(com.content);
             this.clearCachedCollectionComments();
-            this.cachedCollectionComments[textItemID] = body;
+            this.cachedCollectionComments[textItemID] = html;
+            return html;
           }
-          return body || '';
+          return '';
         })
       );
     }
@@ -53,7 +56,7 @@ export class CommentService {
    * @param elementID Unique class name of the html element wrapping the comment.
    * @returns Observable of string.
    */
-  getSingleComment(textKey: TextKey, elementID: string): Observable<any> {
+  getSingleComment(textKey: TextKey, elementID: string): Observable<string> {
     if (!elementID) {
       return of('');
     }
@@ -77,15 +80,24 @@ export class CommentService {
     }
   }
 
-  getCorrespondanceMetadata(publicationId: string): Observable<any> {
+  getCorrespondanceMetadata(publicationId: string): Observable<CorrespondenceMetadata | null> {
     const endpoint = `${this.apiURL}/correspondence/publication/metadata/${publicationId}`;
-    return this.http.get(endpoint);
+    return this.http.get<CorrespondenceMetadataApiResponse | []>(endpoint).pipe(
+      map((response) => {
+        if (Array.isArray(response)) {
+          // Backend sent []
+          return null;
+        }
+        // Transform the API response to CorrespondenceMetadata
+        return toCorrespondenceMetadata(response);
+      })
+    );
   }
 
   getDownloadableComments(textKey: TextKey, format: string): Observable<any> {
-    const ch_id = textKey.chapterID ? `/${textKey.chapterID}` : '';
+    const chId = textKey.chapterID ? `/${textKey.chapterID}` : '';
     const endpoint = `${this.apiURL}/text/downloadable/${format}`
-          + `/${textKey.collectionID}/${textKey.publicationID}/com${ch_id}`;
+          + `/${textKey.collectionID}/${textKey.publicationID}/com${chId}`;
     return this.http.get(endpoint);
   }
 

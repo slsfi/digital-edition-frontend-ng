@@ -53,7 +53,6 @@ export class ReadingTextComponent {
   private unlistenClickEvents?: () => void;
   private _lastScrollKey: string | null = null;
   private _lastTextPosition: string | null = null;
-  private _listenersAttached = false;
 
   private readingText = signal<ReadingText | null>(null);
   private statusMessage = signal<string | null>(null);
@@ -109,9 +108,9 @@ export class ReadingTextComponent {
       toObservable(this.textKey),
       toObservable(this.language)
     ]).pipe(
-      // reset for a new load
       map(([tk, lang]) => ({ tk, lang })),
       tap(() => {
+        // reset for a new load
         this.readingText.set(null);
         this.statusMessage.set(null);
         this._lastScrollKey = null;
@@ -150,6 +149,7 @@ export class ReadingTextComponent {
     // Clean up attached listeners and interval timer on destroy
     this.destroyRef.onDestroy(() => {
       this.unlistenClickEvents?.();
+      this.unlistenClickEvents = undefined;
       clearInterval(this.intervalTimerId);
     });
 
@@ -172,8 +172,7 @@ export class ReadingTextComponent {
         }
 
         // Attach listeners once (browser only) after first render (safe for zoneless)
-        if (!this._listenersAttached && isBrowser()) {
-          this._listenersAttached = true;
+        if (isBrowser() && !this.unlistenClickEvents) {
           this.setUpTextListeners();
         }
 
@@ -201,7 +200,10 @@ export class ReadingTextComponent {
           const key = `${tk.textItemID}|matches:${matches.join(',')}`;
           if (this._lastScrollKey !== key) {
             this._lastScrollKey = key;
-            this.scrollService.scrollToFirstSearchMatch(this.elementRef.nativeElement, this.intervalTimerId);
+            this.scrollService.scrollToFirstSearchMatch(
+              this.elementRef.nativeElement,
+              this.intervalTimerId
+            );
           }
         }
       }
@@ -234,22 +236,19 @@ export class ReadingTextComponent {
   }
 
   // ─────────────────────────────────────────────────────────────────────────────
-  // DOM listeners / scrolling helpers (zoneless-safe)
+  // Event listeners (outside Angular) + scrolling helpers
   // ─────────────────────────────────────────────────────────────────────────────
 
-  /** Attach a single click listener to the component root and delegate */
   private setUpTextListeners() {
-    if (!isBrowser()) {
+    if (!isBrowser() || this.unlistenClickEvents) {
       return;
     }
 
-    const nElement: HTMLElement = this.elementRef.nativeElement;
+    const host: HTMLElement = this.elementRef.nativeElement;
 
-    // Attach the listener outside Angular so clicks don’t trigger global CD
-    this.ngZone.runOutsideAngular(() => {
-
-      /* CLICK EVENTS */
-      this.unlistenClickEvents = this.renderer2.listen(nElement, 'click', (event) => {
+    /* CLICK EVENTS */
+    this.unlistenClickEvents = this.ngZone.runOutsideAngular(() =>
+      this.renderer2.listen(host, 'click', (event) => {
         try {
           const eventTarget = event.target as HTMLElement;
 
@@ -268,7 +267,7 @@ export class ReadingTextComponent {
             // Click on a pictogram ("doodle")
             image = {
               src: this.parserService.getMappedMediaCollectionURL(this.textKey()?.collectionID ?? '')
-                   + String((eventTarget as any).dataset['id']).replace('tag_', '') + '.jpg',
+                  + String((eventTarget as any).dataset['id']).replace('tag_', '') + '.jpg',
               class: 'doodle'
             };
           } else if (this.inlineVisibleIllustrations()) {
@@ -323,9 +322,8 @@ export class ReadingTextComponent {
             this.openIllustration(imageNumber);
           });
         }
-      });
-
-    });
+      })
+    );
   }
 
   private scrollToTextPosition() {

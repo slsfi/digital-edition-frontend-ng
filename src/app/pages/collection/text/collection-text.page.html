@@ -46,11 +46,11 @@
     <h1 class="screen-reader-only" [innerHTML]="(currentPageTitle$ | async)"></h1>
     <!-- Wrapper for all columns -->
     <div class="text-columns-container"
-          [class.xsmallFontSize]="textsize == TextsizeEnum.XSmall"
-          [class.smallFontSize]="textsize == TextsizeEnum.Small"
-          [class.mediumFontSize]="textsize == TextsizeEnum.Medium"
-          [class.largeFontSize]="textsize == TextsizeEnum.Large"
-          [class.xlargeFontSize]="textsize == TextsizeEnum.XLarge"
+          [class.xsmallFontSize]="textsize === 'xsmall'"
+          [class.smallFontSize]="textsize === 'small'"
+          [class.mediumFontSize]="textsize === 'medium'"
+          [class.largeFontSize]="textsize === 'large'"
+          [class.xlargeFontSize]="textsize === 'xlarge'"
           [class.illustrations-view-shown]="illustrationsViewShown"
     >
       <!-- Columns -->
@@ -164,11 +164,11 @@
 @if (mobileMode) {
   <ion-content
         class="collection-ion-content mobile-mode-content"
-        [class.xsmallFontSize]="textsize == TextsizeEnum.XSmall"
-        [class.smallFontSize]="textsize == TextsizeEnum.Small"
-        [class.mediumFontSize]="textsize == TextsizeEnum.Medium"
-        [class.largeFontSize]="textsize == TextsizeEnum.Large"
-        [class.xlargeFontSize]="textsize == TextsizeEnum.XLarge"
+        [class.xsmallFontSize]="textsize === 'xsmall'"
+        [class.smallFontSize]="textsize === 'small'"
+        [class.mediumFontSize]="textsize === 'medium'"
+        [class.largeFontSize]="textsize === 'large'"
+        [class.xlargeFontSize]="textsize === 'xlarge'"
         [class.illustrations-view-shown]="illustrationsViewShown"
         [scrollX]="false"
         [scrollY]="false"

@@ -1,8 +1,7 @@
 import { Injectable, signal } from '@angular/core';
 
 import { config } from '@config';
-import { Textsize } from '@models/textsize.model';
-import { VariationType, ViewFlags } from '@models/viewoptions.models';
+import { Textsize, VariationType, ViewFlags } from '@models/viewoptions.models';
 
 
 @Injectable({
@@ -29,7 +28,7 @@ export class ViewOptionsService {
     pageBreakEdition: false,
   });
 
-  readonly textsize = signal<Textsize>(Textsize.Small);
+  readonly textsize = signal<Textsize>('small');
 
   constructor() {
     // Apply defaults from config immutably

@@ -2,8 +2,7 @@ import { ChangeDetectionStrategy, Component, Input, OnInit, computed, inject } f
 import { IonicModule, PopoverController } from '@ionic/angular';
 
 import { config } from '@config';
-import { Textsize } from '@models/textsize.model';
-import { ViewFlags } from '@models/viewoptions.models';
+import { Textsize, ViewFlags } from '@models/viewoptions.models';
 import { ViewOptionsService } from '@services/view-options.service';
 
 
@@ -38,8 +37,6 @@ export class ViewOptionsPopover implements OnInit {
 
   /** Which toggles are visible in this popover (overrides config). */
   @Input() toggles?: Partial<Record<FlagKey, boolean>>;
-
-  TextsizeEnum = Textsize;
 
   /** Base availability from config; overridden by @Input if provided. */
   availableToggles: Partial<Record<FlagKey, boolean>> =

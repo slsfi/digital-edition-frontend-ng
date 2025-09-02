@@ -8,7 +8,6 @@ import { DownloadTextsModal } from '@modals/download-texts/download-texts.modal'
 import { IllustrationModal } from '@modals/illustration/illustration.modal';
 import { NamedEntityModal } from '@modals/named-entity/named-entity.modal';
 import { ReferenceDataModal } from '@modals/reference-data/reference-data.modal';
-import { Textsize } from '@models/textsize.model';
 import { ViewOptionsPopover } from '@popovers/view-options/view-options.popover';
 import { CollectionContentService } from '@services/collection-content.service';
 import { CollectionsService } from '@services/collections.service';
@@ -81,8 +80,6 @@ export class CollectionIntroductionPage implements OnInit, OnDestroy {
   tooltipVisible: boolean = false;
   urlParametersSubscription: Subscription | null = null;
   userIsTouching: boolean = false;
-
-  TextsizeEnum = Textsize;
 
   private unlistenClickEvents?: () => void;
   private unlistenKeyUpEnterEvents?: () => void;

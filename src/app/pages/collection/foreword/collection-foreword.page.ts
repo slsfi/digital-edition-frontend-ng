@@ -5,7 +5,6 @@ import { catchError, combineLatest, map, Observable, of, switchMap, tap } from '
 
 import { config } from '@config';
 import { ReferenceDataModal } from '@modals/reference-data/reference-data.modal';
-import { Textsize } from '@models/textsize.model';
 import { ViewOptionsPopover } from '@popovers/view-options/view-options.popover';
 import { CollectionContentService } from '@services/collection-content.service';
 import { HtmlParserService } from '@services/html-parser.service';
@@ -42,8 +41,6 @@ export class CollectionForewordPage implements OnInit {
   mobileMode: boolean = false;
   searchMatches: string[] = [];
   text$: Observable<string>;
-
-  TextsizeEnum = Textsize;
 
   ngOnInit() {
     this.mobileMode = this.platformService.isMobile();

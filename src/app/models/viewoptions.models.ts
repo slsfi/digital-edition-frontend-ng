@@ -12,3 +12,6 @@ export type ViewFlags = {
 };
 
 export type VariationType = 'all' | 'sub' | 'none';
+
+export const TEXT_SIZES = ['xsmall','small','medium','large','xlarge'] as const;
+export type Textsize = typeof TEXT_SIZES[number];

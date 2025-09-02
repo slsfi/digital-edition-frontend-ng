@@ -8,7 +8,6 @@ import { DownloadTextsModal } from '@modals/download-texts/download-texts.modal'
 import { NamedEntityModal } from '@modals/named-entity/named-entity.modal';
 import { ReferenceDataModal } from '@modals/reference-data/reference-data.modal';
 import { TextKey } from '@models/collection.model';
-import { Textsize } from '@models/textsize.model';
 import { ViewOptionsPopover } from '@popovers/view-options/view-options.popover';
 import { CollectionContentService } from '@services/collection-content.service';
 import { CollectionsService } from '@services/collections.service';
@@ -90,9 +89,7 @@ export class CollectionTextPage implements OnDestroy, OnInit {
   tooltipVisible: boolean = false;
   userIsTouching: boolean = false;
   views: any[] = [];
-
-  TextsizeEnum = Textsize;
-  
+ 
   private unlistenFirstTouchStartEvent?: () => void;
   private unlistenClickEvents?: () => void;
   private unlistenKeyUpEnterEvents?: () => void;

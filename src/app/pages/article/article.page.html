@@ -51,6 +51,8 @@
   }
 
   @if (renderedHtml) {
+    @let textsize = viewOptionsService.textsize();
+
     <article
           class="scroll-content-container md_content markdown"
           [class.xsmallFontSize]="textsize == TextsizeEnum.XSmall"

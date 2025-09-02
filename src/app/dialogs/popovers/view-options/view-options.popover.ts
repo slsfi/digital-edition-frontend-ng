@@ -1,6 +1,5 @@
-import { ChangeDetectionStrategy, Component, Input, OnDestroy, OnInit, computed, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input, OnInit, computed, inject } from '@angular/core';
 import { IonicModule, PopoverController } from '@ionic/angular';
-import { Subscription } from 'rxjs';
 
 import { config } from '@config';
 import { Textsize } from '@models/textsize.model';
@@ -33,12 +32,14 @@ function isFlagKey(k: string): k is FlagKey {
   imports: [IonicModule],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class ViewOptionsPopover implements OnDestroy, OnInit {
+export class ViewOptionsPopover implements OnInit {
   private popoverCtrl = inject(PopoverController);
   protected viewOptionsService = inject(ViewOptionsService);
 
   /** Which toggles are visible in this popover (overrides config). */
   @Input() toggles?: Partial<Record<FlagKey, boolean>>;
+
+  TextsizeEnum = Textsize;
 
   /** Base availability from config; overridden by @Input if provided. */
   availableToggles: Partial<Record<FlagKey, boolean>> =
@@ -62,11 +63,6 @@ export class ViewOptionsPopover implements OnDestroy, OnInit {
     return n;
   });
 
-  // Text size state (Rx subscription kept as-is)
-  TextsizeEnum = Textsize;
-  textsize: Textsize = Textsize.Small;
-  private textsizeSubscription: Subscription | null = null;
-
   ngOnInit() {
     // If the parent provided explicit visibility, use that; otherwise fall back to config.
     if (this.toggles && Object.keys(this.toggles).length > 0) {
@@ -87,15 +83,6 @@ export class ViewOptionsPopover implements OnDestroy, OnInit {
     if (this.toggles !== undefined && this.showVariationTypeOption) {
       this.showVariationTypeOption = false;
     }
-
-    // Track text size changes
-    this.textsizeSubscription = this.viewOptionsService.getTextsize().subscribe(
-      (sz) => (this.textsize = sz)
-    );
-  }
-
-  ngOnDestroy() {
-    this.textsizeSubscription?.unsubscribe();
   }
 
   close() {

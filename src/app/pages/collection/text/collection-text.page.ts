@@ -79,8 +79,6 @@ export class CollectionTextPage implements OnDestroy, OnInit {
   searchMatches: string[] = [];
   textKey = signal<TextKey>({collectionID: '', publicationID: '', textItemID: ''});
   textPosition: string = '';
-  textsize: Textsize = Textsize.Small;
-  textsizeSubscription: Subscription | null = null;
   toolTipMaxWidth: string | null = null;
   toolTipPosType: string = 'fixed';
   toolTipPosition: any = {
@@ -103,15 +101,7 @@ export class CollectionTextPage implements OnDestroy, OnInit {
 
   ngOnInit() {
     this.mobileMode = this.platformService.isMobile();
-
     this.currentPageTitle$ = this.headService.getCurrentPageTitle();
-
-    this.textsizeSubscription = this.viewOptionsService.getTextsize().subscribe(
-      (textsize: Textsize) => {
-        this.textsize = textsize;
-      }
-    );
-
     let routeTextItemID: string = '';
 
     this.routeParamsSubscription = combineLatest([
@@ -213,7 +203,6 @@ export class CollectionTextPage implements OnDestroy, OnInit {
 
   ngOnDestroy() {
     this.routeParamsSubscription?.unsubscribe();
-    this.textsizeSubscription?.unsubscribe();
     this.unlistenClickEvents?.();
     this.unlistenKeyUpEnterEvents?.();
     this.unlistenMouseoverEvents?.();

@@ -69,8 +69,6 @@ export class CollectionIntroductionPage implements OnInit, OnDestroy {
   text: string = '';
   textLoading: boolean = true;
   textMenu: string = '';
-  textsize: Textsize = Textsize.Small;
-  textsizeSubscription: Subscription | null = null;
   tocMenuOpen: boolean = false;
   toolTipMaxWidth: string | null = null;
   toolTipPosition: any = {
@@ -122,12 +120,6 @@ export class CollectionIntroductionPage implements OnInit, OnDestroy {
   ngOnInit() {
     this.mobileMode = this.platformService.isMobile();
 
-    this.textsizeSubscription = this.viewOptionsService.getTextsize().subscribe(
-      (textsize: Textsize) => {
-        this.textsize = textsize;
-      }
-    );
-
     this.urlParametersSubscription = combineLatest(
       [this.route.params, this.route.queryParams]
     ).pipe(
@@ -171,7 +163,6 @@ export class CollectionIntroductionPage implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     this.urlParametersSubscription?.unsubscribe();
-    this.textsizeSubscription?.unsubscribe();
     this.unlistenClickEvents?.();
     this.unlistenKeyUpEnterEvents?.();
     this.unlistenMouseoverEvents?.();

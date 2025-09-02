@@ -1,3 +1,6 @@
+@let flags = viewOptionsService.show();
+@let textsize = viewOptionsService.textsize();
+
 <ion-list lines="full">
   <ion-list-header>
     <ion-label i18n="@@ViewOptions.Textsize">Textstorlek</ion-label>
@@ -43,8 +46,6 @@
     >A</ion-button>
   </div>
 </ion-list>
-
-@let flags = viewOptionsService.show();
 
 @if (togglesCounter > 0) {
   <ion-list lines="full">

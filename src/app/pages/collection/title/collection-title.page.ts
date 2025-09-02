@@ -1,7 +1,7 @@
-import { Component, ElementRef, LOCALE_ID, OnDestroy, OnInit, inject } from '@angular/core';
+import { Component, ElementRef, LOCALE_ID, OnInit, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { ModalController, PopoverController } from '@ionic/angular';
-import { catchError, combineLatest, map, Observable, of, Subscription, switchMap, tap } from 'rxjs';
+import { catchError, combineLatest, map, Observable, of, switchMap, tap } from 'rxjs';
 
 import { config } from '@config';
 import { ReferenceDataModal } from '@modals/reference-data/reference-data.modal';
@@ -21,7 +21,7 @@ import { ViewOptionsService } from '@services/view-options.service';
   styleUrls: ['./collection-title.page.scss'],
   standalone: false
 })
-export class CollectionTitlePage implements OnDestroy, OnInit {
+export class CollectionTitlePage implements OnInit {
   private collectionContentService = inject(CollectionContentService);
   private elementRef = inject(ElementRef);
   private mdService = inject(MarkdownService);
@@ -31,7 +31,7 @@ export class CollectionTitlePage implements OnDestroy, OnInit {
   private route = inject(ActivatedRoute);
   private scrollService = inject(ScrollService);
   private platformService = inject(PlatformService);
-  private viewOptionsService = inject(ViewOptionsService);
+  viewOptionsService = inject(ViewOptionsService);
   private activeLocale = inject(LOCALE_ID);
 
   readonly loadContentFromMarkdown: boolean = config.page?.title?.loadContentFromMarkdown ?? false;
@@ -45,19 +45,11 @@ export class CollectionTitlePage implements OnDestroy, OnInit {
   mobileMode: boolean = false;
   searchMatches: string[] = [];
   text$: Observable<string | null>;
-  textsize: Textsize = Textsize.Small;
-  textsizeSubscription: Subscription | null = null;
 
   TextsizeEnum = Textsize;
 
   ngOnInit() {
     this.mobileMode = this.platformService.isMobile();
-
-    this.textsizeSubscription = this.viewOptionsService.getTextsize().subscribe(
-      (textsize: Textsize) => {
-        this.textsize = textsize;
-      }
-    );
 
     this.text$ = combineLatest(
       [this.route.params, this.route.queryParams]
@@ -76,10 +68,6 @@ export class CollectionTitlePage implements OnDestroy, OnInit {
         return this.loadTitle(collectionID, this.activeLocale);
       })
     );
-  }
-
-  ngOnDestroy() {
-    this.textsizeSubscription?.unsubscribe();
   }
 
   ionViewWillEnter() {

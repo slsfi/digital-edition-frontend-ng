@@ -42,8 +42,6 @@ export class ArticlePage implements OnInit, OnDestroy {
   enableTOC: boolean = true;
   markdownText$: Observable<string | null>;
   mobileMode: boolean = false;
-  textsize: Textsize = Textsize.Small;
-  textsizeSubscription: Subscription | null = null;
   tocMenuOpen: boolean = true;
 
   TextsizeEnum = Textsize;
@@ -53,12 +51,6 @@ export class ArticlePage implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.mobileMode = this.platformService.isMobile();
-
-    this.textsizeSubscription = this.viewOptionsService.getTextsize().subscribe(
-      (textsize: Textsize) => {
-        this.textsize = textsize;
-      }
-    );
 
     if (isBrowser()) {
       this.setUpTextListeners();
@@ -91,7 +83,6 @@ export class ArticlePage implements OnInit, OnDestroy {
   ngOnDestroy() {
     this.unlistenClickEvents?.();
     this.fragmentSubscription?.unsubscribe();
-    this.textsizeSubscription?.unsubscribe();
   }
 
   async showViewOptionsPopover(event: any) {

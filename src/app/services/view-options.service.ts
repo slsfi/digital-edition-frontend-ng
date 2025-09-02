@@ -1,5 +1,4 @@
 import { Injectable, signal } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
 
 import { config } from '@config';
 import { Textsize } from '@models/textsize.model';
@@ -10,6 +9,13 @@ import { VariationType, ViewFlags } from '@models/viewoptions.models';
   providedIn: 'root',
 })
 export class ViewOptionsService {
+  readonly selectedVariationType = signal<VariationType>(
+    (() => {
+      const v = config.page?.text?.variantViewOptions?.defaultVariationType;
+      return v === 'sub' || v === 'none' ? v : 'all';
+    })()
+  );
+  
   readonly show = signal<ViewFlags>({
     comments: false,
     personInfo: false,
@@ -23,14 +29,7 @@ export class ViewOptionsService {
     pageBreakEdition: false,
   });
 
-  readonly selectedVariationType = signal<VariationType>(
-    (() => {
-      const v = config.page?.text?.variantViewOptions?.defaultVariationType;
-      return v === 'sub' || v === 'none' ? v : 'all';
-    })()
-  );
-
-  private textsizeSubject$: BehaviorSubject<Textsize> = new BehaviorSubject<Textsize>(Textsize.Small);
+  readonly textsize = signal<Textsize>(Textsize.Small);
 
   constructor() {
     // Apply defaults from config immutably
@@ -95,12 +94,8 @@ export class ViewOptionsService {
     this.show.update(s => ({ ...s, [key]: !s[key] }));
   }
 
-  getTextsize(): Observable<Textsize> {
-    return this.textsizeSubject$.asObservable();
-  }
-
-  setTextsize(textsize: Textsize) {
-    this.textsizeSubject$.next(textsize);
+  setTextsize(size: Textsize) {
+    this.textsize.set(size);
   }
 
   setVariationType(v: VariationType) {

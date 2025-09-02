@@ -55,12 +55,11 @@
 
     @if (togglesCounter > 1) {
       <ion-item>
-        <ion-toggle
-          justify="space-between"
-          [enableOnOffLabels]="true"
-          i18n="@@ViewOptions.ToggleAll"
-          (ionChange)="toggleAll($event)"
-          [checked]="checkedCount() > (togglesCounter - 1)"
+        <ion-toggle justify="space-between"
+                    [enableOnOffLabels]="true"
+                    i18n="@@ViewOptions.ToggleAll"
+                    (ionChange)="toggleAll($event)"
+                    [checked]="checkedCount() > (togglesCounter - 1)"
         >Välj alla</ion-toggle>
       </ion-item>
     }
@@ -87,7 +86,8 @@
                     [enableOnOffLabels]="true"
                     [checked]="flags.personInfo"
                     (ionChange)="onToggle('personInfo', $event.detail.checked)"
-                    i18n="@@ViewOptions.PersonInfo">Personupplysningar</ion-toggle>
+                    i18n="@@ViewOptions.PersonInfo"
+        >Personupplysningar</ion-toggle>
       </ion-item>
     }
 
@@ -98,7 +98,8 @@
                     [enableOnOffLabels]="true"
                     [checked]="flags.placeInfo"
                     (ionChange)="onToggle('placeInfo', $event.detail.checked)"
-                    i18n="@@ViewOptions.PlaceInfo">Platsupplysningar</ion-toggle>
+                    i18n="@@ViewOptions.PlaceInfo"
+        >Platsupplysningar</ion-toggle>
       </ion-item>
     }
 
@@ -109,7 +110,8 @@
                     [enableOnOffLabels]="true"
                     [checked]="flags.workInfo"
                     (ionChange)="onToggle('workInfo', $event.detail.checked)"
-                    i18n="@@ViewOptions.WorkInfo">Verkupplysningar</ion-toggle>
+                    i18n="@@ViewOptions.WorkInfo"
+        >Verkupplysningar</ion-toggle>
       </ion-item>
     }
 
@@ -120,7 +122,8 @@
                     [enableOnOffLabels]="true"
                     [checked]="flags.abbreviations"
                     (ionChange)="onToggle('abbreviations', $event.detail.checked)"
-                    i18n="@@ViewOptions.Abbreviations">Förkortningar</ion-toggle>
+                    i18n="@@ViewOptions.Abbreviations"
+        >Förkortningar</ion-toggle>
       </ion-item>
     }
 
@@ -131,7 +134,8 @@
                     [enableOnOffLabels]="true"
                     [checked]="flags.emendations"
                     (ionChange)="onToggle('emendations', $event.detail.checked)"
-                    i18n="@@ViewOptions.Emendations">Utgivarens ändringar</ion-toggle>
+                    i18n="@@ViewOptions.Emendations"
+        >Utgivarens ändringar</ion-toggle>
       </ion-item>
     }
 
@@ -142,18 +146,19 @@
                     [enableOnOffLabels]="true"
                     [checked]="flags.normalisations"
                     (ionChange)="onToggle('normalisations', $event.detail.checked)"
-                    i18n="@@ViewOptions.Normalisations">Normaliseringar</ion-toggle>
+                    i18n="@@ViewOptions.Normalisations"
+        >Normaliseringar</ion-toggle>
       </ion-item>
     }
 
     @if (availableToggles.paragraphNumbering) {
       <ion-item>
-        <ion-toggle
-          justify="space-between"
-          [enableOnOffLabels]="true"
-          [checked]="flags.paragraphNumbering"
-          (ionChange)="onToggle('paragraphNumbering', $event.detail.checked)"
-          i18n="@@ViewOptions.ParagraphNumbering">Stycke-/radnumrering</ion-toggle>
+        <ion-toggle justify="space-between"
+                    [enableOnOffLabels]="true"
+                    [checked]="flags.paragraphNumbering"
+                    (ionChange)="onToggle('paragraphNumbering', $event.detail.checked)"
+                    i18n="@@ViewOptions.ParagraphNumbering"
+        >Stycke-/radnumrering</ion-toggle>
       </ion-item>
     }
 
@@ -164,7 +169,8 @@
                     [enableOnOffLabels]="true"
                     [checked]="flags.pageBreakOriginal"
                     (ionChange)="onToggle('pageBreakOriginal', $event.detail.checked)"
-                    i18n="@@ViewOptions.PageBreakOriginal">Sidnummer, original</ion-toggle>
+                    i18n="@@ViewOptions.PageBreakOriginal"
+        >Sidnummer, original</ion-toggle>
       </ion-item>
     }
 
@@ -175,7 +181,8 @@
                     [enableOnOffLabels]="true"
                     [checked]="flags.pageBreakEdition"
                     (ionChange)="onToggle('pageBreakEdition', $event.detail.checked)"
-                    i18n="@@ViewOptions.PageBreakEdition">Sidnummer, tryckt utgåva</ion-toggle>
+                    i18n="@@ViewOptions.PageBreakEdition"
+        >Sidnummer, tryckt utgåva</ion-toggle>
       </ion-item>
     }
   </ion-list>
@@ -187,14 +194,25 @@
       <ion-label i18n="@@ViewOptions.VariantOptions">Visningsalternativ, varianter</ion-label>
     </ion-list-header>
     <ion-item>
-      <ion-radio-group
-            class="selected-variation-type"
-            [value]="viewOptionsService.selectedVariationType()"
-            (ionChange)="setSelectedVariationType($event)"
+      <ion-radio-group class="selected-variation-type"
+                       [value]="viewOptionsService.selectedVariationType()"
+                       (ionChange)="setSelectedVariationType($event)"
       >
-        <ion-radio value="all" labelPlacement="end" justify="start" i18n="@@ViewOptions.ShowAllVariation">Visa alla skillnader</ion-radio>
-        <ion-radio value="sub" labelPlacement="end" justify="start" i18n="@@ViewOptions.ShowSubstantialVariation">Visa substantiella skillnader</ion-radio>
-        <ion-radio value="none" labelPlacement="end" justify="start" i18n="@@ViewOptions.ShowNoVariation">Visa inga skillnader</ion-radio>
+        <ion-radio value="all"
+                   labelPlacement="end"
+                   justify="start"
+                   i18n="@@ViewOptions.ShowAllVariation"
+        >Visa alla skillnader</ion-radio>
+        <ion-radio value="sub"
+                   labelPlacement="end"
+                   justify="start"
+                   i18n="@@ViewOptions.ShowSubstantialVariation"
+        >Visa substantiella skillnader</ion-radio>
+        <ion-radio value="none"
+                   labelPlacement="end"
+                   justify="start"
+                   i18n="@@ViewOptions.ShowNoVariation"
+        >Visa inga skillnader</ion-radio>
       </ion-radio-group>
     </ion-item>
   </ion-list>

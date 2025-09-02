@@ -224,7 +224,7 @@ export class CommentsComponent {
             targetIsLink = true;
           }
 
-          if (!targetIsLink && this.viewOptionsService.show.comments) {
+          if (!targetIsLink && this.viewOptionsService.show().comments) {
             // This is linking to a comment lemma ("asterisk") in the reading text,
             // i.e. the user has clicked a comment in the comments-column.
             event.preventDefault();

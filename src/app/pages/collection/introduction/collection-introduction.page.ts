@@ -372,13 +372,26 @@ export class CollectionIntroductionPage implements OnInit, OnDestroy {
         let eventTarget = this.getEventTarget(event);
 
         // Modal trigger for person-, place- or workinfo and info overlay trigger for footnote.
-        if (eventTarget.classList.contains('tooltiptrigger') && eventTarget.hasAttribute('data-id')) {
+        if (
+          eventTarget.classList.contains('tooltiptrigger') &&
+          eventTarget.hasAttribute('data-id')
+        ) {
           this.ngZone.run(() => {
-            if (eventTarget.classList.contains('person') && this.viewOptionsService.show.personInfo) {
+            const viewOptions = this.viewOptionsService.show();
+            if (
+              eventTarget.classList.contains('person') &&
+              viewOptions.personInfo
+            ) {
               this.showSemanticDataObjectModal(eventTarget.getAttribute('data-id') || '', 'subject');
-            } else if (eventTarget.classList.contains('placeName') && this.viewOptionsService.show.placeInfo) {
+            } else if (
+              eventTarget.classList.contains('placeName') &&
+              viewOptions.placeInfo
+            ) {
               this.showSemanticDataObjectModal(eventTarget.getAttribute('data-id') || '', 'location');
-            } else if (eventTarget.classList.contains('title') && this.viewOptionsService.show.workInfo) {
+            } else if (
+              eventTarget.classList.contains('title') &&
+              viewOptions.workInfo
+            ) {
               this.showSemanticDataObjectModal(eventTarget.getAttribute('data-id') || '', 'work');
             } else if (eventTarget.classList.contains('ttFoot')) {
               this.showFootnoteInfoOverlay(eventTarget.getAttribute('data-id') || '', eventTarget);
@@ -571,23 +584,24 @@ export class CollectionIntroductionPage implements OnInit, OnDestroy {
             eventTarget.hasAttribute('data-id')
           ) {
             this.ngZone.run(() => {
+              const show = this.viewOptionsService.show();
               if (
                 eventTarget.classList.contains('person') &&
-                this.viewOptionsService.show.personInfo
+                show.personInfo
               ) {
                 this.showSemanticDataObjectTooltip(
                   eventTarget.getAttribute('data-id'), 'person', eventTarget
                 );
               } else if (
                 eventTarget.classList.contains('placeName') &&
-                this.viewOptionsService.show.placeInfo
+                show.placeInfo
               ) {
                 this.showSemanticDataObjectTooltip(
                   eventTarget.getAttribute('data-id'), 'place', eventTarget
                 );
               } else if (
                 eventTarget.classList.contains('title') &&
-                this.viewOptionsService.show.workInfo
+                show.workInfo
               ) {
                 this.showSemanticDataObjectTooltip(
                   eventTarget.getAttribute('data-id'), 'work', eventTarget

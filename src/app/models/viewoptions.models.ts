@@ -1,0 +1,14 @@
+export type ViewFlags = {
+  comments: boolean;
+  personInfo: boolean;
+  abbreviations: boolean;
+  placeInfo: boolean;
+  workInfo: boolean;
+  emendations: boolean;
+  normalisations: boolean;
+  paragraphNumbering: boolean;
+  pageBreakOriginal: boolean;
+  pageBreakEdition: boolean;
+};
+
+export type VariationType = 'all' | 'sub' | 'none';

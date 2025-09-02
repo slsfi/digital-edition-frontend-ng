@@ -1,3 +1,5 @@
+@let viewOptions = viewOptionsService.show();
+
 <ion-header class="ion-no-border">
   <ion-toolbar class="secondary">
 
@@ -63,19 +65,19 @@
 
     <!-- Introduction text wrapper -->
     <div class="tei teiContainer"
-          [class.show_personInfo]="viewOptionsService.show.personInfo && viewOptionsTogglesIntro.personInfo"
-          [class.show_placeInfo]="viewOptionsService.show.placeInfo && viewOptionsTogglesIntro.placeInfo"
-          [class.show_workInfo]="viewOptionsService.show.workInfo && viewOptionsTogglesIntro.workInfo"
-          [class.show_paragraphNumbering]="viewOptionsService.show.paragraphNumbering && viewOptionsTogglesIntro.paragraphNumbering"
-          [class.show_pageBreakEdition]="viewOptionsService.show.pageBreakEdition && viewOptionsTogglesIntro.pageBreakEdition"
+          [class.show_personInfo]="viewOptions.personInfo && viewOptionsTogglesIntro.personInfo"
+          [class.show_placeInfo]="viewOptions.placeInfo && viewOptionsTogglesIntro.placeInfo"
+          [class.show_workInfo]="viewOptions.workInfo && viewOptionsTogglesIntro.workInfo"
+          [class.show_paragraphNumbering]="viewOptions.paragraphNumbering && viewOptionsTogglesIntro.paragraphNumbering"
+          [class.show_pageBreakEdition]="viewOptions.pageBreakEdition && viewOptionsTogglesIntro.pageBreakEdition"
           [class.hideIntro]="hasSeparateIntroToc"
           [innerHTML]="text | trustHtml"
     ></div>
 
     <!-- Tooltip wrapper -->
     <div class="toolTip tei teiContainer"
-          [class.show_personInfo]="viewOptionsService.show.personInfo"
-          [class.show_workInfo]="viewOptionsService.show.workInfo"
+          [class.show_personInfo]="viewOptions.personInfo"
+          [class.show_workInfo]="viewOptions.workInfo"
           [ngStyle]="{
             'position': toolTipPosType,
             'top': toolTipPosition.top,
@@ -89,8 +91,8 @@
     <!-- Info overlay wrapper -->
     <div tabindex="-1"
           class="infoOverlay tei teiContainer"
-          [class.show_personInfo]="viewOptionsService.show.personInfo"
-          [class.show_workInfo]="viewOptionsService.show.workInfo"
+          [class.show_personInfo]="viewOptions.personInfo"
+          [class.show_workInfo]="viewOptions.workInfo"
           [ngStyle]="{
             'position': infoOverlayPosType,
             'bottom': infoOverlayPosition.bottom,

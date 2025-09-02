@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, Input, OnInit, computed, inject } f
 import { IonicModule, PopoverController } from '@ionic/angular';
 
 import { config } from '@config';
-import { Textsize, ViewFlags } from '@models/viewoptions.models';
+import { Textsize, ViewFlags } from '@models/view-options.models';
 import { ViewOptionsService } from '@services/view-options.service';
 
 

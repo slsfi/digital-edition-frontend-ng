@@ -1,7 +1,7 @@
 import { Injectable, signal } from '@angular/core';
 
 import { config } from '@config';
-import { Textsize, VariationType, ViewFlags } from '@models/viewoptions.models';
+import { Textsize, VariationType, ViewFlags } from '@models/view-options.models';
 
 
 @Injectable({

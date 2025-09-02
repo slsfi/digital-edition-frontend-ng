@@ -51,13 +51,15 @@
   }
 
   @if (renderedHtml) {
+    @let textsize = viewOptionsService.textsize();
+
     <article
           class="scroll-content-container md_content markdown"
-          [class.xsmallFontSize]="textsize == TextsizeEnum.XSmall"
-          [class.smallFontSize]="textsize == TextsizeEnum.Small"
-          [class.mediumFontSize]="textsize == TextsizeEnum.Medium"
-          [class.largeFontSize]="textsize == TextsizeEnum.Large"
-          [class.xlargeFontSize]="textsize == TextsizeEnum.XLarge"
+          [class.xsmallFontSize]="textsize === 'xsmall'"
+          [class.smallFontSize]="textsize === 'small'"
+          [class.mediumFontSize]="textsize === 'medium'"
+          [class.largeFontSize]="textsize === 'large'"
+          [class.xlargeFontSize]="textsize === 'xlarge'"
           tabindex="0"
           [innerHTML]="renderedHtml | trustHtml"
     ></article>

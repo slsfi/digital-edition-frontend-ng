@@ -1,3 +1,5 @@
+@let textsize = viewOptionsService.textsize();
+
 <ion-header class="ion-no-border">
   <ion-toolbar class="secondary">
 
@@ -44,11 +46,11 @@
     <h1 class="screen-reader-only" [innerHTML]="(currentPageTitle$ | async)"></h1>
     <!-- Wrapper for all columns -->
     <div class="text-columns-container"
-          [class.xsmallFontSize]="textsize == TextsizeEnum.XSmall"
-          [class.smallFontSize]="textsize == TextsizeEnum.Small"
-          [class.mediumFontSize]="textsize == TextsizeEnum.Medium"
-          [class.largeFontSize]="textsize == TextsizeEnum.Large"
-          [class.xlargeFontSize]="textsize == TextsizeEnum.XLarge"
+          [class.xsmallFontSize]="textsize === 'xsmall'"
+          [class.smallFontSize]="textsize === 'small'"
+          [class.mediumFontSize]="textsize === 'medium'"
+          [class.largeFontSize]="textsize === 'large'"
+          [class.xlargeFontSize]="textsize === 'xlarge'"
           [class.illustrations-view-shown]="illustrationsViewShown"
     >
       <!-- Columns -->
@@ -162,11 +164,11 @@
 @if (mobileMode) {
   <ion-content
         class="collection-ion-content mobile-mode-content"
-        [class.xsmallFontSize]="textsize == TextsizeEnum.XSmall"
-        [class.smallFontSize]="textsize == TextsizeEnum.Small"
-        [class.mediumFontSize]="textsize == TextsizeEnum.Medium"
-        [class.largeFontSize]="textsize == TextsizeEnum.Large"
-        [class.xlargeFontSize]="textsize == TextsizeEnum.XLarge"
+        [class.xsmallFontSize]="textsize === 'xsmall'"
+        [class.smallFontSize]="textsize === 'small'"
+        [class.mediumFontSize]="textsize === 'medium'"
+        [class.largeFontSize]="textsize === 'large'"
+        [class.xlargeFontSize]="textsize === 'xlarge'"
         [class.illustrations-view-shown]="illustrationsViewShown"
         [scrollX]="false"
         [scrollY]="false"
@@ -521,15 +523,17 @@
 
 <!-- Tooltip and info overlay template -->
 <ng-template #tooltipInfoOverlayTemplate>
+  @let viewOptions = viewOptionsService.show();
+
   <div
         class="toolTip tei teiContainer"
-        [class.show_comments]="viewOptionsService.show.comments"
-        [class.show_personInfo]="viewOptionsService.show.personInfo"
-        [class.show_placeInfo]="viewOptionsService.show.placeInfo"
-        [class.show_workInfo]="viewOptionsService.show.workInfo"
-        [class.show_normalisations]="viewOptionsService.show.normalisations"
-        [class.show_emendations]="viewOptionsService.show.emendations"
-        [class.show_abbreviations]="viewOptionsService.show.abbreviations"
+        [class.show_comments]="viewOptions.comments"
+        [class.show_personInfo]="viewOptions.personInfo"
+        [class.show_placeInfo]="viewOptions.placeInfo"
+        [class.show_workInfo]="viewOptions.workInfo"
+        [class.show_normalisations]="viewOptions.normalisations"
+        [class.show_emendations]="viewOptions.emendations"
+        [class.show_abbreviations]="viewOptions.abbreviations"
         [ngStyle]="{
           'position': toolTipPosType,
           'top': toolTipPosition.top,
@@ -542,13 +546,13 @@
   ></div>
   <div tabindex="-1"
         class="infoOverlay tei teiContainer"
-        [class.show_comments]="viewOptionsService.show.comments"
-        [class.show_personInfo]="viewOptionsService.show.personInfo"
-        [class.show_placeInfo]="viewOptionsService.show.placeInfo"
-        [class.show_workInfo]="viewOptionsService.show.workInfo"
-        [class.show_normalisations]="viewOptionsService.show.normalisations"
-        [class.show_emendations]="viewOptionsService.show.emendations"
-        [class.show_abbreviations]="viewOptionsService.show.abbreviations"
+        [class.show_comments]="viewOptions.comments"
+        [class.show_personInfo]="viewOptions.personInfo"
+        [class.show_placeInfo]="viewOptions.placeInfo"
+        [class.show_workInfo]="viewOptions.workInfo"
+        [class.show_normalisations]="viewOptions.normalisations"
+        [class.show_emendations]="viewOptions.emendations"
+        [class.show_abbreviations]="viewOptions.abbreviations"
         [ngStyle]="{
           'position': infoOverlayPosType,
           'bottom': infoOverlayPosition.bottom,

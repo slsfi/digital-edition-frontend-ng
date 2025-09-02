@@ -1,11 +1,10 @@
-import { Component, ElementRef, LOCALE_ID, OnDestroy, OnInit, inject } from '@angular/core';
+import { Component, ElementRef, LOCALE_ID, OnInit, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { ModalController, PopoverController } from '@ionic/angular';
-import { catchError, combineLatest, map, Observable, of, Subscription, switchMap, tap } from 'rxjs';
+import { catchError, combineLatest, map, Observable, of, switchMap, tap } from 'rxjs';
 
 import { config } from '@config';
 import { ReferenceDataModal } from '@modals/reference-data/reference-data.modal';
-import { Textsize } from '@models/textsize.model';
 import { ViewOptionsPopover } from '@popovers/view-options/view-options.popover';
 import { CollectionContentService } from '@services/collection-content.service';
 import { HtmlParserService } from '@services/html-parser.service';
@@ -20,7 +19,7 @@ import { ViewOptionsService } from '@services/view-options.service';
   styleUrls: ['./collection-foreword.page.scss'],
   standalone: false
 })
-export class CollectionForewordPage implements OnDestroy, OnInit {
+export class CollectionForewordPage implements OnInit {
   private collectionContentService = inject(CollectionContentService);
   private elementRef = inject(ElementRef);
   private modalController = inject(ModalController);
@@ -29,7 +28,7 @@ export class CollectionForewordPage implements OnDestroy, OnInit {
   private popoverCtrl = inject(PopoverController);
   private route = inject(ActivatedRoute);
   private scrollService = inject(ScrollService);
-  private viewOptionsService = inject(ViewOptionsService);
+  viewOptionsService = inject(ViewOptionsService);
   private activeLocale = inject(LOCALE_ID);
 
   readonly replaceImageAssetsPaths: boolean = config.collections?.replaceImageAssetsPaths ?? true;
@@ -42,19 +41,9 @@ export class CollectionForewordPage implements OnDestroy, OnInit {
   mobileMode: boolean = false;
   searchMatches: string[] = [];
   text$: Observable<string>;
-  textsize: Textsize = Textsize.Small;
-  textsizeSubscription: Subscription | null = null;
-
-  TextsizeEnum = Textsize;
 
   ngOnInit() {
     this.mobileMode = this.platformService.isMobile();
-
-    this.textsizeSubscription = this.viewOptionsService.getTextsize().subscribe(
-      (textsize: Textsize) => {
-        this.textsize = textsize;
-      }
-    );
 
     this.text$ = combineLatest(
       [this.route.params, this.route.queryParams]
@@ -73,10 +62,6 @@ export class CollectionForewordPage implements OnDestroy, OnInit {
         return this.loadForeword(collectionID, this.activeLocale);
       })
     );
-  }
-
-  ngOnDestroy() {
-    this.textsizeSubscription?.unsubscribe();
   }
 
   ionViewWillEnter() {

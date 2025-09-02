@@ -6,7 +6,6 @@ import { Observable, Subscription, switchMap, tap } from 'rxjs';
 import { config } from '@config';
 import { ReferenceDataModal } from '@modals/reference-data/reference-data.modal';
 import { Article } from '@models/article.model';
-import { Textsize } from '@models/textsize.model';
 import { ViewOptionsPopover } from '@popovers/view-options/view-options.popover';
 import { MarkdownService } from '@services/markdown.service';
 import { PlatformService } from '@services/platform.service';
@@ -42,23 +41,13 @@ export class ArticlePage implements OnInit, OnDestroy {
   enableTOC: boolean = true;
   markdownText$: Observable<string | null>;
   mobileMode: boolean = false;
-  textsize: Textsize = Textsize.Small;
-  textsizeSubscription: Subscription | null = null;
   tocMenuOpen: boolean = true;
-
-  TextsizeEnum = Textsize;
 
   private fragmentSubscription?: Subscription;
   private unlistenClickEvents?: () => void;
 
   ngOnInit() {
     this.mobileMode = this.platformService.isMobile();
-
-    this.textsizeSubscription = this.viewOptionsService.getTextsize().subscribe(
-      (textsize: Textsize) => {
-        this.textsize = textsize;
-      }
-    );
 
     if (isBrowser()) {
       this.setUpTextListeners();
@@ -91,7 +80,6 @@ export class ArticlePage implements OnInit, OnDestroy {
   ngOnDestroy() {
     this.unlistenClickEvents?.();
     this.fragmentSubscription?.unsubscribe();
-    this.textsizeSubscription?.unsubscribe();
   }
 
   async showViewOptionsPopover(event: any) {

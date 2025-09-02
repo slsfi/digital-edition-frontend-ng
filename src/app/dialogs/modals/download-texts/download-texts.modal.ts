@@ -660,14 +660,16 @@ export class DownloadTextsModal implements OnDestroy, OnInit {
 
   private getViewOptionsClassNames(textType: string): string {
     let classes = '';
+    const viewOptions = this.viewOptionsService.show();
+
     if (textType === 'rt' || textType === 'intro') {
-      if (this.viewOptionsService.show.paragraphNumbering) {
+      if (viewOptions.paragraphNumbering) {
         classes += 'show_paragraphNumbering ';
       }
-      if (this.viewOptionsService.show.pageBreakEdition) {
+      if (viewOptions.pageBreakEdition) {
         classes += 'show_pageBreakEdition ';
       }
-      if (textType === 'rt' && this.viewOptionsService.show.pageBreakOriginal) {
+      if (textType === 'rt' && viewOptions.pageBreakOriginal) {
         classes += 'show_pageBreakOriginal ';
       }
     }

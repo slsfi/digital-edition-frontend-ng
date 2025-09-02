@@ -3,11 +3,13 @@
 @if (text === undefined) {
   <ion-spinner class="loading" name="crescent"></ion-spinner>
 } @else {
+  @let viewOptions = viewOptionsService.show();
+
   <div class="tei teiContainer"
-        [class.show_comments]="viewOptionsService.show.comments"
-        [class.show_personInfo]="viewOptionsService.show.personInfo"
-        [class.show_workInfo]="viewOptionsService.show.workInfo"
-        [class.show_abbreviations]="viewOptionsService.show.abbreviations"
+        [class.show_comments]="viewOptions.comments"
+        [class.show_personInfo]="viewOptions.personInfo"
+        [class.show_workInfo]="viewOptions.workInfo"
+        [class.show_abbreviations]="viewOptions.abbreviations"
   >
 
     <div [innerHTML]="text | trustHtml"></div>

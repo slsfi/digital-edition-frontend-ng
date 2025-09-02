@@ -8,7 +8,6 @@ import { DownloadTextsModal } from '@modals/download-texts/download-texts.modal'
 import { IllustrationModal } from '@modals/illustration/illustration.modal';
 import { NamedEntityModal } from '@modals/named-entity/named-entity.modal';
 import { ReferenceDataModal } from '@modals/reference-data/reference-data.modal';
-import { Textsize } from '@models/textsize.model';
 import { ViewOptionsPopover } from '@popovers/view-options/view-options.popover';
 import { CollectionContentService } from '@services/collection-content.service';
 import { CollectionsService } from '@services/collections.service';
@@ -69,8 +68,6 @@ export class CollectionIntroductionPage implements OnInit, OnDestroy {
   text: string = '';
   textLoading: boolean = true;
   textMenu: string = '';
-  textsize: Textsize = Textsize.Small;
-  textsizeSubscription: Subscription | null = null;
   tocMenuOpen: boolean = false;
   toolTipMaxWidth: string | null = null;
   toolTipPosition: any = {
@@ -83,8 +80,6 @@ export class CollectionIntroductionPage implements OnInit, OnDestroy {
   tooltipVisible: boolean = false;
   urlParametersSubscription: Subscription | null = null;
   userIsTouching: boolean = false;
-
-  TextsizeEnum = Textsize;
 
   private unlistenClickEvents?: () => void;
   private unlistenKeyUpEnterEvents?: () => void;
@@ -121,12 +116,6 @@ export class CollectionIntroductionPage implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.mobileMode = this.platformService.isMobile();
-
-    this.textsizeSubscription = this.viewOptionsService.getTextsize().subscribe(
-      (textsize: Textsize) => {
-        this.textsize = textsize;
-      }
-    );
 
     this.urlParametersSubscription = combineLatest(
       [this.route.params, this.route.queryParams]
@@ -171,7 +160,6 @@ export class CollectionIntroductionPage implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     this.urlParametersSubscription?.unsubscribe();
-    this.textsizeSubscription?.unsubscribe();
     this.unlistenClickEvents?.();
     this.unlistenKeyUpEnterEvents?.();
     this.unlistenMouseoverEvents?.();
@@ -372,13 +360,26 @@ export class CollectionIntroductionPage implements OnInit, OnDestroy {
         let eventTarget = this.getEventTarget(event);
 
         // Modal trigger for person-, place- or workinfo and info overlay trigger for footnote.
-        if (eventTarget.classList.contains('tooltiptrigger') && eventTarget.hasAttribute('data-id')) {
+        if (
+          eventTarget.classList.contains('tooltiptrigger') &&
+          eventTarget.hasAttribute('data-id')
+        ) {
           this.ngZone.run(() => {
-            if (eventTarget.classList.contains('person') && this.viewOptionsService.show.personInfo) {
+            const viewOptions = this.viewOptionsService.show();
+            if (
+              eventTarget.classList.contains('person') &&
+              viewOptions.personInfo
+            ) {
               this.showSemanticDataObjectModal(eventTarget.getAttribute('data-id') || '', 'subject');
-            } else if (eventTarget.classList.contains('placeName') && this.viewOptionsService.show.placeInfo) {
+            } else if (
+              eventTarget.classList.contains('placeName') &&
+              viewOptions.placeInfo
+            ) {
               this.showSemanticDataObjectModal(eventTarget.getAttribute('data-id') || '', 'location');
-            } else if (eventTarget.classList.contains('title') && this.viewOptionsService.show.workInfo) {
+            } else if (
+              eventTarget.classList.contains('title') &&
+              viewOptions.workInfo
+            ) {
               this.showSemanticDataObjectModal(eventTarget.getAttribute('data-id') || '', 'work');
             } else if (eventTarget.classList.contains('ttFoot')) {
               this.showFootnoteInfoOverlay(eventTarget.getAttribute('data-id') || '', eventTarget);
@@ -571,23 +572,24 @@ export class CollectionIntroductionPage implements OnInit, OnDestroy {
             eventTarget.hasAttribute('data-id')
           ) {
             this.ngZone.run(() => {
+              const show = this.viewOptionsService.show();
               if (
                 eventTarget.classList.contains('person') &&
-                this.viewOptionsService.show.personInfo
+                show.personInfo
               ) {
                 this.showSemanticDataObjectTooltip(
                   eventTarget.getAttribute('data-id'), 'person', eventTarget
                 );
               } else if (
                 eventTarget.classList.contains('placeName') &&
-                this.viewOptionsService.show.placeInfo
+                show.placeInfo
               ) {
                 this.showSemanticDataObjectTooltip(
                   eventTarget.getAttribute('data-id'), 'place', eventTarget
                 );
               } else if (
                 eventTarget.classList.contains('title') &&
-                this.viewOptionsService.show.workInfo
+                show.workInfo
               ) {
                 this.showSemanticDataObjectTooltip(
                   eventTarget.getAttribute('data-id'), 'work', eventTarget

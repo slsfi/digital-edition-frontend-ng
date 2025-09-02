@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnChanges, OnDestroy, OnInit, SimpleChanges, inject, input } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, NgZone, OnChanges, OnDestroy, OnInit, SimpleChanges, inject, input } from '@angular/core';
 import { NgClass, NgTemplateOutlet } from '@angular/common';
 import { Params, RouterLink, UrlSegment } from '@angular/router';
 import { IonicModule } from '@ionic/angular';
@@ -33,6 +33,7 @@ import { addOrRemoveValueInNewArray, enableFrontMatterPageOrTextViewType, isBrow
 })
 export class CollectionSideMenuComponent implements OnInit, OnChanges, OnDestroy {
   private cdr = inject(ChangeDetectorRef);
+  private ngZone = inject(NgZone);
   private scrollService = inject(ScrollService);
   private tocService = inject(CollectionTableOfContentsService);
 
@@ -50,7 +51,7 @@ export class CollectionSideMenuComponent implements OnInit, OnChanges, OnDestroy
   collectionMenu: any[] = [];
   collectionTitle: string = '';
   coverPageName: string = '';
-  currentMenuItemId: string = '';
+  currentMenuItemId: string | null = null;
   enableCover: boolean = false;
   enableTitle: boolean = false;
   enableForeword: boolean = false;
@@ -162,17 +163,42 @@ export class CollectionSideMenuComponent implements OnInit, OnChanges, OnDestroy
   }
 
   private updateHighlightedMenuItem(scrollTimeout: number = 600) {
-    const itemId = this.getItemId();
-    this.currentMenuItemId = itemId;
+    // Remove previously highlighted menu item from selected items if set
+    if (this.currentMenuItemId && this.selectedMenu.includes(this.currentMenuItemId)) {
+      this.selectedMenu = this.selectedMenu.filter(v => v !== this.currentMenuItemId);
+    }
+
+    // Resolve new selected item and it's menu path
+    let itemId = this.getItemId();
+
     if (this.routeUrlSegments()?.[2]?.path === 'text') {
-      const item = this.recursiveFindMenuItem(this.collectionMenu, itemId);
-      if (item && !this.selectedMenu.includes(item.itemId || item.nodeId)) {
-        this.selectedMenu = addOrRemoveValueInNewArray(
-          this.selectedMenu,
-          item.itemId || item.nodeId
-        );
+      // Try full itemId first
+      let path = this.findPathToItem(this.collectionMenu, itemId);
+
+      // If not found, try without the position part
+      if (!path) {
+        const idParts = itemId.split(';');
+        if (idParts[1]) {
+          itemId = idParts[0];
+          path = this.findPathToItem(this.collectionMenu, itemId);
+        }
+      }
+
+      // Open all branches in the path (union into a *new* array for OnPush + pure pipes)
+      if (path?.length) {
+        const set = new Set(this.selectedMenu);
+        for (const id of path) {
+          if (id) {
+            set.add(id);
+          }
+        }
+        this.selectedMenu = Array.from(set);
       }
     }
+
+    // Update currently selected menu item
+    this.currentMenuItemId = itemId;
+
     this.cdr.markForCheck();
     this.scrollHighlightedMenuItemIntoView(itemId, scrollTimeout);
   }
@@ -198,41 +224,48 @@ export class CollectionSideMenuComponent implements OnInit, OnChanges, OnDestroy
 
   private getItemId(): string {
     const routeUrlSegments = this.routeUrlSegments();
-    const parts = [
-      routeUrlSegments?.[1]?.path,
-      routeUrlSegments?.[3]?.path,
-      routeUrlSegments?.[4]?.path
-    ].filter(Boolean).join('_');
+    const pageType = routeUrlSegments?.[2]?.path ?? undefined;
 
-    const routeQueryParams = this.routeQueryParams();
-    return routeQueryParams?.position ? `${parts};${routeQueryParams.position}` : parts;
+    if (routeUrlSegments?.[2]?.path === 'text') {
+      const textItemId = [
+        routeUrlSegments?.[1]?.path,
+        routeUrlSegments?.[3]?.path,
+        routeUrlSegments?.[4]?.path
+      ].filter(Boolean).join('_');
+
+      const routeQueryParams = this.routeQueryParams();
+      return routeQueryParams?.position ? `${textItemId};${routeQueryParams.position}` : textItemId;
+    } else {
+      return pageType ?? 'cover';
+    }
+  }
+
+  private getSelectableId(item: any): string | undefined {
+    return item?.itemId || item?.nodeId;
   }
 
   /**
-   * Recursively search array for an object that has an 'itemId' property
-   * equal to 'searchItemId'. If found, the item is marked as the selected
-   * item in the side menu.
+   * Depth-first search that returns the *path* of ids to open from root to the
+   * matched item. Each element in the path is item.itemId (if present) else item.nodeId.
+   * Returns null if not found. No side effects.
    */
-  private recursiveFindMenuItem(array: any[], searchItemId: string): any {
-    return array.find(item => {
-      if (item.itemId === searchItemId) {
-        return item;
-      } else if (item.children) {
-        const result = this.recursiveFindMenuItem(item.children, searchItemId);
-        if (
-          result &&
-          !this.selectedMenu.includes(result.itemId || result.nodeId)
-        ) {
-          this.selectedMenu = addOrRemoveValueInNewArray(
-            this.selectedMenu,
-            result.itemId || result.nodeId
-          );
-        }
-        return result;
-      } else {
-        return undefined;
+  private findPathToItem(array: any[] | undefined, searchItemId: string): string[] | null {
+    if (!Array.isArray(array) || !searchItemId) return null;
+
+    for (const item of array) {
+      const selfId = this.getSelectableId(item);
+      if (item?.itemId === searchItemId) {
+        return selfId ? [selfId] : [];
       }
-    });
+      const children = item?.children as any[] | undefined;
+      if (children?.length) {
+        const childPath = this.findPathToItem(children, searchItemId);
+        if (childPath) {
+          return selfId ? [selfId, ...childPath] : childPath;
+        }
+      }
+    }
+    return null;
   }
 
   /**
@@ -246,11 +279,8 @@ export class CollectionSideMenuComponent implements OnInit, OnChanges, OnDestroy
     for (let i = 0; i < array.length; i++) {
       array[i]["nodeId"] = (parentNodeId ? `${parentNodeId}-` : 'n') + (i+1);
       if (array[i]["collapsed"] === false) {
-        if (array[i]["itemId"]) {
-          this.selectedMenu = addOrRemoveValueInNewArray(this.selectedMenu, array[i]["itemId"]);
-        } else {
-          this.selectedMenu = addOrRemoveValueInNewArray(this.selectedMenu, array[i]["nodeId"]);
-        }
+        const selectedId = array[i]["itemId"] ? array[i]["itemId"] : array[i]["nodeId"];
+        this.selectedMenu = addOrRemoveValueInNewArray(this.selectedMenu, selectedId);
       }
       if (array[i]["children"] && array[i]["children"].length) {
         this.recursiveInitializeSelectedMenu(array[i]["children"], array[i]["nodeId"]);
@@ -262,15 +292,15 @@ export class CollectionSideMenuComponent implements OnInit, OnChanges, OnDestroy
     itemId: string,
     scrollTimeout: number = 600
   ) {
-    if (isBrowser()) {
+    if (!isBrowser()) {
+      return;
+    }
+
+    this.ngZone.runOutsideAngular(() => {
       setTimeout(() => {
-        const routeUrlSegments = this.routeUrlSegments();
-        const dataIdValue = routeUrlSegments?.[2]?.path === 'text'
-              ? `toc_${itemId}`
-              : `toc_${routeUrlSegments?.[2]?.path}`;
         const container = document.querySelector('.side-navigation') as HTMLElement;
         const target = document.querySelector(
-          'collection-side-menu [data-id="' + dataIdValue + '"] .menu-highlight'
+          `collection-side-menu [data-id="toc_${itemId}"] .menu-highlight`
         ) as HTMLElement;
         if (container && target) {
           this.scrollService.scrollElementIntoView(
@@ -278,7 +308,7 @@ export class CollectionSideMenuComponent implements OnInit, OnChanges, OnDestroy
           );
         }
       }, scrollTimeout);
-    }
+    });
   }
 
   private setSortOptions(collectionID: string) {

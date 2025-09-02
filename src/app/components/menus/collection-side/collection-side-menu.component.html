@@ -48,29 +48,29 @@
   }
   <ul role="menu" [ngClass]="activeMenuOrder + '-menu-sorting'">
     @if (enableCover) {
-      <li [attr.aria-current]="routeUrlSegments()?.[2]?.path === 'cover' ? 'page' : null" role="menuitem" data-id="toc_cover">
-        <a routerLink="{{collectionID() | collectionPagePath:'cover'}}" [class.menu-highlight]="routeUrlSegments()?.[2]?.path === 'cover'">
+      <li [attr.aria-current]="currentMenuItemId === 'cover' ? 'page' : null" role="menuitem" data-id="toc_cover">
+        <a routerLink="{{collectionID() | collectionPagePath:'cover'}}" [class.menu-highlight]="currentMenuItemId === 'cover'">
           <span class="label">{{ coverPageName }}</span>
         </a>
       </li>
     }
     @if (enableTitle) {
-      <li [attr.aria-current]="routeUrlSegments()?.[2]?.path === 'title' ? 'page' : null" role="menuitem" data-id="toc_title">
-        <a routerLink="{{collectionID() | collectionPagePath:'title'}}" [class.menu-highlight]="routeUrlSegments()?.[2]?.path === 'title'">
+      <li [attr.aria-current]="currentMenuItemId === 'title' ? 'page' : null" role="menuitem" data-id="toc_title">
+        <a routerLink="{{collectionID() | collectionPagePath:'title'}}" [class.menu-highlight]="currentMenuItemId === 'title'">
           <span class="label">{{ titlePageName }}</span>
         </a>
       </li>
     }
     @if (enableForeword) {
-      <li [attr.aria-current]="routeUrlSegments()?.[2]?.path === 'foreword' ? 'page' : null" role="menuitem" data-id="toc_foreword">
-        <a routerLink="{{collectionID() | collectionPagePath:'foreword'}}" [class.menu-highlight]="routeUrlSegments()?.[2]?.path === 'foreword'">
+      <li [attr.aria-current]="currentMenuItemId === 'foreword' ? 'page' : null" role="menuitem" data-id="toc_foreword">
+        <a routerLink="{{collectionID() | collectionPagePath:'foreword'}}" [class.menu-highlight]="currentMenuItemId === 'foreword'">
           <span class="label">{{ forewordPageName }}</span>
         </a>
       </li>
     }
     @if (enableIntroduction) {
-      <li [attr.aria-current]="routeUrlSegments()?.[2]?.path === 'introduction' ? 'page' : null" role="menuitem" data-id="toc_introduction">
-        <a routerLink="{{collectionID() | collectionPagePath:'introduction'}}" [class.menu-highlight]="routeUrlSegments()?.[2]?.path === 'introduction'">
+      <li [attr.aria-current]="currentMenuItemId === 'introduction' ? 'page' : null" role="menuitem" data-id="toc_introduction">
+        <a routerLink="{{collectionID() | collectionPagePath:'introduction'}}" [class.menu-highlight]="currentMenuItemId === 'introduction'">
           <span class="label">{{ introductionPageName }}</span>
         </a>
       </li>

@@ -5,8 +5,8 @@ import { IonicModule, ModalController } from '@ionic/angular';
 import { catchError, map, of, switchMap, tap } from 'rxjs';
 
 import { IllustrationModal } from '@modals/illustration/illustration.modal';
-import { TextKey } from '@models/collection.model';
-import { CorrespondenceMetadata, LetterData } from '@models/metadata.model';
+import { TextKey } from '@models/collection.models';
+import { CorrespondenceMetadata, LetterData } from '@models/metadata.models';
 import { TrustHtmlPipe } from '@pipes/trust-html.pipe';
 import { CommentService } from '@services/comment.service';
 import { HtmlParserService } from '@services/html-parser.service';

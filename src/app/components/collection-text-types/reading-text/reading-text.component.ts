@@ -7,8 +7,8 @@ import { catchError, combineLatest, map, of, switchMap, tap } from 'rxjs';
 import { config } from '@config';
 import { MathJaxDirective } from '@directives/math-jax.directive';
 import { IllustrationModal } from '@modals/illustration/illustration.modal';
-import { TextKey } from '@models/collection.model';
-import { ReadingText } from '@models/readingtext.model'
+import { TextKey } from '@models/collection.models';
+import { ReadingText } from '@models/readingtext.models'
 import { TrustHtmlPipe } from '@pipes/trust-html.pipe';
 import { CollectionContentService } from '@services/collection-content.service';
 import { HtmlParserService } from '@services/html-parser.service';

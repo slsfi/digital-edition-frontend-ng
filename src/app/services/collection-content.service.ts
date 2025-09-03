@@ -3,9 +3,9 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, map } from 'rxjs';
 
 import { config } from '@config';
-import { TextKey } from '@models/collection.model';
+import { TextKey } from '@models/collection.models';
 import { Manuscript, ManuscriptsApiResponse, toManuscript } from '@models/manuscript.models';
-import { ReadingText, ReadingTextApiResponse, toReadingText } from '@models/readingtext.model';
+import { ReadingText, ReadingTextApiResponse, toReadingText } from '@models/readingtext.models';
 
 
 @Injectable({

@@ -4,7 +4,7 @@ import { IonContent } from '@ionic/angular';
 import { map, merge, Observable, of, Subject, Subscription, switchMap } from 'rxjs';
 
 import { config } from '@config';
-import { AggregationData, AggregationsData, Facet, Facets, TimeRange } from '@models/elastic-search.model';
+import { AggregationData, AggregationsData, Facet, Facets, TimeRange } from '@models/elastic-search.models';
 import { ElasticSearchService } from '@services/elastic-search.service';
 import { MarkdownService } from '@services/markdown.service';
 import { PlatformService } from '@services/platform.service';

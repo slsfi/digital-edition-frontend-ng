@@ -2,7 +2,7 @@ import { Component, ElementRef, OnInit, inject, output, input } from '@angular/c
 import { AlertButton, AlertController, AlertInput, IonicModule } from '@ionic/angular';
 
 import { config } from '@config';
-import { TextKey } from '@models/collection.model';
+import { TextKey } from '@models/collection.models';
 import { TrustHtmlPipe } from '@pipes/trust-html.pipe';
 import { CollectionContentService } from '@services/collection-content.service';
 import { HtmlParserService } from '@services/html-parser.service';

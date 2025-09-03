@@ -5,7 +5,7 @@ import { AlertButton, AlertController, AlertInput, IonicModule } from '@ionic/an
 import { catchError, of, switchMap, tap } from 'rxjs';
 
 import { config } from '@config';
-import { TextKey } from '@models/collection.model';
+import { TextKey } from '@models/collection.models';
 import { Manuscript } from '@models/manuscript.models';
 import { TrustHtmlPipe } from '@pipes/trust-html.pipe';
 import { CollectionContentService } from '@services/collection-content.service';

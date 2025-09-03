@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { catchError, map, Observable, of } from 'rxjs';
 
 import { config } from '@config';
-import { TextKey } from '@models/collection.model';
+import { TextKey } from '@models/collection.models';
 import { CommentService } from '@services/comment.service';
 import { NamedEntityService } from '@services/named-entity.service';
 import { PlatformService } from '@services/platform.service';

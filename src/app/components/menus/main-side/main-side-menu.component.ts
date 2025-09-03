@@ -5,7 +5,7 @@ import { IonicModule } from '@ionic/angular';
 import { catchError, forkJoin, map, Observable, of } from 'rxjs';
 
 import { config } from '@config';
-import { Article } from '@models/article.model';
+import { Article } from '@models/article.models';
 import { ArrayIncludesPipe } from '@pipes/array-includes.pipe';
 import { ParentChildPagePathPipe } from '@pipes/parent-child-page-path.pipe';
 import { CollectionsService } from '@services/collections.service';

@@ -5,7 +5,7 @@ import { Observable, Subscription, switchMap, tap } from 'rxjs';
 
 import { config } from '@config';
 import { ReferenceDataModal } from '@modals/reference-data/reference-data.modal';
-import { Article } from '@models/article.model';
+import { Article } from '@models/article.models';
 import { ViewOptionsPopover } from '@popovers/view-options/view-options.popover';
 import { MarkdownService } from '@services/markdown.service';
 import { PlatformService } from '@services/platform.service';

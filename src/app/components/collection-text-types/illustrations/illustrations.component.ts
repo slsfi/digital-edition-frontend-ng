@@ -3,7 +3,7 @@ import { NgClass } from '@angular/common';
 import { IonicModule, ModalController } from '@ionic/angular';
 
 import { FullscreenImageViewerModal } from '@modals/fullscreen-image-viewer/fullscreen-image-viewer.modal';
-import { TextKey } from '@models/collection.model';
+import { TextKey } from '@models/collection.models';
 import { HtmlParserService } from '@services/html-parser.service';
 import { PlatformService } from '@services/platform.service';
 import { ScrollService } from '@services/scroll.service';

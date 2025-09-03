@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 import { config } from '@config';
-import { AggregationQuery, Facets, SearchQuery, TimeRange } from '@models/elastic-search.model';
+import { AggregationQuery, Facets, SearchQuery, TimeRange } from '@models/elastic-search.models';
 
 
 @Injectable({

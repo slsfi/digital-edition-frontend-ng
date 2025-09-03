@@ -5,7 +5,7 @@ import { combineLatest, forkJoin, map, Observable, Subscription } from 'rxjs';
 
 import { config } from '@config';
 import { ReferenceDataModal } from '@modals/reference-data/reference-data.modal';
-import { GalleryItem } from '@models/gallery-item-model';
+import { GalleryItem } from '@models/gallery-item-models';
 import { FullscreenImageViewerModal } from '@modals/fullscreen-image-viewer/fullscreen-image-viewer.modal';
 import { DocumentHeadService } from '@services/document-head.service';
 import { MarkdownService } from '@services/markdown.service';

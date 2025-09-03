@@ -38,6 +38,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - Missing CSS variable for setting the background color of the article table of contents (added `--article-toc-background-color`).
 - Current text title in text-changer for non-ToC text positions.
 - Selected menu item in the collection side menu for non-ToC text positions.
+- Consistent naming of files containing models.
 
 
 

@@ -2,7 +2,7 @@ import { NgTemplateOutlet } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
-import { HeadingNode } from '@models/article.model';
+import { HeadingNode } from '@models/article.models';
 import { HtmlParserService } from '@services/html-parser.service';
 
 

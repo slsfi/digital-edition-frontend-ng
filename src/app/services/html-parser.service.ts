@@ -6,9 +6,9 @@ import { existsOne, findAll, findOne, getChildren, getAttributeValue, isTag } fr
 import { render } from 'dom-serializer';
 
 import { config } from '@config';
-import { HeadingNode } from '@models/article.model';
-import { TextKey } from '@models/collection.model';
-import { ReadingText } from '@models/readingtext.model';
+import { HeadingNode } from '@models/article.models';
+import { TextKey } from '@models/collection.models';
+import { ReadingText } from '@models/readingtext.models';
 import { CollectionContentService } from '@services/collection-content.service';
 import { isFileNotFoundHtml } from '@utility-functions';
 

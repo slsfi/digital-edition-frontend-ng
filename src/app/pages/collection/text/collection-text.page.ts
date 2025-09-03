@@ -7,7 +7,7 @@ import { config } from '@config';
 import { DownloadTextsModal } from '@modals/download-texts/download-texts.modal';
 import { NamedEntityModal } from '@modals/named-entity/named-entity.modal';
 import { ReferenceDataModal } from '@modals/reference-data/reference-data.modal';
-import { TextKey } from '@models/collection.model';
+import { TextKey } from '@models/collection.models';
 import { ViewOptionsPopover } from '@popovers/view-options/view-options.popover';
 import { CollectionContentService } from '@services/collection-content.service';
 import { CollectionsService } from '@services/collections.service';

@@ -3,9 +3,9 @@ import { HttpClient } from '@angular/common/http';
 import { map, Observable, of } from 'rxjs';
 
 import { config } from '@config';
-import { TextKey } from '@models/collection.model';
-import { CommentsApiResponse } from '@models/comments.model';
-import { CorrespondenceMetadata, CorrespondenceMetadataApiResponse, toCorrespondenceMetadata } from '@models/metadata.model';
+import { TextKey } from '@models/collection.models';
+import { CommentsApiResponse } from '@models/comments.models';
+import { CorrespondenceMetadata, CorrespondenceMetadataApiResponse, toCorrespondenceMetadata } from '@models/metadata.models';
 
 
 @Injectable({

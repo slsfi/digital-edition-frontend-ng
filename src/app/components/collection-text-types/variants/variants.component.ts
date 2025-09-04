@@ -1,8 +1,12 @@
-import { Component, ElementRef, OnInit, inject, output, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, ElementRef, Injector, afterRenderEffect, computed, effect, inject, input, output, signal } from '@angular/core';
+import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
+import { AsyncPipe } from '@angular/common';
 import { AlertButton, AlertController, AlertInput, IonicModule } from '@ionic/angular';
+import { catchError, of, switchMap, tap } from 'rxjs';
 
 import { config } from '@config';
 import { TextKey } from '@models/collection.models';
+import { Variant } from '@models/variant.models';
 import { TrustHtmlPipe } from '@pipes/trust-html.pipe';
 import { CollectionContentService } from '@services/collection-content.service';
 import { HtmlParserService } from '@services/html-parser.service';
@@ -10,24 +14,33 @@ import { ScrollService } from '@services/scroll.service';
 import { ViewOptionsService } from '@services/view-options.service';
 
 
+// ─────────────────────────────────────────────────────────────────────────────
+// * This component is zoneless-ready. *
+// ─────────────────────────────────────────────────────────────────────────────
 @Component({
   selector: 'variants',
   templateUrl: './variants.component.html',
   styleUrls: ['./variants.component.scss'],
-  imports: [IonicModule, TrustHtmlPipe]
+  imports: [AsyncPipe, IonicModule, TrustHtmlPipe],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class VariantsComponent implements OnInit {
+export class VariantsComponent {
+  // ─────────────────────────────────────────────────────────────────────────────
+  // Dependency injection, Input/Output signals, Fields, Local state signals
+  // ─────────────────────────────────────────────────────────────────────────────
   private alertCtrl = inject(AlertController);
   private collectionContentService = inject(CollectionContentService);
+  private destroyRef = inject(DestroyRef);
   private elementRef = inject(ElementRef);
+  private injector = inject(Injector);
   private parserService = inject(HtmlParserService);
   private scrollService = inject(ScrollService);
   viewOptionsService = inject(ViewOptionsService);
 
-  readonly searchMatches = input<Array<string>>([]);
-  readonly sortOrder = input<number>();
+  readonly searchMatches = input<string[]>([]);
+  readonly sortOrder = input<number | undefined>();
   readonly textKey = input.required<TextKey>();
-  readonly varID = input<number>();
+  readonly varID = input<number | undefined>();
   readonly openNewLegendView = output<any>();
   readonly openNewVarView = output<any>();
   readonly selectedVarID = output<number>();
@@ -37,184 +50,234 @@ export class VariantsComponent implements OnInit {
   readonly showOpenLegendButton: boolean = config.component?.variants?.showOpenLegendButton ?? false;
 
   intervalTimerId: number = 0;
-  selectedVariant: any = undefined;
-  text: string = '';
-  variants: any[] = [];
+  private _lastScrollKey: string | null = null;
 
-  ngOnInit() {
-    this.loadVariantTexts(this.textKey());
-  }
+  variants = signal<Variant[] | null>(null);
+  private pickedVarId = signal<number | undefined>(undefined);
+  private statusMessage = signal<string | null>(null);
 
-  loadVariantTexts(textKey: TextKey) {
-    this.collectionContentService.getVariants(textKey).subscribe({
-      next: (res) => {
-        if (res?.variations?.length > 0) {
-          this.variants = res.variations;
-          this.setVariant();
-          if (this.searchMatches().length) {
-            this.scrollService.scrollToFirstSearchMatch(this.elementRef.nativeElement, this.intervalTimerId);
-          }
-        } else {
-          this.text = $localize`:@@Variants.None:Inga tryckta varianter tillgängliga.`;
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // Derived computeds (pure, no side-effects)
+  // ─────────────────────────────────────────────────────────────────────────────
+  selectedVariant = computed<Variant | undefined>(() => {
+    const list = this.variants();
+    if (!Array.isArray(list) || list.length === 0) {
+      return undefined;
+    }
+
+    // precedence: picked → varID input → sortOrder input → first
+    const picked = this.pickedVarId();
+    if (picked !== undefined) {
+      return list.find(v => v.id === picked) ?? list[0];
+    }
+
+    const byId = this.varID();
+    if (byId != undefined) {
+      return list.find(v => v.id === byId) ?? list[0];
+    }
+
+    const byOrder = this.sortOrder();
+    if (byOrder != undefined) {
+      return list.find(v => v.sortOrder === byOrder) ?? list[0];
+    }
+
+    return list[0];
+  });
+
+  // Derived computed that builds the final HTML for the template
+  //    - Returns:
+  //        undefined  → "loading" (spinner)
+  //        string     → final HTML or a user-facing status message
+  private html = computed<string | undefined>(() => {
+    // Show status (None/Error) when present
+    const message = this.statusMessage();
+    if (message) {
+      return message;
+    }
+
+    // Loading state: variants === null → spinner in template
+    const list = this.variants();
+    if (list === null) {
+      return undefined;
+    }
+
+    const v = this.selectedVariant();
+    // No variants (handled above with a message), but defend anyway
+    if (!v) {
+      return '';
+    }
+
+    // Compose final HTML
+    const post = this.parserService.postprocessVariantText(v.html);
+    return this.parserService.insertSearchMatchTags(post, this.searchMatches());
+  });
+
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // Constructor: wire side effects (data load, emits, after-render hook)
+  // ─────────────────────────────────────────────────────────────────────────────
+  constructor() {
+    // (a) Load variants when textKey changes
+    toObservable(this.textKey).pipe(
+      tap(() => {
+        // reset state for a new load
+        this.variants.set(null);
+        this.statusMessage.set(null);
+        this.pickedVarId.set(undefined);
+        this._lastScrollKey = null;
+      }),
+      switchMap((tk: TextKey) =>
+        this.collectionContentService.getVariants(tk).pipe(
+          catchError(err => {
+            console.error(err);
+            this.statusMessage.set($localize`:@@Variants.Error:Ett fel har uppstått. Varianter kunde inte laddas.`);
+            return of<Variant[]>([]);
+          })
+        )
+      ),
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe((list: Variant[]) => {
+      this.variants.set(list);
+      // If loaded but empty, show "None" message (unless an error already set one)
+      if (list.length === 0 && !this.statusMessage()) {
+        this.statusMessage.set($localize`:@@Variants.None:Inga tryckta varianter tillgängliga.`);
+      }
+    });
+   
+    // (b) Emit outputs when user-visible selection changes (only if multiple variants)
+    effect(
+      () => {
+        const list = this.variants();
+        const v = this.selectedVariant();
+
+        if (Array.isArray(list) && list.length > 1 && v) {
+          this.selectedVarID.emit(v.id);
+          this.selectedVarName.emit(v.name);
+          this.selectedVarSortOrder.emit(v.sortOrder);
         }
       },
-      error: (e) => {
-        console.error(e);
-        this.text = $localize`:@@Variants.Error:Ett fel har uppstått. Varianter kunde inte laddas.`
-      }
-    });
+      { injector: this.injector }
+    );
+
+    // (c) After-render hook: scroll to first search match
+    //     Triggers only when:
+    //       - variants finished loading (null -> array)
+    //       - searchMatches changed
+    //       - textKey changed
+    //     Not triggered when user just switches selected variant.
+    afterRenderEffect({
+      write: () => {
+        const list = this.variants();
+        const matches = this.searchMatches();
+        const tk = this.textKey();
+
+        if (!Array.isArray(list) || list.length === 0 || matches.length === 0) {
+          return;
+        }
+
+        const key = `${tk.textItemID}|matches:${matches.join(',')}`;
+        if (this._lastScrollKey !== key) {
+          this._lastScrollKey = key;
+
+          this.scrollService.scrollToFirstSearchMatch(
+            this.elementRef.nativeElement,
+            this.intervalTimerId
+          );
+        }
+      },
+    }, { injector: this.injector });
   }
 
-  setVariant() {
-    if (this.varID()) {
-      const inputVariant = this.variants.filter((item: any) => {
-        return (item.id === this.varID());
-      })[0];
-      this.selectedVariant = inputVariant ? inputVariant : this.variants[0];
-    } else if (this.sortOrder()) {
-      const inputVariant = this.variants.filter((item: any) => {
-        return (item.sort_order === this.sortOrder());
-      })[0];
-      this.selectedVariant = inputVariant ? inputVariant : this.variants[0];
-    } else {
-      this.selectedVariant = this.variants[0];
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // Template-facing Observable (consumed via AsyncPipe)
+  // ─────────────────────────────────────────────────────────────────────────────
+  text$ = toObservable(this.html);
+
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // Public UI actions (called from template)
+  // ─────────────────────────────────────────────────────────────────────────────
+  async selectVariant() {
+    const list = this.variants();
+    if (!Array.isArray(list) || list.length === 0) {
+      return;
     }
-    this.emitOutputValues(this.selectedVariant);
-    this.changeVariant();
-  }
 
-  changeVariant(variant?: any) {
-    if (
-      variant &&
-      this.selectedVariant?.id !== variant.id
-    ) {
-      this.selectedVariant = variant;
-      this.emitOutputValues(this.selectedVariant);
-    }
-    if (this.selectedVariant) {
-      let text = this.parserService.postprocessVariantText(this.selectedVariant.content);
-      this.text = this.parserService.insertSearchMatchTags(text, this.searchMatches());
-    }
-  }
+    const currentId = this.selectedVariant()?.id;
 
-  async selectVariant(event: any) {
-    const inputs = [] as AlertInput[];
-    const buttons = [] as AlertButton[];
+    const inputs: AlertInput[] = list.map((v: Variant) => ({
+      type: 'radio',
+      label: v.name,
+      value: String(v.id),
+      checked: v.id === currentId,
+    }));
 
-    this.variants.forEach((variant: any, index: any) => {
-      let checkedValue = false;
-
-      if (this.selectedVariant.id === variant.id) {
-        checkedValue = true;
-      }
-
-      inputs.push({
-        type: 'radio',
-        label: variant.name,
-        value: index,
-        checked: checkedValue
-      });
-    });
-
-    buttons.push({ text: $localize`:@@BasicActions.Cancel:Avbryt` });
-    buttons.push({
-      text: $localize`:@@BasicActions.Ok:Ok`,
-      handler: (index: any) => {
-        this.changeVariant(this.variants[parseInt(index)]);
-      }
-    });
+    const buttons: AlertButton[] = [
+      { text: $localize`:@@BasicActions.Cancel:Avbryt` },
+      {
+        text: $localize`:@@BasicActions.Ok:Ok`,
+        handler: (value: string) => {
+          const id = Number(value);
+          if (!Number.isNaN(id)) {
+            this.pickedVarId.set(id);
+          }
+        },
+      },
+    ];
 
     const alert = await this.alertCtrl.create({
       header: $localize`:@@Variants.SelectVariantDialogTitle:Välj variant`,
-      subHeader:  $localize`:@@Variants.SelectVariantDialogSubtitle:Varianten ersätter den variant som visas i kolumnen där du klickade.`,
+      subHeader: $localize`:@@Variants.SelectVariantDialogSubtitle:Varianten ersätter den variant som visas i kolumnen där du klickade.`,
       cssClass: 'custom-select-alert',
-      buttons: buttons,
-      inputs: inputs
-    });    
+      inputs,
+      buttons,
+    });
 
     await alert.present();
   }
 
   async selectVariantForNewView() {
-    const inputs = [] as AlertInput[];
-    const buttons = [] as AlertButton[];
+    const list = this.variants();
+    if (!Array.isArray(list) || list.length === 0) {
+      return;
+    }
 
-    this.variants.forEach((variant: any, index: any) => {
-      inputs.push({
-        type: 'radio',
-        label: variant.name,
-        value: index
-      });
-    });
+    const inputs: AlertInput[] = list.map((v: Variant) => ({
+      type: 'radio',
+      label: v.name,
+      value: String(v.id),
+    }));
 
-    buttons.push({ text: $localize`:@@BasicActions.Cancel:Avbryt` });
-    buttons.push({
-      text: $localize`:@@BasicActions.Ok:Ok`,
-      handler: (index: any) => {
-        this.openVariationInNewView(this.variants[parseInt(index)]);
-      }
-    });
+    const buttons: AlertButton[] = [
+      { text: $localize`:@@BasicActions.Cancel:Avbryt` },
+      {
+        text: $localize`:@@BasicActions.Ok:Ok`,
+        handler: (value: string) => {
+          const id = Number(value);
+          if (Number.isNaN(id)) {
+            return;
+          }
+          const v = list.find(x => x.id === id);
+          if (!v) {
+            return;
+          }
+          this.openNewVariant(v);
+        },
+      },
+    ];
 
     const alert = await this.alertCtrl.create({
       header: $localize`:@@Variants.OpenNewVariantDialogTitle:Välj variant`,
-      subHeader:  $localize`:@@Variants.OpenNewVariantDialogSubtitle:Varianten öppnas i en ny kolumn.`,
+      subHeader: $localize`:@@Variants.OpenNewVariantDialogSubtitle:Varianten öppnas i en ny kolumn.`,
       cssClass: 'custom-select-alert',
-      buttons: buttons,
-      inputs: inputs
+      inputs,
+      buttons,
     });
 
     await alert.present();
   }
-
-  emitOutputValues(variant: any) {
-    // Emit the var id so the collection text page can update queryParams
-    this.emitSelectedVariantId(variant.id);
-    // Emit the var sort_order so the collection text page can update queryParams
-    this.emitSelectedVariantSortOrder(variant.sort_order);
-    // Emit the var name so the collection text page can display it in the column header
-    this.emitSelectedVariantName(variant.name);
-  }
-
-  emitSelectedVariantId(id: number) {
-    if (this.variants.length > 1) {
-      this.selectedVarID.emit(id);
-    }
-  }
-
-  emitSelectedVariantName(name: string) {
-    if (this.variants.length > 1) {
-      this.selectedVarName.emit(name);
-    }
-  }
-
-  emitSelectedVariantSortOrder(order: number) {
-    if (this.variants.length > 1) {
-      this.selectedVarSortOrder.emit(order);
-    }
-  }
-
-  openNewVar(event: Event, id: any) {
-    event.preventDefault();
-    event.stopPropagation();
-    id.viewType = 'variants';
-    this.openNewVarView.emit(id);
-  }
-
-  openVariationInNewView(variant?: any) {
-    variant.viewType = 'variants';
-    this.openNewVarView.emit(variant);
-  }
-
-  /*
-  openAllVariations() {
-    this.variants.forEach((variant: any) => {
-      if (this.selectedVariant.id !== variant.id) {
-        variant.viewType = 'variants';
-        this.openNewVarView.emit(variant);
-      }
-    });
-  }
-  */
 
   openNewLegend(event: Event) {
     event.preventDefault();
@@ -224,6 +287,10 @@ export class VariantsComponent implements OnInit {
       id: 'var-legend'
     }
     this.openNewLegendView.emit(id);
+  }
+
+  openNewVariant(variant: Variant) {
+    this.openNewVarView.emit({ ...variant, viewType: 'variants' });
   }
 
 }

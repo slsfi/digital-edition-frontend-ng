@@ -1,6 +1,6 @@
 export interface ManuscriptApi {
   id: number;
-  name: string;
+  name: string | null;
   manuscript_changes: string;
   manuscript_normalized: string;
   language: string | null;
@@ -22,7 +22,7 @@ export interface Manuscript {
 
 export const toManuscript = (m: ManuscriptApi): Manuscript => ({
   id: m.id,
-  name: m.name,
+  name: m.name ?? '',
   changesHtml: m.manuscript_changes,
   normalizedHtml: m.manuscript_normalized,
   language: m.language ?? undefined,

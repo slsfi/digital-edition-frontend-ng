@@ -6,6 +6,7 @@ import { config } from '@config';
 import { TextKey } from '@models/collection.models';
 import { Manuscript, ManuscriptsApiResponse, toManuscript } from '@models/manuscript.models';
 import { ReadingText, ReadingTextApiResponse, toReadingText } from '@models/readingtext.models';
+import { toVariant, Variant, VariantsApiResponse } from '@models/variant.models';
 
 
 @Injectable({
@@ -65,10 +66,15 @@ export class CollectionContentService {
     return this.http.get(endpoint);
   }
 
-  getVariants(textKey: TextKey): Observable<any> {
-    const ch_id = textKey.chapterID ? `/${textKey.chapterID}` : '';
-    const endpoint = `${this.apiURL}/text/${textKey.collectionID}/${textKey.publicationID}/var${ch_id}`;
-    return this.http.get(endpoint);
+  getVariants(textKey: TextKey): Observable<Variant[]> {
+    const chId = textKey.chapterID ? `/${textKey.chapterID}` : '';
+    const endpoint = `${this.apiURL}/text/${textKey.collectionID}/${textKey.publicationID}/var${chId}`;
+
+    return this.http.get<VariantsApiResponse>(endpoint).pipe(
+      map((res: VariantsApiResponse) => (res.variations ?? [])
+        .map(toVariant)
+      )
+    );
   }
 
   getFacsimiles(textKey: TextKey): Observable<any> {

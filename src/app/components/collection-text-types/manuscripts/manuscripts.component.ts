@@ -62,7 +62,7 @@ export class ManuscriptsComponent {
   // ─────────────────────────────────────────────────────────────────────────────
   selectedManuscript = computed<Manuscript | undefined> (() => {
     const list = this.manuscripts();
-    if (!list || list.length === 0) {
+    if (!Array.isArray(list) || list.length === 0) {
       return undefined;
     }
     const id = this.pickedMsId() ?? this.msID();
@@ -70,6 +70,37 @@ export class ManuscriptsComponent {
   });
 
   textLanguage = computed<string>(() => this.selectedManuscript()?.language ?? '');
+
+  // Derived computed that builds the final HTML for the template
+  //    - Returns:
+  //        undefined  → "loading" (spinner)
+  //        string     → final HTML or a user-facing status message
+  private html = computed<string | undefined>(() => {
+    // Show status (None/Error) when present
+    const message = this.statusMessage();
+    if (message) {
+      return message;
+    }
+
+    // Loading state: manuscripts === null → spinner in template
+    const list = this.manuscripts();
+    if (list === null) {
+      return undefined;
+    }
+
+    const m = this.selectedManuscript();
+    // No manuscripts (handled above with a message), but defend anyway
+    if (!m) {
+      return '';
+    }
+
+    // Compose final HTML
+    const raw = this.showNormalizedMs()
+          ? m.normalizedHtml
+          : m.changesHtml;
+    const post = this.parserService.postprocessManuscriptText(raw);
+    return this.parserService.insertSearchMatchTags(post, this.searchMatches());
+  });
 
 
   // ─────────────────────────────────────────────────────────────────────────────
@@ -107,6 +138,7 @@ export class ManuscriptsComponent {
     effect(() => {
       const list = this.manuscripts();
       const m = this.selectedManuscript();
+
       if (Array.isArray(list) && list.length > 1 && m) {
         this.selectedMsID.emit(m.id);
         this.selectedMsName.emit(m.name);
@@ -121,12 +153,12 @@ export class ManuscriptsComponent {
     //     Not triggered when user just switches selected manuscript.
     afterRenderEffect({
       write: () => {
-        const ms = this.manuscripts();
+        const list = this.manuscripts();
         const matches = this.searchMatches();
         const tk = this.textKey();
 
         // only after data finished loading and we have matches
-        if (!Array.isArray(ms) || ms.length === 0 || matches.length === 0) {
+        if (!Array.isArray(list) || list.length === 0 || matches.length === 0) {
           return;
         }
 
@@ -146,40 +178,6 @@ export class ManuscriptsComponent {
 
 
   // ─────────────────────────────────────────────────────────────────────────────
-  // Derived computed that builds the final HTML for the template
-  //    - Returns:
-  //        undefined  → "loading" (spinner)
-  //        string     → final HTML or a user-facing status message
-  // ─────────────────────────────────────────────────────────────────────────────
-  private html = computed<string | undefined>(() => {
-    // Show status (None/Error) when present
-    const message = this.statusMessage();
-    if (message) {
-      return message;
-    }
-
-    // Loading state: manuscripts === null → spinner in template
-    const list = this.manuscripts();
-    if (list === null) {
-      return undefined;
-    }
-
-    const m = this.selectedManuscript();
-    // No manuscripts (handled above with a message), but defend anyway
-    if (!m) {
-      return '';
-    }
-
-    // Compose final HTML
-    const raw = this.showNormalizedMs()
-          ? m.normalizedHtml
-          : m.changesHtml;
-    const post = this.parserService.postprocessManuscriptText(raw);
-    return this.parserService.insertSearchMatchTags(post, this.searchMatches());
-  });
-
-
-  // ─────────────────────────────────────────────────────────────────────────────
   // Template-facing Observable (consumed via AsyncPipe)
   // ─────────────────────────────────────────────────────────────────────────────
   text$ = toObservable(this.html);
@@ -192,10 +190,6 @@ export class ManuscriptsComponent {
     this.showNormalizedMs.update(v => !v);
   }
 
-  selectManuscriptById(id: number) {
-    this.pickedMsId.set(id);
-  }
-
   async selectManuscript() {
     const list = this.manuscripts();
     if (!Array.isArray(list) || list.length === 0) {
@@ -204,8 +198,7 @@ export class ManuscriptsComponent {
 
     const currentId = this.selectedManuscript()?.id;
 
-    // Ion Alert radio values are strings; convert on read for safety.
-    const inputs: AlertInput[] = list.map((m: any) => ({
+    const inputs: AlertInput[] = list.map((m: Manuscript) => ({
       type: 'radio',
       label: m.name,
       value: String(m.id),
@@ -219,7 +212,7 @@ export class ManuscriptsComponent {
         handler: (value: string) => {
           const id = Number(value);
           if (!Number.isNaN(id)) {
-            this.selectManuscriptById(id);
+            this.pickedMsId.set(id);
           }
         }
       }

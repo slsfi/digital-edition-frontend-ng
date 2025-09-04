@@ -1,11 +1,11 @@
-@let ms = manuscripts();          <!-- ms: any[] | null -->
+@let list = manuscripts();
 
-@if (ms === null) {
+@if (list === null) {
   <ion-spinner class="loading" name="crescent"></ion-spinner>
 } @else {
   @let text = text$ | async;
-  @let msList = ms ?? [];         <!-- msList: any[] -->
-  @let msCount = msList.length;   <!-- number -->
+  @let msList = list ?? [];
+  @let msCount = msList.length;
   @let viewOptions = viewOptionsService.show();
 
   @if (text && msCount && (showTitle || showOpenLegendButton || showNormalizedToggle || msCount > 1)) {

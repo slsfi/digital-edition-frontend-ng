@@ -48,21 +48,20 @@ export class CollectionCoverPage implements OnInit {
 
   private getCoverDataFromMdContent(fileID: string): Observable<any> {
     return this.mdService.getMdContent(fileID).pipe(
-      map((res: any) => {
+      map((md: string) => {
         // Extract image url and alt-text from markdown content.
-        let image_alt = res.content.match(/!\[(.*?)\]\(.*?\)/)[1];
-        if (!image_alt) {
-          image_alt = 'Cover image';
-        }
-        let image_src = res.content.match(/!\[.*?\]\((.*?)\)/)[1];
-        if (!image_src) {
-          image_src = '';
-        }
+        const m = md.match(/!\[(.*?)\]\((.*?)\)/);
+        const image_alt = m?.[1] || 'Collection cover image';
+        const image_src = m?.[2] || 'assets/images/collection-cover-placeholder.jpg';
+
         return { image_alt, image_src };
       }),
       catchError((e: any) => {
         console.error('Error loading markdown content for cover image', e);
-        return of({ image_alt: 'Cover image', image_src: '' });
+        return of({
+          image_alt: 'Cover image',
+          image_src: 'assets/images/collection-cover-placeholder.jpg'
+        });
       })
     );
   }

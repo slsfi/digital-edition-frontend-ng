@@ -1,23 +1,28 @@
-import { Component, ElementRef, LOCALE_ID, NgZone, OnDestroy, OnInit, Renderer2, inject, input } from '@angular/core';
-import { AsyncPipe } from '@angular/common';
+import { ChangeDetectionStrategy, Component, DestroyRef, ElementRef, Injector, LOCALE_ID, NgZone, Renderer2, afterRenderEffect, computed, inject, input, signal } from '@angular/core';
+import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { IonicModule } from '@ionic/angular';
-import { catchError, map, Observable, of } from 'rxjs';
+import { catchError, map, of, switchMap, tap } from 'rxjs';
 
 import { TextKey } from '@models/collection.models';
 import { TrustHtmlPipe } from '@pipes/trust-html.pipe';
 import { MarkdownService } from '@services/markdown.service';
 import { ScrollService } from '@services/scroll.service';
-import { isBrowser } from '@utility-functions';
 
 
 @Component({
   selector: 'text-legend',
   templateUrl: './legend.component.html',
   styleUrls: ['./legend.component.scss'],
-  imports: [AsyncPipe, IonicModule, TrustHtmlPipe]
+  imports: [IonicModule, TrustHtmlPipe],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class LegendComponent implements OnDestroy, OnInit {
+export class LegendComponent {
+  // ─────────────────────────────────────────────────────────────────────────────
+  // Dependency injection, Input/Output signals, Fields, Local state signals
+  // ─────────────────────────────────────────────────────────────────────────────
+  private destroyRef = inject(DestroyRef);
   private elementRef = inject(ElementRef);
+  private injector = inject(Injector);
   private mdService = inject(MarkdownService);
   private ngZone = inject(NgZone);
   private renderer2 = inject(Renderer2);
@@ -27,103 +32,168 @@ export class LegendComponent implements OnDestroy, OnInit {
   readonly textKey = input.required<TextKey>();
   readonly scrollToElementId = input<string>();
 
-  intervalTimerId: number = 0;
-  staticMdLegendFolderNumber: string = '13';
-  text$: Observable<string>;
-
+  private readonly staticMdLegendFolderNumber: string = '13';
   private unlistenClickEvents?: () => void;
 
-  ngOnInit() {
-    const textKey = this.textKey();
-    const mdId = `${this.activeLocale}-${this.staticMdLegendFolderNumber}-${textKey.collectionID}-${textKey.publicationID}`;
-    this.text$ = this.getMdContent(mdId);
+  private mdContent = signal<string | null>(null);
+  private statusMessage = signal<string | null>(null);
 
-    if (isBrowser()) {
-      this.setUpTextListeners();
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // Derived computeds (pure, no side-effects)
+  // ─────────────────────────────────────────────────────────────────────────────
+  html = computed<string | undefined>(() => {
+    const message = this.statusMessage();
+    if (message) {
+      return message;
     }
-  }
 
-  ngOnDestroy() {
-    this.unlistenClickEvents?.();
-  }
+    const md = this.mdContent();
+    if (md === null) {
+      return undefined;
+    }
 
-  getMdContent(fileID: string): Observable<string> {
-    return this.mdService.getMdContent(fileID).pipe(
-      map((res: any) => {
-        if (isBrowser()) {
-          this.scrollToInitialTextPosition();
-        }
-        return this.mdService.parseMd(res.content);
+    // Parse markdown → HTML.
+    return this.mdService.parseMd(md);
+  });
+
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // Constructor: data load, after-render DOM work, cleanup
+  // ─────────────────────────────────────────────────────────────────────────────
+  constructor() {
+    // Load Markdown content when textKey changes
+    toObservable(this.textKey).pipe(
+      // reset state before each load
+      tap(() => {
+        this.mdContent.set(null);
+        this.statusMessage.set(null);
       }),
-      catchError(e => {
-        if (fileID.split('-').length > 3) {
-          return this.getMdContent(this.activeLocale + '-' + this.staticMdLegendFolderNumber + '-' + this.textKey()?.collectionID);
-        } else if (fileID.split('-')[2] !== '00') {
-          return this.getMdContent(this.activeLocale + '-' + this.staticMdLegendFolderNumber + '-' + '00');
-        } else {
-          return of($localize`:@@Legend.None:Inga teckenförklaringar tillgängliga.`);
+      switchMap(tk => this.loadLegend$(tk)),
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe((md: string) => {
+      // If an error message is already set, keep it; else set content.
+      if (!this.statusMessage()) {
+        this.mdContent.set(md);
+      }
+    });
+
+    // Attach listeners (once) & perform initial scroll after render (zoneless-ready)
+    afterRenderEffect({
+      earlyRead: () => {
+        // Signal reads here define dependencies for re-running the effect
+        const htmlReady = this.html();
+        const targetId  = this.scrollToElementId();
+        const hasListener = !!this.unlistenClickEvents;
+
+        // DOM reads here: is the target element present yet?
+        const targetEl = (htmlReady && targetId)
+          ? this.findLegendTarget(targetId)
+          : null;
+
+        // Hand off all *plain values* to write()
+        return { hasListener, targetEl };
+      },
+      write: (passedData) => {
+        const data = passedData();
+
+        // Attach listeners once
+        if (!data.hasListener) {
+          this.setUpTextListeners();
+        }
+
+        if (!data.targetEl) {
+          return;
+        }
+
+        this.scrollService.scrollElementIntoView(data.targetEl, 'top');
+      }
+    }, { injector: this.injector });
+
+    // Cleanup on destroy
+    this.destroyRef.onDestroy(() => {
+      this.unlistenClickEvents?.();
+      this.unlistenClickEvents = undefined;
+    });
+  }
+
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // Data load with fallbacks
+  // ─────────────────────────────────────────────────────────────────────────────
+  private loadLegend$(tk: TextKey) {
+    const base = `${this.activeLocale}-${this.staticMdLegendFolderNumber}-${tk.collectionID}`;
+    const primary   = `${base}-${tk.publicationID}`;
+    const fallback1 = `${base}`;
+    const fallback2 = `${this.activeLocale}-${this.staticMdLegendFolderNumber}-00`;
+
+    const fetch = (id: string) => this.mdService.getMdContent(id);
+
+    return fetch(primary).pipe(
+      catchError(() => fetch(fallback1)),
+      catchError(() => fetch(fallback2)),
+      catchError(err => {
+        console.error(err);
+        this.statusMessage.set($localize`:@@Legend.None:Inga teckenförklaringar tillgängliga.`);
+        return of('');
+      })
+    );
+  }
+
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // Event handling
+  // ─────────────────────────────────────────────────────────────────────────────
+  private setUpTextListeners() {
+    if (this.unlistenClickEvents) {
+      return;
+    }
+
+    const host: HTMLElement = this.elementRef.nativeElement;
+
+    /* CLICK EVENTS */
+    this.unlistenClickEvents = this.ngZone.runOutsideAngular(() =>
+      this.renderer2.listen(host, 'click', (event) => {
+        try {
+          const clickedElem = event.target as HTMLElement | null;
+          const targetHref = clickedElem?.getAttribute('href');
+
+          if (!targetHref?.startsWith('#')) {
+            return;
+          }
+
+          // Same-legend fragment → prevent default & scroll into view
+          event.preventDefault();
+
+          // Find the nearest <text-legend> container
+          let containerElem: HTMLElement | null = clickedElem;
+          while (containerElem && containerElem.tagName !== 'TEXT-LEGEND') {
+            containerElem = containerElem.parentElement;
+          }
+
+          if (containerElem) {
+            const targetElem = containerElem.querySelector<HTMLElement>(
+              `[data-id="${targetHref.slice(1)}"]`
+            );
+            this.scrollService.scrollElementIntoView(targetElem, 'top');
+          }
+        } catch (e) {
+          console.error(e);
         }
       })
     );
   }
 
-  private setUpTextListeners() {
-    const nElement: HTMLElement = this.elementRef.nativeElement;
-    this.ngZone.runOutsideAngular(() => {
-      /* CLICK EVENTS */
-      this.unlistenClickEvents = this.renderer2.listen(nElement, 'click', (event) => {
-        try {
-          const clickedElem = event.target as HTMLElement;
-          const targetHref = clickedElem.getAttribute('href');
 
-          if (targetHref?.startsWith('#')) {
-            // Fragment href -> assume link to data-id in same legend text
-            // -> find element and scroll it into view
-            event.preventDefault();
-            let containerElem = clickedElem.parentElement;
-            while (containerElem !== null && containerElem.tagName !== 'TEXT-LEGEND') {
-              containerElem = containerElem.parentElement;
-            }
-            if (containerElem) {
-              const targetElem = containerElem.querySelector(
-                '[data-id="' + targetHref.slice(1) + '"]'
-              ) as HTMLElement;
-              this.scrollService.scrollElementIntoView(targetElem, 'top');
-            }
-          }
-        } catch (e) {
-          console.error(e);
-        }
-      });
-    });
-  }
-
-  /**
-   * Function for scrolling an element with matching data-id attribute in the
-   * last text-legend-element into view.
-   */
-  scrollToInitialTextPosition() {
-    if (this.scrollToElementId()) {
-      const that = this;
-      this.ngZone.runOutsideAngular(() => {
-        let iterationsLeft = 10;
-        clearInterval(this.intervalTimerId);
-
-        this.intervalTimerId = window.setInterval(function() {
-          if (iterationsLeft < 1) {
-            clearInterval(that.intervalTimerId);
-          } else {
-            iterationsLeft -= 1;
-            const legendElements = document.querySelectorAll('page-text:not([ion-page-hidden]):not(.ion-page-hidden) text-legend');
-            const element = legendElements[legendElements.length - 1].querySelector('[data-id="' + that.scrollToElementId() + '"]') as any;
-            if (element) {
-              that.scrollService.scrollElementIntoView(element, 'top');
-              clearInterval(that.intervalTimerId);
-            }
-          }
-        }.bind(this), 500);
-      });
-    }
+  // ─────────────────────────────────────────────────────────────────────────────
+  // DOM helper
+  // ─────────────────────────────────────────────────────────────────────────────
+  private findLegendTarget(targetId: string): HTMLElement | null {
+    const legends = document.querySelectorAll(
+      'page-text:not([ion-page-hidden]):not(.ion-page-hidden) text-legend'
+    );
+    const last = legends[legends.length - 1] as HTMLElement | undefined;
+    return last?.querySelector<HTMLElement>(`[data-id="${targetId}"]`) ?? null;
   }
 
 }

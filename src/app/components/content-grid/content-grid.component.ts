@@ -102,11 +102,18 @@ export class ContentGridComponent implements OnInit {
             ).pipe(
               // add image alt-text and cover URL from response to
               // collection data
-              map((coverRes: any) => ({
-                ...collection,
-                imageAltText: coverRes.content.match(/!\[(.*?)\]\(.*?\)/)[1] || undefined,
-                imageURL: coverRes.content.match(/!\[.*?\]\((.*?)\)/)[1] || undefined
-              })),
+              map((md: string) => {
+                // try to capture first image from the Markdown: ![alt](url)
+                const m = md.match(/!\[(.*?)\]\((.*?)\)/);
+                const imageAltText = m?.[1] || undefined;
+                const imageURL = m?.[2] || undefined;
+
+                return {
+                  ...collection,
+                  imageAltText,
+                  imageURL,
+                };
+              }),
               catchError((error: any) => {
                 // error getting collection cover URL, so add collection
                 // with placeholder cover image

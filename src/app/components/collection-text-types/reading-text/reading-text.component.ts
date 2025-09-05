@@ -61,6 +61,7 @@ export class ReadingTextComponent {
     enableFrontMatterPageOrTextViewType('text', this.textKey().collectionID, config, 'illustrations')
   );
 
+  
   // ─────────────────────────────────────────────────────────────────────────────
   // Derived computeds (pure, no side-effects)
   // ─────────────────────────────────────────────────────────────────────────────

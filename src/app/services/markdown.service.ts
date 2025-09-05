@@ -6,6 +6,7 @@ import markedFootnote from 'marked-footnote';
 import customHeadingId from "marked-custom-heading-id";
 
 import { config } from '@config';
+import { MarkdownApiResponse } from '@models/markdown.models';
 
 
 @Injectable({
@@ -73,8 +74,8 @@ export class MarkdownService {
    */
   getParsedMdContent(fileID: string, errorMessage: string = ''): Observable<string | null> {
     return this.getMdContent(fileID).pipe(
-      map((res: any) => {
-        return res.content.trim() ? this.parseMd(res.content) : null;
+      map((md: string) => {
+        return md.trim() ? this.parseMd(md) : null;
       }),
       catchError((e: any) => {
         console.error('Error loading markdown content', e);
@@ -87,11 +88,13 @@ export class MarkdownService {
    * Get the content of a markdown file from the backend. Prefer using the
    * method 'getParsedMdContent' instead if you need the markdown parsed into HTML.
    * @param fileID ID of the file to get content of.
-   * @returns object where the markdown content is in the 'content' property as a string.
+   * @returns string with the markdown content.
    */
-  getMdContent(fileID: string): Observable<any> {
+  getMdContent(fileID: string): Observable<string> {
     const endpoint = `${this.apiURL}/md/${fileID}`;
-    return this.http.get(endpoint);
+    return this.http.get<MarkdownApiResponse>(endpoint).pipe(
+      map((res: MarkdownApiResponse) => (res.content ?? ''))
+    );
   }
 
   /**

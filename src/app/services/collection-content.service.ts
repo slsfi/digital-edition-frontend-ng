@@ -4,6 +4,7 @@ import { Observable, map } from 'rxjs';
 
 import { config } from '@config';
 import { TextKey } from '@models/collection.models';
+import { FacsimileApi } from '@models/facsimile.models';
 import { Manuscript, ManuscriptsApiResponse, toManuscript } from '@models/manuscript.models';
 import { PublicationMetadata, PublicationMetadataApiResponse, toPublicationMetadata } from '@models/metadata.models'
 import { ReadingText, ReadingTextApiResponse, toReadingText } from '@models/readingtext.models';
@@ -78,10 +79,10 @@ export class CollectionContentService {
     );
   }
 
-  getFacsimiles(textKey: TextKey): Observable<any> {
-    const ch_id = textKey.chapterID ? `/${textKey.chapterID.replace('ch', '')}` : '';
-    const endpoint = `${this.apiURL}/facsimiles/${textKey.publicationID}${ch_id}`;
-    return this.http.get(endpoint);
+  getFacsimiles(textKey: TextKey): Observable<FacsimileApi[]> {
+    const chId = textKey.chapterID ? `/${textKey.chapterID.replace('ch', '')}` : '';
+    const endpoint = `${this.apiURL}/facsimiles/${textKey.publicationID}${chId}`;
+    return this.http.get<FacsimileApi[]>(endpoint);
   }
 
   getMetadata(publicationId: string, language: string): Observable<PublicationMetadata> {

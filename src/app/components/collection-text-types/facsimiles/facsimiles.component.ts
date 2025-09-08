@@ -6,7 +6,7 @@ import { AlertButton, AlertController, AlertInput, IonicModule, ModalController 
 import { config } from '@config';
 import { DraggableImageDirective } from '@directives/draggable-image.directive';
 import { FullscreenImageViewerModal } from '@modals/fullscreen-image-viewer/fullscreen-image-viewer.modal';
-import { Facsimile } from '@models/facsimile.models';
+import { ExternalFacsimile, Facsimile, FacsimileApi, toExternalFacsimile, toFacsimile } from '@models/facsimile.models';
 import { TextKey } from '@models/collection.models';
 import { TrustHtmlPipe } from '@pipes/trust-html.pipe';
 import { CollectionContentService } from '@services/collection-content.service';
@@ -41,15 +41,15 @@ export class FacsimilesComponent implements OnInit {
   readonly showTitle: boolean = config.component?.facsimiles?.showTitle ?? true;
 
   angle: number = 0;
-  externalFacsimiles: any[] = [];
+  externalFacsimiles: ExternalFacsimile[] = [];
   facsNumber: number = 1;
-  facsimiles: any[] = [];
+  facsimiles: Facsimile[] = [];
   facsURLDefault: string = '';
   mobileMode: boolean = false;
   numberOfImages: number = 0;
   prevX: number = 0;
   prevY: number = 0;
-  selectedFacsimile: any | null = null;
+  selectedFacsimile: Facsimile | null = null;
   selectedFacsimileIsExternal: boolean = false;
   text: string = '';
   zoom: number = 1.0;
@@ -61,21 +61,21 @@ export class FacsimilesComponent implements OnInit {
 
   loadFacsimiles(textKey: TextKey) {
     this.collectionContentService.getFacsimiles(textKey).subscribe({
-      next: (facs) => {
-        if (facs && facs.length > 0) {
+      next: (facs: FacsimileApi[]) => {
+        if (facs.length > 0) {
+          const textItemId = textKey.textItemID;
           const sectionId = textKey.chapterID?.replace('ch', '') || '';
+
           for (const f of facs) {
-            const facsimile = new Facsimile(f);
-            facsimile.itemId = textKey.textItemID;
-            facsimile.manuscript_id = f.publication_manuscript_id;
-            if (!f['external_url']) {
-              facsimile.title = f['title'];
-            }
-            if (f['external_url'] && !f['folder_path']) {
-              this.externalFacsimiles.push({'title': f['title'], 'url': f['external_url'], 'priority': f['priority']});
+            const facsimile: Facsimile = toFacsimile(f);
+            facsimile.itemId = textItemId;
+
+            if (f.external_url && !f.folder_path) {
+              const extFacs: ExternalFacsimile = toExternalFacsimile(f);
+              this.externalFacsimiles.push(extFacs);
             } else {
               if (sectionId !== '') {
-                if (String(f['section_id']) === sectionId) {
+                if (String(f.section_id) === sectionId) {
                   this.facsimiles.push(facsimile);
                 }
               } else {
@@ -105,12 +105,12 @@ export class FacsimilesComponent implements OnInit {
     if (this.facsimiles.length > 0) {
       const facsID = this.facsID();
       if (facsID !== undefined && facsID > 0) {
-        const inputFacsimile = this.facsimiles.filter((item: any) => {
+        const inputFacsimile = this.facsimiles.filter((item: Facsimile) => {
           return (item.facsimile_id === this.facsID());
         })[0];
         this.selectedFacsimile = inputFacsimile ? inputFacsimile : this.facsimiles[0];
       } else if (this.sortOrder()) {
-        const inputFacsimile = this.facsimiles.filter((item: any) => {
+        const inputFacsimile = this.facsimiles.filter((item: Facsimile) => {
           return (item.priority === this.sortOrder());
         })[0];
         this.selectedFacsimile = inputFacsimile ? inputFacsimile : this.facsimiles[0];
@@ -118,7 +118,7 @@ export class FacsimilesComponent implements OnInit {
         this.externalFacsimiles.length > 0 && 
         (
           (facsID !== undefined && facsID < 1) ||
-          this.externalFacsimiles[0]['priority'] < this.facsimiles[0]['priority']
+          this.externalFacsimiles[0].priority < this.facsimiles[0].priority
         )
       ) {
         this.selectedFacsimileIsExternal = true;
@@ -136,8 +136,8 @@ export class FacsimilesComponent implements OnInit {
     }
   }
 
-  changeFacsimile(facs?: any) {
-    if (facs === 'external') {
+  changeFacsimile(isExternal: boolean, facs?: Facsimile) {
+    if (isExternal) {
       this.selectedFacsimileIsExternal = true;
       this.emitSelectedFacsimileId(0);
       this.emitSelectedFacsimileName($localize`:@@Facsimiles.ExternalFacsimiles:Externa faksimil`);
@@ -149,7 +149,7 @@ export class FacsimilesComponent implements OnInit {
     }
   }
 
-  private initializeDisplayedFacsimile(facs: any, extImageNr?: number) {
+  private initializeDisplayedFacsimile(facs: Facsimile, extImageNr?: number) {
     this.selectedFacsimileIsExternal = false;
     this.selectedFacsimile = facs;
     this.numberOfImages = facs.number_of_pages;
@@ -196,16 +196,16 @@ export class FacsimilesComponent implements OnInit {
       });
     }
 
-    this.facsimiles.forEach((facsimile: any, index: any) => {
+    this.facsimiles.forEach((facsimile: Facsimile, index: any) => {
       let checkedValue = false;
 
       if (
         !this.selectedFacsimileIsExternal &&
+        this.selectedFacsimile &&
         (
           this.selectedFacsimile.facsimile_id === facsimile.facsimile_id &&
           (
-            this.selectedFacsimile.page === undefined &&
-            this.selectedFacsimile.first_page === facsimile.page ||
+            this.selectedFacsimile.page === undefined ||
             this.selectedFacsimile.page === facsimile.page
           )
         )
@@ -227,9 +227,9 @@ export class FacsimilesComponent implements OnInit {
       text: $localize`:@@BasicActions.Ok:Ok`,
       handler: (index: string) => {
         if (parseInt(index) < 0) {
-          this.changeFacsimile('external');
+          this.changeFacsimile(true);
         } else {
-          this.changeFacsimile(this.facsimiles[parseInt(index)]);
+          this.changeFacsimile(false, this.facsimiles[parseInt(index)]);
         }
       }
     });
@@ -280,7 +280,7 @@ export class FacsimilesComponent implements OnInit {
     for (let i = 1; i < (this.numberOfImages || 0) + 1; i++) {
       const url = (
           this.facsURLAlternate ?
-              this.facsURLAlternate+'/'+this.selectedFacsimile.publication_facsimile_collection_id+'/'+fullscreenImageSize+'/'+i+'.jpg' :
+              this.facsURLAlternate+'/'+this.selectedFacsimile?.publication_facsimile_collection_id+'/'+fullscreenImageSize+'/'+i+'.jpg' :
               this.facsURLDefault+i+(fullscreenImageSize ? '/'+fullscreenImageSize : '')
       )
       imageURLs.push(url);

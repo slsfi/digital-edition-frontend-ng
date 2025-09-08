@@ -5,7 +5,7 @@
         [class.facs-title-shown]="!selectedFacsimileIsExternal && showTitle"
         [class.mobile-mode]="mobileMode"
   >
-    @if (!selectedFacsimileIsExternal && showTitle) {
+    @if (!selectedFacsimileIsExternal && selectedFacsimile && showTitle) {
       <div class="tsw-text-title" [innerHTML]="selectedFacsimile.title | trustHtml"></div>
     }
     @if (selectedFacsimileIsExternal) {

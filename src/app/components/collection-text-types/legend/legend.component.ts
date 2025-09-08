@@ -84,29 +84,27 @@ export class LegendComponent {
         // Signal reads here define dependencies for re-running the effect
         const htmlReady = this.html();
         const targetId  = this.scrollToElementId();
-        const hasListener = !!this.unlistenClickEvents;
 
         // DOM reads here: is the target element present yet?
         const targetEl = (htmlReady && targetId)
           ? this.findLegendTarget(targetId)
           : null;
 
-        // Hand off all *plain values* to write()
-        return { hasListener, targetEl };
+        return targetEl;
       },
-      write: (passedData) => {
-        const data = passedData();
+      write: (targetEl) => {
+        const scrollTarget = targetEl();
 
-        // Attach listeners once
-        if (!data.hasListener) {
+        // Attach listeners once after first render
+        if (!this.unlistenClickEvents) {
           this.setUpTextListeners();
         }
 
-        if (!data.targetEl) {
+        if (!scrollTarget) {
           return;
         }
 
-        this.scrollService.scrollElementIntoView(data.targetEl, 'top');
+        this.scrollService.scrollElementIntoView(scrollTarget, 'top');
       }
     }, { injector: this.injector });
 

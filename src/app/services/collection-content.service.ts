@@ -5,6 +5,7 @@ import { Observable, map } from 'rxjs';
 import { config } from '@config';
 import { TextKey } from '@models/collection.models';
 import { Manuscript, ManuscriptsApiResponse, toManuscript } from '@models/manuscript.models';
+import { PublicationMetadata, PublicationMetadataApiResponse, toPublicationMetadata } from '@models/metadata.models'
 import { ReadingText, ReadingTextApiResponse, toReadingText } from '@models/readingtext.models';
 import { toVariant, Variant, VariantsApiResponse } from '@models/variant.models';
 
@@ -83,9 +84,11 @@ export class CollectionContentService {
     return this.http.get(endpoint);
   }
 
-  getMetadata(publicationId: string, language: string): Observable<any> {
+  getMetadata(publicationId: string, language: string): Observable<PublicationMetadata> {
     const endpoint = `${this.apiURL}/publications/${publicationId}/metadata/${language}`;
-    return this.http.get(endpoint);
+    return this.http.get<PublicationMetadataApiResponse>(endpoint).pipe(
+      map(toPublicationMetadata)
+    );
   }
 
   getDownloadableIntroduction(collectionId: string, format: string, language: string): Observable<any> {

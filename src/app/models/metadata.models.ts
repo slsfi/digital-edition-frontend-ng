@@ -86,6 +86,53 @@ export interface CorrespondentData {
   receiver?: string | null;
 }
 
+export interface FacsimileMetadata {
+  archive_info: string | null;
+  external_url: string | null;
+  facs_coll_id: number | null;
+  facsimile_title: string | null;
+  image_number_info: string | null;
+  number_of_images: number | null;
+  priority: number | null;
+}
+
+export interface TranslationMetadata {
+  translated_into: string | null;
+  translators: string[] | null;
+}
+
+export interface PublicationMetadataApiResponse {
+  author: string[] | null;
+  document_type: string | null;
+  facsimiles: FacsimileMetadata[] | null;
+  id: string | null;
+  manuscript_id: number | null;
+  original_language: string | null;
+  publication_date: string | null;
+  publication_subtitle: string | null;
+  publication_title: string | null;
+  published_by: string | null;
+  recipient: string[] | null;
+  sender: string[] | null;
+  translations: TranslationMetadata[] | null;
+}
+
+export interface PublicationMetadata {
+  author: string[];
+  document_type: string | null;
+  facsimiles: FacsimileMetadata[];
+  id: string | null;
+  manuscript_id: number | null;
+  original_language: string | null;
+  publication_date: string | null;
+  publication_subtitle: string | null;
+  publication_title: string | null;
+  published_by: string | null;
+  recipient: string[];
+  sender: string[];
+  translations: TranslationMetadata[];
+}
+
 export const toCorrespondent = (
   c: CorrespondentDataApiResponse
 ): CorrespondentData => ({
@@ -102,4 +149,22 @@ export const toCorrespondenceMetadata = (
 
   // Subjects need mapping
   subjects: api.subjects.map(toCorrespondent),
+});
+
+export const toPublicationMetadata = (
+  m: PublicationMetadataApiResponse
+): PublicationMetadata => ({
+  author: m.author ?? [],
+  document_type: m.document_type,
+  facsimiles: m.facsimiles ?? [],
+  id: m.id,
+  manuscript_id: m.manuscript_id,
+  original_language: m.original_language,
+  publication_date: m.publication_date,
+  publication_subtitle: m.publication_subtitle,
+  publication_title: m.publication_title,
+  published_by: m.published_by,
+  recipient: m.recipient ?? [],
+  sender: m.sender ?? [],
+  translations: m.translations ?? []
 });

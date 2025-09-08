@@ -1,6 +1,5 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, ElementRef, Injector, afterRenderEffect, computed, effect, inject, input, output, signal } from '@angular/core';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
-import { AsyncPipe } from '@angular/common';
 import { AlertButton, AlertController, AlertInput, IonicModule } from '@ionic/angular';
 import { catchError, of, switchMap, tap } from 'rxjs';
 
@@ -21,7 +20,7 @@ import { ViewOptionsService } from '@services/view-options.service';
   selector: 'manuscripts',
   templateUrl: './manuscripts.component.html',
   styleUrls: ['./manuscripts.component.scss'],
-  imports: [AsyncPipe, IonicModule, TrustHtmlPipe],
+  imports: [IonicModule, TrustHtmlPipe],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ManuscriptsComponent {
@@ -75,7 +74,7 @@ export class ManuscriptsComponent {
   //    - Returns:
   //        undefined  → "loading" (spinner)
   //        string     → final HTML or a user-facing status message
-  private html = computed<string | undefined>(() => {
+  html = computed<string | undefined>(() => {
     // Show status (None/Error) when present
     const message = this.statusMessage();
     if (message) {
@@ -175,12 +174,6 @@ export class ManuscriptsComponent {
     }, { injector: this.injector });
 
   }
-
-
-  // ─────────────────────────────────────────────────────────────────────────────
-  // Template-facing Observable (consumed via AsyncPipe)
-  // ─────────────────────────────────────────────────────────────────────────────
-  text$ = toObservable(this.html);
 
 
   // ─────────────────────────────────────────────────────────────────────────────

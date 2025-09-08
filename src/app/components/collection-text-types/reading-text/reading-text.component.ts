@@ -1,6 +1,5 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, ElementRef, Injector, NgZone, Renderer2, afterRenderEffect, computed, inject, input, output, signal } from '@angular/core';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
-import { AsyncPipe } from '@angular/common';
 import { IonicModule, ModalController } from '@ionic/angular';
 import { catchError, combineLatest, map, of, switchMap, tap } from 'rxjs';
 
@@ -14,7 +13,7 @@ import { CollectionContentService } from '@services/collection-content.service';
 import { HtmlParserService } from '@services/html-parser.service';
 import { ScrollService } from '@services/scroll.service';
 import { ViewOptionsService } from '@services/view-options.service';
-import { enableFrontMatterPageOrTextViewType, isBrowser, isFileNotFoundHtml } from '@utility-functions';
+import { enableFrontMatterPageOrTextViewType, isFileNotFoundHtml } from '@utility-functions';
 
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -24,7 +23,7 @@ import { enableFrontMatterPageOrTextViewType, isBrowser, isFileNotFoundHtml } fr
   selector: 'reading-text',
   templateUrl: './reading-text.component.html',
   styleUrls: ['./reading-text.component.scss'],
-  imports: [AsyncPipe, IonicModule, MathJaxDirective, TrustHtmlPipe],
+  imports: [IonicModule, MathJaxDirective, TrustHtmlPipe],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ReadingTextComponent {
@@ -71,7 +70,7 @@ export class ReadingTextComponent {
   //    - Returns:
   //        undefined  → "loading" (spinner)
   //        string     → final HTML or a user-facing status message
-  private html = computed<string | undefined>(() => {
+  html = computed<string | undefined>(() => {
     // When status message exists, show that (none/error)
     const message = this.statusMessage();
     if (message) {
@@ -95,10 +94,6 @@ export class ReadingTextComponent {
     this.parserService.readingTextHasVisibleIllustrations(this.html() ?? '')
   );
 
-  // ─────────────────────────────────────────────────────────────────────────────
-  // Template-facing Observable (consumed via AsyncPipe)
-  // ─────────────────────────────────────────────────────────────────────────────
-  text$ = toObservable(this.html);
   
   // ─────────────────────────────────────────────────────────────────────────────
   // Constructor: wire side-effects (load, outputs, after-render, listeners, cleanup)
@@ -173,7 +168,7 @@ export class ReadingTextComponent {
         }
 
         // Attach listeners once (browser only) after first render (safe for zoneless)
-        if (isBrowser() && !this.unlistenClickEvents) {
+        if (!this.unlistenClickEvents) {
           this.setUpTextListeners();
         }
 
@@ -185,7 +180,7 @@ export class ReadingTextComponent {
           const key = `${tk.textItemID};${pos}`;
           if (this._lastScrollKey !== key) {
             this._lastScrollKey = key;
-            this.scrollToTextPosition();
+            this.scrollToTextPosition(pos);
           }
           return;
         }
@@ -197,15 +192,18 @@ export class ReadingTextComponent {
         }
 
         // No textPosition: optionally scroll to first search match (once per tk+matches)
-        if (matches.length > 0) {
-          const key = `${tk.textItemID}|matches:${matches.join(',')}`;
-          if (this._lastScrollKey !== key) {
-            this._lastScrollKey = key;
-            this.scrollService.scrollToFirstSearchMatch(
-              this.elementRef.nativeElement,
-              this.intervalTimerId
-            );
-          }
+        if (matches.length === 0) {
+          return;
+        }
+
+        const key = `${tk.textItemID}|matches:${matches.join(',')}`;
+        if (this._lastScrollKey !== key) {
+          this._lastScrollKey = key;
+
+          this.scrollService.scrollToFirstSearchMatch(
+            this.elementRef.nativeElement,
+            this.intervalTimerId
+          );
         }
       }
     }, { injector: this.injector });
@@ -241,7 +239,7 @@ export class ReadingTextComponent {
   // ─────────────────────────────────────────────────────────────────────────────
 
   private setUpTextListeners() {
-    if (!isBrowser() || this.unlistenClickEvents) {
+    if (this.unlistenClickEvents) {
       return;
     }
 
@@ -327,12 +325,8 @@ export class ReadingTextComponent {
     );
   }
 
-  private scrollToTextPosition() {
+  private scrollToTextPosition(targetName: string) {
     // Scroll to textPosition if defined.
-    if (!isBrowser()) {
-      return;
-    }
-    const targetName = this.textPosition();
     if (!targetName) {
       return;
     }
@@ -368,14 +362,10 @@ export class ReadingTextComponent {
   }
 
   private scrollReadingTextToTop() {
-    if (!isBrowser()) {
-      return;
-    }
-
     this.ngZone.runOutsideAngular(() => {
-      const target = document.querySelector(
+      const target = document.querySelector<HTMLElement>(
         'page-text:not([ion-page-hidden]):not(.ion-page-hidden) reading-text'
-      ) as (HTMLElement | null);
+      );
       if (target) {
         this.scrollService.scrollElementIntoView(target, 'top', 50);
       }

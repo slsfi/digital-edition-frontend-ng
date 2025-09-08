@@ -1,6 +1,5 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, ElementRef, Injector, NgZone, Renderer2, afterRenderEffect, computed,inject, input, output, signal } from '@angular/core';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
-import { AsyncPipe } from '@angular/common';
 import { IonicModule, ModalController } from '@ionic/angular';
 import { catchError, map, of, switchMap, tap } from 'rxjs';
 
@@ -13,7 +12,7 @@ import { HtmlParserService } from '@services/html-parser.service';
 import { PlatformService } from '@services/platform.service';
 import { ScrollService } from '@services/scroll.service';
 import { ViewOptionsService } from '@services/view-options.service';
-import { concatenateNames, isBrowser, isFileNotFoundHtml } from '@utility-functions';
+import { concatenateNames, isFileNotFoundHtml } from '@utility-functions';
 
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -23,7 +22,7 @@ import { concatenateNames, isBrowser, isFileNotFoundHtml } from '@utility-functi
   selector: 'comments',
   templateUrl: './comments.component.html',
   styleUrls: ['./comments.component.scss'],
-  imports: [AsyncPipe, IonicModule, TrustHtmlPipe],
+  imports: [IonicModule, TrustHtmlPipe],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CommentsComponent {
@@ -65,7 +64,7 @@ export class CommentsComponent {
   //    - Returns:
   //        undefined  → "loading" (spinner)
   //        string     → final HTML or a user-facing status message
-  private html = computed<string | undefined>(() => {
+  html = computed<string | undefined>(() => {
     const message = this.statusMessage();
     if (message) {
       return message;
@@ -81,10 +80,6 @@ export class CommentsComponent {
     return this.parserService.insertSearchMatchTags(rawHtml, this.searchMatches());
   });
 
-  // ─────────────────────────────────────────────────────────────────────────────
-  // Template-facing Observable (consumed via AsyncPipe)
-  // ─────────────────────────────────────────────────────────────────────────────
-  text$ = toObservable(this.html);
 
   // ─────────────────────────────────────────────────────────────────────────────
   // Constructor: wire data loads, after-render scroll, and cleanup
@@ -167,17 +162,17 @@ export class CommentsComponent {
     // After-render: attach listeners (once) and perform first-search-match scroll
     afterRenderEffect({
       write: () => {
-        // Attach listeners once (browser only) after first render (safe for zoneless)
-        if (isBrowser() && !this.unlistenClickEvents) {
+        // Attach listeners once after first render
+        if (!this.unlistenClickEvents) {
           this.setUpTextListeners();
         }
 
         // Scroll to first match only once per (textKey + matches)
-        const raw = this.rawHtml();            // null = loading; string = ready
+        const html = this.rawHtml();           // null = loading; string = ready
         const matches = this.searchMatches();  // input signal
         const tk = this.textKey();
 
-        if (raw === null || matches.length === 0) {
+        if (html === null || matches.length === 0) {
           return;
         }
 
@@ -199,7 +194,7 @@ export class CommentsComponent {
   // ─────────────────────────────────────────────────────────────────────────────
 
   private setUpTextListeners() {
-    if (!isBrowser() || this.unlistenClickEvents) {
+    if (this.unlistenClickEvents) {
       return;
     }
 

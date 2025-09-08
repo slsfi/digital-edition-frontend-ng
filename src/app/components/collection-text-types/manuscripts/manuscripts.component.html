@@ -3,7 +3,7 @@
 @if (list === null) {
   <ion-spinner class="loading" name="crescent"></ion-spinner>
 } @else {
-  @let text = text$ | async;
+  @let text = html();
   @let msList = list ?? [];
   @let msCount = msList.length;
   @let viewOptions = viewOptionsService.show();

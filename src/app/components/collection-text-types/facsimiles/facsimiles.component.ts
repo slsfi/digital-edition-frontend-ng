@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, computed, effect, inject, input, output, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, effect, inject, input, output, signal } from '@angular/core';
 import { NgStyle } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AlertButton, AlertController, AlertInput, IonicModule, ModalController } from '@ionic/angular';
@@ -16,6 +16,9 @@ import { PlatformService } from '@services/platform.service';
 import { sortArrayOfObjectsNumerically } from '@utility-functions';
 
 
+// ─────────────────────────────────────────────────────────────────────────────
+// * This component is zoneless-ready. *
+// ─────────────────────────────────────────────────────────────────────────────
 @Component({
   selector: 'facsimiles',
   templateUrl: './facsimiles.component.html',
@@ -24,14 +27,15 @@ import { sortArrayOfObjectsNumerically } from '@utility-functions';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class FacsimilesComponent {
-  // ── DI ───────────────────────────────────────────────────────────────────────
+  // ─────────────────────────────────────────────────────────────────────────────
+  // Dependency injection, Input/Output signals, Fields, Local state signals
+  // ─────────────────────────────────────────────────────────────────────────────
   private alertCtrl = inject(AlertController);
   private collectionContentService = inject(CollectionContentService);
   private destroyRef = inject(DestroyRef);
   private modalCtrl = inject(ModalController);
   private platformService = inject(PlatformService);
 
-  // ── Inputs / Outputs ────────────────────────────────────────────────────────
   readonly facsID = input<number | undefined>();
   readonly imageNr = input<number | undefined>();
   readonly sortOrder = input<number | undefined>();
@@ -42,13 +46,11 @@ export class FacsimilesComponent {
   readonly selectedImageNr = output<number | null>();
   readonly selectedFacsSortOrder = output<number | null>();
 
-  // ── Config flags (static) ───────────────────────────────────────────────────
   readonly facsSize: number | null = config.component?.facsimiles?.imageQuality ?? 1;
   readonly facsURLAlternate: string = config.app?.alternateFacsimileBaseURL ?? '';
   readonly replaceImageAssetsPaths: boolean = config.collections?.replaceImageAssetsPaths ?? true;
   readonly showTitle: boolean = config.component?.facsimiles?.showTitle ?? true;
 
-  // ── Local UI state (fields for event-heavy things / ngModel) ────────────────
   angle: number = 0;
   facsNumber: number = 1;
   mobileMode: boolean = this.platformService.isMobile();
@@ -57,28 +59,28 @@ export class FacsimilesComponent {
   prevY: number = 0;
   zoom: number = 1.0;
 
-  // ── Signals: data & flags ───────────────────────────────────────────────────
-  statusMessage = signal<string | null>(null);               // "None" / "Error"
-  htmlText = signal<string>('');                            // final HTML below the image
-  facsimiles = signal<Facsimile[] | null>(null);            // null = loading
   externalFacsimiles = signal<ExternalFacsimile[]>([]);
+  facsimiles = signal<Facsimile[]>([]);
+  facsURLDefault = signal<string>('');                 // base URL for images
+  loading = signal(true);
+  selectedFacsimile = signal<Facsimile | null>(null);  // current "internal" facsimile
   selectedIsExternal = signal<boolean>(false);
-  private pickedFacsimileId = signal<number | undefined>(undefined); // user choice from alert
-  selectedFacsimile = signal<Facsimile | null>(null);       // current internal facsimile
-  facsURLDefault = signal<string>('');                      // base URL for images
+  statusMessage = signal<string | null>(null);         // "None" / "Error"
 
-  // ── Constructor: load data & set initial selection ──────────────────────────
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // Constructor: wire side-effects (load, outputs)
+  // ─────────────────────────────────────────────────────────────────────────────
   constructor() {
     toObservable(this.textKey).pipe(
       tap(() => {
         // reset before load
+        this.loading.set(true);
         this.statusMessage.set(null);
-        this.facsimiles.set(null);
+        this.facsimiles.set([]);
         this.externalFacsimiles.set([]);
         this.selectedIsExternal.set(false);
-        this.pickedFacsimileId.set(undefined);
         this.selectedFacsimile.set(null);
-        this.htmlText.set('');
         this.facsURLDefault.set('');
         this.numberOfImages = 0;
       }),
@@ -96,7 +98,6 @@ export class FacsimilesComponent {
     ).subscribe((items: FacsimileApi[]) => {
       // split into internal/external facsimiles
       const tk = this.textKey();
-      const textItemId = tk.textItemID;
       const sectionId = tk.chapterID?.replace('ch', '') || '';
 
       const internals: Facsimile[] = [];
@@ -104,10 +105,18 @@ export class FacsimilesComponent {
 
       for (const f of items) {
         if (f.external_url && !f.folder_path) {
-          externals.push(toExternalFacsimile(f));
+          const extFac = toExternalFacsimile(f);
+
+          if (sectionId !== '') {
+            if (String(f.section_id) === sectionId) {
+              externals.push(extFac);
+            }
+          } else {
+            externals.push(extFac);
+          }
         } else {
           const fac = toFacsimile(f);
-          fac.itemId = textItemId;
+
           if (sectionId !== '') {
             if (String(f.section_id) === sectionId) {
               internals.push(fac);
@@ -127,6 +136,7 @@ export class FacsimilesComponent {
 
       this.externalFacsimiles.set(externals);
       this.facsimiles.set(internals);
+      this.loading.set(false);
 
       if (internals.length === 0 && externals.length === 0) {
         this.statusMessage.set($localize`:@@Facsimiles.None:Inga faksimil tillgängliga.`);
@@ -139,8 +149,8 @@ export class FacsimilesComponent {
 
     // Emit outputs when a new internal facsimile becomes selected
     effect(() => {
-      const list = this.facsimiles();
-      const ext = this.externalFacsimiles();
+      const facs = this.facsimiles();
+      const extF = this.externalFacsimiles();
       const isExternal = this.selectedIsExternal();
       const fac = this.selectedFacsimile();
 
@@ -149,7 +159,7 @@ export class FacsimilesComponent {
         this.selectedFacsID.emit(0);
         this.selectedFacsSortOrder.emit(null);
         this.selectedImageNr.emit(null);
-        if (list && list.length > 0) {
+        if (facs.length > 0) {
           this.selectedFacsName.emit($localize`:@@Facsimiles.ExternalFacsimiles:Externa faksimil`);
         }
         return;
@@ -158,13 +168,13 @@ export class FacsimilesComponent {
       if (fac) {
         // emit name only if multiple internals or (one internal +
         // at least one external)
-        const shouldEmitName = (list && list.length > 1) || (list && list.length === 1 && ext.length > 0);
+        const shouldEmitName = (facs.length > 1) || (facs.length === 1 && extF.length > 0);
         this.selectedFacsID.emit(fac.facsimile_id);
         if (shouldEmitName) {
           this.selectedFacsName.emit(fac.title);
         }
 
-        if ((ext.length < 1) && list && list.length > 1) {
+        if (extF.length < 1 && facs.length > 1) {
           this.selectedFacsSortOrder.emit(fac.priority);
         } else {
           this.selectedFacsSortOrder.emit(null);
@@ -180,7 +190,10 @@ export class FacsimilesComponent {
     }, { injector: undefined });
   }
 
-  // ── Selection helpers ───────────────────────────────────────────────────────
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // Selection helpers
+  // ─────────────────────────────────────────────────────────────────────────────
   private applyInitialSelection() {
     const internals = this.facsimiles() ?? [];
     const externals = this.externalFacsimiles();
@@ -228,7 +241,6 @@ export class FacsimilesComponent {
   private chooseExternal() {
     this.selectedIsExternal.set(true);
     this.selectedFacsimile.set(null);
-    this.htmlText.set('');
     this.numberOfImages = 0;
   }
 
@@ -240,21 +252,27 @@ export class FacsimilesComponent {
     const base = `${config.app.backendBaseURL}/${config.app.projectNameDB}/facsimiles/${facs.publication_facsimile_collection_id}/`;
     this.facsURLDefault.set(base);
 
-    // text (optionally rewrite assets path)
-    const text = this.replaceImageAssetsPaths
-          ? (facs.content ?? '').replace(/src="images\//g, 'src="assets/images/')
-          : (facs.content ?? '');
-
-    this.htmlText.set(text);
-
     // pages & current page number (clamped)
-    this.numberOfImages = facs.number_of_pages ?? 0;
+    this.numberOfImages = facs.number_of_pages;
 
     const start = (initialImageNr !== undefined) ? initialImageNr : facs.page;
     this.facsNumber = Math.max(1, Math.min(this.numberOfImages || 1, start || 1));
   }
 
-  // ── UI: selection alerts ────────────────────────────────────────────────────
+  private changeFacsimile(isExternal: boolean, facs?: Facsimile) {
+    if (isExternal) {
+      this.chooseExternal();
+    } else if (facs) {
+      this.initializeDisplayedFacsimile(facs);
+      this.reset();
+    }
+  }
+
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // UI actions
+  // ─────────────────────────────────────────────────────────────────────────────
+
   async presentSelectFacsimileAlert() {
     const internals = this.facsimiles() ?? [];
     const externals = this.externalFacsimiles();
@@ -314,19 +332,9 @@ export class FacsimilesComponent {
       buttons,
     });
 
-    await alert.present();
+    alert.present();
   }
 
-  changeFacsimile(isExternal: boolean, facs?: Facsimile) {
-    if (isExternal) {
-      this.chooseExternal();
-    } else if (facs) {
-      this.initializeDisplayedFacsimile(facs);
-      this.reset();
-    }
-  }
-
-  // ── Fullscreen modal ────────────────────────────────────────────────────────
   async openFullScreen() {
     if (this.selectedIsExternal() || !this.selectedFacsimile()) {
       return;
@@ -335,9 +343,8 @@ export class FacsimilesComponent {
     const fac = this.selectedFacsimile()!;
     const fullscreenImageSize = config.modal?.fullscreenImageViewer?.imageQuality || this.facsSize;
 
-    const count = this.numberOfImages || 0;
     const imageURLs: string[] = [];
-    for (let i = 1; i <= count; i++) {
+    for (let i = 1; i <= this.numberOfImages; i++) {
       const url = this.facsURLAlternate
         ? `${this.facsURLAlternate}/${fac.publication_facsimile_collection_id}/${fullscreenImageSize}/${i}.jpg`
         : `${this.facsURLDefault()}${i}${fullscreenImageSize ? '/' + fullscreenImageSize : ''}`;
@@ -362,7 +369,6 @@ export class FacsimilesComponent {
     }
   }
 
-  // ── Paging & zoom/rotate/drag (unchanged behavior) ─────────────────────────
   setImageNr() {
     if (this.facsNumber < 1) {
       this.facsNumber = 1;

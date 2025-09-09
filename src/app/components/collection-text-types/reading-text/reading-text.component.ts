@@ -210,7 +210,7 @@ export class ReadingTextComponent {
   }
 
   // ─────────────────────────────────────────────────────────────────────────────
-  // Public UI actions (called from template or event handlers)
+  // UI actions
   // ─────────────────────────────────────────────────────────────────────────────
 
   /** Open a clicked image in a new illustrations view */

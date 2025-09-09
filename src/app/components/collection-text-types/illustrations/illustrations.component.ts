@@ -4,6 +4,7 @@ import { IonicModule, ModalController } from '@ionic/angular';
 
 import { FullscreenImageViewerModal } from '@modals/fullscreen-image-viewer/fullscreen-image-viewer.modal';
 import { TextKey } from '@models/collection.models';
+import { Illustration } from '@models/illustration.models';
 import { HtmlParserService } from '@services/html-parser.service';
 import { PlatformService } from '@services/platform.service';
 import { ScrollService } from '@services/scroll.service';
@@ -21,16 +22,16 @@ export class IllustrationsComponent implements OnChanges, OnInit {
   private platformService = inject(PlatformService);
   private scrollService = inject(ScrollService);
 
-  readonly singleImage = input<Record<string, any>>();
+  readonly singleImage = input<Illustration>();
   readonly textKey = input.required<TextKey>();
-  readonly showAllImages = output<any>();
+  readonly showAllImages = output<null>();
   readonly setMobileModeActiveText = output<string>();
   
   imageCountTotal: number = 0;
-  images: Array<any> = [];
-  imagesCache: Array<any> = [];
+  images: Illustration[] = [];
+  imagesCache: Illustration[] = [];
   mobileMode: boolean = true;
-  selectedImage: Array<string> = [];
+  selectedImage: string[] = [];
   imgLoading: boolean = true;
   viewAll: boolean = true;
 
@@ -60,7 +61,7 @@ export class IllustrationsComponent implements OnChanges, OnInit {
 
   private getIllustrationImages(textKey: TextKey) {
     this.parserService.getReadingTextIllustrations(textKey).subscribe(
-      (images: any[]) => {
+      (images: Illustration[]) => {
         this.images = images;
         this.imageCountTotal = this.images.length;
         this.imagesCache = this.images;
@@ -75,7 +76,7 @@ export class IllustrationsComponent implements OnChanges, OnInit {
     );
   }
 
-  showSingleImage(image: any) {
+  showSingleImage(image: Illustration) {
     if (image) {
       this.viewAll = false;
       this.images = [image];
@@ -107,15 +108,17 @@ export class IllustrationsComponent implements OnChanges, OnInit {
     illustrationZoomModal.present();
   }
 
-  scrollToPositionInText(image: any) {
+  scrollToPositionInText(image: Illustration) {
     const imageSrc = image.src;
     let imageFilename = '';
+
     if (imageSrc) {
       imageFilename = imageSrc.substring(imageSrc.lastIndexOf('/') + 1);
       let target: HTMLElement | null = null;
       const readtextElem = document.querySelector(
         'page-text:not([ion-page-hidden]):not(.ion-page-hidden) reading-text'
       );
+
       try {
         if (image.class === 'doodle') {
           // Get the image filename without format and prepend tag_ to it

@@ -11,7 +11,7 @@
             (click)="zoomImage(image.src)"
             alt="illustration"
             loading="lazy"
-            [ngClass]="image.class ? image.class : ''"
+            [ngClass]="image.class || ''"
       >
       <ion-button class="custom-button"
             (click)="scrollToPositionInText(image)"

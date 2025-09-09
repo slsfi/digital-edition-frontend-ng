@@ -8,6 +8,7 @@ import { DownloadTextsModal } from '@modals/download-texts/download-texts.modal'
 import { NamedEntityModal } from '@modals/named-entity/named-entity.modal';
 import { ReferenceDataModal } from '@modals/reference-data/reference-data.modal';
 import { TextKey } from '@models/collection.models';
+import { Illustration } from '@models/illustration.models';
 import { ViewOptionsPopover } from '@popovers/view-options/view-options.popover';
 import { CollectionContentService } from '@services/collection-content.service';
 import { CollectionsService } from '@services/collections.service';
@@ -1548,7 +1549,7 @@ export class CollectionTextPage implements OnDestroy, OnInit {
     }
   }
 
-  addView(type: string, id?: number | null, image?: any, scroll?: boolean) {
+  addView(type: string, id?: number | null, image?: Illustration, scroll?: boolean) {
     if (type === 'showAll') {
       this.showAllViewTypes();
       return;
@@ -1631,7 +1632,7 @@ export class CollectionTextPage implements OnDestroy, OnInit {
     }
   }
 
-  updateIllustrationViewImage(image: any) {
+  updateIllustrationViewImage(image: Illustration | null) {
     const index = this.views.findIndex((view) => view.type === 'illustrations');
     this.updateViewProperty('image', image, index);
     this.setActiveMobileModeViewType(undefined, 'illustrations', index);

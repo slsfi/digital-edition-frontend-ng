@@ -8,6 +8,7 @@ import { render } from 'dom-serializer';
 import { config } from '@config';
 import { HeadingNode } from '@models/article.models';
 import { TextKey } from '@models/collection.models';
+import { Illustration } from '@models/illustration.models';
 import { ReadingText } from '@models/readingtext.models';
 import { CollectionContentService } from '@services/collection-content.service';
 import { isFileNotFoundHtml } from '@utility-functions';
@@ -65,10 +66,10 @@ export class HtmlParserService {
     return text;
   }
 
-  getReadingTextIllustrations(textKey: TextKey): Observable<any> {
+  getReadingTextIllustrations(textKey: TextKey): Observable<Illustration[]> {
     return this.collectionContentService.getReadingText(textKey).pipe(
       map((rt: ReadingText) => {
-        const images: any[] = [];
+        const images: Illustration[] = [];
         if (rt?.html && !isFileNotFoundHtml(rt.html)) {
           const _apiURL = this.apiURL;
           const collectionID = textKey.collectionID;
@@ -85,14 +86,17 @@ export class HtmlParserService {
                   if (!attributes.class?.includes('hide-illustration')) {
                     illustrationClass = 'visible-illustration';
                   }
-                  const image = { src: attributes.src, class: illustrationClass };
+                  const image: Illustration = {
+                    src: attributes.src,
+                    class: illustrationClass
+                  };
                   images.push(image);
                 } else if (
                   attributes.class?.includes('doodle') &&
                   attributes['data-id'] &&
                   galleryId
                 ) {
-                  const image = {
+                  const image: Illustration = {
                     src: `${_apiURL}/gallery/get/${galleryId}/`
                           + attributes['data-id'].replace('tag_', '') + '.jpg',
                     class: 'doodle'

@@ -31,7 +31,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - Migrate view options to signals API.
 - The selected text title in the text-select-wrapper (facsimiles, manuscripts and variants) is enclosed in a `<div>` rather than a `<h3>` for improved semantics.
 - Read signals directly in templates without Observable-wrapping.
-- Deps: update `@angular/cli` to 20.2.0 and `@angular/core` to 20.2.1.
+- Deps: update `@angular/cli` and `@angular/core` to 20.3.0.
 - Deps: update `marked` to 16.2.0.
 - Deps (dev): update `@types/jasmine` to 5.1.9.
 - Deps (dev): update `@types/node` to 22.17.2.

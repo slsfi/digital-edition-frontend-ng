@@ -1,7 +1,8 @@
-import { ChangeDetectorRef, Component, ElementRef, LOCALE_ID, NgZone, OnDestroy, OnInit, QueryList, Renderer2, ViewChild, ViewChildren, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, ElementRef, Injector, LOCALE_ID, NgZone, QueryList, Renderer2, ViewChild, ViewChildren, afterRenderEffect, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { IonFabButton, IonFabList, IonPopover, ModalController, PopoverController } from '@ionic/angular';
-import { combineLatest, Observable, Subscription } from 'rxjs';
+import { combineLatest, Observable } from 'rxjs';
 
 import { config } from '@config';
 import { DownloadTextsModal } from '@modals/download-texts/download-texts.modal';
@@ -19,21 +20,23 @@ import { ScrollService } from '@services/scroll.service';
 import { TooltipService } from '@services/tooltip.service';
 import { UrlService } from '@services/url.service';
 import { ViewOptionsService } from '@services/view-options.service';
-import { enableFrontMatterPageOrTextViewType, isBrowser, moveArrayItem } from '@utility-functions';
+import { enableFrontMatterPageOrTextViewType, moveArrayItem } from '@utility-functions';
 
 
 @Component({
   selector: 'page-text',
   templateUrl: './collection-text.page.html',
   styleUrls: ['./collection-text.page.scss'],
-  standalone: false
+  standalone: false,
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class CollectionTextPage implements OnDestroy, OnInit {
-  private cdRef = inject(ChangeDetectorRef);
+export class CollectionTextPage {
   private collectionContentService = inject(CollectionContentService);
   private collectionsService = inject(CollectionsService);
+  private destroyRef = inject(DestroyRef);
   private elementRef = inject(ElementRef);
   private headService = inject(DocumentHeadService);
+  private injector   = inject(Injector);
   private modalCtrl = inject(ModalController);
   private ngZone = inject(NgZone);
   private parserService = inject(HtmlParserService);
@@ -45,175 +48,250 @@ export class CollectionTextPage implements OnDestroy, OnInit {
   private scrollService = inject(ScrollService);
   private tooltipService = inject(TooltipService);
   private urlService = inject(UrlService);
-  viewOptionsService = inject(ViewOptionsService);
+  protected viewOptionsService = inject(ViewOptionsService);
   private activeLocale = inject(LOCALE_ID);
 
   @ViewChild('addViewPopover') addViewPopover: IonPopover;
   @ViewChildren('fabColumnOptions') fabColumnOptions: QueryList<IonFabList>;
   @ViewChildren('fabColumnOptionsButton') fabColumnOptionsButton: QueryList<IonFabButton>;
 
+  defaultViews: string[] = config.page?.text?.defaultViews ?? ['readingtext'];
+  readonly enableLegacyIDs: boolean = config.collections?.enableLegacyIDs;
   readonly multilingualReadingTextLanguages: string[] = config.app?.i18n?.multilingualReadingTextLanguages ?? [];
   readonly showTextDownloadButton: boolean = config.page?.text?.showTextDownloadButton ?? false;
   readonly showURNButton: boolean = config.page?.text?.showURNButton ?? true;
   readonly showViewOptionsButton: boolean = config.page?.text?.showViewOptionsButton ?? true;
+  readonly viewTypes: any = config.page?.text?.viewTypes ?? {};
 
-  _activeComponent: boolean = true;
-  activeMobileModeViewIndex: number = 0;
-  addViewPopoverisOpen: boolean = false;
-  collectionAndPublicationLegacyId: string = '';
-  currentPageTitle$: Observable<string>;
-  enabledViewTypes: string[] = [];
-  illustrationsViewShown: boolean = false;
-  infoOverlayPosition: any = {
-    bottom: 0 + 'px',
-    left: -1500 + 'px'
-  };
-  infoOverlayPosType: string = 'fixed';
-  infoOverlayText: string = '';
-  infoOverlayTitle: string = '';
-  infoOverlayTriggerElem: HTMLElement | null = null;
-  infoOverlayWidth: string | null = null;
-  legacyId: string = '';
-  mobileMode: boolean = false;
-  routeParamsSubscription: Subscription | null = null;
-  searchMatches: string[] = [];
-  textKey = signal<TextKey>({collectionID: '', publicationID: '', textItemID: ''});
-  textPosition: string = '';
-  toolTipMaxWidth: string | null = null;
-  toolTipPosType: string = 'fixed';
-  toolTipPosition: any = {
-    top: 0 + 'px',
-    left: -1500 + 'px'
-  };
-  toolTipScaleValue: number | null = null;
-  toolTipText: string = '';
-  tooltipVisible: boolean = false;
-  userIsTouching: boolean = false;
-  views: any[] = [];
- 
+  private collectionAndPublicationLegacyId: string = '';
+  private tooltipVisible: boolean = false;
+  private uidCounter: number = 0;
+  private userIsTouching: boolean = false;
+
   private unlistenFirstTouchStartEvent?: () => void;
   private unlistenClickEvents?: () => void;
   private unlistenKeyUpEnterEvents?: () => void;
   private unlistenMouseoverEvents?: () => void;
   private unlistenMouseoutEvents?: () => void;
 
-  ngOnInit() {
-    this.mobileMode = this.platformService.isMobile();
-    this.currentPageTitle$ = this.headService.getCurrentPageTitle();
-    let routeTextItemID: string = '';
+  protected currentPageTitle$: Observable<string> = this.headService.getCurrentPageTitle();
+  protected mobileMode = this.platformService.isMobile();
 
-    this.routeParamsSubscription = combineLatest([
-      this.route.params,
-      this.route.queryParams
-    ]).subscribe(([params, queryParams]) => {
-      // Compute new textItemID to see if route params have changed
-      const { collectionID = '', publicationID= '', chapterID = undefined } = params;
+  activeComponent = signal<boolean>(true);
+  activeMobileModeViewIndex = signal<number>(0);
+  addViewPopoverisOpen = signal<boolean>(false);
+  enabledViewTypes = signal<string[]>([]);
+  illustrationsViewShown = signal<boolean>(false);
+  infoOverlayPosition = signal<{ bottom: string; left: string }>({
+    bottom: '0px',
+    left: '-1500px',
+  });
+  infoOverlayPosType = signal<'fixed' | 'absolute'>('fixed');
+  infoOverlayText = signal<string>('');
+  infoOverlayTitle = signal<string>('');
+  infoOverlayTriggerElem = signal<HTMLElement | null>(null);
+  infoOverlayWidth = signal<string | null>(null);
+  searchMatches = signal<string[]>([]);
+  textKey = signal<TextKey>({ collectionID: '', publicationID: '', textItemID: '' });
+  textPosition = signal<string>('');
+  toolTipMaxWidth = signal<string | null>(null);
+  toolTipPosition = signal<{ top: string; left: string }>({
+    top: '0px',
+    left: '-1500px'
+  });
+  toolTipPosType = signal<'fixed' | 'absolute'>('fixed');
+  toolTipScaleValue = signal<number | null>(null);
+  toolTipText = signal<string>('');
+  views = signal<any[]>([]);
 
-      routeTextItemID = chapterID
-        ? `${collectionID}_${publicationID}_${chapterID}`
-        : `${collectionID}_${publicationID}`;
-
-      if (this.textKey().textItemID !== routeTextItemID) {
-        // Route params have changed
-
-        const newTextKey: TextKey = {
-          collectionID: collectionID ?? '',
-          publicationID: publicationID ?? '',
-          ...(chapterID ? { chapterID: chapterID } : {}),
-          textItemID: routeTextItemID
-        };
-        this.textKey.set(newTextKey);
-
-        // Save the id of the previous and current read view text in textService.
-        this.collectionContentService.previousReadViewTextId = this.collectionContentService.readViewTextId;
-        this.collectionContentService.readViewTextId = routeTextItemID;
-
-        if (config.collections?.enableLegacyIDs) {
-          this.setCollectionAndPublicationLegacyId(publicationID);
-        }
-
-        this.enabledViewTypes = this.computeEnabledViewTypes(
-          collectionID, this.multilingualReadingTextLanguages
-        );
-      }
-
-      // queryParams actions
-      if (queryParams['q']) {
-        this.searchMatches = this.parserService.getSearchMatchesFromQueryParams(queryParams['q']);
-      }
-
-      if (queryParams['views']) {
-        let parsedViews: any[] = this.urlService.parse(queryParams['views'], true);
-
-        let viewsChanged = false;
-        if (this.views.length !== parsedViews.length) {
-          viewsChanged = true;
-        } else {
-          for (let i = 0; i < this.views.length; i++) {
-            // Comparison on the entire view objects doesn't work for texts that have
-            // just positions that can change, hence checking only if types unequal
-            if (this.views[i].type !== parsedViews[i].type) {
-              viewsChanged = true;
-              break;
-            }
-          }
-        }
-
-        if (this.views.length < 1 || viewsChanged) {
-          // Ensure the parsedViews are among enabled view types
-          if (!parsedViews.every((view: any) => this.enabledViewTypes.includes(view.type))) {
-            // Filter out disabled view types
-            parsedViews = parsedViews.filter((view: any) => this.enabledViewTypes.includes(view.type));
-          }
-          this.views = parsedViews;
-          this.illustrationsViewShown = this.viewTypeIsShown('illustrations');
-        }
-
-        // Clear the array keeping track of recently open views in
-        // text service and populate it with the current ones.
-        this.collectionContentService.recentCollectionTextViews = [];
-        parsedViews.forEach((viewObj: any) => {
-          const cachedViewObj: any = { type: viewObj.type };
-          if (
-            viewObj.sortOrder &&
-            (
-              viewObj.type === 'variants' ||
-              viewObj.type === 'facsimiles'
-            )
-          ) {
-            cachedViewObj.sortOrder = viewObj.sortOrder;
-          }
-          this.collectionContentService.recentCollectionTextViews.push(cachedViewObj);
-        });
-      } else {
-        this.setViews();
-      }
-
-      if (queryParams['position'] || (this.textPosition && queryParams['position'] === undefined)) {
-        this.textPosition = queryParams['position'];
-      }
-    });
-
-    if (isBrowser()) {
-      this.setUpTextListeners();
-    }
-  }
-
-  ngOnDestroy() {
-    this.routeParamsSubscription?.unsubscribe();
-    this.unlistenClickEvents?.();
-    this.unlistenKeyUpEnterEvents?.();
-    this.unlistenMouseoverEvents?.();
-    this.unlistenMouseoutEvents?.();
-    this.unlistenFirstTouchStartEvent?.();
+  constructor() {
+    this.adjustDefaultViewsForLocale();
+    this.initRouteSync();        // all route/query param handling
+    this.initDomListeners();     // afterRenderEffect + listeners
+    this.initCleanup();          // teardown    
   }
 
   ionViewWillEnter() {
-    this._activeComponent = true;
+    this.activeComponent.set(true);
   }
 
   ionViewWillLeave() {
-    this._activeComponent = false;
+    this.activeComponent.set(false);
+  }
+
+  /**
+   * Set the active locale's reading text to first column if
+   * multilingual reading texts.
+   */
+  private adjustDefaultViewsForLocale() {
+    if (
+      this.multilingualReadingTextLanguages.length > 1 &&
+      this.defaultViews[0].startsWith('readingtext_') &&
+      this.defaultViews[0] !== 'readingtext_' + this.activeLocale
+    ) {
+      this.defaultViews = moveArrayItem(
+        this.defaultViews,
+        this.defaultViews.indexOf('readingtext_' + this.activeLocale),
+        0
+      );
+    }
+  }
+
+  /** Wire route + queryParam reactions. */
+  private initRouteSync() {
+    combineLatest([this.route.params, this.route.queryParams]).pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe(([params, queryParams]) => {
+      console.log('route change:', queryParams);
+      this.onRouteParams(params);
+      this.onQueryParams(queryParams);
+    });
+  }
+
+  private onRouteParams(params: any) {
+    // Compute new textItemID to see if route params have changed
+    const { collectionID = '', publicationID= '', chapterID = undefined } = params;
+
+    const routeTextItemID: string = chapterID
+      ? `${collectionID}_${publicationID}_${chapterID}`
+      : `${collectionID}_${publicationID}`;
+
+    if (this.textKey().textItemID !== routeTextItemID) {
+      // Route params have changed → update textKey & related state
+      const newTextKey: TextKey = {
+        collectionID: collectionID ?? '',
+        publicationID: publicationID ?? '',
+        ...(chapterID ? { chapterID: chapterID } : {}),
+        textItemID: routeTextItemID
+      };
+      this.textKey.set(newTextKey);
+
+      // Save the id of the previous and current read view text in
+      // textService.
+      this.collectionContentService.previousReadViewTextId = this.collectionContentService.readViewTextId;
+      this.collectionContentService.readViewTextId = routeTextItemID;
+
+      if (this.enableLegacyIDs) {
+        this.setCollectionAndPublicationLegacyId(publicationID);
+      }
+
+      this.enabledViewTypes.set(this.computeEnabledViewTypes(
+        collectionID, this.multilingualReadingTextLanguages
+      ));
+    }
+  }
+
+  private onQueryParams(queryParams: any) {
+    // * q = searchMatches
+    if (queryParams?.['q']) {
+      this.searchMatches.set(
+        this.parserService.getSearchMatchesFromQueryParams(queryParams['q'])
+      );
+    } else {
+      this.searchMatches.set([]);
+    }
+
+    // * views
+    if (queryParams?.['views']) {
+      let parsedViews: any[] = this.urlService.parse(queryParams['views'], true);
+
+      const enabledViewTypes = this.enabledViewTypes();
+
+      // If any view type is disabled, drop it
+      if (!parsedViews.every((v: any) => enabledViewTypes.includes(v.type))) {
+        parsedViews = parsedViews.filter(
+          (v: any) => enabledViewTypes.includes(v.type)
+        );
+      }
+
+      const current = this.views();
+      let viewsChanged = current.length !== parsedViews.length;
+      if (!viewsChanged) {
+        // Check if uid of views have changed to detect reorderings,
+        // also detects if uids missing from parsedViews, in case of
+        // which they need to be added, i.e. the views have changed.
+        // Comparison on the entire view objects doesn't work for
+        // texts that have just positions that can change, hence
+        // checking only if uids unequal.
+        for (let i = 0; i < current.length; i++) {
+          if (current[i].uid !== parsedViews[i].uid) {
+            viewsChanged = true;
+            break;
+          }
+        }
+      }
+
+      if (current.length < 1 || viewsChanged) {
+        // Views have changed and need to be updated.
+        // Check if the views from query params all have valid uids.
+        // If not, create new uids for all of them. If valid, the
+        // component’s uid counter is updated to stay in sync.
+        const [withUids, addedUids] = this.ensureUids(parsedViews);
+
+        parsedViews = withUids;
+        this.views.set(parsedViews);
+        this.illustrationsViewShown.set(
+          this.viewTypeIsShown('illustrations', parsedViews)
+        );
+
+        if (addedUids) {
+          // Uids have been added to the view objects -> update queryParams.
+          this.updateViewsInRouterQueryParams(parsedViews);
+          return;
+        }
+      }
+
+      // Clear the array keeping track of recently open views in
+      // text service and populate it with the current ones.
+      this.collectionContentService.recentCollectionTextViews = [];
+      parsedViews.forEach((viewObj: any) => {
+        const cachedViewObj: any = { type: viewObj.type };
+        if (
+          viewObj.sortOrder &&
+          (
+            viewObj.type === 'variants' ||
+            viewObj.type === 'facsimiles'
+          )
+        ) {
+          cachedViewObj.sortOrder = viewObj.sortOrder;
+        }
+        this.collectionContentService.recentCollectionTextViews.push(cachedViewObj);
+      });
+    } else {
+      this.setViews();
+    }
+
+    // * position
+    if (
+      queryParams?.['position'] ||
+      (
+        this.textPosition &&
+        queryParams?.['position'] === undefined
+      )
+    ) {
+      this.textPosition.set(queryParams['position']);
+    }
+  }
+
+  /** Attach DOM listeners once after the first render. */
+  private initDomListeners() {
+    afterRenderEffect({
+      write: () => {
+        if (!this.unlistenClickEvents) {
+          this.setUpTextListeners();
+        }
+      }
+    }, { injector: this.injector });
+  }
+
+  private initCleanup() {
+    this.destroyRef.onDestroy(() => {
+      this.unlistenClickEvents?.();
+      this.unlistenKeyUpEnterEvents?.();
+      this.unlistenMouseoverEvents?.();
+      this.unlistenMouseoutEvents?.();
+      this.unlistenFirstTouchStartEvent?.();
+    });
   }
 
   /**
@@ -228,11 +306,10 @@ export class CollectionTextPage implements OnDestroy, OnInit {
     readingtextLanguages: string[]
   ): string[] {
     const enabledTypes: string[] = [];
-    const viewTypes = config.page?.text?.viewTypes ?? {};
 
-    for (const type in viewTypes) {
+    for (const type in this.viewTypes) {
       if (
-        viewTypes.hasOwnProperty(type) &&
+        this.viewTypes.hasOwnProperty(type) &&
         enableFrontMatterPageOrTextViewType('text', collectionID, config, type)
       ) {
         if (type === 'readingtext' && readingtextLanguages.length > 1) {
@@ -252,32 +329,13 @@ export class CollectionTextPage implements OnDestroy, OnInit {
    * Compute default view types, taking into consideration the enabled view
    * types for the current collection.
    * @param enabledViewTypes 
-   * @param readingtextLanguages 
-   * @param activeLocale 
    * @returns
    */
-  private computeDefaultViewTypes(
-    enabledViewTypes: string[],
-    readingtextLanguages: string[],
-    activeLocale: string
-  ): any[] {
+  private computeDefaultViewTypes(enabledViewTypes: string[]): any[] {
     const newViews: any[] = [];
-    let defaultViews: string[] = config.page?.text?.defaultViews ?? ['readingtext'];
-
-    if (
-      readingtextLanguages.length > 1 &&
-      defaultViews[0].startsWith('readingtext_') &&
-      defaultViews[0] !== 'readingtext_' + activeLocale
-    ) {
-      // Set the active locale's reading text to first column if
-      // multilingual reading texts
-      defaultViews = moveArrayItem(
-        defaultViews, defaultViews.indexOf('readingtext_' + activeLocale), 0
-      );
-    }
 
     // Ensure default views are among the enabled view types
-    defaultViews.forEach((type: string) => {
+    this.defaultViews.forEach((type: string) => {
       if (enabledViewTypes.includes(type)) {
         newViews.push({ type });
       }
@@ -297,14 +355,19 @@ export class CollectionTextPage implements OnDestroy, OnInit {
     // show a) current views if defined,
     //      b) recent view types if defined, or
     //      c) default view types.
-    if (this.views.length > 0) {
+    const currentViews = this.views();
+    const enabledViewTypes = this.enabledViewTypes();
+
+    if (currentViews.length > 0) {
       // a) show current views
-      this.updateViewsInRouterQueryParams(this.views);
-      this.setActiveViewInMobileMode(this.views);
+      this.updateViewsInRouterQueryParams(currentViews);
+      this.setActiveViewInMobileMode(currentViews);
     } else if (this.collectionContentService.recentCollectionTextViews.length > 0) {
       // b) show recent view types
       // if different collection than previously pass type of views only
-      const typesOnly = this.textKey().collectionID !== this.collectionContentService.previousReadViewTextId.split('_')[0] ? true : false;
+      const typesOnly =
+        this.textKey().collectionID !==
+        this.collectionContentService.previousReadViewTextId.split('_')[0];
 
       let newViews = this.collectionContentService.recentCollectionTextViews;
 
@@ -312,63 +375,68 @@ export class CollectionTextPage implements OnDestroy, OnInit {
         // Make sure the only enabled view types for this collection are added
         // from the recent views. First deep copy the array of view objects and
         // then remove disabled view types from it.
-        const recentViewsCopy = newViews.map(obj => ({ ...obj }));
+        const recentViewsCopy = newViews.map(v => ({ ...v }));
         // Filter out view objects of disabled types
-        newViews = recentViewsCopy.filter((view: any) => this.enabledViewTypes.includes(view.type));
+        newViews = recentViewsCopy.filter(
+          (v: any) => enabledViewTypes.includes(v.type)
+        );
         // If the new views list is empty, add enabled default views
         if (newViews.length < 1) {
-          newViews = this.computeDefaultViewTypes(
-            this.enabledViewTypes, this.multilingualReadingTextLanguages, this.activeLocale
-          );
+          newViews = this.computeDefaultViewTypes(enabledViewTypes);
         }
       }
 
+      newViews = this.ensureUids(newViews)[0];
       this.updateViewsInRouterQueryParams(newViews, typesOnly);
       this.setActiveViewInMobileMode(newViews);
     } else {
       // c) show default view types
-      const newViews = this.computeDefaultViewTypes(
-        this.enabledViewTypes, this.multilingualReadingTextLanguages, this.activeLocale
-      );
-      this.updateViewsInRouterQueryParams(newViews);
-      this.setActiveViewInMobileMode(newViews);
+      const defaultViews = this.ensureUids(
+        this.computeDefaultViewTypes(enabledViewTypes)
+      )[0];
+      this.updateViewsInRouterQueryParams(defaultViews);
+      this.setActiveViewInMobileMode(defaultViews);
     }
   }
 
   /**
    * Set active view in mobile mode.
    */
-  private setActiveViewInMobileMode(availableViews: any) {
-    if (this.mobileMode) {
-      if (this.collectionContentService.activeCollectionTextMobileModeView !== undefined) {
-        this.activeMobileModeViewIndex = this.collectionContentService.activeCollectionTextMobileModeView;
-      } else {
-        const defaultViews = config.page?.text?.defaultViews ?? ['readingtext'];
-        let activeMobileModeViewType = defaultViews[0];
+  private setActiveViewInMobileMode(availableViews: any[]) {
+    if (!this.mobileMode) {
+      return;
+    }
 
-        if (
-          this.multilingualReadingTextLanguages.length > 1 &&
-          activeMobileModeViewType.startsWith('readingtext_')
-        ) {
-          // Set the default selected mobile mode view to the active
-          // locale's reading text if multilingual reading texts
-          activeMobileModeViewType = 'readingtext_' + this.activeLocale;
-        }
+    if (this.collectionContentService.activeCollectionTextMobileModeView !== undefined) {
+      this.activeMobileModeViewIndex.set(
+        this.collectionContentService.activeCollectionTextMobileModeView
+      );
+    } else {
+      let activeMobileModeViewType = this.defaultViews[0];
 
-        this.activeMobileModeViewIndex = availableViews.findIndex(
-          (view: any) => view.type === activeMobileModeViewType
-        );
-        if (this.activeMobileModeViewIndex < 0) {
-          this.activeMobileModeViewIndex = 0;
-        }
+      if (
+        this.multilingualReadingTextLanguages.length > 1 &&
+        activeMobileModeViewType.startsWith('readingtext_')
+      ) {
+        // Set the default selected mobile mode view to the active
+        // locale's reading text if multilingual reading texts
+        activeMobileModeViewType = 'readingtext_' + this.activeLocale;
       }
+
+      let idx = availableViews.findIndex(
+        (view: any) => view.type === activeMobileModeViewType
+      );
+      if (idx < 0) {
+        idx = 0;
+      }
+      this.activeMobileModeViewIndex.set(idx);
     }
   }
 
   private getEventTarget(event: any) {
     let eventTarget: HTMLElement = document.createElement('div');
 
-    if (event.target.hasAttribute('data-id')) {
+    if (event.target?.hasAttribute('data-id')) {
       return event.target;
     }
     try {
@@ -465,16 +533,12 @@ export class CollectionTextPage implements OnDestroy, OnInit {
       /* CLICK EVENTS */
       this.unlistenClickEvents = this.renderer2.listen(nElement, 'click', (event) => {
         if (!this.userIsTouching) {
-          this.ngZone.run(() => {
-            this.hideToolTip();
-          });
+          this.ngZone.run(() => this.hideToolTip());
         }
 
         if (event?.target?.classList.contains('close-info-overlay')) {
-          this.ngZone.run(() => {
-            this.hideInfoOverlay();
-            return;
-          });
+          this.ngZone.run(() => this.hideInfoOverlay());
+          return;
         }
 
         let eventTarget = this.getEventTarget(event);
@@ -610,7 +674,9 @@ export class CollectionTextPage implements OnDestroy, OnInit {
           ) {
             // Footnote reference clicked in variant.
             this.ngZone.run(() => {
-              this.showFootnoteInfoOverlay(eventTarget.getAttribute('id'), 'variant', eventTarget);
+              this.showFootnoteInfoOverlay(
+                eventTarget.getAttribute('id'), 'variant', eventTarget
+              );
             });
             modalShown = true;
           } else if (
@@ -670,15 +736,15 @@ export class CollectionTextPage implements OnDestroy, OnInit {
             eventTarget.classList.add('highlight');
             this.ngZone.run(() => {
               this.hideToolTip();
-              this.scrollService.scrollToVariant(eventTarget, this.elementRef.nativeElement);
+              this.scrollService.scrollToVariant(
+                eventTarget, this.elementRef.nativeElement
+              );
             });
             window.setTimeout(function(elem: any) {
               elem.classList.remove('highlight');
             }.bind(null, eventTarget), 5000);
           } else if (eventTarget.classList.contains('tooltiptrigger')) {
-            this.ngZone.run(() => {
-              this.showInfoOverlayFromInlineHtml(eventTarget);
-            });
+            this.ngZone.run(() => this.showInfoOverlayFromInlineHtml(eventTarget));
           }
         } else if (eventTarget['classList'].contains('extVariantsTrigger')) {
           // Click on trigger for showing links to external variants
@@ -732,9 +798,9 @@ export class CollectionTextPage implements OnDestroy, OnInit {
               }
 
               // Find the containing scrollable element.
-              let containerElem = null;
+              let containerElem: HTMLElement | null = null;
               if (targetColumnId) {
-                containerElem = nElement.querySelector('#' + targetColumnId);
+                containerElem = nElement.querySelector<HTMLElement>('#' + targetColumnId);
               } else {
                 containerElem = anchorElem.parentElement;
                 while (
@@ -753,9 +819,9 @@ export class CollectionTextPage implements OnDestroy, OnInit {
                     anchorElem.parentElement?.parentElement?.hasAttribute('class') &&
                     anchorElem.parentElement?.parentElement?.classList.contains('infoOverlayContent')
                   ) {
-                    containerElem = nElement.querySelector(
+                    containerElem = nElement.querySelector<HTMLElement>(
                       'ion-content.collection-ion-content.mobile-mode-content .scroll-content-container:not(.visuallyhidden)'
-                    ) as HTMLElement;
+                    );
                   }
                 }
               }
@@ -766,7 +832,7 @@ export class CollectionTextPage implements OnDestroy, OnInit {
                   // Link to (foot)note reference in variant, uses id-attribute instead of data-id.
                   dataIdSelector = '[id="' + String(targetId).replace('#', '') + '"]';
                 }
-                const target = containerElem.querySelector(dataIdSelector) as HTMLElement;
+                const target = containerElem.querySelector<HTMLElement>(dataIdSelector);
                 if (target) {
                   this.scrollService.scrollToHTMLElement(target, 'top');
                 }
@@ -818,7 +884,7 @@ export class CollectionTextPage implements OnDestroy, OnInit {
             // Link to a reading text, comment or introduction.
             // Get the href parts for the targeted text.
             const hrefLink = anchorElem.href.replace('_', ' ');
-            const hrefTargetItems: Array<string> = decodeURIComponent(
+            const hrefTargetItems: string[] = decodeURIComponent(
               String(hrefLink).split('/').pop() || ''
             ).trim().split(' ');
             let targetCollId = '';
@@ -1095,9 +1161,7 @@ export class CollectionTextPage implements OnDestroy, OnInit {
             !eventTarget.hasAttribute('id') &&
             !eventTarget.hasAttribute('data-id')
           ) {
-            this.ngZone.run(() => {
-              this.showTooltipFromInlineHtml(eventTarget);
-            });
+            this.ngZone.run(() => this.showTooltipFromInlineHtml(eventTarget));
           }
 
           /* Get the parent node of the event target for the next iteration if a tooltip hasn't been shown already.
@@ -1123,18 +1187,14 @@ export class CollectionTextPage implements OnDestroy, OnInit {
           eventTarget['parentNode']['classList'].contains('tooltiptrigger')
         ) {
           eventTarget = eventTarget['parentNode'];
-          this.ngZone.run(() => {
-            this.showTooltipFromInlineHtml(eventTarget);
-          });
+          this.ngZone.run(() => this.showTooltipFromInlineHtml(eventTarget));
         }
       });
 
       /* MOUSE OUT EVENTS */
       this.unlistenMouseoutEvents = this.renderer2.listen(nElement, 'mouseout', (event) => {
         if (!this.userIsTouching && this.tooltipVisible) {
-          this.ngZone.run(() => {
-            this.hideToolTip();
-          });
+          this.ngZone.run(() => this.hideToolTip());
         }
       });
 
@@ -1167,8 +1227,9 @@ export class CollectionTextPage implements OnDestroy, OnInit {
    */
   private showTooltipFromInlineHtml(targetElem: HTMLElement) {
     if (targetElem.nextElementSibling?.classList.contains('tooltip')) {
-      this.setToolTipPosition(targetElem, targetElem.nextElementSibling.innerHTML);
-      this.setToolTipText(targetElem.nextElementSibling.innerHTML);
+      const html = targetElem.nextElementSibling.innerHTML;
+      this.setToolTipPosition(targetElem, html);
+      this.setToolTipText(html);
     }
   }
 
@@ -1193,12 +1254,14 @@ export class CollectionTextPage implements OnDestroy, OnInit {
     ) {
       return;
     }
+
+    const sib = targetElem.nextElementSibling;
     if (
-      targetElem.nextElementSibling?.classList.contains('tooltip') &&
-      targetElem.nextElementSibling?.textContent
+      sib?.classList.contains('tooltip') &&
+      sib?.textContent
     ) {
-      this.setToolTipPosition(targetElem, targetElem.nextElementSibling.textContent);
-      this.setToolTipText(targetElem.nextElementSibling.textContent);
+      this.setToolTipPosition(targetElem, sib.textContent);
+      this.setToolTipText(sib.textContent);
     }
   }
 
@@ -1235,113 +1298,115 @@ export class CollectionTextPage implements OnDestroy, OnInit {
    * are present inline in the text.
    */
   private showInfoOverlayFromInlineHtml(targetElem: HTMLElement) {
-    if (targetElem.nextElementSibling?.classList.contains('tooltip')) {
-      let text = '';
-      let lemma = '';
+    if (!targetElem.nextElementSibling?.classList.contains('tooltip')) {
+      return;
+    }
 
-      if (targetElem.nextElementSibling.classList.contains('ttChanges')) {
-        // Change.
-        this.setInfoOverlayTitle($localize`:@@ViewOptions.Emendation:Utgivarändring`);
-        if (targetElem.classList.contains('corr_red')) {
-          lemma = targetElem.innerHTML;
-        } else if (targetElem.firstElementChild?.classList.contains('corr_hide')) {
-          lemma = '<span class="corr_hide">' + targetElem.firstElementChild.innerHTML + '</span>';
-        } else if (targetElem.firstElementChild?.classList.contains('corr')) {
-          lemma = targetElem.firstElementChild.innerHTML;
-        }
-        text = '<p class="infoOverlayText"><span class="ioLemma">'
-          + lemma + '</span><span class="ioDescription">'
-          + targetElem.nextElementSibling.innerHTML + '</span></p>';
-      } else if (targetElem.nextElementSibling.classList.contains('ttNormalisations')) {
-        // Normalisation.
-        this.setInfoOverlayTitle($localize`:@@ViewOptions.Normalisation:Normalisering`);
-        if (targetElem.classList.contains('reg_hide')) {
-          lemma = '<span class="reg_hide">' + targetElem.innerHTML + '</span>';
-        } else {
-          lemma = targetElem.innerHTML;
-        }
-        text = '<p class="infoOverlayText"><span class="ioLemma">'
-          + lemma + '</span><span class="ioDescription">'
-          + targetElem.nextElementSibling.innerHTML + '</span></p>';
-      } else if (targetElem.nextElementSibling.classList.contains('ttAbbreviations')) {
-        // Abbreviation.
-        this.setInfoOverlayTitle($localize`:@@ViewOptions.Abbreviation:Förkortning`);
-        if (targetElem.firstElementChild?.classList.contains('abbr')) {
-          text = '<p class="infoOverlayText"><span class="ioLemma">'
-            + targetElem.firstElementChild.innerHTML
-            + '</span><span class="ioDescription">'
-            + targetElem.nextElementSibling.innerHTML + '</span></p>';
-        }
-      } else if (targetElem.nextElementSibling.classList.contains('ttComment')) {
-        // Comment.
-        this.setInfoOverlayTitle($localize`:@@ViewOptions.ExplanatoryNote:Punktkommentar`);
-        if (targetElem.nextElementSibling?.classList.contains('noteText')) {
-          text = '<p class="infoOverlayText"><span class="ioDescription">'
-            + targetElem.nextElementSibling.innerHTML + '</span></p>';
-        }
-      } else if (
-        targetElem.classList.contains('ttFoot') &&
-        targetElem.nextElementSibling?.classList.contains('ttFoot')
-      ) {
-        // Some other note coded as a footnote (but lacking id and data-id attributes).
-        if (targetElem.nextElementSibling.firstElementChild?.classList.contains('ttFixed')) {
-          if (targetElem.classList.contains('revision')) {
-            this.setInfoOverlayTitle($localize`:@@ViewOptions.RevisionNote:Repetitionsanteckning`);
-            lemma = '';
-          } else {
-            this.setInfoOverlayTitle('');
-            lemma = '<span class="ioLemma">' + targetElem.innerHTML + '</span>';
-          }
-          text = '<p class="infoOverlayText">'
-            + lemma + '<span class="ioDescription">'
-            + targetElem.nextElementSibling.firstElementChild.innerHTML + '</span></p>';
-        }
+    let text = '';
+    let lemma = '';
+
+    if (targetElem.nextElementSibling.classList.contains('ttChanges')) {
+      // Change.
+      this.setInfoOverlayTitle($localize`:@@ViewOptions.Emendation:Utgivarändring`);
+      if (targetElem.classList.contains('corr_red')) {
+        lemma = targetElem.innerHTML;
+      } else if (targetElem.firstElementChild?.classList.contains('corr_hide')) {
+        lemma = '<span class="corr_hide">' + targetElem.firstElementChild.innerHTML + '</span>';
+      } else if (targetElem.firstElementChild?.classList.contains('corr')) {
+        lemma = targetElem.firstElementChild.innerHTML;
+      }
+      text = '<p class="infoOverlayText"><span class="ioLemma">'
+        + lemma + '</span><span class="ioDescription">'
+        + targetElem.nextElementSibling.innerHTML + '</span></p>';
+    } else if (targetElem.nextElementSibling.classList.contains('ttNormalisations')) {
+      // Normalisation.
+      this.setInfoOverlayTitle($localize`:@@ViewOptions.Normalisation:Normalisering`);
+      if (targetElem.classList.contains('reg_hide')) {
+        lemma = '<span class="reg_hide">' + targetElem.innerHTML + '</span>';
       } else {
-        // Some other note, generally editorial remarks pertaining to a manuscript.
-        if (targetElem.classList.contains('ttMs')) {
-          this.setInfoOverlayTitle($localize`:@@ViewOptions.EditorialNote:Utgivarens anmärkning`);
-        } else if (targetElem.classList.contains('ttVariant')) {
-          this.setInfoOverlayTitle($localize`:@@Variants.VariantCategory:Variantkategori`);
-        } else {
-          this.setInfoOverlayTitle('');
-        }
-        lemma = targetElem.textContent || '';
-        if (
-          targetElem.classList.contains('deletion') || (
-            targetElem.parentElement !== null &&
-            targetElem.classList.contains('tei_deletion_medium_wrapper')
-          )
-        ) {
-          lemma = '<span class="deletion">' + lemma + '</span>';
-        }
+        lemma = targetElem.innerHTML;
+      }
+      text = '<p class="infoOverlayText"><span class="ioLemma">'
+        + lemma + '</span><span class="ioDescription">'
+        + targetElem.nextElementSibling.innerHTML + '</span></p>';
+    } else if (targetElem.nextElementSibling.classList.contains('ttAbbreviations')) {
+      // Abbreviation.
+      this.setInfoOverlayTitle($localize`:@@ViewOptions.Abbreviation:Förkortning`);
+      if (targetElem.firstElementChild?.classList.contains('abbr')) {
         text = '<p class="infoOverlayText"><span class="ioLemma">'
-          + lemma + '</span><span class="ioDescription">'
+          + targetElem.firstElementChild.innerHTML
+          + '</span><span class="ioDescription">'
           + targetElem.nextElementSibling.innerHTML + '</span></p>';
       }
-      this.setInfoOverlayPositionAndWidth(targetElem);
-      this.setInfoOverlayText(text);
+    } else if (targetElem.nextElementSibling.classList.contains('ttComment')) {
+      // Comment.
+      this.setInfoOverlayTitle($localize`:@@ViewOptions.ExplanatoryNote:Punktkommentar`);
+      if (targetElem.nextElementSibling?.classList.contains('noteText')) {
+        text = '<p class="infoOverlayText"><span class="ioDescription">'
+          + targetElem.nextElementSibling.innerHTML + '</span></p>';
+      }
+    } else if (
+      targetElem.classList.contains('ttFoot') &&
+      targetElem.nextElementSibling?.classList.contains('ttFoot')
+    ) {
+      // Some other note coded as a footnote (but lacking id and data-id attributes).
+      if (targetElem.nextElementSibling.firstElementChild?.classList.contains('ttFixed')) {
+        if (targetElem.classList.contains('revision')) {
+          this.setInfoOverlayTitle($localize`:@@ViewOptions.RevisionNote:Repetitionsanteckning`);
+          lemma = '';
+        } else {
+          this.setInfoOverlayTitle('');
+          lemma = '<span class="ioLemma">' + targetElem.innerHTML + '</span>';
+        }
+        text = '<p class="infoOverlayText">'
+          + lemma + '<span class="ioDescription">'
+          + targetElem.nextElementSibling.firstElementChild.innerHTML + '</span></p>';
+      }
+    } else {
+      // Some other note, generally editorial remarks pertaining to a manuscript.
+      if (targetElem.classList.contains('ttMs')) {
+        this.setInfoOverlayTitle($localize`:@@ViewOptions.EditorialNote:Utgivarens anmärkning`);
+      } else if (targetElem.classList.contains('ttVariant')) {
+        this.setInfoOverlayTitle($localize`:@@Variants.VariantCategory:Variantkategori`);
+      } else {
+        this.setInfoOverlayTitle('');
+      }
+      lemma = targetElem.textContent || '';
+      if (
+        targetElem.classList.contains('deletion') || (
+          targetElem.parentElement !== null &&
+          targetElem.classList.contains('tei_deletion_medium_wrapper')
+        )
+      ) {
+        lemma = '<span class="deletion">' + lemma + '</span>';
+      }
+      text = '<p class="infoOverlayText"><span class="ioLemma">'
+        + lemma + '</span><span class="ioDescription">'
+        + targetElem.nextElementSibling.innerHTML + '</span></p>';
     }
+    this.setInfoOverlayPositionAndWidth(targetElem);
+    this.setInfoOverlayText(text);
   }
 
   private setToolTipText(text: string) {
-    this.toolTipText = text;
+    this.toolTipText.set(text);
   }
 
   private setInfoOverlayText(text: string) {
-    this.infoOverlayText = text;
+    this.infoOverlayText.set(text);
   }
 
   private setInfoOverlayTitle(title: string) {
-    this.infoOverlayTitle = String(title);
+    this.infoOverlayTitle.set(String(title));
   }
 
   private hideToolTip() {
     this.setToolTipText('');
-    this.toolTipPosType = 'fixed'; // Position needs to be fixed so we can safely hide it outside viewport
-    this.toolTipPosition = {
+    this.toolTipPosType.set('fixed'); // Position needs to be fixed so we can safely hide it outside viewport
+    this.toolTipPosition.set({
       top: 0 + 'px',
       left: -1500 + 'px'
-    };
+    });
     this.tooltipVisible = false;
   }
 
@@ -1349,49 +1414,54 @@ export class CollectionTextPage implements OnDestroy, OnInit {
     // Clear info overlay content and move it out of viewport
     this.setInfoOverlayText('');
     this.setInfoOverlayTitle('');
-    this.infoOverlayPosType = 'fixed'; // Position needs to be fixed so we can safely hide it outside viewport
-    this.infoOverlayPosition = {
+    this.infoOverlayPosType.set('fixed'); // Position needs to be fixed so we can safely hide it outside viewport
+    this.infoOverlayPosition.set({
       bottom: 0 + 'px',
       left: -1500 + 'px'
-    };
+    });
 
-    // Return focus to element that triggered the info overlay
-    // timeout so the info overlay isn't triggered again on
-    // keyup.enter event
+    // Return focus to element that triggered the info overlay,
+    // with timeout so the info overlay isn't triggered again
+    // on keyup.enter event
     this.ngZone.runOutsideAngular(() => {
       setTimeout(() => {
-        this.infoOverlayTriggerElem?.focus({ preventScroll: true });
-        this.infoOverlayTriggerElem = null;
+        this.infoOverlayTriggerElem()?.focus({ preventScroll: true });
+        this.infoOverlayTriggerElem.set(null);
       }, 250);
     });
   }
 
   private setToolTipPosition(targetElem: HTMLElement, ttText: string) {
-    const ttProperties = this.tooltipService.getTooltipProperties(targetElem, ttText, 'page-text');
-
-    if (ttProperties !== undefined && ttProperties !== null) {
-      // Set tooltip width, position and visibility
-      this.toolTipMaxWidth = ttProperties.maxWidth;
-      this.toolTipScaleValue = ttProperties.scaleValue;
-      this.toolTipPosition = {
-        top: ttProperties.top,
-        left: ttProperties.left
-      };
-      this.toolTipPosType = 'absolute';
-      if (this.mobileMode) {
-        this.toolTipPosType = 'fixed';
-      }
-      this.tooltipVisible = true;
+    const ttProp = this.tooltipService.getTooltipProperties(
+      targetElem, ttText, 'page-text'
+    );
+    if (!ttProp) {
+      return;
     }
+
+    // Set tooltip width, position and visibility
+    this.toolTipMaxWidth.set(ttProp.maxWidth);
+    this.toolTipScaleValue.set(ttProp.scaleValue);
+    this.toolTipPosition.set({
+      top: ttProp.top,
+      left: ttProp.left
+    });
+    const posType = this.mobileMode ? 'fixed' : 'absolute';
+    this.toolTipPosType.set(posType);
+    this.tooltipVisible = true;
   }
 
   /**
    * Set position and width of infoOverlay element. This function is not exactly
    * the same as in introduction.ts due to different page structure on text page.
    */
-  private setInfoOverlayPositionAndWidth(triggerElement: HTMLElement, defaultMargins = 20, maxWidth = 600) {
+  private setInfoOverlayPositionAndWidth(
+    triggerElement: HTMLElement,
+    defaultMargins = 20,
+    maxWidth = 600
+  ) {
     // Store triggering element so focus can later be restored to it
-    this.infoOverlayTriggerElem = triggerElement;
+    this.infoOverlayTriggerElem.set(triggerElement);
   
     let margins = defaultMargins;
 
@@ -1442,18 +1512,16 @@ export class CollectionTextPage implements OnDestroy, OnInit {
       }
 
       // Set info overlay position
-      this.infoOverlayPosition = {
+      this.infoOverlayPosition.set({
         bottom: (vh - horizontalScrollbarOffsetHeight - containerElemRect.bottom) + 'px',
         left: (containerElemRect.left + scrollLeft + margins - contentElem.getBoundingClientRect().left) + 'px'
-      };
-      if (this.mobileMode) {
-        this.infoOverlayPosType = 'fixed';
-      } else {
-        this.infoOverlayPosType = 'absolute';
-      }
+      });
+
+      const posType = this.mobileMode ? 'fixed' : 'absolute';
+      this.infoOverlayPosType.set(posType);
 
       // Set info overlay width
-      this.infoOverlayWidth = calcWidth + 'px';
+      this.infoOverlayWidth.set(`${calcWidth}px`);
 
       // Set focus to info overlay
       const ioElem = this.elementRef.nativeElement.querySelector(
@@ -1466,7 +1534,7 @@ export class CollectionTextPage implements OnDestroy, OnInit {
   private async showSemanticDataObjectModal(id: string, type: string) {
     const modal = await this.modalCtrl.create({
       component: NamedEntityModal,
-      componentProps: { id: id, type: type }
+      componentProps: { id, type }
     });
 
     modal.present();
@@ -1504,17 +1572,12 @@ export class CollectionTextPage implements OnDestroy, OnInit {
   }
 
   private getViewTypesShown(): string[] {
-    const viewTypes: string[] = [];
-    this.views.forEach((view: any) => {
-      viewTypes.push(view.type);
-    });
-    return viewTypes;
+    return this.views().map(v => v.type);
   }
 
   private viewTypeIsShown(type: string, views?: any[]): boolean {
-    views = views ? views : this.views;
-    const index = views.findIndex((view) => view.type === type);
-    return (index > -1) || false;
+    const arr = views ?? this.views();
+    return arr.findIndex(v => v.type === type) > -1;
   }
 
   openNewView(event: any) {
@@ -1535,7 +1598,7 @@ export class CollectionTextPage implements OnDestroy, OnInit {
     const newViewTypes: string[] = [];
     const viewTypesShown = this.getViewTypesShown();
 
-    this.enabledViewTypes.forEach((type: string) => {
+    this.enabledViewTypes().forEach((type: string) => {
       if (
         type !== 'showAll' &&
         viewTypesShown.indexOf(type) < 0
@@ -1555,27 +1618,33 @@ export class CollectionTextPage implements OnDestroy, OnInit {
       return;
     }
 
-    if (this.enabledViewTypes.indexOf(type) > -1) {
-      const newView: any = { type };
+    if (this.enabledViewTypes().indexOf(type) < 0) {
+      return;
+    }
 
-      if (id != null) {
-        newView.id = id;
-      }
-      if (image != null) {
-        newView.image = image;
-      }
+    const newView: any = {
+      type,
+      uid: this.createViewUid()
+    };
 
-      // Append the new view to the array of current views and navigate
-      this.views.push(newView);
-      this.updateViewsInRouterQueryParams(this.views);
+    if (id != null) {
+      newView.id = id;
+    }
+    if (image != null) {
+      newView.image = image;
+    }
 
-      // In mobile mode, set the added view as the active view
-      this.setActiveMobileModeViewType(undefined, undefined, this.views.length - 1);
+    // Append the new view to the array of current views and navigate
+    const newIndex = this.views().length; // index after append
+    this.views.update(arr => [...arr, newView]);
+    this.updateViewsInRouterQueryParams(this.views());
 
-      // Conditionally scroll the added view into view
-      if (scroll === true && !this.mobileMode) {
-        this.scrollService.scrollLastViewIntoView();
-      }
+    // In mobile mode, set the added view as the active view
+    this.setActiveMobileModeViewType(undefined, undefined, newIndex);
+
+    // Conditionally scroll the added view into view
+    if (scroll === true && !this.mobileMode) {
+      this.scrollService.scrollLastViewIntoView();
     }
   }
 
@@ -1583,14 +1652,14 @@ export class CollectionTextPage implements OnDestroy, OnInit {
    * Removes the view with index i in the this.views array.
    * @param i index of the view to be removed from this.views.
    */
-  removeView(i: any) {
-    this.views.splice(i, 1);
-    this.updateViewsInRouterQueryParams(this.views);
+  removeView(i: number) {
+    this.views.update((arr: any[]) => arr.filter((_, idx) => idx !== i));
+    this.updateViewsInRouterQueryParams(this.views());
 
     // In mobile mode, set the next view in the views array
     // as the active view, or the previous view if the deleted
     // one was the last view in the array.
-    const index = i < this.views.length ? i : i - 1;
+    const index = i < this.views().length ? i : i - 1;
     this.setActiveMobileModeViewType(undefined, undefined, index);
   }
 
@@ -1599,17 +1668,12 @@ export class CollectionTextPage implements OnDestroy, OnInit {
    * positions with the view on the right.
    */
   moveViewRight(id: number) {
-    if (id > -1 && id < this.views.length - 1) {
-      this.views = moveArrayItem(this.views, id, id + 1);
-      this.fabColumnOptions.forEach(fabList => {
-        fabList.activated = false;
-      });
-
-      this.fabColumnOptionsButton.forEach(fabButton => {
-        fabButton.activated = false;
-      });
-
-      this.updateViewsInRouterQueryParams(this.views);
+    const views = this.views();
+    if (id > -1 && id < views.length - 1) {
+      this.views.set(moveArrayItem(views, id, id + 1));
+      this.fabColumnOptions?.forEach(f => (f.activated = false));
+      this.fabColumnOptionsButton?.forEach(b => (b.activated = false));
+      this.updateViewsInRouterQueryParams(this.views());
     }
   }
 
@@ -1618,59 +1682,158 @@ export class CollectionTextPage implements OnDestroy, OnInit {
    * positions with the view on the left.
    */
   moveViewLeft(id: number) {
-    if (id > 0 && id < this.views.length) {
-      this.views = moveArrayItem(this.views, id, id - 1);
-      this.fabColumnOptions.forEach(fabList => {
-        fabList.activated = false;
-      });
-
-      this.fabColumnOptionsButton.forEach(fabButton => {
-        fabButton.activated = false;
-      });
-
-      this.updateViewsInRouterQueryParams(this.views);
+    const views = this.views();
+    if (id > 0 && id < views.length) {
+      this.views.set(moveArrayItem(views, id, id - 1));
+      this.fabColumnOptions?.forEach(f => (f.activated = false));
+      this.fabColumnOptionsButton?.forEach(b => (b.activated = false));
+      this.updateViewsInRouterQueryParams(this.views());
     }
   }
 
   updateIllustrationViewImage(image: Illustration | null) {
-    const index = this.views.findIndex((view) => view.type === 'illustrations');
+    const index = this.views().findIndex((v) => v.type === 'illustrations');
     this.updateViewProperty('image', image, index);
     this.setActiveMobileModeViewType(undefined, 'illustrations', index);
   }
 
-  updateViewProperty(propertyName: string, value: any, viewIndex: number, updateQueryParams: boolean = true) {
-    if (value !== null) {
-      this.views[viewIndex][propertyName] = value;
-    } else if (this.views[viewIndex].hasOwnProperty(propertyName)) {
-      delete this.views[viewIndex][propertyName];
+  updateViewProperty(
+    propertyName: string,
+    value: any,
+    viewIndex: number,
+    updateQueryParams: boolean = true
+  ) {
+    if (viewIndex < 0 || viewIndex >= this.views().length) {
+      return;
     }
-    updateQueryParams && this.updateViewsInRouterQueryParams(this.views);
+
+    this.views.update((arr: any[]) =>
+      arr.map((v, i) => {
+        // If the view object is not the one whose property should be updated
+        // (based on index), the view object is not modified
+        if (i !== viewIndex) {
+          return v;
+        }
+        // Update the value of the property `propertyName` unless value is null
+        if (value !== null) {
+          return { ...v, [propertyName]: value };
+        }
+        // Default: value = null => remove the property `propertyName` from the view object
+        const { [propertyName]: _drop, ...rest } = v;
+        return rest;
+      })
+    );
+
+    if (updateQueryParams) {
+      this.updateViewsInRouterQueryParams(this.views());
+    }
   }
 
-  private updateViewsInRouterQueryParams(views: Array<any>, typesOnly: boolean = false) {
-    this.illustrationsViewShown = this.viewTypeIsShown('illustrations', views);
+  private updateViewsInRouterQueryParams(views: any[], typesOnly: boolean = false) {
+    this.illustrationsViewShown.set(this.viewTypeIsShown('illustrations', views));
 
     let trimmedViews: any[] = [];
     if (typesOnly) {
-      views.forEach((viewObj: any) => {
-        if (viewObj.type) {
-          trimmedViews.push({ type: viewObj.type });
-        }
-      });
+      // Remove all properties from the view objects except
+      // type and uid
+      trimmedViews = views.filter(v => !!v.type).map(v => ({ type: v.type, uid: v.uid ?? null }));
     } else {
-      // Remove 'title' property from all view objects as it's not desired in the url
-      trimmedViews = views.map(({title, ...rest}) => rest);
+      // Remove 'title' property from all view objects
+      // as it’s not desired in the url
+      trimmedViews = views.map(({ title, ...rest }) => rest);
     }
-    
-    this.router.navigate(
-      [],
-      {
-        relativeTo: this.route,
-        queryParams: { views: this.urlService.stringify(trimmedViews, true) },
-        queryParamsHandling: 'merge',
-        replaceUrl: true
+
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { views: this.urlService.stringify(trimmedViews, true) },
+      queryParamsHandling: 'merge',
+      replaceUrl: true
+    });
+  }
+
+  /**
+   * Generates a new monotonically increasing view UID like "v12".
+   * Increments the internal `uidCounter` and returns the new value
+   * with a "v" prefix.
+   *
+   * @returns The newly created UID (e.g., "v7").
+   * @sideeffect Mutates `this.uidCounter` by incrementing it.
+   */
+  private createViewUid(): string {
+    return `v${++this.uidCounter}`;
+  }
+
+  /**
+   * Scans a list of views and returns the largest numeric UID suffix found.
+   * UIDs are expected to be of the form "v<number>" (e.g., "v3"). Missing
+   * or malformed UIDs are treated as 0.
+   *
+   * @param views - Array of view-like objects that may contain a `uid`
+   * string.
+   * @returns The largest numeric UID suffix found (0 if none).
+   */
+  private getMaxViewUid(views: any[]): number {
+    let maxUid = 0;
+    views.forEach((v: any) => {
+      const uidNumber = Number(v.uid?.slice(1) ?? '0');
+      if (uidNumber > maxUid) {
+        maxUid = uidNumber;
       }
+    });
+    return maxUid;
+  }
+
+  /**
+   * Ensures every view has a stable, unique UID of the form "v<number>".
+   *
+   * - If *all* input views already have valid UIDs, the original array
+   *   is returned unchanged and `addedUids` is `false`. The internal
+   *   counter is synced up to the max existing UID so future UIDs won’t
+   *   collide.
+   * - Otherwise, a *new array* is returned where missing/invalid UIDs
+   *   are assigned. In this case, `addedUids` is `true`.
+   *
+   * This method does **not** mutate the input array; it only creates new
+   * objects when UIDs need to be added.
+   *
+   * @param views - The input views (not mutated).
+   * @returns
+   *   - `views`: Either the original array (if all had valid UIDs) or a
+   *     new array with UIDs assigned.
+   *   - `addedUids`: `true` if any UID was newly assigned; `false` if
+   *     all were already valid.
+   *
+   * @sideeffect When all UIDs are present, updates `this.uidCounter` to
+   * the max UID found.
+   *
+   * @example
+   * const [normalized, added] = this.ensureUids(items);
+   *
+   * @example
+   * let origViews = input;
+   * let added: boolean;
+   * [origViews, added] = this.ensureUids(origViews);
+   */
+  private ensureUids<T extends { uid?: string }>(
+    views: readonly T[]
+  ): [views: T[], addedUids: boolean] {
+    const allHaveUids = views.every(
+      (v: any) => v.uid?.startsWith('v') && !Number.isNaN(Number(v.uid?.slice(1)))
     );
+
+    if (allHaveUids) {
+      // keep counter in sync so future adds won’t collide
+      const max = this.getMaxViewUid(views as any[]);
+      if (max > this.uidCounter) {
+        this.uidCounter = max;
+      }
+      // return the original array and the flag
+      return [views as T[], false];
+    }
+
+    // assign once; do not mutate the incoming array
+    const withUids = views.map(v => ({ ...v, uid: this.createViewUid() }));
+    return [withUids as T[], true];
   }
 
   private setCollectionAndPublicationLegacyId(publicationID: string) {
@@ -1690,20 +1853,31 @@ export class CollectionTextPage implements OnDestroy, OnInit {
 
   showAddViewPopover(e: Event) {
     this.addViewPopover.event = e;
-    this.addViewPopoverisOpen = true;
+    this.addViewPopoverisOpen.set(true);
+  }
+
+  dismissAddViewPopover() {
+    this.addViewPopoverisOpen.set(false);
   }
 
   setActiveMobileModeViewType(event?: any, type?: string, viewIndex?: number) {
-    if (this.mobileMode) {
-      if (event) {
-        this.activeMobileModeViewIndex = event.detail.value;
-      } else {
-        const index = viewIndex ? viewIndex : this.views.findIndex((view) => view.type === type);
-        this.activeMobileModeViewIndex = index > -1 ? index : 0;
-      }
-      this.collectionContentService.activeCollectionTextMobileModeView = this.activeMobileModeViewIndex;
-      this.cdRef.detectChanges();
+    if (!this.mobileMode) {
+      return;
     }
+
+    let index = 0;
+
+    if (event) {
+      index = event.detail?.value ?? 0;
+    } else {
+      index = viewIndex !== undefined
+            ? viewIndex
+            : this.views().findIndex((v) => v.type === type);
+      index = index > -1 ? index : 0;
+    }
+
+    this.activeMobileModeViewIndex.set(index);
+    this.collectionContentService.activeCollectionTextMobileModeView = index;
   }
 
   /**

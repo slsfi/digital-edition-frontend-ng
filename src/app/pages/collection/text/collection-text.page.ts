@@ -1,14 +1,15 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, ElementRef, Injector, LOCALE_ID, NgZone, QueryList, Renderer2, ViewChild, ViewChildren, afterRenderEffect, inject, signal } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { ChangeDetectionStrategy, Component, DestroyRef, ElementRef, Injector, LOCALE_ID, NgZone, OnInit, QueryList, Renderer2, ViewChild, ViewChildren, afterRenderEffect, inject, signal } from '@angular/core';
+import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
+import { Location } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { IonFabButton, IonFabList, IonPopover, ModalController, PopoverController } from '@ionic/angular';
-import { combineLatest, Observable } from 'rxjs';
+import { combineLatest, distinctUntilChanged, filter, Observable } from 'rxjs';
 
 import { config } from '@config';
 import { DownloadTextsModal } from '@modals/download-texts/download-texts.modal';
 import { NamedEntityModal } from '@modals/named-entity/named-entity.modal';
 import { ReferenceDataModal } from '@modals/reference-data/reference-data.modal';
-import { TextKey } from '@models/collection.models';
+import { TextKey, ViewState, ViewType, ViewUid } from '@models/collection.models';
 import { Illustration } from '@models/illustration.models';
 import { ViewOptionsPopover } from '@popovers/view-options/view-options.popover';
 import { CollectionContentService } from '@services/collection-content.service';
@@ -23,6 +24,9 @@ import { ViewOptionsService } from '@services/view-options.service';
 import { enableFrontMatterPageOrTextViewType, moveArrayItem } from '@utility-functions';
 
 
+// ─────────────────────────────────────────────────────────────────────────────
+// * This component is zoneless-ready. *
+// ─────────────────────────────────────────────────────────────────────────────
 @Component({
   selector: 'page-text',
   templateUrl: './collection-text.page.html',
@@ -30,13 +34,14 @@ import { enableFrontMatterPageOrTextViewType, moveArrayItem } from '@utility-fun
   standalone: false,
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class CollectionTextPage {
+export class CollectionTextPage implements OnInit {
   private collectionContentService = inject(CollectionContentService);
   private collectionsService = inject(CollectionsService);
   private destroyRef = inject(DestroyRef);
   private elementRef = inject(ElementRef);
   private headService = inject(DocumentHeadService);
-  private injector   = inject(Injector);
+  private injector = inject(Injector);
+  private location = inject(Location);
   private modalCtrl = inject(ModalController);
   private ngZone = inject(NgZone);
   private parserService = inject(HtmlParserService);
@@ -102,13 +107,20 @@ export class CollectionTextPage {
   toolTipPosType = signal<'fixed' | 'absolute'>('fixed');
   toolTipScaleValue = signal<number | null>(null);
   toolTipText = signal<string>('');
-  views = signal<any[]>([]);
+  views = signal<ViewState[]>([]);
+
+  private readonly active$ = toObservable(this.activeComponent).pipe(
+    distinctUntilChanged()
+  );
 
   constructor() {
     this.adjustDefaultViewsForLocale();
-    this.initRouteSync();        // all route/query param handling
     this.initDomListeners();     // afterRenderEffect + listeners
     this.initCleanup();          // teardown    
+  }
+
+  ngOnInit() {
+    this.initRouteSync();        // all route/query param handling
   }
 
   ionViewWillEnter() {
@@ -137,12 +149,20 @@ export class CollectionTextPage {
     }
   }
 
-  /** Wire route + queryParam reactions. */
+  /**
+   * Wire route + queryParam reactions.
+   * Subscribes to the route’s path parameters and query parameters and keeps the
+   * component’s state in sync with the URL — only while the page is active.
+   *
+   * Converts the `activeComponent` signal to an Observable (`active$`) and
+   * gates emissions with `filter(([, , active]) => active)`. This prevents any
+   * updates while the page is cached/inactive in Ionic’s `IonRouterOutlet`.
+   */
   private initRouteSync() {
-    combineLatest([this.route.params, this.route.queryParams]).pipe(
+    combineLatest([this.route.params, this.route.queryParams, this.active$]).pipe(
+      filter(([, , active]) => active === true),
       takeUntilDestroyed(this.destroyRef)
     ).subscribe(([params, queryParams]) => {
-      console.log('route change:', queryParams);
       this.onRouteParams(params);
       this.onQueryParams(queryParams);
     });
@@ -193,14 +213,14 @@ export class CollectionTextPage {
 
     // * views
     if (queryParams?.['views']) {
-      let parsedViews: any[] = this.urlService.parse(queryParams['views'], true);
+      let parsedViews: ViewState[] = this.urlService.parse(queryParams['views'], true);
 
       const enabledViewTypes = this.enabledViewTypes();
 
       // If any view type is disabled, drop it
-      if (!parsedViews.every((v: any) => enabledViewTypes.includes(v.type))) {
+      if (!parsedViews.every((v: ViewState) => enabledViewTypes.includes(v.type))) {
         parsedViews = parsedViews.filter(
-          (v: any) => enabledViewTypes.includes(v.type)
+          (v: ViewState) => enabledViewTypes.includes(v.type)
         );
       }
 
@@ -236,24 +256,25 @@ export class CollectionTextPage {
 
         if (addedUids) {
           // Uids have been added to the view objects -> update queryParams.
-          this.updateViewsInRouterQueryParams(parsedViews);
-          return;
+          // This only happens if the page loads with the views queryParam,
+          // but the view objects are missing uids.
+          this.updateViewsInRouterQueryParams(parsedViews, false, true);
         }
       }
 
       // Clear the array keeping track of recently open views in
       // text service and populate it with the current ones.
       this.collectionContentService.recentCollectionTextViews = [];
-      parsedViews.forEach((viewObj: any) => {
-        const cachedViewObj: any = { type: viewObj.type };
+      parsedViews.forEach((v: ViewState) => {
+        const cachedViewObj: ViewState = { type: v.type };
         if (
-          viewObj.sortOrder &&
+          v.sortOrder &&
           (
-            viewObj.type === 'variants' ||
-            viewObj.type === 'facsimiles'
+            v.type === 'variants' ||
+            v.type === 'facsimiles'
           )
         ) {
-          cachedViewObj.sortOrder = viewObj.sortOrder;
+          cachedViewObj.sortOrder = v.sortOrder;
         }
         this.collectionContentService.recentCollectionTextViews.push(cachedViewObj);
       });
@@ -331,20 +352,20 @@ export class CollectionTextPage {
    * @param enabledViewTypes 
    * @returns
    */
-  private computeDefaultViewTypes(enabledViewTypes: string[]): any[] {
-    const newViews: any[] = [];
+  private computeDefaultViewTypes(enabledViewTypes: string[]): ViewState[] {
+    const newViews: ViewState[] = [];
 
     // Ensure default views are among the enabled view types
     this.defaultViews.forEach((type: string) => {
       if (enabledViewTypes.includes(type)) {
-        newViews.push({ type });
+        newViews.push(({ type }) as ViewState);
       }
     });
 
     if (newViews.length < 1 && enabledViewTypes.length > 0) {
       // All default views are disabled -> just show the first
       // enabled view type
-      newViews.push({ type: enabledViewTypes[0] });
+      newViews.push(({ type: enabledViewTypes[0] }) as ViewState);
     }
 
     return newViews;
@@ -378,7 +399,7 @@ export class CollectionTextPage {
         const recentViewsCopy = newViews.map(v => ({ ...v }));
         // Filter out view objects of disabled types
         newViews = recentViewsCopy.filter(
-          (v: any) => enabledViewTypes.includes(v.type)
+          (v: ViewState) => enabledViewTypes.includes(v.type)
         );
         // If the new views list is empty, add enabled default views
         if (newViews.length < 1) {
@@ -402,7 +423,7 @@ export class CollectionTextPage {
   /**
    * Set active view in mobile mode.
    */
-  private setActiveViewInMobileMode(availableViews: any[]) {
+  private setActiveViewInMobileMode(availableViews: ViewState[]) {
     if (!this.mobileMode) {
       return;
     }
@@ -424,13 +445,332 @@ export class CollectionTextPage {
       }
 
       let idx = availableViews.findIndex(
-        (view: any) => view.type === activeMobileModeViewType
+        (view: ViewState) => view.type === activeMobileModeViewType
       );
       if (idx < 0) {
         idx = 0;
       }
       this.activeMobileModeViewIndex.set(idx);
     }
+  }
+
+  private getViewTypesShown(): string[] {
+    return this.views().map(v => v.type);
+  }
+
+  private viewTypeIsShown(type: string, views?: ViewState[]): boolean {
+    const arr = views ?? this.views();
+    return arr.findIndex(v => v.type === type) > -1;
+  }
+
+  openNewView(event: any) {
+    if (event.viewType === 'facsimiles') {
+      this.addView(event.viewType, event.id, undefined, true);
+    } else if (event.viewType === 'manuscriptFacsimile') {
+      this.addView('facsimiles', event.id, undefined, true);
+    } else if (event.viewType === 'facsimileManuscript') {
+      this.addView('manuscripts', event.id, undefined, true);
+    } else if (event.viewType === 'illustrations') {
+      this.addView(event.viewType, event.id, event, true);
+    } else {
+      this.addView(event.viewType, event.id, undefined, true);
+    }
+  }
+
+  showAllViewTypes() {
+    const newViewTypes: string[] = [];
+    const viewTypesShown = this.getViewTypesShown();
+
+    this.enabledViewTypes().forEach((type: string) => {
+      if (
+        type !== 'showAll' &&
+        viewTypesShown.indexOf(type) < 0
+      ) {
+        newViewTypes.push(type);
+      }
+    });
+
+    for (let i = 0; i < newViewTypes.length; i++) {
+      this.addView(newViewTypes[i], undefined, undefined, i > newViewTypes.length - 2);
+    }
+  }
+
+  addView(type: string, id?: number | null, image?: Illustration, scroll?: boolean) {
+    if (type === 'showAll') {
+      this.showAllViewTypes();
+      return;
+    }
+
+    if (this.enabledViewTypes().indexOf(type) < 0) {
+      return;
+    }
+
+    const newView: ViewState = {
+      type: (type as ViewType),
+      uid: this.createViewUid()
+    };
+
+    if (id != null) {
+      newView.id = id;
+    }
+    if (image != null) {
+      newView.image = image;
+    }
+
+    // Append the new view to the array of current views and navigate
+    const newIndex = this.views().length; // index after append
+    this.views.update(arr => [...arr, newView]);
+    this.updateViewsInRouterQueryParams(this.views());
+
+    // In mobile mode, set the added view as the active view
+    this.setActiveMobileModeViewType(undefined, undefined, newIndex);
+
+    // Conditionally scroll the added view into view
+    if (scroll === true && !this.mobileMode) {
+      this.scrollService.scrollLastViewIntoView();
+    }
+  }
+
+  /**
+   * Removes the view with index i in the this.views array.
+   * @param i index of the view to be removed from this.views.
+   */
+  removeView(i: number) {
+    this.views.update((arr: ViewState[]) => arr.filter((_, idx) => idx !== i));
+    this.updateViewsInRouterQueryParams(this.views());
+
+    // In mobile mode, set the next view in the views array
+    // as the active view, or the previous view if the deleted
+    // one was the last view in the array.
+    const index = i < this.views().length ? i : i - 1;
+    this.setActiveMobileModeViewType(undefined, undefined, index);
+  }
+
+  /**
+   * Moves the view with index id one step to the right, i.e. exchange
+   * positions with the view on the right.
+   */
+  moveViewRight(id: number) {
+    const views = this.views();
+    if (id > -1 && id < views.length - 1) {
+      this.views.set(moveArrayItem(views, id, id + 1));
+      this.fabColumnOptions?.forEach(f => (f.activated = false));
+      this.fabColumnOptionsButton?.forEach(b => (b.activated = false));
+      this.updateViewsInRouterQueryParams(this.views());
+    }
+  }
+
+  /**
+   * Moves the view with index id one step to the left, i.e. exchange
+   * positions with the view on the left.
+   */
+  moveViewLeft(id: number) {
+    const views = this.views();
+    if (id > 0 && id < views.length) {
+      this.views.set(moveArrayItem(views, id, id - 1));
+      this.fabColumnOptions?.forEach(f => (f.activated = false));
+      this.fabColumnOptionsButton?.forEach(b => (b.activated = false));
+      this.updateViewsInRouterQueryParams(this.views());
+    }
+  }
+
+  updateIllustrationViewImage(image: Illustration | null) {
+    const index = this.views().findIndex((v) => v.type === 'illustrations');
+    this.updateViewProperty('image', image, index);
+    this.setActiveMobileModeViewType(undefined, 'illustrations', index);
+  }
+
+  updateViewProperty(
+    propertyName: string,
+    value: any,
+    viewIndex: number,
+    updateQueryParams: boolean = true
+  ) {
+    if (viewIndex < 0 || viewIndex >= this.views().length) {
+      return;
+    }
+
+    this.views.update((arr: any[]) =>
+      arr.map((v, i) => {
+        // If the view object is not the one whose property should be updated
+        // (based on index), the view object is not modified
+        if (i !== viewIndex) {
+          return v;
+        }
+        // Update the value of the property `propertyName` unless value is null
+        if (value !== null) {
+          return { ...v, [propertyName]: value };
+        }
+        // Default: value = null => remove the property `propertyName` from the view object
+        const { [propertyName]: _drop, ...rest } = v;
+        return rest;
+      })
+    );
+
+    if (updateQueryParams) {
+      this.updateViewsInRouterQueryParams(this.views());
+    }
+  }
+
+  private updateViewsInRouterQueryParams(
+    views: ViewState[],
+    typesOnly: boolean = false,
+    silent: boolean = false
+  ) {
+    this.illustrationsViewShown.set(this.viewTypeIsShown('illustrations', views));
+
+    let trimmedViews: ViewState[] = [];
+    if (typesOnly) {
+      // Remove all properties from the view objects except
+      // type and uid
+      trimmedViews = views.filter(v => !!v.type).map(
+        v => ({ type: v.type, uid: v.uid ?? null })
+      );
+    } else {
+      // Remove 'title' property from all view objects
+      // as it’s not desired in the url
+      trimmedViews = views.map(({ title, ...rest }) => rest);
+    }
+
+    const nextViewsParam = this.urlService.stringify(trimmedViews, true);
+
+    if (silent) {
+      // Build a UrlTree, then replace the URL WITHOUT navigating.
+      const tree = this.router.createUrlTree([], {
+        relativeTo: this.route,
+        queryParams: { views: nextViewsParam },
+        queryParamsHandling: 'merge',
+      });
+
+      // This updates the address bar (like replaceUrl) but does
+      // NOT fire a new navigation.
+      this.location.replaceState(this.router.serializeUrl(tree));
+    } else {
+      this.router.navigate([], {
+        relativeTo: this.route,
+        queryParams: { views: nextViewsParam },
+        queryParamsHandling: 'merge',
+        replaceUrl: true
+      });
+    }
+  }
+
+  /**
+   * Generates a new monotonically increasing view UID like "v12".
+   * Increments the internal `uidCounter` and returns the new value
+   * with a "v" prefix.
+   *
+   * @returns The newly created UID (e.g., "v7").
+   * @sideeffect Mutates `this.uidCounter` by incrementing it.
+   */
+  private createViewUid(): ViewUid {
+    return `v${++this.uidCounter}`;
+  }
+
+  /**
+   * Scans a list of views and returns the largest numeric UID suffix found.
+   * UIDs are expected to be of the form "v<number>" (e.g., "v3"). Missing
+   * or malformed UIDs are treated as 0.
+   *
+   * @param views - Array of view-like objects that may contain a `uid`
+   * string.
+   * @returns The largest numeric UID suffix found (0 if none).
+   */
+  private getMaxViewUid(views: ViewState[]): number {
+    let maxUid = 0;
+    views.forEach((v: ViewState) => {
+      const uidNumber = Number(v.uid?.slice(1) ?? '0');
+      if (uidNumber > maxUid) {
+        maxUid = uidNumber;
+      }
+    });
+    return maxUid;
+  }
+
+  /**
+   * Ensures every view has a stable, unique UID of the form "v<number>".
+   *
+   * - If *all* input views already have valid UIDs, the original array
+   *   is returned unchanged and `addedUids` is `false`. The internal
+   *   counter is synced up to the max existing UID so future UIDs won’t
+   *   collide.
+   * - Otherwise, a *new array* is returned where missing/invalid UIDs
+   *   are assigned. In this case, `addedUids` is `true`.
+   *
+   * This method does **not** mutate the input array; it only creates new
+   * objects when UIDs need to be added.
+   *
+   * @param views - The input views (not mutated).
+   * @returns
+   *   - `views`: Either the original array (if all had valid UIDs) or a
+   *     new array with UIDs assigned.
+   *   - `addedUids`: `true` if any UID was newly assigned; `false` if
+   *     all were already valid.
+   *
+   * @sideeffect When all UIDs are present, updates `this.uidCounter` to
+   * the max UID found.
+   *
+   * @example
+   * const [normalized, added] = this.ensureUids(items);
+   *
+   * @example
+   * let origViews = input;
+   * let added: boolean;
+   * [origViews, added] = this.ensureUids(origViews);
+   */
+  private ensureUids(views: ViewState[]): [views: ViewState[], addedUids: boolean] {
+    const allHaveUids = views.every(
+      (v: ViewState) => v.uid?.startsWith('v') && !Number.isNaN(Number(v.uid?.slice(1)))
+    );
+
+    if (allHaveUids) {
+      // keep counter in sync so future adds won’t collide
+      const max = this.getMaxViewUid(views as any[]);
+      if (max > this.uidCounter) {
+        this.uidCounter = max;
+      }
+      // return the original array and the flag
+      return [views, false];
+    }
+
+    // assign once; do not mutate the incoming array
+    const withUids = views.map(v => ({ ...v, uid: this.createViewUid() }));
+    return [withUids as ViewState[], true];
+  }
+
+  private setCollectionAndPublicationLegacyId(publicationID: string) {
+    this.collectionsService.getLegacyIdByPublicationId(publicationID).subscribe({
+      next: (publication: any[]) => {
+        this.collectionAndPublicationLegacyId = '';
+        if (publication[0].legacy_id) {
+          this.collectionAndPublicationLegacyId = publication[0].legacy_id;
+        }
+      },
+      error: (e: any) => {
+        this.collectionAndPublicationLegacyId = '';
+        console.error('Error: could not get publication data trying to resolve collection and publication legacy id', e);
+      }
+    });
+  }
+
+  setActiveMobileModeViewType(event?: any, type?: string, viewIndex?: number) {
+    if (!this.mobileMode) {
+      return;
+    }
+
+    let index = 0;
+
+    if (event) {
+      index = event.detail?.value ?? 0;
+    } else {
+      index = viewIndex !== undefined
+            ? viewIndex
+            : this.views().findIndex((v) => v.type === type);
+      index = index > -1 ? index : 0;
+    }
+
+    this.activeMobileModeViewIndex.set(index);
+    this.collectionContentService.activeCollectionTextMobileModeView = index;
   }
 
   private getEventTarget(event: any) {
@@ -489,7 +829,7 @@ export class CollectionTextPage {
         }
       }
     } catch (e) {
-      console.error('Error resolving event target in getEventTarget() in read.ts', e);
+      console.error('Error resolving event target in getEventTarget() in CollectionTextPage', e);
     }
     return eventTarget;
   }
@@ -1571,286 +1911,6 @@ export class CollectionTextPage {
     modal.present();
   }
 
-  private getViewTypesShown(): string[] {
-    return this.views().map(v => v.type);
-  }
-
-  private viewTypeIsShown(type: string, views?: any[]): boolean {
-    const arr = views ?? this.views();
-    return arr.findIndex(v => v.type === type) > -1;
-  }
-
-  openNewView(event: any) {
-    if (event.viewType === 'facsimiles') {
-      this.addView(event.viewType, event.id, undefined, true);
-    } else if (event.viewType === 'manuscriptFacsimile') {
-      this.addView('facsimiles', event.id, undefined, true);
-    } else if (event.viewType === 'facsimileManuscript') {
-      this.addView('manuscripts', event.id, undefined, true);
-    } else if (event.viewType === 'illustrations') {
-      this.addView(event.viewType, event.id, event, true);
-    } else {
-      this.addView(event.viewType, event.id, undefined, true);
-    }
-  }
-
-  showAllViewTypes() {
-    const newViewTypes: string[] = [];
-    const viewTypesShown = this.getViewTypesShown();
-
-    this.enabledViewTypes().forEach((type: string) => {
-      if (
-        type !== 'showAll' &&
-        viewTypesShown.indexOf(type) < 0
-      ) {
-        newViewTypes.push(type);
-      }
-    });
-
-    for (let i = 0; i < newViewTypes.length; i++) {
-      this.addView(newViewTypes[i], undefined, undefined, i > newViewTypes.length - 2);
-    }
-  }
-
-  addView(type: string, id?: number | null, image?: Illustration, scroll?: boolean) {
-    if (type === 'showAll') {
-      this.showAllViewTypes();
-      return;
-    }
-
-    if (this.enabledViewTypes().indexOf(type) < 0) {
-      return;
-    }
-
-    const newView: any = {
-      type,
-      uid: this.createViewUid()
-    };
-
-    if (id != null) {
-      newView.id = id;
-    }
-    if (image != null) {
-      newView.image = image;
-    }
-
-    // Append the new view to the array of current views and navigate
-    const newIndex = this.views().length; // index after append
-    this.views.update(arr => [...arr, newView]);
-    this.updateViewsInRouterQueryParams(this.views());
-
-    // In mobile mode, set the added view as the active view
-    this.setActiveMobileModeViewType(undefined, undefined, newIndex);
-
-    // Conditionally scroll the added view into view
-    if (scroll === true && !this.mobileMode) {
-      this.scrollService.scrollLastViewIntoView();
-    }
-  }
-
-  /**
-   * Removes the view with index i in the this.views array.
-   * @param i index of the view to be removed from this.views.
-   */
-  removeView(i: number) {
-    this.views.update((arr: any[]) => arr.filter((_, idx) => idx !== i));
-    this.updateViewsInRouterQueryParams(this.views());
-
-    // In mobile mode, set the next view in the views array
-    // as the active view, or the previous view if the deleted
-    // one was the last view in the array.
-    const index = i < this.views().length ? i : i - 1;
-    this.setActiveMobileModeViewType(undefined, undefined, index);
-  }
-
-  /**
-   * Moves the view with index id one step to the right, i.e. exchange
-   * positions with the view on the right.
-   */
-  moveViewRight(id: number) {
-    const views = this.views();
-    if (id > -1 && id < views.length - 1) {
-      this.views.set(moveArrayItem(views, id, id + 1));
-      this.fabColumnOptions?.forEach(f => (f.activated = false));
-      this.fabColumnOptionsButton?.forEach(b => (b.activated = false));
-      this.updateViewsInRouterQueryParams(this.views());
-    }
-  }
-
-  /**
-   * Moves the view with index id one step to the left, i.e. exchange
-   * positions with the view on the left.
-   */
-  moveViewLeft(id: number) {
-    const views = this.views();
-    if (id > 0 && id < views.length) {
-      this.views.set(moveArrayItem(views, id, id - 1));
-      this.fabColumnOptions?.forEach(f => (f.activated = false));
-      this.fabColumnOptionsButton?.forEach(b => (b.activated = false));
-      this.updateViewsInRouterQueryParams(this.views());
-    }
-  }
-
-  updateIllustrationViewImage(image: Illustration | null) {
-    const index = this.views().findIndex((v) => v.type === 'illustrations');
-    this.updateViewProperty('image', image, index);
-    this.setActiveMobileModeViewType(undefined, 'illustrations', index);
-  }
-
-  updateViewProperty(
-    propertyName: string,
-    value: any,
-    viewIndex: number,
-    updateQueryParams: boolean = true
-  ) {
-    if (viewIndex < 0 || viewIndex >= this.views().length) {
-      return;
-    }
-
-    this.views.update((arr: any[]) =>
-      arr.map((v, i) => {
-        // If the view object is not the one whose property should be updated
-        // (based on index), the view object is not modified
-        if (i !== viewIndex) {
-          return v;
-        }
-        // Update the value of the property `propertyName` unless value is null
-        if (value !== null) {
-          return { ...v, [propertyName]: value };
-        }
-        // Default: value = null => remove the property `propertyName` from the view object
-        const { [propertyName]: _drop, ...rest } = v;
-        return rest;
-      })
-    );
-
-    if (updateQueryParams) {
-      this.updateViewsInRouterQueryParams(this.views());
-    }
-  }
-
-  private updateViewsInRouterQueryParams(views: any[], typesOnly: boolean = false) {
-    this.illustrationsViewShown.set(this.viewTypeIsShown('illustrations', views));
-
-    let trimmedViews: any[] = [];
-    if (typesOnly) {
-      // Remove all properties from the view objects except
-      // type and uid
-      trimmedViews = views.filter(v => !!v.type).map(v => ({ type: v.type, uid: v.uid ?? null }));
-    } else {
-      // Remove 'title' property from all view objects
-      // as it’s not desired in the url
-      trimmedViews = views.map(({ title, ...rest }) => rest);
-    }
-
-    this.router.navigate([], {
-      relativeTo: this.route,
-      queryParams: { views: this.urlService.stringify(trimmedViews, true) },
-      queryParamsHandling: 'merge',
-      replaceUrl: true
-    });
-  }
-
-  /**
-   * Generates a new monotonically increasing view UID like "v12".
-   * Increments the internal `uidCounter` and returns the new value
-   * with a "v" prefix.
-   *
-   * @returns The newly created UID (e.g., "v7").
-   * @sideeffect Mutates `this.uidCounter` by incrementing it.
-   */
-  private createViewUid(): string {
-    return `v${++this.uidCounter}`;
-  }
-
-  /**
-   * Scans a list of views and returns the largest numeric UID suffix found.
-   * UIDs are expected to be of the form "v<number>" (e.g., "v3"). Missing
-   * or malformed UIDs are treated as 0.
-   *
-   * @param views - Array of view-like objects that may contain a `uid`
-   * string.
-   * @returns The largest numeric UID suffix found (0 if none).
-   */
-  private getMaxViewUid(views: any[]): number {
-    let maxUid = 0;
-    views.forEach((v: any) => {
-      const uidNumber = Number(v.uid?.slice(1) ?? '0');
-      if (uidNumber > maxUid) {
-        maxUid = uidNumber;
-      }
-    });
-    return maxUid;
-  }
-
-  /**
-   * Ensures every view has a stable, unique UID of the form "v<number>".
-   *
-   * - If *all* input views already have valid UIDs, the original array
-   *   is returned unchanged and `addedUids` is `false`. The internal
-   *   counter is synced up to the max existing UID so future UIDs won’t
-   *   collide.
-   * - Otherwise, a *new array* is returned where missing/invalid UIDs
-   *   are assigned. In this case, `addedUids` is `true`.
-   *
-   * This method does **not** mutate the input array; it only creates new
-   * objects when UIDs need to be added.
-   *
-   * @param views - The input views (not mutated).
-   * @returns
-   *   - `views`: Either the original array (if all had valid UIDs) or a
-   *     new array with UIDs assigned.
-   *   - `addedUids`: `true` if any UID was newly assigned; `false` if
-   *     all were already valid.
-   *
-   * @sideeffect When all UIDs are present, updates `this.uidCounter` to
-   * the max UID found.
-   *
-   * @example
-   * const [normalized, added] = this.ensureUids(items);
-   *
-   * @example
-   * let origViews = input;
-   * let added: boolean;
-   * [origViews, added] = this.ensureUids(origViews);
-   */
-  private ensureUids<T extends { uid?: string }>(
-    views: readonly T[]
-  ): [views: T[], addedUids: boolean] {
-    const allHaveUids = views.every(
-      (v: any) => v.uid?.startsWith('v') && !Number.isNaN(Number(v.uid?.slice(1)))
-    );
-
-    if (allHaveUids) {
-      // keep counter in sync so future adds won’t collide
-      const max = this.getMaxViewUid(views as any[]);
-      if (max > this.uidCounter) {
-        this.uidCounter = max;
-      }
-      // return the original array and the flag
-      return [views as T[], false];
-    }
-
-    // assign once; do not mutate the incoming array
-    const withUids = views.map(v => ({ ...v, uid: this.createViewUid() }));
-    return [withUids as T[], true];
-  }
-
-  private setCollectionAndPublicationLegacyId(publicationID: string) {
-    this.collectionsService.getLegacyIdByPublicationId(publicationID).subscribe({
-      next: (publication: any[]) => {
-        this.collectionAndPublicationLegacyId = '';
-        if (publication[0].legacy_id) {
-          this.collectionAndPublicationLegacyId = publication[0].legacy_id;
-        }
-      },
-      error: (e: any) => {
-        this.collectionAndPublicationLegacyId = '';
-        console.error('Error: could not get publication data trying to resolve collection and publication legacy id', e);
-      }
-    });
-  }
-
   showAddViewPopover(e: Event) {
     this.addViewPopover.event = e;
     this.addViewPopoverisOpen.set(true);
@@ -1858,26 +1918,6 @@ export class CollectionTextPage {
 
   dismissAddViewPopover() {
     this.addViewPopoverisOpen.set(false);
-  }
-
-  setActiveMobileModeViewType(event?: any, type?: string, viewIndex?: number) {
-    if (!this.mobileMode) {
-      return;
-    }
-
-    let index = 0;
-
-    if (event) {
-      index = event.detail?.value ?? 0;
-    } else {
-      index = viewIndex !== undefined
-            ? viewIndex
-            : this.views().findIndex((v) => v.type === type);
-      index = index > -1 ? index : 0;
-    }
-
-    this.activeMobileModeViewIndex.set(index);
-    this.collectionContentService.activeCollectionTextMobileModeView = index;
   }
 
   /**

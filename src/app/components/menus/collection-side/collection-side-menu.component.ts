@@ -79,7 +79,7 @@ export class CollectionSideMenuComponent {
     () => this.computeSortOptions(this.collectionID())
   );
 
-  // --- TOC as a signal ---
+  // --- TOC as a signal
   private readonly tocSig = toSignal(
     this.tocService.getCurrentCollectionToc().pipe(
       filter((toc: any) => !!toc),
@@ -88,7 +88,7 @@ export class CollectionSideMenuComponent {
         prev?.order === curr?.order
       )
     ),
-    { requireSync: true } // BehaviorSubject so it will immediately emit
+    { initialValue: null }
   );
 
 

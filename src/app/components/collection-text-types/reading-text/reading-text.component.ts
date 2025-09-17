@@ -99,6 +99,12 @@ export class ReadingTextComponent {
   // Constructor: wire side-effects (load, outputs, after-render, listeners, cleanup)
   // ─────────────────────────────────────────────────────────────────────────────
   constructor() {
+    this.loadReadingtext();
+    this.registerAfterRenderEffects();
+    this.registerCleanup();
+  }
+
+  private loadReadingtext() {
     // Load whenever textKey or language changes
     combineLatest([
       toObservable(this.textKey),
@@ -141,15 +147,10 @@ export class ReadingTextComponent {
         this.statusMessage.set($localize`:@@ReadingText.Error:Ett fel har uppstått. Lästexten kunde inte hämtas.`);
       }
     });
+  }
 
-    // Clean up attached listeners and interval timer on destroy
-    this.destroyRef.onDestroy(() => {
-      this.unlistenClickEvents?.();
-      this.unlistenClickEvents = undefined;
-      clearInterval(this.intervalTimerId);
-    });
-
-    // After-render: perform scrolling when appropriate.
+  private registerAfterRenderEffects() {
+    // After-render: attach DOM listeners abd perform scrolling when appropriate.
     // Triggers when:
     //  - content finished loading,
     //  - textKey changed,
@@ -208,6 +209,16 @@ export class ReadingTextComponent {
       }
     }, { injector: this.injector });
   }
+
+  private registerCleanup() {
+    // Clean up attached listeners and interval timer on destroy
+    this.destroyRef.onDestroy(() => {
+      this.unlistenClickEvents?.();
+      this.unlistenClickEvents = undefined;
+      clearInterval(this.intervalTimerId);
+    });
+  }
+
 
   // ─────────────────────────────────────────────────────────────────────────────
   // UI actions

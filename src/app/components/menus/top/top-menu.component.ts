@@ -53,15 +53,15 @@ export class TopMenuComponent {
 
 
   // ─────────────────────────────────────────────────────────────────────────────
-  // Constructor: wire DOM listeners and cleanup
+  // Constructor: wire after-render DOM listeners and cleanup
   // ─────────────────────────────────────────────────────────────────────────────
 
   constructor() {
-    this.initDomListeners();
-    this.initCleanup();
+    this.attachDomListeners();
+    this.registerCleanup();
   }
 
-  private initDomListeners() {
+  private attachDomListeners() {
     // Post-render wiring (browser-only): attach global listeners
     // once the menu exists
     afterNextRender({
@@ -87,7 +87,7 @@ export class TopMenuComponent {
     }, { injector: this.injector });
   }
 
-  private initCleanup() {
+  private registerCleanup() {
     this.destroyRef.onDestroy(() => {
       this.unlistenClick?.();
       this.unlistenFocusIn?.();
@@ -96,7 +96,7 @@ export class TopMenuComponent {
 
 
   // ─────────────────────────────────────────────────────────────────────────────
-  // UI
+  // UI actions
   // ─────────────────────────────────────────────────────────────────────────────
 
   toggleSideMenu(event: Event) {

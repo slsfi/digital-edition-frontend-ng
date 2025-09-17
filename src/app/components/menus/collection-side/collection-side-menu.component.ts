@@ -1,8 +1,9 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, NgZone, OnChanges, OnDestroy, OnInit, SimpleChanges, inject, input } from '@angular/core';
-import { NgClass, NgTemplateOutlet } from '@angular/common';
+import { ChangeDetectionStrategy, Component, Injector, NgZone, afterRenderEffect, computed, effect, inject, input, signal, untracked } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { NgTemplateOutlet } from '@angular/common';
 import { Params, RouterLink, UrlSegment } from '@angular/router';
 import { IonicModule } from '@ionic/angular';
-import { distinctUntilChanged, filter, Subscription } from 'rxjs';
+import { distinctUntilChanged, filter } from 'rxjs';
 
 import { config } from '@config';
 import { ArrayIncludesAnyPipe } from '@pipes/array-includes-any.pipe';
@@ -25,17 +26,20 @@ import { addOrRemoveValueInNewArray, enableFrontMatterPageOrTextViewType, isBrow
   templateUrl: './collection-side-menu.component.html',
   styleUrls: ['./collection-side-menu.component.scss'],
   imports: [
-    NgClass, NgTemplateOutlet, IonicModule, RouterLink,
+    NgTemplateOutlet, IonicModule, RouterLink,
     ArrayIncludesAnyPipe, ArrayIncludesPipe, CollectionPagePathPipe,
     CollectionPagePositionQueryparamPipe
   ],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class CollectionSideMenuComponent implements OnInit, OnChanges, OnDestroy {
-  private cdr = inject(ChangeDetectorRef);
-  private ngZone = inject(NgZone);
-  private scrollService = inject(ScrollService);
-  private tocService = inject(CollectionTableOfContentsService);
+export class CollectionSideMenuComponent {
+  // ─────────────────────────────────────────────────────────────────────────────
+  // Dependency injection, Input/Output signals, Fields, Local state signals
+  // ─────────────────────────────────────────────────────────────────────────────
+  private readonly injector = inject(Injector);
+  private readonly ngZone = inject(NgZone);
+  private readonly scrollService = inject(ScrollService);
+  private readonly tocService = inject(CollectionTableOfContentsService);
 
   readonly collectionID = input<string>('');
   readonly routeQueryParams = input<Params>();
@@ -47,22 +51,157 @@ export class CollectionSideMenuComponent implements OnInit, OnChanges, OnDestroy
     cssClass: 'custom-select-alert'
   };
 
-  activeMenuOrder: string = '';
-  collectionMenu: any[] = [];
-  collectionTitle: string = '';
-  coverPageName: string = '';
-  currentMenuItemId: string | null = null;
-  enableCover: boolean = false;
-  enableTitle: boolean = false;
-  enableForeword: boolean = false;
-  enableIntroduction: boolean = false;
-  forewordPageName: string = '';
-  introductionPageName: string = '';
-  isLoading: boolean = true;
-  selectedMenu: string[] = []; // list of all open menu items in the menu tree
-  sortOptions: string[] = [];
-  titlePageName: string = '';
-  tocSubscr: Subscription | null = null;
+  private prevQueryParamPosition?: string = undefined;
+  private prevRouteUrlSegments?: UrlSegment[] = undefined;
+
+  // --- State as signals
+  readonly isLoading = signal<boolean>(true);
+
+  readonly activeMenuOrder = signal<string>('');
+  readonly collectionMenu = signal<any[]>([]);
+  readonly collectionTitle = signal<string>('');
+  readonly coverPageName = signal<string>('');
+  readonly titlePageName = signal<string>('');
+  readonly forewordPageName = signal<string>('');
+  readonly introductionPageName = signal<string>('');
+
+  readonly enableCover = signal<boolean>(false);
+  readonly enableTitle = signal<boolean>(false);
+  readonly enableForeword = signal<boolean>(false);
+  readonly enableIntroduction = signal<boolean>(false);
+
+  readonly selectedMenu = signal<string[]>([]);  // list of all open menu ids
+  readonly currentMenuItemId = signal<string | null>(null);
+
+  // --- Derived: sorting options depend only on collectionID
+  readonly sortOptions = computed<string[]>(
+    () => this.computeSortOptions(this.collectionID())
+  );
+
+  // --- TOC as a signal ---
+  private readonly tocSig = toSignal(
+    this.tocService.getCurrentCollectionToc().pipe(
+      filter((toc: any) => !!toc),
+      distinctUntilChanged((prev: any, curr: any) =>
+        prev?.collectionId === curr?.collectionId &&
+        prev?.order === curr?.order
+      )
+    ),
+    { requireSync: true } // BehaviorSubject so it will immediately emit
+  );
+
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // Constructor: wire data loads, after-render scroll, and cleanup
+  // ─────────────────────────────────────────────────────────────────────────────
+
+  constructor() {
+    this.registerFrontmatterPageUpdates();
+    this.registerTocUpdates();
+    this.registerRouteUpdates();
+    this.registerScrollOnSideNavToggle();
+  }
+
+  private registerFrontmatterPageUpdates() {
+    // Keep “frontmatter pages” flags in sync with collectionID
+    effect(() => {
+      const id = this.collectionID();
+      if (!id) {
+        return;
+      }
+      this.updateFrontmatterPages(id);
+    }, { injector: this.injector });
+  }
+
+  private registerTocUpdates() {
+    // React to TOC updates
+    effect(() => {
+      const toc: any | null = this.tocSig();
+      if (!toc) {
+        return;
+      }
+
+      this.isLoading.set(true);
+      this.collectionMenu.set([]);
+      this.selectedMenu.set([]);
+      this.currentMenuItemId.set('');
+
+      const scrollTimeout = untracked(this.activeMenuOrder) !== toc.order ? 1000 : 700;
+      this.activeMenuOrder.set(toc.order || 'default');
+
+      this.collectionTitle.set(toc.text || '');
+      this.coverPageName.set(
+        toc.coverPageName || $localize`:@@CollectionCover.Cover:Omslag`
+      );
+      this.titlePageName.set(
+        toc.titlePageName || $localize`:@@CollectionTitle.TitlePage:Titelblad`
+      );
+      this.forewordPageName.set(
+        toc.forewordPageName || $localize`:@@CollectionForeword.Foreword:Förord`
+      );
+      this.introductionPageName.set(
+        toc.introductionPageName || $localize`:@@CollectionIntroduction.Introduction:Inledning`
+      );
+
+      if (toc.children?.length) {
+        const selected = this.recursiveInitializeSelectedMenu(toc.children, []);
+        this.selectedMenu.set(selected);
+        this.collectionMenu.set(toc.children);
+      }
+
+      this.isLoading.set(false);
+      console.log('registerTocUpdates: update highlight');
+      untracked(() => this.updateHighlightedMenuItem(scrollTimeout));
+    }, { injector: this.injector });
+  }
+
+  private registerRouteUpdates() {
+    // React when URL structure or position query changes
+    effect(() => {
+      const segs = this.routeUrlSegments();
+      const q = this.routeQueryParams();
+      const pos = q?.position;
+
+      if (this.prevRouteUrlSegments === undefined && segs !== undefined) {
+        // The menu is initializing, this effect should not run because the
+        // highlighted menu item is set by registerTocUpdates()
+        this.prevRouteUrlSegments = segs;
+        return;
+      }
+
+      const urlChanged = this.segmentsChanged(this.prevRouteUrlSegments, segs);
+      const positionChanged = this.prevQueryParamPosition !== pos;
+
+      this.prevRouteUrlSegments = segs;
+      this.prevQueryParamPosition = pos;
+
+      if ((urlChanged || positionChanged) && untracked(this.collectionMenu).length) {
+        // The collection text or text position has changed, so update which
+        // menu item is highlighted.
+        console.log('registerRouteUpdates: update highlight');
+        untracked(() => this.updateHighlightedMenuItem());
+      }
+    }, { injector: this.injector });
+  }
+
+  private registerScrollOnSideNavToggle() {
+    // Whenever the side menu becomes visible, scroll current item into view
+    afterRenderEffect({
+      write: () => {
+        if (this.sideMenuToggled()) {
+          console.log('afterRenderEffect true: scrolling into view');
+          this.scrollHighlightedMenuItemIntoView(
+            untracked(() => this.getItemId()), 200
+          );
+        } else {
+          console.log('afterRenderEffect false: scrolling into view');
+        }
+      }
+    }, { injector: this.injector })
+  }
+
+
+  /*
 
   ngOnChanges(changes: SimpleChanges) {
     // Check if the changed input values are relevant, i.e. require the side
@@ -154,52 +293,63 @@ export class CollectionSideMenuComponent implements OnInit, OnChanges, OnDestroy
     this.tocSubscr?.unsubscribe();
   }
 
-  private updateFrontmatterPages() {
-    this.enableCover = enableFrontMatterPageOrTextViewType('cover', this.collectionID(), config);
-    this.enableTitle = enableFrontMatterPageOrTextViewType('title', this.collectionID(), config);
-    this.enableForeword = enableFrontMatterPageOrTextViewType('foreword', this.collectionID(), config);
-    this.enableIntroduction = enableFrontMatterPageOrTextViewType('introduction', this.collectionID(), config);
-    this.cdr.markForCheck();
+  */
+
+  private updateFrontmatterPages(collectionID: string) {
+    this.enableCover.set(
+      enableFrontMatterPageOrTextViewType('cover', collectionID, config)
+    );
+    this.enableTitle.set(
+      enableFrontMatterPageOrTextViewType('title', collectionID, config)
+    );
+    this.enableForeword.set(
+      enableFrontMatterPageOrTextViewType('foreword', collectionID, config)
+    );
+    this.enableIntroduction.set(
+      enableFrontMatterPageOrTextViewType('introduction', collectionID, config)
+    );
   }
 
   private updateHighlightedMenuItem(scrollTimeout: number = 600) {
-    // Remove previously highlighted menu item from selected items if set
-    if (this.currentMenuItemId && this.selectedMenu.includes(this.currentMenuItemId)) {
-      this.selectedMenu = this.selectedMenu.filter(v => v !== this.currentMenuItemId);
+    // Remove previously highlighted menu item from selectedMenu if present
+    const selectedMenu = this.selectedMenu();
+    const currentId = this.currentMenuItemId();
+    if (currentId && selectedMenu.includes(currentId)) {
+      this.selectedMenu.set(selectedMenu.filter(id => id !== currentId));
     }
 
     // Resolve new selected item and it's menu path
     let itemId = this.getItemId();
 
     if (this.routeUrlSegments()?.[2]?.path === 'text') {
+      const collectionMenu = this.collectionMenu();
       // Try full itemId first
-      let path = this.findPathToItem(this.collectionMenu, itemId);
+      let path = this.findPathToItem(collectionMenu, itemId);
 
       // If not found, try without the position part
       if (!path) {
         const idParts = itemId.split(';');
         if (idParts[1]) {
           itemId = idParts[0];
-          path = this.findPathToItem(this.collectionMenu, itemId);
+          path = this.findPathToItem(collectionMenu, itemId);
         }
       }
 
-      // Open all branches in the path (union into a *new* array for OnPush + pure pipes)
+      // Open all branches in the path (union into a *new* array for
+      // OnPush + pure pipes)
       if (path?.length) {
-        const set = new Set(this.selectedMenu);
+        const set = new Set(this.selectedMenu());
         for (const id of path) {
           if (id) {
             set.add(id);
           }
         }
-        this.selectedMenu = Array.from(set);
+        this.selectedMenu.set(Array.from(set));
       }
     }
 
     // Update currently selected menu item
-    this.currentMenuItemId = itemId;
-
-    this.cdr.markForCheck();
+    this.currentMenuItemId.set(itemId);
     this.scrollHighlightedMenuItemIntoView(itemId, scrollTimeout);
   }
 
@@ -217,24 +367,24 @@ export class CollectionSideMenuComponent implements OnInit, OnChanges, OnDestroy
    * @param b The current array of UrlSegment objects
    * @returns `true` if any path differs, otherwise `false`
    */
-  private segmentsChanged(a: UrlSegment[], b: UrlSegment[]): boolean {
+  private segmentsChanged(a?: UrlSegment[], b?: UrlSegment[]): boolean {
     if (!a || !b || a.length !== b.length) return true;
     return a.some((seg, i) => seg.path !== b[i].path);
   }
 
   private getItemId(): string {
-    const routeUrlSegments = this.routeUrlSegments();
-    const pageType = routeUrlSegments?.[2]?.path ?? undefined;
+    const seg = this.routeUrlSegments();
+    const pageType = seg?.[2]?.path ?? undefined;
 
-    if (routeUrlSegments?.[2]?.path === 'text') {
+    if (seg?.[2]?.path === 'text') {
       const textItemId = [
-        routeUrlSegments?.[1]?.path,
-        routeUrlSegments?.[3]?.path,
-        routeUrlSegments?.[4]?.path
+        seg?.[1]?.path,
+        seg?.[3]?.path,
+        seg?.[4]?.path
       ].filter(Boolean).join('_');
 
-      const routeQueryParams = this.routeQueryParams();
-      return routeQueryParams?.position ? `${textItemId};${routeQueryParams.position}` : textItemId;
+      const qp = this.routeQueryParams();
+      return qp?.position ? `${textItemId};${qp.position}` : textItemId;
     } else {
       return pageType ?? 'cover';
     }
@@ -269,49 +419,56 @@ export class CollectionSideMenuComponent implements OnInit, OnChanges, OnDestroy
   }
 
   /**
-   * Recursively add nodeId property to each object in the array and push any items
-   * with collapsed property false to selectedMenu. nodeId is a string starting
-   * with "n" and followed by running numbers. Each new branch is indicated by a
-   * dash and the counter is reset. For example: n1-1-2. This way each item gets
-   * a unique identifier.
+   * Recursively add `nodeId` property to each object in the given array (in-place).
+   * `nodeId` is a string starting with "n" and followed by incremental numbers.
+   * Each new branch is indicated by a dash and the counter is reset.
+   * For example: n1-1-2. This way each item gets a unique identifier.
+   * The method returns a new array of the given `accMenu` menu items containing
+   * any items with `collapsed` property set to `false`.
    */
-  private recursiveInitializeSelectedMenu(array: any[], parentNodeId?: string) {
+  private recursiveInitializeSelectedMenu(
+    array: any[],
+    accMenu: string[],
+    parentNodeId?: string
+  ): string[] {
     for (let i = 0; i < array.length; i++) {
       array[i]["nodeId"] = (parentNodeId ? `${parentNodeId}-` : 'n') + (i+1);
+
       if (array[i]["collapsed"] === false) {
-        const selectedId = array[i]["itemId"] ? array[i]["itemId"] : array[i]["nodeId"];
-        this.selectedMenu = addOrRemoveValueInNewArray(this.selectedMenu, selectedId);
+        const selectedId = array[i]["itemId"] || array[i]["nodeId"];
+        accMenu = addOrRemoveValueInNewArray(accMenu, selectedId);
       }
-      if (array[i]["children"] && array[i]["children"].length) {
-        this.recursiveInitializeSelectedMenu(array[i]["children"], array[i]["nodeId"]);
+
+      if (array[i]["children"]?.length) {
+        accMenu = this.recursiveInitializeSelectedMenu(
+          array[i]["children"], accMenu, array[i]["nodeId"]
+        );
       }
     }
+    return accMenu;
   }
 
-  private scrollHighlightedMenuItemIntoView(
-    itemId: string,
-    scrollTimeout: number = 600
-  ) {
+  private scrollHighlightedMenuItemIntoView(itemId: string, timeout: number = 600) {
     if (!isBrowser()) {
       return;
     }
 
     this.ngZone.runOutsideAngular(() => {
       setTimeout(() => {
-        const container = document.querySelector('.side-navigation') as HTMLElement;
-        const target = document.querySelector(
+        const container = document.querySelector<HTMLElement>('.side-navigation');
+        const target = document.querySelector<HTMLElement>(
           `collection-side-menu [data-id="toc_${itemId}"] .menu-highlight`
-        ) as HTMLElement;
+        );
         if (container && target) {
           this.scrollService.scrollElementIntoView(
             target, 'center', 0, 'smooth', container
           );
         }
-      }, scrollTimeout);
+      }, timeout);
     });
   }
 
-  private setSortOptions(collectionID: string) {
+  private computeSortOptions(collectionID: string) {
     const sortOptions: string[] = [];
     if (config.component?.collectionSideMenu?.
             sortableCollectionsAlphabetical?.includes(collectionID)) {
@@ -329,12 +486,12 @@ export class CollectionSideMenuComponent implements OnInit, OnChanges, OnDestroy
   }
 
   toggle(menuItem: any) {
-    this.selectedMenu = addOrRemoveValueInNewArray(this.selectedMenu, menuItem.itemId || menuItem.nodeId);
-    this.cdr.markForCheck();
+    const id = menuItem.itemId || menuItem.nodeId;
+    this.selectedMenu.set(addOrRemoveValueInNewArray(this.selectedMenu(), id));
   }
 
   async setActiveMenuSorting(event: any) {
-    if (this.activeMenuOrder !== event.detail.value) {
+    if (this.activeMenuOrder() !== event.detail.value) {
       this.tocService.setCurrentCollectionToc(
         this.collectionID(), event.detail.value
       );

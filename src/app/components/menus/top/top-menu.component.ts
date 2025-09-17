@@ -17,6 +17,9 @@ import { Language } from '@models/config.models';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class TopMenuComponent {
+  // ─────────────────────────────────────────────────────────────────────────────
+  // Dependency injection, Input/Output signals, Fields, Local state signals
+  // ─────────────────────────────────────────────────────────────────────────────
   protected readonly activeLocale = inject(LOCALE_ID);
   private readonly destroyRef = inject(DestroyRef);
   private readonly injector = inject(Injector);
@@ -47,6 +50,11 @@ export class TopMenuComponent {
 
   private unlistenClick?: () => void;
   private unlistenFocusIn?: () => void;
+
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // Constructor: wire DOM listeners and cleanup
+  // ─────────────────────────────────────────────────────────────────────────────
 
   constructor() {
     this.initDomListeners();
@@ -85,6 +93,11 @@ export class TopMenuComponent {
       this.unlistenFocusIn?.();
     });
   }
+
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // UI
+  // ─────────────────────────────────────────────────────────────────────────────
 
   toggleSideMenu(event: Event) {
     event.preventDefault();

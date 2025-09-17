@@ -59,6 +59,7 @@ export class VariantsComponent {
   // ─────────────────────────────────────────────────────────────────────────────
   // Derived computeds (pure, no side-effects)
   // ─────────────────────────────────────────────────────────────────────────────
+
   selectedVariant = computed<Variant | undefined>(() => {
     const list = this.variants();
     if (!Array.isArray(list) || list.length === 0) {
@@ -116,8 +117,15 @@ export class VariantsComponent {
   // ─────────────────────────────────────────────────────────────────────────────
   // Constructor: wire side effects (data load, emits, after-render hook)
   // ─────────────────────────────────────────────────────────────────────────────
+
   constructor() {
-    // (a) Load variants when textKey changes
+    this.loadVariants();
+    this.registerOutputEmissions();
+    this.registerAfterRenderEffects();
+  }
+
+  private loadVariants() {
+    // Load variants when textKey changes
     toObservable(this.textKey).pipe(
       tap(() => {
         // reset state for a new load
@@ -143,8 +151,10 @@ export class VariantsComponent {
         this.statusMessage.set($localize`:@@Variants.None:Inga tryckta varianter tillgängliga.`);
       }
     });
-   
-    // (b) Emit outputs when user-visible selection changes (only if multiple variants)
+  }
+
+  private registerOutputEmissions() {
+    // Emit outputs when user-visible selection changes (only if multiple variants)
     effect(
       () => {
         const list = this.variants();
@@ -158,7 +168,9 @@ export class VariantsComponent {
       },
       { injector: this.injector }
     );
+  }
 
+  private registerAfterRenderEffects() {
     // (c) After-render hook: scroll to first search match
     //     Triggers only when:
     //       - variants finished loading (null -> array)
@@ -193,6 +205,7 @@ export class VariantsComponent {
   // ─────────────────────────────────────────────────────────────────────────────
   // Public UI actions (called from template)
   // ─────────────────────────────────────────────────────────────────────────────
+
   async selectVariant() {
     const list = this.variants();
     if (!Array.isArray(list) || list.length === 0) {

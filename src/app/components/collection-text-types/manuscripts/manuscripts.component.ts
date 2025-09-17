@@ -105,8 +105,15 @@ export class ManuscriptsComponent {
   // ─────────────────────────────────────────────────────────────────────────────
   // Constructor: wire side effects (data load, emits, after-render hook)
   // ─────────────────────────────────────────────────────────────────────────────
+
   constructor() {
-    // (a) Load manuscripts when textKey changes
+    this.loadManuscripts();
+    this.registerOutputEmissions();
+    this.registerAfterRenderEffects();
+  }
+
+  private loadManuscripts() {
+    // Load manuscripts when textKey changes
     toObservable(this.textKey).pipe(
       tap(() => {
         // reset state for a new load
@@ -132,8 +139,10 @@ export class ManuscriptsComponent {
         this.statusMessage.set($localize`:@@Manuscripts.None:Inga manuskriptutskrifter.`);
       }
     });
+  }
 
-    // (b) Emit outputs when user-visible selection changes (only if multiple manuscripts)
+  private registerOutputEmissions() {
+    // Emit outputs when user-visible selection changes (only if multiple manuscripts)
     effect(() => {
       const list = this.manuscripts();
       const m = this.selectedManuscript();
@@ -142,9 +151,11 @@ export class ManuscriptsComponent {
         this.selectedMsID.emit(m.id);
         this.selectedMsName.emit(m.name);
       }
-    });
+    }, { injector: this.injector });
+  }
 
-    // (c) After-render hook: scroll to first search match
+  private registerAfterRenderEffects() {
+    // After-render hook: scroll to first search match
     //     Triggers only when:
     //       - manuscripts finished loading (null -> array)
     //       - searchMatches changed
@@ -172,13 +183,13 @@ export class ManuscriptsComponent {
         }
       }
     }, { injector: this.injector });
-
   }
 
 
   // ─────────────────────────────────────────────────────────────────────────────
   // Public UI actions (called from template)
   // ─────────────────────────────────────────────────────────────────────────────
+
   toggleNormalizedManuscript() {
     this.showNormalizedMs.update(v => !v);
   }

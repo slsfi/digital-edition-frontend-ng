@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, ElementRef, Injector, LOCALE_ID, NgZone, OnInit, QueryList, Renderer2, ViewChild, ViewChildren, afterRenderEffect, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, ElementRef, Injector, LOCALE_ID, NgZone, OnInit, QueryList, Renderer2, ViewChild, ViewChildren, afterNextRender, inject, signal } from '@angular/core';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { Location } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -35,6 +35,9 @@ import { enableFrontMatterPageOrTextViewType, moveArrayItem } from '@utility-fun
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CollectionTextPage implements OnInit {
+  // ─────────────────────────────────────────────────────────────────────────────
+  // Dependency injection, Input/Output signals, Fields, Local state signals
+  // ─────────────────────────────────────────────────────────────────────────────
   private collectionContentService = inject(CollectionContentService);
   private collectionsService = inject(CollectionsService);
   private destroyRef = inject(DestroyRef);
@@ -113,14 +116,19 @@ export class CollectionTextPage implements OnInit {
     distinctUntilChanged()
   );
 
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // Constructor and lifecycle hooks
+  // ─────────────────────────────────────────────────────────────────────────────
+
   constructor() {
     this.adjustDefaultViewsForLocale();
-    this.initDomListeners();     // afterRenderEffect + listeners
-    this.initCleanup();          // teardown    
+    this.attachDomListeners();
+    this.registerCleanup();  
   }
 
   ngOnInit() {
-    this.initRouteSync();        // all route/query param handling
+    this.initRouteSync();  // all route/query param handling
   }
 
   ionViewWillEnter() {
@@ -295,17 +303,15 @@ export class CollectionTextPage implements OnInit {
   }
 
   /** Attach DOM listeners once after the first render. */
-  private initDomListeners() {
-    afterRenderEffect({
+  private attachDomListeners() {
+    afterNextRender({
       write: () => {
-        if (!this.unlistenClickEvents) {
-          this.setUpTextListeners();
-        }
+        this.setUpTextListeners();
       }
     }, { injector: this.injector });
   }
 
-  private initCleanup() {
+  private registerCleanup() {
     this.destroyRef.onDestroy(() => {
       this.unlistenClickEvents?.();
       this.unlistenKeyUpEnterEvents?.();

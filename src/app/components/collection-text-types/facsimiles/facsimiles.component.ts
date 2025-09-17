@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, effect, inject, input, output, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, Injector, effect, inject, input, output, signal } from '@angular/core';
 import { NgStyle } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AlertButton, AlertController, AlertInput, IonicModule, ModalController } from '@ionic/angular';
@@ -33,6 +33,7 @@ export class FacsimilesComponent {
   private alertCtrl = inject(AlertController);
   private collectionContentService = inject(CollectionContentService);
   private destroyRef = inject(DestroyRef);
+  private injector = inject(Injector);
   private modalCtrl = inject(ModalController);
   private platformService = inject(PlatformService);
 
@@ -71,7 +72,13 @@ export class FacsimilesComponent {
   // ─────────────────────────────────────────────────────────────────────────────
   // Constructor: wire side-effects (load, outputs)
   // ─────────────────────────────────────────────────────────────────────────────
+
   constructor() {
+    this.loadFacsimiles();
+    this.registerOutputEmissions();
+  }
+
+  private loadFacsimiles() {
     toObservable(this.textKey).pipe(
       tap(() => {
         // reset before load
@@ -146,7 +153,9 @@ export class FacsimilesComponent {
       // Apply selection of initial facsimile
       this.applyInitialSelection();
     });
+  }
 
+  private registerOutputEmissions() {
     // Emit outputs when a new internal facsimile becomes selected
     effect(() => {
       const facs = this.facsimiles();
@@ -187,13 +196,14 @@ export class FacsimilesComponent {
           this.selectedImageNr.emit(null);
         }
       }
-    }, { injector: undefined });
+    }, { injector: this.injector });
   }
 
 
   // ─────────────────────────────────────────────────────────────────────────────
   // Selection helpers
   // ─────────────────────────────────────────────────────────────────────────────
+
   private applyInitialSelection() {
     const internals = this.facsimiles() ?? [];
     const externals = this.externalFacsimiles();

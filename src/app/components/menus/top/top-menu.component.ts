@@ -17,6 +17,9 @@ import { Language } from '@models/config.models';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class TopMenuComponent {
+  // ─────────────────────────────────────────────────────────────────────────────
+  // Dependency injection, Input/Output signals, Fields, Local state signals
+  // ─────────────────────────────────────────────────────────────────────────────
   protected readonly activeLocale = inject(LOCALE_ID);
   private readonly destroyRef = inject(DestroyRef);
   private readonly injector = inject(Injector);
@@ -48,12 +51,17 @@ export class TopMenuComponent {
   private unlistenClick?: () => void;
   private unlistenFocusIn?: () => void;
 
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // Constructor: wire after-render DOM listeners and cleanup
+  // ─────────────────────────────────────────────────────────────────────────────
+
   constructor() {
-    this.initDomListeners();
-    this.initCleanup();
+    this.attachDomListeners();
+    this.registerCleanup();
   }
 
-  private initDomListeners() {
+  private attachDomListeners() {
     // Post-render wiring (browser-only): attach global listeners
     // once the menu exists
     afterNextRender({
@@ -79,12 +87,17 @@ export class TopMenuComponent {
     }, { injector: this.injector });
   }
 
-  private initCleanup() {
+  private registerCleanup() {
     this.destroyRef.onDestroy(() => {
       this.unlistenClick?.();
       this.unlistenFocusIn?.();
     });
   }
+
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // UI actions
+  // ─────────────────────────────────────────────────────────────────────────────
 
   toggleSideMenu(event: Event) {
     event.preventDefault();

@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, ElementRef, Injector, LOCALE_ID, NgZone, Renderer2, afterRenderEffect, computed, inject, input, signal } from '@angular/core';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { IonicModule } from '@ionic/angular';
-import { catchError, map, of, switchMap, tap } from 'rxjs';
+import { catchError, of, switchMap, tap } from 'rxjs';
 
 import { TextKey } from '@models/collection.models';
 import { TrustHtmlPipe } from '@pipes/trust-html.pipe';
@@ -61,7 +61,14 @@ export class LegendComponent {
   // ─────────────────────────────────────────────────────────────────────────────
   // Constructor: data load, after-render DOM work, cleanup
   // ─────────────────────────────────────────────────────────────────────────────
+
   constructor() {
+    this.loadMdContent();
+    this.registerAfterRenderEffects();
+    this.registerCleanup();
+  }
+
+  private loadMdContent() {
     // Load Markdown content when textKey changes
     toObservable(this.textKey).pipe(
       // reset state before each load
@@ -77,8 +84,10 @@ export class LegendComponent {
         this.mdContent.set(md);
       }
     });
+  }
 
-    // Attach listeners (once) & perform initial scroll after render (zoneless-ready)
+  private registerAfterRenderEffects() {
+    // Attach listeners (once) & perform initial scroll after render
     afterRenderEffect({
       earlyRead: () => {
         // Signal reads here define dependencies for re-running the effect
@@ -107,7 +116,9 @@ export class LegendComponent {
         this.scrollService.scrollElementIntoView(scrollTarget, 'top');
       }
     }, { injector: this.injector });
+  }
 
+  private registerCleanup() {
     // Cleanup on destroy
     this.destroyRef.onDestroy(() => {
       this.unlistenClickEvents?.();

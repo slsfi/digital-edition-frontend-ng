@@ -14,13 +14,13 @@ import { CollectionTableOfContentsService } from '@services/collection-toc.servi
 import { ScrollService } from '@services/scroll.service';
 import { addOrRemoveValueInNewArray, enableFrontMatterPageOrTextViewType, isBrowser } from '@utility-functions';
 
-/**
- * * This component uses ChangeDetectionStrategy.OnPush so change detection has to
- * * be manually triggered in the component whenever the `selectedMenu` array changes.
- * * Because pure pipes are used in the template to check included items in
- * * `selectedMenu`, the array has to be recreated every time it changes, otherwise
- * * the changes won't be reflected in the view.
- */
+
+// ─────────────────────────────────────────────────────────────────────────────
+// * This component is zoneless-ready. *
+// ─────────────────────────────────────────────────────────────────────────────
+// Because pure pipes are used in the template to check included items in
+// `selectedMenu`, the array has to be recreated every time it changes, otherwise
+// the changes won't be reflected in the view.
 @Component({
   selector: 'collection-side-menu',
   templateUrl: './collection-side-menu.component.html',
@@ -51,14 +51,18 @@ export class CollectionSideMenuComponent {
     cssClass: 'custom-select-alert'
   };
 
-  private prevQueryParamPosition?: string = undefined;
-  private prevRouteUrlSegments?: UrlSegment[] = undefined;
-
   // --- State as signals
   readonly isLoading = signal<boolean>(true);
 
   readonly activeMenuOrder = signal<string>('');
   readonly collectionMenu = signal<any[]>([]);
+  readonly currentMenuItemId = signal<string | null>(null);
+  readonly selectedMenu = signal<string[]>([]);  // list of all open menu ids
+
+  readonly menuReady = signal(false);           // true after a TOC load finishes
+  readonly menuReadyStamp = signal(0);          // increments after each TOC load
+  readonly initialScrollTimeout = signal(600);  // 1000 or 700 on TOC change
+
   readonly collectionTitle = signal<string>('');
   readonly coverPageName = signal<string>('');
   readonly titlePageName = signal<string>('');
@@ -69,9 +73,6 @@ export class CollectionSideMenuComponent {
   readonly enableTitle = signal<boolean>(false);
   readonly enableForeword = signal<boolean>(false);
   readonly enableIntroduction = signal<boolean>(false);
-
-  readonly selectedMenu = signal<string[]>([]);  // list of all open menu ids
-  readonly currentMenuItemId = signal<string | null>(null);
 
   // --- Derived: sorting options depend only on collectionID
   readonly sortOptions = computed<string[]>(
@@ -92,13 +93,13 @@ export class CollectionSideMenuComponent {
 
 
   // ─────────────────────────────────────────────────────────────────────────────
-  // Constructor: wire data loads, after-render scroll, and cleanup
+  // Constructor: wire data loads, highlighting and scrolling
   // ─────────────────────────────────────────────────────────────────────────────
 
   constructor() {
     this.registerFrontmatterPageUpdates();
+    this.registerHighlightDispatcher();
     this.registerTocUpdates();
-    this.registerRouteUpdates();
     this.registerScrollOnSideNavToggle();
   }
 
@@ -109,7 +110,43 @@ export class CollectionSideMenuComponent {
       if (!id) {
         return;
       }
+
       this.updateFrontmatterPages(id);
+
+      // a new collection implies a new TOC soon; gate highlighting until then
+      this.menuReady.set(false);
+    }, { injector: this.injector });
+  }
+
+  private registerHighlightDispatcher() {
+    let prevReadyStamp = 0;
+    let prevRouteKey = '';
+
+    effect(() => {
+      const ready = this.menuReady();
+      const readyStamp = this.menuReadyStamp();   // bumps after each TOC load
+      const key = this.routeKey();
+
+      if (!ready) {               // menu not ready => do nothing
+        prevRouteKey = key;
+        prevReadyStamp = readyStamp;
+        return;
+      }
+
+      if (readyStamp !== prevReadyStamp) {
+        // New TOC just loaded: do the one-time initial highlight (1000/700)
+        const t = untracked(this.initialScrollTimeout);
+        untracked(() => this.updateHighlightedMenuItem(t));
+        prevRouteKey = key;
+        prevReadyStamp = readyStamp;
+        return;
+      }
+
+      if (key !== prevRouteKey) {
+        // Route-only change (menu already ready): use default 600
+        untracked(() => this.updateHighlightedMenuItem());
+        prevRouteKey = key;
+      }
     }, { injector: this.injector });
   }
 
@@ -122,13 +159,18 @@ export class CollectionSideMenuComponent {
       }
 
       this.isLoading.set(true);
+
+      // reset state for new menu
       this.collectionMenu.set([]);
       this.selectedMenu.set([]);
       this.currentMenuItemId.set('');
 
+      // compute initial scroll timeout based on order change
       const scrollTimeout = untracked(this.activeMenuOrder) !== toc.order ? 1000 : 700;
       this.activeMenuOrder.set(toc.order || 'default');
+      this.initialScrollTimeout.set(scrollTimeout);
 
+      // set title and labels
       this.collectionTitle.set(toc.text || '');
       this.coverPageName.set(
         toc.coverPageName || $localize`:@@CollectionCover.Cover:Omslag`
@@ -143,6 +185,7 @@ export class CollectionSideMenuComponent {
         toc.introductionPageName || $localize`:@@CollectionIntroduction.Introduction:Inledning`
       );
 
+      // set menu tree + initial open nodes
       if (toc.children?.length) {
         const selected = this.recursiveInitializeSelectedMenu(toc.children, []);
         this.selectedMenu.set(selected);
@@ -150,150 +193,28 @@ export class CollectionSideMenuComponent {
       }
 
       this.isLoading.set(false);
-      console.log('registerTocUpdates: update highlight');
-      untracked(() => this.updateHighlightedMenuItem(scrollTimeout));
-    }, { injector: this.injector });
-  }
 
-  private registerRouteUpdates() {
-    // React when URL structure or position query changes
-    effect(() => {
-      const segs = this.routeUrlSegments();
-      const q = this.routeQueryParams();
-      const pos = q?.position;
-
-      if (this.prevRouteUrlSegments === undefined && segs !== undefined) {
-        // The menu is initializing, this effect should not run because the
-        // highlighted menu item is set by registerTocUpdates()
-        this.prevRouteUrlSegments = segs;
-        return;
-      }
-
-      const urlChanged = this.segmentsChanged(this.prevRouteUrlSegments, segs);
-      const positionChanged = this.prevQueryParamPosition !== pos;
-
-      this.prevRouteUrlSegments = segs;
-      this.prevQueryParamPosition = pos;
-
-      if ((urlChanged || positionChanged) && untracked(this.collectionMenu).length) {
-        // The collection text or text position has changed, so update which
-        // menu item is highlighted.
-        console.log('registerRouteUpdates: update highlight');
-        untracked(() => this.updateHighlightedMenuItem());
-      }
+      // signal that menu is ready and bump the “clock” for this TOC load
+      this.menuReady.set(true);
+      this.menuReadyStamp.update(n => n + 1);
     }, { injector: this.injector });
   }
 
   private registerScrollOnSideNavToggle() {
+    let prevToggled = true;
     // Whenever the side menu becomes visible, scroll current item into view
     afterRenderEffect({
       write: () => {
-        if (this.sideMenuToggled()) {
-          console.log('afterRenderEffect true: scrolling into view');
+        const toggled = this.sideMenuToggled();
+        if (toggled && !prevToggled && untracked(this.menuReady)) {
           this.scrollHighlightedMenuItemIntoView(
             untracked(() => this.getItemId()), 200
           );
-        } else {
-          console.log('afterRenderEffect false: scrolling into view');
         }
+        prevToggled = toggled;
       }
     }, { injector: this.injector })
   }
-
-
-  /*
-
-  ngOnChanges(changes: SimpleChanges) {
-    // Check if the changed input values are relevant, i.e. require the side
-    // menu to be updated. If just some other queryParams than position have
-    // changed, no action is necessary in the menu.
-    if (
-      changes.collectionID &&
-      changes.collectionID.previousValue !== changes.collectionID.currentValue
-    ) {
-      // Collection changed, the new menu will be loaded in the subscription
-      // in ngOnInit(). Update collection frontmatter pages if collectionID set.
-      if (this.collectionID()) {
-        this.updateFrontmatterPages();
-      }
-      return;
-    }
-
-    const urlChanged = changes.routeUrlSegments &&
-          this.segmentsChanged(
-            changes.routeUrlSegments.previousValue,
-            changes.routeUrlSegments.currentValue
-          );
-
-    const positionChanged =
-          changes.routeQueryParams &&
-          changes.routeQueryParams.previousValue?.position !== changes.routeQueryParams.currentValue?.position;
-
-    if (urlChanged || positionChanged) {
-      // The collection text or text position has changed, so update which
-      // menu item is highlighted.
-      if (this.collectionMenu?.length) {
-        this.updateHighlightedMenuItem()
-      }
-      return;
-    }
-
-    if (
-      changes.sideMenuToggled &&
-      changes.sideMenuToggled.previousValue !== changes.sideMenuToggled.currentValue &&
-      changes.sideMenuToggled.currentValue
-    ) {
-      // The side menu has been toggled visible, so scroll the menu
-      // vertically so the current menu item is visible.
-      this.scrollHighlightedMenuItemIntoView(this.getItemId(), 200);
-    }
-  }
-
-  ngOnInit() {
-    this.updateFrontmatterPages();
-
-    // Subscribe to BehaviorSubject emitting the current TOC.
-    // The received TOC is already properly ordered.
-    this.tocSubscr = this.tocService.getCurrentCollectionToc().pipe(
-      filter(toc => !!toc),
-      distinctUntilChanged((prev, curr) =>
-        prev.collectionId === curr.collectionId &&
-        prev.order === curr.order
-      )
-    ).subscribe(
-      (toc: any) => {
-        this.isLoading = true;
-        this.collectionMenu = [];
-        this.selectedMenu = [];
-        this.currentMenuItemId = '';
-
-        const scrollTimeout = this.activeMenuOrder !== toc.order ? 1000 : 700;
-        this.activeMenuOrder = toc.order || 'default';
-
-        this.collectionTitle = toc.text || '';
-        this.coverPageName = toc.coverPageName || $localize`:@@CollectionCover.Cover:Omslag`;
-        this.titlePageName = toc.titlePageName || $localize`:@@CollectionTitle.TitlePage:Titelblad`;
-        this.forewordPageName = toc.forewordPageName || $localize`:@@CollectionForeword.Foreword:Förord`;
-        this.introductionPageName = toc.introductionPageName || $localize`:@@CollectionIntroduction.Introduction:Inledning`;
-
-        if (toc.children?.length) {
-          this.recursiveInitializeSelectedMenu(toc.children);
-          this.collectionMenu = toc.children;
-        }
-
-        this.sortOptions = this.setSortOptions(this.collectionID());
-
-        this.isLoading = false;
-        this.updateHighlightedMenuItem(scrollTimeout);
-      }
-    );
-  }
-
-  ngOnDestroy() {
-    this.tocSubscr?.unsubscribe();
-  }
-
-  */
 
   private updateFrontmatterPages(collectionID: string) {
     this.enableCover.set(
@@ -308,6 +229,12 @@ export class CollectionSideMenuComponent {
     this.enableIntroduction.set(
       enableFrontMatterPageOrTextViewType('introduction', collectionID, config)
     );
+  }
+
+  private routeKey(): string {
+    const segs = this.routeUrlSegments();
+    const pos  = this.routeQueryParams()?.position;
+    return (segs?.map(s => s.path).join('/') ?? '') + ';' + (pos ?? '');
   }
 
   private updateHighlightedMenuItem(scrollTimeout: number = 600) {
@@ -351,25 +278,6 @@ export class CollectionSideMenuComponent {
     // Update currently selected menu item
     this.currentMenuItemId.set(itemId);
     this.scrollHighlightedMenuItemIntoView(itemId, scrollTimeout);
-  }
-
-  /**
-   * Compares two arrays of Angular UrlSegment objects by their `path` values.
-   *
-   * Returns true if:
-   * - Either array is missing
-   * - The arrays have different lengths
-   * - Any segment's path differs
-   *
-   * This is useful for determining if a router URL structure has changed between input updates.
-   *
-   * @param a The previous array of UrlSegment objects
-   * @param b The current array of UrlSegment objects
-   * @returns `true` if any path differs, otherwise `false`
-   */
-  private segmentsChanged(a?: UrlSegment[], b?: UrlSegment[]): boolean {
-    if (!a || !b || a.length !== b.length) return true;
-    return a.some((seg, i) => seg.path !== b[i].path);
   }
 
   private getItemId(): string {
@@ -484,6 +392,11 @@ export class CollectionSideMenuComponent {
     }
     return sortOptions;
   }
+
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // UI
+  // ─────────────────────────────────────────────────────────────────────────────
 
   toggle(menuItem: any) {
     const id = menuItem.itemId || menuItem.nodeId;

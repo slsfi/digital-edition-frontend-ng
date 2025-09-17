@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, ElementRef, Injector, NgZone, Renderer2, afterRenderEffect, computed,inject, input, output, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, ElementRef, Injector, NgZone, Renderer2, afterRenderEffect, computed, inject, input, output, signal } from '@angular/core';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { IonicModule, ModalController } from '@ionic/angular';
 import { catchError, map, of, switchMap, tap } from 'rxjs';
@@ -84,7 +84,15 @@ export class CommentsComponent {
   // ─────────────────────────────────────────────────────────────────────────────
   // Constructor: wire data loads, after-render scroll, and cleanup
   // ─────────────────────────────────────────────────────────────────────────────
+
   constructor() {
+    this.loadComments();
+    this.loadCorrespondenceMetadata();
+    this.registerAfterRenderEffects();
+    this.registerCleanup();
+  }
+
+  private loadComments() {
     // Load comments whenever textKey changes
     toObservable(this.textKey).pipe(
       tap(() => {
@@ -116,7 +124,9 @@ export class CommentsComponent {
       }
       this.rawHtml.set(comHtml);
     });
+  }
 
+  private loadCorrespondenceMetadata() {
     // Load correspondence metadata (sender/receiver/letter)
     toObservable(this.textKey).pipe(
       switchMap((tk: TextKey) => this.commentService.getCorrespondanceMetadata(tk.publicationID)),
@@ -151,14 +161,18 @@ export class CommentsComponent {
 
       this.letter.set(cm.letter ?? undefined);
     });
+  }
 
+  private registerCleanup() {
     // Clean up attached listeners and interval timer on destroy
     this.destroyRef.onDestroy(() => {
       this.unlistenClickEvents?.();
       this.unlistenClickEvents = undefined;
       clearInterval(this.intervalTimerId);
     });
+  }
 
+  private registerAfterRenderEffects() {
     // After-render: attach listeners (once) and perform first-search-match scroll
     afterRenderEffect({
       write: () => {
@@ -188,6 +202,7 @@ export class CommentsComponent {
       }
     }, { injector: this.injector });
   }
+
 
   // ─────────────────────────────────────────────────────────────────────────────
   // Event listeners (outside Angular) + UI helpers

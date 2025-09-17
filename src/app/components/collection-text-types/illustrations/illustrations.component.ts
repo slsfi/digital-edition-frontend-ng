@@ -56,10 +56,19 @@ export class IllustrationsComponent {
 
   imageCountTotal = computed(() => this.imagesCache().length);
 
+
   // ─────────────────────────────────────────────────────────────────────────────
   // Constructor: wire side-effects (load, outputs, scrolling)
   // ─────────────────────────────────────────────────────────────────────────────
+
   constructor() {
+    this.loadIllustrations();
+    this.registerSingleImageChangeEffect();
+    this.registerAfterRenderEffects();
+    this.destroyRef.onDestroy(() => this.clearRetryTimer());
+  }
+
+  private loadIllustrations() {
     toObservable(this.textKey).pipe(
       // reset state before each load
       tap(() => {
@@ -92,7 +101,9 @@ export class IllustrationsComponent {
 
       this.imgLoading.set(false);
     });
+  }
 
+  private registerSingleImageChangeEffect() {
     // react to late singleImage() changes
     effect(() => {
       const single = this.singleImage();
@@ -101,7 +112,9 @@ export class IllustrationsComponent {
         this.viewAll.set(false);
       }
     }, { injector: this.injector });
+  }
 
+  private registerAfterRenderEffects() {
     // apply scrolling to illustration position in reading text
     afterRenderEffect({
       earlyRead: () => {
@@ -229,8 +242,6 @@ export class IllustrationsComponent {
         this.resetScrollState(); // success -> clear state
       }
     }, { injector: this.injector });
-
-    this.destroyRef.onDestroy(() => this.clearRetryTimer());
   }
 
 

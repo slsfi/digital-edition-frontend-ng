@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, ElementRef, Injector, afterRenderEffect, computed, effect, inject, input, output, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, ElementRef, Injector, afterRenderEffect, computed, effect, inject, input, output, signal, untracked } from '@angular/core';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { AlertButton, AlertController, AlertInput, IonicModule } from '@ionic/angular';
 import { catchError, of, switchMap, tap } from 'rxjs';
@@ -165,7 +165,7 @@ export class ManuscriptsComponent {
       write: () => {
         const list = this.manuscripts();
         const matches = this.searchMatches();
-        const tk = this.textKey();
+        const tk = untracked(this.textKey);
 
         // only after data finished loading and we have matches
         if (!Array.isArray(list) || list.length === 0 || matches.length === 0) {

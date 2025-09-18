@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { catchError, map, Observable, of } from 'rxjs';
+import { catchError, map, Observable, of, shareReplay } from 'rxjs';
 import { Marked } from 'marked';
 import markedFootnote from 'marked-footnote';
 import customHeadingId from "marked-custom-heading-id";
@@ -17,6 +17,9 @@ export class MarkdownService {
   private http = inject(HttpClient);
 
   private readonly apiURL: string = `${config.app?.backendBaseURL ?? ''}/${config.app?.projectNameDB ?? ''}`;
+  /** One HTTP call per language for Markdown menu tree requests;
+   * value is shared & cached. */
+  private mdMenuTreeCache = new Map<string, Observable<MdMenuNodeApiResponse | null>>();
 
   private marked: Marked;
 
@@ -52,18 +55,22 @@ export class MarkdownService {
     language: string,
     rootNodeID: string
   ): Observable<MdMenuNodeApiResponse | null> {
-    const endpoint = `${this.apiURL}/static-pages-toc/${language}`;
-    return this.http.get<MdMenuNodeApiResponse>(endpoint).pipe(
-      map((res: MdMenuNodeApiResponse) => {
-        res = this.getNodeById(`${language}-${rootNodeID}`, res);
-        res.id = this.stripLocaleFromID(res.id);
-        if (res.children) {
-          this.stripLocaleFromAboutPagesIDs(res.children);
+    return this.getStaticPagesToc(language).pipe(
+      map((res: MdMenuNodeApiResponse | null) => {
+        if (!res) {
+          return null;
         }
-        return res;
-      }),
-      catchError((e) => {
-        return of(null);
+
+        let node = this.getNodeById(`${language}-${rootNodeID}`, res);
+        if (!node) {
+          return null;
+        }
+
+        node.id = this.stripLocaleFromID(node.id);
+        if (node.children?.length) {
+          this.stripLocaleFromAboutPagesIDs(node.children);
+        }
+        return node;
       })
     );
   }
@@ -104,6 +111,21 @@ export class MarkdownService {
    */
   parseMd(md: string): string {
     return this.marked.parse(md) as string;
+  }
+
+  /** Cached raw menu tree endpoint per language. */
+  private getStaticPagesToc(language: string): Observable<MdMenuNodeApiResponse | null> {
+    let cached$ = this.mdMenuTreeCache.get(language);
+    if (!cached$) {
+      const endpoint = `${this.apiURL}/static-pages-toc/${language}`;
+      cached$ = this.http.get<MdMenuNodeApiResponse>(endpoint).pipe(
+        catchError(() => of(null)),
+        // one-shot HTTP: cache forever and replay to late subscribers
+        shareReplay({ bufferSize: 1, refCount: false })
+      );
+      this.mdMenuTreeCache.set(language, cached$);
+    }
+    return cached$;
   }
 
   /**

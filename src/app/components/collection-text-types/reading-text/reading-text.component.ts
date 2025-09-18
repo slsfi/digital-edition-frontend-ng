@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, ElementRef, Injector, NgZone, Renderer2, afterRenderEffect, computed, inject, input, output, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, ElementRef, Injector, NgZone, Renderer2, afterRenderEffect, computed, inject, input, output, signal, untracked } from '@angular/core';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { IonicModule, ModalController } from '@ionic/angular';
 import { catchError, combineLatest, map, of, switchMap, tap } from 'rxjs';
@@ -159,7 +159,7 @@ export class ReadingTextComponent {
     afterRenderEffect({
       write: () => {
         const data = this.readingText();           // null (loading) or ReadingText
-        const tk = this.textKey();
+        const tk = untracked(this.textKey);
         const pos = this.textPosition();
         const matches = this.searchMatches();
 
@@ -170,7 +170,7 @@ export class ReadingTextComponent {
 
         // Attach listeners once (browser only) after first render (safe for zoneless)
         if (!this.unlistenClickEvents) {
-          this.setUpTextListeners();
+          untracked(() => this.setUpTextListeners());
         }
 
         // Detect "pos changed → scroll to anchor" or "pos unset after being set → top"

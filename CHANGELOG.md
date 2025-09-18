@@ -33,6 +33,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - Migrate top menu component to zoneless-ready.
 - Migrate collection side menu component to zoneless-ready.
 - Migrate main side menu component to zoneless-ready.
+- Untrack non-dependent effect signals in collection text components.
 - The selected text title in the text-select-wrapper (facsimiles, manuscripts and variants) is enclosed in a `<div>` rather than a `<h3>` for improved semantics.
 - Read signals directly in templates without Observable-wrapping.
 - Cache Markdown pages’ menu tree requests.

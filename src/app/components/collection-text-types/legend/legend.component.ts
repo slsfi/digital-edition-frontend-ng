@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, ElementRef, Injector, LOCALE_ID, NgZone, Renderer2, afterRenderEffect, computed, inject, input, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, ElementRef, Injector, LOCALE_ID, NgZone, Renderer2, afterRenderEffect, computed, inject, input, signal, untracked } from '@angular/core';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { IonicModule } from '@ionic/angular';
 import { catchError, of, switchMap, tap } from 'rxjs';
@@ -106,7 +106,7 @@ export class LegendComponent {
 
         // Attach listeners once after first render
         if (!this.unlistenClickEvents) {
-          this.setUpTextListeners();
+          untracked(() => this.setUpTextListeners());
         }
 
         if (!scrollTarget) {

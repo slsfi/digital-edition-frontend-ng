@@ -156,7 +156,7 @@ export class FacsimilesComponent {
   }
 
   private registerOutputEmissions() {
-    // Emit outputs when a new internal facsimile becomes selected
+    // Emit outputs when a new facsimile becomes selected
     effect(() => {
       const facs = this.facsimiles();
       const extF = this.externalFacsimiles();

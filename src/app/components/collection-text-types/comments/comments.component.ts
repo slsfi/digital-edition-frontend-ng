@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, ElementRef, Injector, NgZone, Renderer2, afterRenderEffect, computed, inject, input, output, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, ElementRef, Injector, NgZone, Renderer2, afterRenderEffect, computed, inject, input, output, signal, untracked } from '@angular/core';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { IonicModule, ModalController } from '@ionic/angular';
 import { catchError, map, of, switchMap, tap } from 'rxjs';
@@ -178,13 +178,13 @@ export class CommentsComponent {
       write: () => {
         // Attach listeners once after first render
         if (!this.unlistenClickEvents) {
-          this.setUpTextListeners();
+          untracked(() => this.setUpTextListeners());
         }
 
         // Scroll to first match only once per (textKey + matches)
         const html = this.rawHtml();           // null = loading; string = ready
         const matches = this.searchMatches();  // input signal
-        const tk = this.textKey();
+        const tk = untracked(this.textKey);
 
         if (html === null || matches.length === 0) {
           return;

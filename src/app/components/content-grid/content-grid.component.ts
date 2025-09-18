@@ -6,6 +6,7 @@ import { catchError, filter, forkJoin, from, map, mergeMap, Observable, of, toAr
 
 import { config } from '@config';
 import { Article } from '@models/article.models';
+import { Collection } from '@models/collection.models';
 import { ContentItem } from '@models/content-item.models';
 import { ParentChildPagePathPipe } from '@pipes/parent-child-page-path.pipe';
 import { CollectionsService } from '@services/collections.service';
@@ -25,7 +26,7 @@ export class ContentGridComponent implements OnInit {
 
   readonly availableArticles: Article[] = config.articles ?? [];
   readonly availableEbooks: any[] = config.ebooks ?? [];
-  readonly flattenedCollectionSortOrder: number[] = (config.collections?.order ?? []).flat();
+  readonly flattenedCollectionSortOrder: number[] = ((config.collections?.order as number[][]) ?? []).flat();
   readonly includeArticles: boolean = config.component?.contentGrid?.includeArticles ?? false;
   readonly includeEbooks: boolean = config.component?.contentGrid?.includeEbooks ?? false;
   readonly includeMediaCollection: boolean = config.component?.contentGrid?.includeMediaCollection ?? false;
@@ -85,18 +86,18 @@ export class ContentGridComponent implements OnInit {
     // which checks that they are included in the collections in config)
     // and append this information to the collection data
     return this.collectionsService.getCollections().pipe(
-      mergeMap((collectionsList: any[]) =>
+      mergeMap((collectionsList: Collection[]) =>
         // 'from' emits each collection separately
         from(collectionsList).pipe(
           // Filter collections to include only those with IDs in
           // this.flattenedCollectionSortOrder, which comes from config
-          filter((collection: any) =>
+          filter((collection: Collection) =>
             this.flattenedCollectionSortOrder.includes(collection.id)
           ),
           // load cover info for each collection that passes the filter
           // (mergeMap fetches in parallell, to fetch sequentially you'd
           // use concatMap)
-          mergeMap((collection: any) => 
+          mergeMap((collection: Collection) => 
             this.mdService.getMdContent(
               `${this.activeLocale}-08-${collection.id}`
             ).pipe(
@@ -125,7 +126,7 @@ export class ContentGridComponent implements OnInit {
               })
             ),
           ),
-          map((collection: any) => {
+          map((collection: Collection) => {
             return new ContentItem(collection);
           }),
           // collect all collections into an array

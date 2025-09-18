@@ -6,6 +6,7 @@ import { combineLatest, forkJoin, map, Observable, Subscription } from 'rxjs';
 import { config } from '@config';
 import { ReferenceDataModal } from '@modals/reference-data/reference-data.modal';
 import { GalleryItem } from '@models/gallery-item-models';
+import { MediaCollection } from '@models/media-collection.models';
 import { FullscreenImageViewerModal } from '@modals/fullscreen-image-viewer/fullscreen-image-viewer.modal';
 import { DocumentHeadService } from '@services/document-head.service';
 import { MarkdownService } from '@services/markdown.service';
@@ -181,7 +182,7 @@ export class MediaCollectionPage implements OnDestroy, OnInit {
     this.galleryData = [];
 
     this.mediaCollectionService.getMediaCollections(this.activeLocale).subscribe(
-      (collections: any[]) => {
+      (collections: MediaCollection[]) => {
         this.allMediaCollections = this.getTransformedGalleryData(collections);
         this.galleryData = this.allMediaCollections;
         this.setFilterOptionsAndApplyActiveFilters();
@@ -195,7 +196,7 @@ export class MediaCollectionPage implements OnDestroy, OnInit {
     // Get all media collections if not yet loaded, set current collection title and description
     if (this.allMediaCollections.length < 1) {
       this.mediaCollectionService.getMediaCollections(this.activeLocale).subscribe(
-        (collections: any[]) => {
+        (collections: MediaCollection[]) => {
           for (let i = 0; i < collections.length; i++) {
             if (collections[i].id === Number(mediaCollectionID)) {
               this.mediaCollectionTitle = collections[i].title || '';
@@ -253,10 +254,10 @@ export class MediaCollectionPage implements OnDestroy, OnInit {
     );
   }
 
-  private getTransformedGalleryData(galleryItems: any[], singleGallery = false): GalleryItem[] {
+  private getTransformedGalleryData(galleryItems: MediaCollection[], singleGallery = false): GalleryItem[] {
     const galleryItemsList: GalleryItem[] = [];
     if (galleryItems?.length) {
-      galleryItems.forEach((gallery: any) => {
+      galleryItems.forEach((gallery: MediaCollection) => {
         const galleryItem = new GalleryItem(gallery);
         const urlStart = `${this.apiEndPoint}/${this.projectName}/gallery/get/${galleryItem.collectionID}/`;
 

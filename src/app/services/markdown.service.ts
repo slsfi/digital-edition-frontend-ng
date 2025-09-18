@@ -7,6 +7,7 @@ import customHeadingId from "marked-custom-heading-id";
 
 import { config } from '@config';
 import { MarkdownApiResponse } from '@models/markdown.models';
+import { MdMenuNodeApiResponse } from '@models/menu.models';
 
 
 @Injectable({
@@ -47,21 +48,22 @@ export class MarkdownService {
     this.marked.use(customHeadingId());
   }
 
-  getMenuTree(language: string, rootNodeID: string): Observable<any> {
+  getMenuTree(
+    language: string,
+    rootNodeID: string
+  ): Observable<MdMenuNodeApiResponse | null> {
     const endpoint = `${this.apiURL}/static-pages-toc/${language}`;
-    return this.http.get(endpoint).pipe(
-      map((res: any) => {
-        if (language && rootNodeID) {
-          res = this.getNodeById(`${language}-${rootNodeID}`, res);
-        } else {
-          res = res.children[0].children;
-        }
+    return this.http.get<MdMenuNodeApiResponse>(endpoint).pipe(
+      map((res: MdMenuNodeApiResponse) => {
+        res = this.getNodeById(`${language}-${rootNodeID}`, res);
         res.id = this.stripLocaleFromID(res.id);
-        this.stripLocaleFromAboutPagesIDs(res.children);
+        if (res.children) {
+          this.stripLocaleFromAboutPagesIDs(res.children);
+        }
         return res;
       }),
       catchError((e) => {
-        return of({});
+        return of(null);
       })
     );
   }
@@ -122,13 +124,13 @@ export class MarkdownService {
     return runner(null, tree);
   }
 
-  private stripLocaleFromAboutPagesIDs(array: any[]) {
-    for (let i = 0; i < array.length; i++) {
-      array[i]['id'] = this.stripLocaleFromID(array[i]['id']);
-      if (array[i]['children']?.length) {
-        this.stripLocaleFromAboutPagesIDs(array[i]['children']);
+  private stripLocaleFromAboutPagesIDs(array: MdMenuNodeApiResponse[]) {
+    array.forEach((n: MdMenuNodeApiResponse) => {
+      n.id = this.stripLocaleFromID(n.id);
+      if (n.children?.length) {
+        this.stripLocaleFromAboutPagesIDs(n.children);
       }
-    }
+    });
   }
 
   private stripLocaleFromID(id: string) {

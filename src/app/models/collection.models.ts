@@ -1,5 +1,28 @@
 import { Illustration } from '@models/illustration.models';
 
+export interface CollectionApiResponse {
+  id: number;
+  legacy_id: string | null;
+  name: string | null;
+  project_id: number,
+  publication_collection_introduction_id: number | null;
+  publication_collection_title_id: number | null;
+  published: number | null;
+  title: string | null;
+}
+
+export interface Collection {
+  id: number;
+  imageAltText?: string;
+  imageURL?: string;
+  title: string;
+}
+
+export const toCollection = (c: CollectionApiResponse): Collection => ({
+  id: c.id,
+  title: c.title ?? ''
+});
+
 export type TextKey = Readonly<{
   collectionID: string;
   publicationID: string;

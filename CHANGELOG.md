@@ -37,7 +37,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - The selected text title in the text-select-wrapper (facsimiles, manuscripts and variants) is enclosed in a `<div>` rather than a `<h3>` for improved semantics.
 - Read signals directly in templates without Observable-wrapping.
 - Cache Markdown pages’ menu tree requests.
-- Deps: update `@angular/cli` to 20.3.1 and `@angular/core` to 20.3.0.
+- Deps: update `@angular/cli` to 20.3.2 and `@angular/core` to 20.3.1.
 - Deps: update `marked` to 16.2.0.
 - Deps (dev): update `@types/jasmine` to 5.1.9.
 - Deps (dev): update `@types/node` to 22.17.2.

@@ -41,7 +41,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - Deps: update `marked` to 16.2.0.
 - Deps (dev): update `jasmine-core` to 5.10.0.
 - Deps (dev): update `@types/jasmine` to 5.1.9.
-- Deps (dev): update `@types/node` to 22.17.2.
+- Deps (dev): update `@types/node` to 22.18.6.
 - Deps: update transitive dependencies.
 
 ### Fixed

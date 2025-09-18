@@ -39,7 +39,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - Cache Markdown pages’ menu tree requests.
 - Deps: update `@angular/cli` to 20.3.2 and `@angular/core` to 20.3.1.
 - Deps: update `marked` to 16.2.0.
-- Deps (dev): update `@types/jasmine` to 5.1.9.
+- Deps (dev): update `@types/jasmine` to 5.1.10.
 - Deps (dev): update `@types/node` to 22.17.2.
 - Deps: update transitive dependencies.
 

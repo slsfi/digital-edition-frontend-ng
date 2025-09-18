@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { map, Observable, of } from 'rxjs';
 
 import { config } from '@config';
+import { Collection, CollectionApiResponse, toCollection } from '@models/collection.models';
 
 
 @Injectable({
@@ -15,10 +16,14 @@ export class CollectionsService {
   private readonly apiURL: string = `${config.app?.backendBaseURL ?? ''}/${config.app?.projectNameDB ?? ''}`;
   private readonly multilingualTOC: boolean = config.app?.i18n?.multilingualCollectionTableOfContents ?? false;
 
-  getCollections(): Observable<any> {
+  getCollections(): Observable<Collection[]> {
     const locale = this.multilingualTOC ? '/' + this.activeLocale : '';
     const endpoint = `${this.apiURL}/collections${locale}`;
-    return this.http.get(endpoint);
+    return this.http.get<CollectionApiResponse[]>(endpoint).pipe(
+      map((res: CollectionApiResponse[]) => {
+        return res.map(toCollection)
+      })
+    );
   }
 
   getCollection(id: string): Observable<any> {

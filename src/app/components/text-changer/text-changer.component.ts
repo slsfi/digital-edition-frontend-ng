@@ -51,6 +51,9 @@ export class TextChangerComponent implements OnChanges, OnDestroy, OnInit {
   tocItemId: string = '';
   tocSubscr: Subscription | null = null;
 
+  readonly nextLabel: string = $localize`:@@TextChanger.NextLabel:Följande text`;
+  readonly prevLabel: string = $localize`:@@TextChanger.PrevLabel:Föregående text`;
+
   ngOnChanges(changes: SimpleChanges) {
     if (changes.ionViewActive?.currentValue && !changes.ionViewActive?.firstChange) {
       // Update current text when the ionic view becomes active again

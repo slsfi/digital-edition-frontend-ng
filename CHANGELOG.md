@@ -52,6 +52,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - Current text title in text-changer for non-ToC text positions.
 - Selected menu item in the collection side menu for non-ToC text positions.
 - Consistent naming of files containing models.
+- Accessible labels for text changer links in mobile mode.
 
 
 

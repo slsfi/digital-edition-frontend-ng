@@ -1554,6 +1554,18 @@
         <target>Webbplatsens titel</target>
       </segment>
     </unit>
+    <unit id="TextChanger.NextLabel">
+      <segment state="initial">
+        <source>Följande text</source>
+        <target>Följande text</target>
+      </segment>
+    </unit>
+    <unit id="TextChanger.PrevLabel">
+      <segment state="initial">
+        <source>Föregående text</source>
+        <target>Föregående text</target>
+      </segment>
+    </unit>
     <unit id="TopMenu.About">
       <segment state="initial">
         <source>Om utgåvan</source>

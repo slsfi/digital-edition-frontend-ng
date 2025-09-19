@@ -8,51 +8,47 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+
+
+## [2.2.0] – 2025-09-19
+
 ### Added
 
-- Sticky button for scrolling the page to the top on index pages.
+- Sticky button for scrolling the page to the top on index pages. ([7d32e71](https://github.com/slsfi/digital-edition-frontend-ng/commit/7d32e716791bbe79249b9353dc20a9b78b565688))
+- CSS variable for setting the background color of the article table of contents (`--article-toc-background-color`). ([5fc2647](https://github.com/slsfi/digital-edition-frontend-ng/commit/5fc2647aa7bdde072aba1ccff120be7adc13e6af))
 
 ### Changed
 
-- Migrate constructor-based injection to the `inject` function.
-- Migrate `@Output` custom events to the `output()` API.
-- Migrate `@Input` fields to the `input()` API.
-- Migrate decorator query fields to signal queries.
-- Refactor collection text id handling.
-- Migrate constructor-based initializers to class field initializers where possible.
-- Migrate manuscripts component to zoneless-ready.
-- Migrate reading-text component to zoneless-ready.
-- Migrate comments component to zoneless-ready.
-- Migrate variants component to zoneless-ready.
-- Migrate legend component to zoneless-ready.
-- Migrate metadata component to zoneless-ready.
-- Migrate facsimiles component to zoneless-ready.
-- Migrate illustrations component to zoneless-ready.
-- Migrate view options to signals API.
-- Migrate collection text page to zoneless-ready.
-- Migrate top menu component to zoneless-ready.
-- Migrate collection side menu component to zoneless-ready.
-- Migrate main side menu component to zoneless-ready.
-- Untrack non-dependent effect signals in collection text components.
-- The selected text title in the text-select-wrapper (facsimiles, manuscripts and variants) is enclosed in a `<div>` rather than a `<h3>` for improved semantics.
-- Read signals directly in templates without Observable-wrapping.
-- Cache Markdown pages’ menu tree requests.
-- Deps: update `@angular/cli` to 20.3.2 and `@angular/core` to 20.3.1.
-- Deps: update `marked` to 16.3.0.
-- Deps (dev): update `jasmine-core` to 5.10.0.
-- Deps (dev): update `@types/jasmine` to 5.1.9.
-- Deps (dev): update `@types/node` to 22.18.6.
-- Deps: update transitive dependencies.
+- Migrate constructor-based injection to the `inject` function. ([c2f34c3](https://github.com/slsfi/digital-edition-frontend-ng/commit/c2f34c324a9fd138565500c3461a7e9a8d22ac44))
+- Migrate `@Output` custom events to the `output()` API. ([a6b29bb](https://github.com/slsfi/digital-edition-frontend-ng/commit/a6b29bbd09457de9598bd414e90b12e800766962))
+- Migrate `@Input` fields to the `input()` API. ([bcde34e](https://github.com/slsfi/digital-edition-frontend-ng/commit/bcde34ebf107801e58f972e012d79e3a43eb7902))
+- Migrate decorator query fields to signal queries. ([661a7aa](https://github.com/slsfi/digital-edition-frontend-ng/commit/661a7aa25462eb6b18e0578e1f592a855feccbc0))
+- Refactor collection text id handling. ([d1f3fb9](https://github.com/slsfi/digital-edition-frontend-ng/commit/d1f3fb93f776b41f4151134485e9db7f56ef3f87))
+- Migrate constructor-based initializers to class field initializers where possible. ([8db7156](https://github.com/slsfi/digital-edition-frontend-ng/commit/8db7156782065e486b133c819b9df94ea19672b6))
+- Migrate collection text page and text type components to zoneless-ready. ([0d447f4](https://github.com/slsfi/digital-edition-frontend-ng/commit/0d447f49ab9f51a3059aa6e90a609e232c27d001), [63c6558](https://github.com/slsfi/digital-edition-frontend-ng/commit/63c65585eb1b6fee2b3c5c65e328deee9bfef605), [d27561f](https://github.com/slsfi/digital-edition-frontend-ng/commit/d27561fc81b3b10cfa08d7b4d36881a8d3e7c15c), [0cf85fb](https://github.com/slsfi/digital-edition-frontend-ng/commit/0cf85fb65035465db40b8aa5089317650f58e29f), [139a22b](https://github.com/slsfi/digital-edition-frontend-ng/commit/139a22b1ec3de60695f9f9b91d3e0bd1f8ef794a), [edce529](https://github.com/slsfi/digital-edition-frontend-ng/commit/edce529b6c8f7a333588f5aa39fd6ff26e53ffd1), [53ee366](https://github.com/slsfi/digital-edition-frontend-ng/commit/53ee3666716036713b262df5a23bdb773608677c), [e5ae394](https://github.com/slsfi/digital-edition-frontend-ng/commit/e5ae394e99b9800273d1d239e9960f4d77fd52d8), [ebc8e9e](https://github.com/slsfi/digital-edition-frontend-ng/commit/ebc8e9e856f0f9aac07163e2dfbd465d108059d2))
+- Migrate view options to signals API. ([3100e0a](https://github.com/slsfi/digital-edition-frontend-ng/commit/3100e0aa0a6d23df435388cd477106410a78a7ac))
+- Migrate menu components to zoneless-ready. ([eaf1e4a](https://github.com/slsfi/digital-edition-frontend-ng/commit/eaf1e4a6a071ddbe4a9fe1619d396f84fbf9d2bf), [d9bacce](https://github.com/slsfi/digital-edition-frontend-ng/commit/d9bacce254414f8f440c783bc4d76f0f2e8b91d6), [9d9aa97](https://github.com/slsfi/digital-edition-frontend-ng/commit/9d9aa97a4d586d70956f0bae0446e57b8e1b92f8))
+- Structure constructors according to Angular style guide. ([5296a6a](https://github.com/slsfi/digital-edition-frontend-ng/commit/5296a6a35e7efc4a7daba419295914df883b9365))
+- Untrack non-dependent effect signals in collection text components. ([38f05f4](https://github.com/slsfi/digital-edition-frontend-ng/commit/38f05f42113e724d211c1e48a172242ee87c33dd))
+- Read signals directly in templates without Observable-wrapping. ([1ab042f](https://github.com/slsfi/digital-edition-frontend-ng/commit/1ab042f33807e6d0fe55a346c3e478f25c146aef))
+- Cache Markdown pages’ menu tree requests. ([2df547e](https://github.com/slsfi/digital-edition-frontend-ng/commit/2df547e58d3b74f32011e04e95be538ca4cb6b04))
+- Deps: update `@angular/cli` to 20.3.2 and `@angular/core` to 20.3.1. ([8115865](https://github.com/slsfi/digital-edition-frontend-ng/commit/811586529b10f82c6d795c586deb464505db506c), [06961b5](https://github.com/slsfi/digital-edition-frontend-ng/commit/06961b5fe5f08ed6558e4e2aeae737d95020beff), [4e98dd6](https://github.com/slsfi/digital-edition-frontend-ng/commit/4e98dd6c26f78212fc2cb7b31ce453d1fd75fa7c))
+- Deps: update `marked` to 16.3.0. ([fab58ce](https://github.com/slsfi/digital-edition-frontend-ng/commits/main/?after=2aa99ef6f3361fc3c8ef66496964fa9562b8a28e+34), [227e414](https://github.com/slsfi/digital-edition-frontend-ng/commit/227e4146589d4a92046a780b5dc0aa7c52563e99))
+- Deps (dev): update `jasmine-core` to 5.10.0. ([a8f3600](https://github.com/slsfi/digital-edition-frontend-ng/commit/a8f3600a327a0b8f533015bf9f8811eb5f499375))
+- Deps (dev): update `@types/jasmine` to 5.1.9. ([d69179f](https://github.com/slsfi/digital-edition-frontend-ng/commit/d69179fe87f2d7daf315045c886a520fb9a48c1e))
+- Deps (dev): update `@types/node` to 22.18.6. ([a28fa9b](https://github.com/slsfi/digital-edition-frontend-ng/commit/a28fa9b2427db507ca0925c9684fceb3a7025f84), [79974cc](https://github.com/slsfi/digital-edition-frontend-ng/commit/79974cc89e6533ae8e02f10c630e11a657305648))
+- Deps: update transitive dependencies. ([325da14](https://github.com/slsfi/digital-edition-frontend-ng/commit/325da142d3c42355c3e8747164e9d81987d531c5), [77e7f73](https://github.com/slsfi/digital-edition-frontend-ng/commit/77e7f7371285c859ef5183161a5f8905e0f38454))
 
 ### Fixed
 
-- Error message for missing collection text comments.
-- Broken relative non-fragment links in the legend component.
-- Missing CSS variable for setting the background color of the article table of contents (added `--article-toc-background-color`).
-- Current text title in text-changer for non-ToC text positions.
-- Selected menu item in the collection side menu for non-ToC text positions.
-- Consistent naming of files containing models.
-- Accessible labels for text changer links in mobile mode.
+- Error message for missing collection text comments. ([f1ff88a](https://github.com/slsfi/digital-edition-frontend-ng/commit/f1ff88a9b5fa4f519cffffc5113d9e8fe8fe66ab))
+- Broken relative non-fragment links in the legend component. ([73f3441](https://github.com/slsfi/digital-edition-frontend-ng/commit/73f34412f7b1772c5f47ee3ee8faa23e823b7475))
+- The selected text title in the text-select-wrapper (facsimiles, manuscripts and variants) is enclosed in a `<div>` rather than a `<h3>` for improved semantics. ([4c54901](https://github.com/slsfi/digital-edition-frontend-ng/commit/4c54901d081ba205bd33de3e80aabe41725b64d9))
+- Current text title in text-changer for non-ToC text positions. ([540c1b1](https://github.com/slsfi/digital-edition-frontend-ng/commit/540c1b143e5eca807fc1151b1c75f1e8a42a06a7))
+- Selected menu item in the collection side menu for non-ToC text positions. ([49d11cf](https://github.com/slsfi/digital-edition-frontend-ng/commit/49d11cf3022d917c6631152048f5d9ad104e5669))
+- Consistent naming of files containing models. ([fbf190d](https://github.com/slsfi/digital-edition-frontend-ng/commit/fbf190d4c3563852911a199d458ae90ca5e21697))
+- Gallery item model mapping. ([b9943b5](https://github.com/slsfi/digital-edition-frontend-ng/commit/b9943b56650992bbe75d58e272c37162eca7d6e8))
+- Accessible labels for text changer links in mobile mode. ([2aa99ef](https://github.com/slsfi/digital-edition-frontend-ng/commit/2aa99ef6f3361fc3c8ef66496964fa9562b8a28e))
 
 
 
@@ -992,7 +988,8 @@ siteLogoDimensions: {
 
 
 
-[unreleased]: https://github.com/slsfi/digital-edition-frontend-ng/compare/2.1.1...HEAD
+[unreleased]: https://github.com/slsfi/digital-edition-frontend-ng/compare/2.2.0...HEAD
+[2.2.0]: https://github.com/slsfi/digital-edition-frontend-ng/compare/2.1.1...2.2.0
 [2.1.1]: https://github.com/slsfi/digital-edition-frontend-ng/compare/2.1.0...2.1.1
 [2.1.0]: https://github.com/slsfi/digital-edition-frontend-ng/compare/2.0.0...2.1.0
 [2.0.0]: https://github.com/slsfi/digital-edition-frontend-ng/compare/1.8.2...2.0.0

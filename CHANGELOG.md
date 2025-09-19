@@ -15,7 +15,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 ### Added
 
 - Sticky button for scrolling the page to the top on index pages. ([7d32e71](https://github.com/slsfi/digital-edition-frontend-ng/commit/7d32e716791bbe79249b9353dc20a9b78b565688))
-- CSS variable for setting the background color of the article table of contents (`--article-toc-background-color`). ([5fc2647](https://github.com/slsfi/digital-edition-frontend-ng/commit/5fc2647aa7bdde072aba1ccff120be7adc13e6af))
+- CSS variable for setting the background color of the article table of contents (`--article-toc-background-color`, use with the selector `article-toc[class][class]` in `custom.scss` to modify). ([5fc2647](https://github.com/slsfi/digital-edition-frontend-ng/commit/5fc2647aa7bdde072aba1ccff120be7adc13e6af))
 
 ### Changed
 

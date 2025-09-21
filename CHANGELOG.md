@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+### Added
+
+- Bottom border to main menu home item.
+
 
 
 ## [2.2.0] – 2025-09-19

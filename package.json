@@ -27,7 +27,7 @@
     "@angular/platform-browser": "^20.3.1",
     "@angular/platform-server": "^20.3.1",
     "@angular/router": "^20.3.1",
-    "@angular/ssr": "^20.3.2",
+    "@angular/ssr": "^20.3.6",
     "@ionic/angular": "8.2.2",
     "@ionic/angular-server": "8.2.2",
     "express": "^5.1.0",

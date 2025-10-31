@@ -16,6 +16,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 - Deps: update `angular/cli` to 20.3.8 and `angular/core` to 20.3.9.
 - Deps: update `marked` to 16.4.1.
+- Deps (dev): update `@types/jasmine` to 5.1.12.
 
 ### Fixed
 

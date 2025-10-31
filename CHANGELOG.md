@@ -12,6 +12,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 - Bottom border to main menu home item.
 
+### Fixed
+
+- Translation typo.
+
 
 
 ## [2.2.0] – 2025-09-19

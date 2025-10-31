@@ -525,13 +525,13 @@
     <unit id="ElasticSearch.LetterReceiverLocation">
       <segment state="initial">
         <source>Mottagarort (brev)</source>
-        <target>Reciever place</target>
+        <target>Receiver place</target>
       </segment>
     </unit>
     <unit id="ElasticSearch.LetterReceiverName">
       <segment state="initial">
         <source>Mottagare (brev)</source>
-        <target>Reciever</target>
+        <target>Receiver</target>
       </segment>
     </unit>
     <unit id="ElasticSearch.LetterSenderLocation">

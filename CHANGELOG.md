@@ -8,22 +8,26 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+
+
+## [2.2.1] – 2025-10-31
+
 ### Added
 
-- Bottom border to main menu home item.
+- Bottom border to main menu home item. ([99cbf7d](https://github.com/slsfi/digital-edition-frontend-ng/commit/99cbf7de6ed93a286a6c14291c66dc425e0d0976))
 
 ### Changed
 
-- Deps: update `angular/cli` to 20.3.8 and `angular/core` to 20.3.9.
-- Deps: update `marked` to 16.4.1.
-- Deps (dev): update `@types/express` to 5.0.5.
-- Deps (dev): update `@types/jasmine` to 5.1.12.
-- Deps (dev): update `@types/node` to 22.18.13.
-- Deps (dev): update `jasmine-core` to 5.12.1.
+- Deps: update `angular/cli` to 20.3.8 and `angular/core` to 20.3.9. ([95a31f5](https://github.com/slsfi/digital-edition-frontend-ng/commit/95a31f5e2eb98b3bd54a82e36cdd8a40335c00be))
+- Deps: update `marked` to 16.4.1. ([478a9db](https://github.com/slsfi/digital-edition-frontend-ng/commit/478a9db8dfbd0e4db418736a5a0fbe4f44955512))
+- Deps (dev): update `@types/express` to 5.0.5. ([a560e6f](https://github.com/slsfi/digital-edition-frontend-ng/commit/a560e6f3fd27c30a1b42002936259f84233eb37c))
+- Deps (dev): update `@types/jasmine` to 5.1.12. ([2b0d499](https://github.com/slsfi/digital-edition-frontend-ng/commit/2b0d499f645f2e6be0570a877e8a571b15374598))
+- Deps (dev): update `@types/node` to 22.18.13. ([5099a90](https://github.com/slsfi/digital-edition-frontend-ng/commit/5099a9090be89e63e98e872f614fb76e933a0fe3))
+- Deps (dev): update `jasmine-core` to 5.12.1. ([764ff99](https://github.com/slsfi/digital-edition-frontend-ng/commit/764ff994206994d8a1726b04aa7b3a8a67fdac74))
 
 ### Fixed
 
-- Translation typo.
+- Translation typo. ([17317fa](https://github.com/slsfi/digital-edition-frontend-ng/commit/17317fa13dd810b8f113e201264f1763271470fe))
 
 
 
@@ -1005,7 +1009,8 @@ siteLogoDimensions: {
 
 
 
-[unreleased]: https://github.com/slsfi/digital-edition-frontend-ng/compare/2.2.0...HEAD
+[unreleased]: https://github.com/slsfi/digital-edition-frontend-ng/compare/2.2.1...HEAD
+[2.2.1]: https://github.com/slsfi/digital-edition-frontend-ng/compare/2.2.0...2.2.1
 [2.2.0]: https://github.com/slsfi/digital-edition-frontend-ng/compare/2.1.1...2.2.0
 [2.1.1]: https://github.com/slsfi/digital-edition-frontend-ng/compare/2.1.0...2.1.1
 [2.1.0]: https://github.com/slsfi/digital-edition-frontend-ng/compare/2.0.0...2.1.0

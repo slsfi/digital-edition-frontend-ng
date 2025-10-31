@@ -12,6 +12,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 - Bottom border to main menu home item.
 
+### Changed
+
+- Deps: update `angular/cli` to 20.3.8 and `angular/core` to 20.3.9.
+
 ### Fixed
 
 - Translation typo.

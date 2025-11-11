@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+### Fixed
+
+- Missing trailing slash in URL for getting manuscripts.
+
 ### Removed
 
 - `extra_hosts` from `compose.yml`.

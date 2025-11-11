@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+### Removed
+
+- `extra_hosts` from `compose.yml`.
+
 
 
 ## [2.2.1] – 2025-10-31

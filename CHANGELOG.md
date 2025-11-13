@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+### Fixed
+
+- Show only active locale articles in content grid.
+
 
 
 ## [2.2.2] – 2025-11-11

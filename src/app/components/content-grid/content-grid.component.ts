@@ -61,8 +61,10 @@ export class ContentGridComponent implements OnInit {
     let itemsList: ContentItem[] = [];
     if (this.includeArticles && this.availableArticles.length) {
       this.availableArticles.forEach((article: Article) => {
-        const item = new ContentItem(article);
-        itemsList.push(item);
+        if (article.language === this.activeLocale) {
+          const item = new ContentItem(article);
+          itemsList.push(item);
+        }
       });
     }
     return of(itemsList);

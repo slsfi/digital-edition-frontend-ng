@@ -1485,61 +1485,61 @@
     <unit id="Reference.Refer">
       <segment state="initial">
         <source>Hänvisa</source>
-        <target>Refer</target>
+        <target>Cite</target>
       </segment>
     </unit>
     <unit id="Reference.Reference">
       <segment state="initial">
         <source>Källhänvisning</source>
-        <target>Reference</target>
+        <target>How to cite</target>
       </segment>
     </unit>
     <unit id="Reference.ReferToArticle">
       <segment state="initial">
         <source>Hänvisa till denna artikel</source>
-        <target>Refer to this article</target>
+        <target>Cite this article</target>
       </segment>
     </unit>
     <unit id="Reference.ReferToCollection">
       <segment state="initial">
         <source>Hänvisa till denna delutgåva</source>
-        <target>Refer to this edition</target>
+        <target>Cite this edition</target>
       </segment>
     </unit>
     <unit id="Reference.ReferToEbook">
       <segment state="initial">
         <source>Hänvisa till denna text</source>
-        <target>Refer to this text</target>
+        <target>Cite this text</target>
       </segment>
     </unit>
     <unit id="Reference.ReferToForeword">
       <segment state="initial">
         <source>Hänvisa till detta förord</source>
-        <target>Refer to this foreword</target>
+        <target>Cite this foreword</target>
       </segment>
     </unit>
     <unit id="Reference.ReferToIntroduction">
       <segment state="initial">
         <source>Hänvisa till denna inledning</source>
-        <target>Refer to this introduction</target>
+        <target>Cite this introduction</target>
       </segment>
     </unit>
     <unit id="Reference.ReferToMediaCollection">
       <segment state="initial">
         <source>Hänvisa till denna bildsamling</source>
-        <target>Refer to this media collection</target>
+        <target>Cite this media collection</target>
       </segment>
     </unit>
     <unit id="Reference.ReferToReadingText">
       <segment state="initial">
         <source>Hänvisa till denna lästext</source>
-        <target>Refer to this text</target>
+        <target>Cite this text</target>
       </segment>
     </unit>
     <unit id="Reference.ReferToThisPage">
       <segment state="initial">
         <source>Hänvisa till denna sida</source>
-        <target>Refer to this page</target>
+        <target>Cite this page</target>
       </segment>
     </unit>
     <unit id="Site.MetaDescription.Home">

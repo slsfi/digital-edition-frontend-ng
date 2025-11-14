@@ -531,25 +531,25 @@
     <unit id="ElasticSearch.LetterReceiverLocation">
       <segment state="initial">
         <source>Mottagarort (brev)</source>
-        <target>Receiver place</target>
+        <target>Addressee location (letters)</target>
       </segment>
     </unit>
     <unit id="ElasticSearch.LetterReceiverName">
       <segment state="initial">
         <source>Mottagare (brev)</source>
-        <target>Receiver</target>
+        <target>Addressee (letters)</target>
       </segment>
     </unit>
     <unit id="ElasticSearch.LetterSenderLocation">
       <segment state="initial">
         <source>Avsändarort (brev)</source>
-        <target>Sender place</target>
+        <target>Sender location (letters)</target>
       </segment>
     </unit>
     <unit id="ElasticSearch.LetterSenderName">
       <segment state="initial">
         <source>Avsändare (brev)</source>
-        <target>Sender</target>
+        <target>Sender (letters)</target>
       </segment>
     </unit>
     <unit id="ElasticSearch.LoadingError">

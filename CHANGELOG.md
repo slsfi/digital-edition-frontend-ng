@@ -8,6 +8,19 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+### Added
+
+- Support for filtering Elastic search results by language. Activate by adding `Language` to aggregations in the `elasticSearch` part of the config, for instance:
+
+```typescript
+Language: {
+  terms: {
+    field: "text_language",
+    size: 20
+  }
+}
+```
+
 ### Fixed
 
 - Show only active locale articles in content grid.

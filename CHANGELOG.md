@@ -24,7 +24,8 @@ Language: {
 ### Fixed
 
 - Show only active locale articles in content grid.
-- Translations for letter sender / addressee terms.
+- English translations for letter sender / addressee terms.
+- English translations for citing.
 
 
 

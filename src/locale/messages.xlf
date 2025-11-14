@@ -436,6 +436,11 @@
         <source>Dölj avgränsningar</source>
       </segment>
     </unit>
+    <unit id="ElasticSearch.Language">
+      <segment>
+        <source>Språk</source>
+      </segment>
+    </unit>
     <unit id="ElasticSearch.LetterReceiverLocation">
       <segment>
         <source>Mottagarort (brev)</source>

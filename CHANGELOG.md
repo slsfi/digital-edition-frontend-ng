@@ -35,6 +35,7 @@ CollectionId: {
 ### Changed
 
 - Deps: update `angular/cli` to 20.3.10 and `angular/core` to 20.3.12.
+- Deps (dev): update `@types/jasmine` to 5.1.13.
 - Deps (dev): update `@types/node` to 22.19.1.
 
 ### Fixed

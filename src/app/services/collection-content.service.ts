@@ -69,7 +69,7 @@ export class CollectionContentService {
   }
 
   getVariants(textKey: TextKey): Observable<Variant[]> {
-    const chId = textKey.chapterID ? `/${textKey.chapterID}` : '';
+    const chId = textKey.chapterID ? `/${textKey.chapterID}` : '/';
     const endpoint = `${this.apiURL}/text/${textKey.collectionID}/${textKey.publicationID}/var${chId}`;
 
     return this.http.get<VariantsApiResponse>(endpoint).pipe(

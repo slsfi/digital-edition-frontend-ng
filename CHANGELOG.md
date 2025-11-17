@@ -32,6 +32,10 @@ CollectionId: {
 }
 ```
 
+### Changed
+
+- Deps: update `angular/cli` to 20.3.10 and `angular/core` to 20.3.12.
+
 ### Fixed
 
 - Show only active locale articles in content grid.

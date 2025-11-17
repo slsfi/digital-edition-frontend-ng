@@ -30,7 +30,7 @@ import { Pipe, PipeTransform, inject, LOCALE_ID } from '@angular/core';
  */
 @Pipe({ name: 'langName' })
 export class LangNamePipe implements PipeTransform {
-  private readonly localeId = inject(LOCALE_ID); // ✅ injected at construction time
+  private readonly localeId = inject(LOCALE_ID);
 
   private cache = new Map<string, Intl.DisplayNames | null>();
 

@@ -10,12 +10,23 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ### Added
 
-- Support for filtering Elastic search results by language. Activate by adding `Language` to aggregations in the `elasticSearch` part of the config, for instance:
+- Support for filtering Elastic search results by language. Activate by adding `Language` to aggregations in the `elasticSearch` part of the config. If the Elastic search term field contains a valid language code, it is displayed as the language name in the active locale language. Config example:
 
 ```typescript
 Language: {
   terms: {
     field: "text_language",
+    size: 20
+  }
+}
+```
+
+- Support for filtering Elastic search results by collection ID. Activate by adding `CollectionId` to aggregations in the `elasticSearch` part of the config. The title of the collection, not the ID, is displayed as the filter option name. If `multilingualCollectionTableOfContents` is set to true in the config, the collection name is displayed in the active locale language. Use this filter option instead of the collection title based `Collection` if your site has multiple locales, and the collection titles should be displayed with translated titles in the search. Config example:
+
+```typescript
+CollectionId: {
+  terms: {
+    field: "collection_id",
     size: 20
   }
 }

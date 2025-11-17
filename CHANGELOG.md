@@ -37,6 +37,7 @@ CollectionId: {
 - Show only active locale articles in content grid.
 - English translations for letter sender / addressee terms.
 - English translations for citing.
+- Missing trailing slash in URL for getting variants.
 
 
 

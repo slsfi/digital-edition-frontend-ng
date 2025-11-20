@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+### Fixed
+
+- Handle undefined language code in language name pipe.
+
 
 
 ## [2.3.0] – 2025-11-17

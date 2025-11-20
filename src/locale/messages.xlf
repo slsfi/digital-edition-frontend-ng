@@ -761,6 +761,11 @@
         <source>Personkategorier</source>
       </segment>
     </unit>
+    <unit id="Language.Undefined">
+      <segment>
+        <source>Odefinierat</source>
+      </segment>
+    </unit>
     <unit id="Legend.Legend">
       <segment>
         <source>Teckenförklaringar</source>

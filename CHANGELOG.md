@@ -8,13 +8,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+
+
+## [2.3.1] – 2025-11-20
+
 ### Changed
 
-- Deps: update `angular/cli` to 20.3.11 and `angular/core` to 20.3.13.
+- Deps: update `angular/cli` to 20.3.11 and `angular/core` to 20.3.13. ([9755ca8](https://github.com/slsfi/digital-edition-frontend-ng/commit/9755ca8bf8e33032820f757fb22a41c6eeb45297))
 
 ### Fixed
 
-- Handle undefined language code in language name pipe.
+- Handle undefined language code in language name pipe. ([6b57fb4](https://github.com/slsfi/digital-edition-frontend-ng/commit/6b57fb40349d7c2c9402de8cc3c2b6f92653cc76))
 
 
 
@@ -1078,7 +1082,8 @@ siteLogoDimensions: {
 
 
 
-[unreleased]: https://github.com/slsfi/digital-edition-frontend-ng/compare/2.3.0...HEAD
+[unreleased]: https://github.com/slsfi/digital-edition-frontend-ng/compare/2.3.1...HEAD
+[2.3.1]: https://github.com/slsfi/digital-edition-frontend-ng/compare/2.3.0...2.3.1
 [2.3.0]: https://github.com/slsfi/digital-edition-frontend-ng/compare/2.2.2...2.3.0
 [2.2.2]: https://github.com/slsfi/digital-edition-frontend-ng/compare/2.2.1...2.2.2
 [2.2.1]: https://github.com/slsfi/digital-edition-frontend-ng/compare/2.2.0...2.2.1

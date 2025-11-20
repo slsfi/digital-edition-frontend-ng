@@ -912,6 +912,12 @@
         <target>Henkilökategoriat</target>
       </segment>
     </unit>
+    <unit id="Language.Undefined">
+      <segment state="initial">
+        <source>Odefinierat</source>
+        <target>Määrittämätön</target>
+      </segment>
+    </unit>
     <unit id="Legend.Legend">
       <segment state="initial">
         <source>Teckenförklaringar</source>

@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+### Changed
+
+- Deps: update `angular/cli` to 20.3.11 and `angular/core` to 20.3.13.
+
 ### Fixed
 
 - Handle undefined language code in language name pipe.

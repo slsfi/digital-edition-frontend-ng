@@ -6,6 +6,9 @@ import { IonicModule } from '@ionic/angular';
 import { YearBucket, YearRange } from '@models/elastic-search.models';
 
 
+// ─────────────────────────────────────────────────────────────────────────────
+// * This component is zoneless-ready. *
+// ─────────────────────────────────────────────────────────────────────────────
 /**
  * Year-based histogram:
  * - Input: all years (yearsAll) & current-filter years (years)

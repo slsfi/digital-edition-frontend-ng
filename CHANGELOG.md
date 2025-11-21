@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+### Fixed
+
+- Deselecting active non-string filters in Elastic search.
+
 
 
 ## [2.3.1] – 2025-11-20

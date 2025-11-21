@@ -527,7 +527,7 @@ export class ElasticSearchPage implements OnDestroy, OnInit {
         } else {
           // Remove filter from already active filter group
           for (let f = 0; f < newActiveFilters[newActiveFilters.length - 1].keys.length; f++) {
-            if (newActiveFilters[newActiveFilters.length - 1].keys[f] === updatedFilter.key) {
+            if (String(newActiveFilters[newActiveFilters.length - 1].keys[f]) === String(updatedFilter.key)) {
               newActiveFilters[newActiveFilters.length - 1].keys.splice(f, 1);
               break;
             }
@@ -566,7 +566,7 @@ export class ElasticSearchPage implements OnDestroy, OnInit {
         if (activeFilters[a].name === this.filterGroups[g].name) {
           for (let i = 0; i < activeFilters[a].keys.length; i++) {
             for (let f = 0; f < this.filterGroups[g].filters.length; f++) {
-              if (this.filterGroups[g].filters[f].key === activeFilters[a].keys[i]) {
+              if (String(this.filterGroups[g].filters[f].key) === String(activeFilters[a].keys[i])) {
                 this.filterGroups[g].filters[f].selected = true;
                 break;
               }

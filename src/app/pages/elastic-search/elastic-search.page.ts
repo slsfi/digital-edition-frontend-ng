@@ -4,7 +4,7 @@ import { IonContent } from '@ionic/angular';
 import { map, merge, Observable, of, Subject, Subscription, switchMap } from 'rxjs';
 
 import { config } from '@config';
-import { AggregationData, AggregationsData, Facet, Facets, TimeRange } from '@models/elastic-search.models';
+import { AggregationData, AggregationsData, Facet, Facets, TimeRange, YearRange } from '@models/elastic-search.models';
 import { ElasticSearchService } from '@services/elastic-search.service';
 import { MarkdownService } from '@services/markdown.service';
 import { PlatformService } from '@services/platform.service';
@@ -55,7 +55,7 @@ export class ElasticSearchPage implements OnDestroy, OnInit {
   pages: number = 1;
   query: string = ''; // variable bound to the input search field with ngModel
   range?: TimeRange | null = undefined;
-  rangeYears?: Record<string, any> = undefined;
+  rangeYears: YearRange | null = null;
   routeQueryParamsSubscription: Subscription | null = null;
   searchDataSubscription: Subscription | null = null;
   searchResultsColumnMinHeight: string | null = null;
@@ -261,24 +261,32 @@ export class ElasticSearchPage implements OnDestroy, OnInit {
 
         // Time range
         if (queryParams['from'] && queryParams['to']) {
-          let range = {
+          const range = {
             from: queryParams['from'],
             to: queryParams['to']
           };
+
           if (
             range.from !== this.rangeYears?.from ||
             range.to !== this.rangeYears?.to
           ) {
             this.rangeYears = range;
+
+            const fromYear = Number(range.from);
+            const toYear = Number(range.to);
+
+            // Here we store *date strings* used by the ES query
             this.range = {
-              from: new Date(range.from || '').getTime(),
-              to: new Date(`${parseInt(range.to || '') + 1}`).getTime()
-            }
+              from: `${fromYear}-01-01`,
+              // exclusive upper bound: start of (toYear + 1)
+              to:   `${toYear + 1}-01-01`
+            };
+
             triggerSearch = true;
           }
         } else if (this.range?.from && this.range?.to) {
           this.range = null;
-          this.rangeYears = undefined;
+          this.rangeYears = null;
           triggerSearch = true;
         }
 
@@ -329,7 +337,7 @@ export class ElasticSearchPage implements OnDestroy, OnInit {
           this.query = '';
           this.activeFilters = [];
           this.range = null;
-          this.rangeYears = undefined;
+          this.rangeYears = null;
           this.sort = '';
           triggerSearch = true;
         }
@@ -412,7 +420,7 @@ export class ElasticSearchPage implements OnDestroy, OnInit {
   /**
    * Trigger a new search with selected years.
    */
-  onTimeRangeChange(newRange: { from: string | null, to: string | null } | null) {
+  onTimeRangeChange(newRange: YearRange | null) {
     let triggerSearch = false;
     let range = null;
     if (newRange?.from && newRange?.to) {

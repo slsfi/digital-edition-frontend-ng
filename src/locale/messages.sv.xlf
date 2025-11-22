@@ -914,8 +914,8 @@
     </unit>
     <unit id="Language.Undefined">
       <segment state="initial">
-        <source>Odefinierat</source>
-        <target>Odefinierat</target>
+        <source>odefinierat</source>
+        <target>odefinierat</target>
       </segment>
     </unit>
     <unit id="Legend.Legend">

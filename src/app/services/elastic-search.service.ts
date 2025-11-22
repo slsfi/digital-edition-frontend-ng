@@ -136,7 +136,7 @@ export class ElasticSearchService {
         range: {
           orig_date_sort: {
             gte: range.from,
-            lte: range.to,
+            lt: range.to,
           },
         },
       });
@@ -349,7 +349,7 @@ export class ElasticSearchService {
         range: {
           orig_date_sort: {
             gte: range.from,
-            lte: range.to,
+            lt: range.to,
           },
         },
       });

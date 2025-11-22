@@ -17,6 +17,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - Deselecting active non-string filters in Elastic search.
 - Year filtering in Elastic search with strict `yyyy-MM-dd` formatted `orig_date_sort` date field. Migrate the date-histogram component to zoneless-ready.
 - Case in `Language.Undefined` translation.
+- Initially hide article page table of contents in mobile mode.
 
 
 ## [2.3.1] – 2025-11-20

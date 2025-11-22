@@ -1,44 +1,44 @@
 export interface AggregationData {
-  buckets?: Facet[]
+  buckets?: Facet[];
   filtered?: {
-    buckets: Facet[]
+    buckets: Facet[];
   }
 }
 
 export interface AggregationQuery {
-  queries: string[]
-  facetGroups?: any
-  range?: TimeRange
+  queries: string[];
+  facetGroups?: any;
+  range?: TimeRange;
 }
 
 export interface AggregationsData {
-  [aggregationKey: string]: AggregationData
+  [aggregationKey: string]: AggregationData;
 }
 
 export interface Facet {
-  doc_count: number
-  key: string | number
-  key_as_string?: string
-  selected?: boolean
+  doc_count: number;
+  key: string | number;
+  key_as_string?: string;
+  selected?: boolean;
 }
 
 export interface Facets {
-  [facetKey: string]: Facet
+  [facetKey: string]: Facet;
 }
 
 export interface SearchQuery {
-  queries: string[]
-  highlight: object
-  from: number
-  size: number
-  facetGroups?: any
-  range?: TimeRange
-  sort?: object[]
+  queries: string[];
+  highlight: object;
+  from: number;
+  size: number;
+  facetGroups?: any;
+  range?: TimeRange;
+  sort?: object[];
 }
 
 export interface TimeRange {
-  from?: string | number
-  to?: string | number
+  from?: string | number;
+  to?: string | number;
 }
 
 export interface YearBucket {

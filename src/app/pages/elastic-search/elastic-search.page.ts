@@ -279,7 +279,7 @@ export class ElasticSearchPage implements OnDestroy, OnInit {
             this.range = {
               from: `${fromYear}-01-01`,
               // exclusive upper bound: start of (toYear + 1)
-              to:   `${toYear + 1}-01-01`
+              to: `${toYear + 1}-01-01`
             };
 
             triggerSearch = true;

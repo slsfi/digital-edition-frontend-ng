@@ -53,7 +53,7 @@ export class LangNamePipe implements PipeTransform {
   }
 
   transform(code?: string | null, localeArg?: string): string {
-    if (!code) return $localize`:@@Language.Undefined:Odefinierat`;
+    if (!code) return $localize`:@@Language.Undefined:odefinierat`;
     const raw = String(code);  // preserve original for fallback
     const locale = (localeArg ?? this.localeId) as string;
     const normalized = raw.replace('_', '-').toLowerCase();

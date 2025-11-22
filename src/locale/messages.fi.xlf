@@ -914,7 +914,7 @@
     </unit>
     <unit id="Language.Undefined">
       <segment state="initial">
-        <source>Odefinierat</source>
+        <source>odefinierat</source>
         <target>Määrittämätön</target>
       </segment>
     </unit>

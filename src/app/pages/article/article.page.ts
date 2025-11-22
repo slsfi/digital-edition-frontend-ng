@@ -41,7 +41,7 @@ export class ArticlePage implements OnInit, OnDestroy {
   enableTOC: boolean = true;
   markdownText$: Observable<string | null>;
   mobileMode: boolean = false;
-  tocMenuOpen: boolean = true;
+  tocMenuOpen: boolean = false;
 
   private fragmentSubscription?: Subscription;
   private unlistenClickEvents?: () => void;
@@ -64,7 +64,12 @@ export class ArticlePage implements OnInit, OnDestroy {
         this.article = config.articles?.find(
           (article: Article) => (article.routeName === name) && article.language === this.activeLocale
         ) ?? null;
+
         this.enableTOC = this.article?.enableTOC ?? true;
+
+        if (this.article && !this.mobileMode && !this.tocMenuOpen) {
+          this.tocMenuOpen = true;
+        }
       }),
       switchMap(({name}) => {
         const id = this.article?.id ?? name;

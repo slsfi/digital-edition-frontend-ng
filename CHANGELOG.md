@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+### Changed
+
+- Deps: update `marked-custom-heading-id` to 2.0.16.
+
 ### Fixed
 
 - Deselecting active non-string filters in Elastic search.

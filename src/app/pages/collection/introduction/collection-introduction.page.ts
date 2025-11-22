@@ -192,21 +192,22 @@ export class CollectionIntroductionPage implements OnInit, OnDestroy {
           // Find the introduction's table of contents in the text
           const pattern = /<div data-id="content">(.*?)<\/div>/s;
           const matches = textContent.match(pattern);
+
           if (matches && matches.length > 0) {
             // The introduction's table of contents was found,
             // copy it to this.textMenu and remove it from this.text
             this.textMenu = matches[1];
             textContent = textContent.replace(pattern, '');
-            if (!this.platformService.isMobile()) {
-              if (!this.tocMenuOpen) {
-                this.tocMenuOpen = true;
-              }
+
+            if (!this.mobileMode && !this.tocMenuOpen) {
+              this.tocMenuOpen = true;
             }
           } else {
             this.hasSeparateIntroToc = false;
           }
 
           this.text = this.parserService.insertSearchMatchTags(textContent, this.searchMatches);
+
           // Try to scroll to a position in the text or first search match
           if (this.pos) {
             this.scrollToPos();

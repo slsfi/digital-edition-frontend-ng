@@ -10,6 +10,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ### Changed
 
+- Deps: update `marked` to 17.0.1.
 - Deps: update `marked-custom-heading-id` to 2.0.16.
 
 ### Fixed

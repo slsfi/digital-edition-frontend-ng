@@ -8,18 +8,22 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+
+
+## [2.3.2] – 2025-11-22
+
 ### Changed
 
-- Deps: update `marked` to 17.0.1.
-- Deps: update `marked-custom-heading-id` to 2.0.16.
-- Refactor mobile mode check on introduction page.
+- Deps: update `marked` to 17.0.1. ([bd637c9](https://github.com/slsfi/digital-edition-frontend-ng/commit/bd637c9ba05433106c6126c5491259db86b1ffe3))
+- Deps: update `marked-custom-heading-id` to 2.0.16. ([cff78c2](https://github.com/slsfi/digital-edition-frontend-ng/commit/cff78c2e60e78dbda4d0967f9c7530db9a7564cd))
+- Refactor mobile mode check on introduction page. ([119842f](https://github.com/slsfi/digital-edition-frontend-ng/commit/119842f036d0e6b00e50590c81885aa7502c85cf))
 
 ### Fixed
 
-- Deselecting active non-string filters in Elastic search.
-- Year filtering in Elastic search with strict `yyyy-MM-dd` formatted `orig_date_sort` date field. Migrate the date-histogram component to zoneless-ready.
-- Case in `Language.Undefined` translation.
-- Initially hide article page table of contents in mobile mode.
+- Deselecting active non-string filters in Elastic search. ([a521397](https://github.com/slsfi/digital-edition-frontend-ng/commit/a52139760270709617902cc93acb8445bfb15347))
+- Year filtering in Elastic search with strict `yyyy-MM-dd` formatted `orig_date_sort` date field. Migrate the date-histogram component to zoneless-ready. ([77248e3](https://github.com/slsfi/digital-edition-frontend-ng/commit/77248e3058b72412cde7f7ea4c44e5e38d870b86))
+- Case in `Language.Undefined` translation. ([d1c15b6](https://github.com/slsfi/digital-edition-frontend-ng/commit/d1c15b631acaf16be11dc8ab4175872e0c0f491f))
+- Initially hide article page table of contents in mobile mode. ([2bec1ea](https://github.com/slsfi/digital-edition-frontend-ng/commit/2bec1eac3ea42c1862954b5e034101d094e7ae91))
 
 
 ## [2.3.1] – 2025-11-20
@@ -1094,7 +1098,8 @@ siteLogoDimensions: {
 
 
 
-[unreleased]: https://github.com/slsfi/digital-edition-frontend-ng/compare/2.3.1...HEAD
+[unreleased]: https://github.com/slsfi/digital-edition-frontend-ng/compare/2.3.2...HEAD
+[2.3.2]: https://github.com/slsfi/digital-edition-frontend-ng/compare/2.3.1...2.3.2
 [2.3.1]: https://github.com/slsfi/digital-edition-frontend-ng/compare/2.3.0...2.3.1
 [2.3.0]: https://github.com/slsfi/digital-edition-frontend-ng/compare/2.2.2...2.3.0
 [2.2.2]: https://github.com/slsfi/digital-edition-frontend-ng/compare/2.2.1...2.2.2

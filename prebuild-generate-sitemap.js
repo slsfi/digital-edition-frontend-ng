@@ -161,9 +161,11 @@ function generateAboutPagesURLs(aboutPages, mdFolderNumber, urlOrigin, locale) {
 function generateArticleURLs(articles, urlOrigin, locale) {
   let counter = 0;
   for (let i = 0; i < articles.length; i++) {
-    const url = `${urlOrigin}/${locale}/article/${articles[i]['routeName']}`;
-    appendToSitemapFile(url + '\n');
-    counter += 1;
+    if (articles[i]['language'] === locale) {
+      const url = `${urlOrigin}/${locale}/article/${articles[i]['routeName']}`;
+      appendToSitemapFile(url + '\n');
+      counter += 1;
+    }
   }
   return counter;
 }

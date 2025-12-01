@@ -15,6 +15,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 ### Changed
 
 - Deps: update `angular/cli` to 20.3.12 and `angular/core` to 20.3.15.
+- Deps: update transitive dependencies.
 
 ### Fixed
 

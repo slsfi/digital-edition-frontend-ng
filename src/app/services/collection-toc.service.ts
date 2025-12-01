@@ -197,6 +197,14 @@ export class CollectionTableOfContentsService {
   }
 
   /**
+   * Synchronously get the title of the introduction in the current
+   * collection table of contents.
+   */
+  getCurrentTocIntroductionTitle(): string {
+    return this.currentToc?.introductionPageName || $localize`:@@CollectionIntroduction.Introduction:Inledning`;
+  }
+
+  /**
    * Given a flattened collection TOC as the array `flattenedMenuData`,
    * returns a new array where the TOC items have been sorted alphabetically
    * (ascendingly) on the 'text' property of each item.

@@ -9,6 +9,7 @@ import { TextKey } from '@models/collection.models';
 import { TrustHtmlPipe } from '@pipes/trust-html.pipe';
 import { CollectionContentService } from '@services/collection-content.service';
 import { CollectionsService } from '@services/collections.service';
+import { CollectionTableOfContentsService } from '@services/collection-toc.service';
 import { CommentService } from '@services/comment.service';
 import { DocumentHeadService } from '@services/document-head.service';
 import { HtmlParserService } from '@services/html-parser.service';
@@ -34,6 +35,7 @@ export class DownloadTextsModal implements OnDestroy, OnInit {
   private modalCtrl = inject(ModalController);
   private parserService = inject(HtmlParserService);
   private referenceDataService = inject(ReferenceDataService);
+  private tocService = inject(CollectionTableOfContentsService);
   private router = inject(Router);
   private viewOptionsService = inject(ViewOptionsService);
   private activeLocale = inject(LOCALE_ID);
@@ -728,7 +730,7 @@ export class DownloadTextsModal implements OnDestroy, OnInit {
         this.copyrightURL = $localize`:@@DownloadTexts.CopyrightURL:https://creativecommons.org/licenses/by-nc-nd/4.0/deed.sv`;
       }
     } else if (this.introductionMode) {
-      this.introductionTitle = $localize`:@@CollectionIntroduction.Introduction:Inledning`;
+      this.introductionTitle = this.tocService.getCurrentTocIntroductionTitle();
 
       if ($localize`:@@DownloadTexts.CopyrightNoticeIntroduction:CC BY-NC-ND 4.0`) {
         this.copyrightText = $localize`:@@DownloadTexts.CopyrightNoticeIntroduction:CC BY-NC-ND 4.0`;

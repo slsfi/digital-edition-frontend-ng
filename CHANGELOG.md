@@ -17,6 +17,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - Generate sitemap prebuild-script: only include articles in default locale.
 - Canonical and alternate page URLs for articles when multiple site languages.
 - Scroll to top button alignment on index page.
+- Introduction title in download texts modal when a collection has a custom introduction title.
 
 
 

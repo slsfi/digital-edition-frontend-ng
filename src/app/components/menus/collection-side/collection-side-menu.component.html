@@ -122,7 +122,7 @@
 </ng-template>
 
 <ng-template #menuItemContent let-item>
-  <span class="label">
+  <span class="label" [lang]="item.language || null">
     {{item.text}}
     @if (item.description) {
       <span class="description">{{item.description}}</span>

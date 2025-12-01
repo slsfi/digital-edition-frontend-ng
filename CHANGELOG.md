@@ -8,21 +8,25 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+
+
+## [2.4.0] – 2025-12-01
+
 ### Added
 
-- Support `language` property of collection menu items.
+- Support `language` property of collection menu items. ([bbde939](https://github.com/slsfi/digital-edition-frontend-ng/commit/bbde93903dce09b3264ed345a2a88b07fcfb5fb4))
 
 ### Changed
 
-- Deps: update `angular/cli` to 20.3.12 and `angular/core` to 20.3.15.
-- Deps: update transitive dependencies.
+- Deps: update `angular/cli` to 20.3.12 and `angular/core` to 20.3.15. ([7ac3136](https://github.com/slsfi/digital-edition-frontend-ng/commit/7ac313673d8f9fa2e9bf08e333afb81b6948b41e), [0c6fc7d](https://github.com/slsfi/digital-edition-frontend-ng/commit/0c6fc7d96b6d8b597d1516c59c4dae2540fa1b5d))
+- Deps: update transitive dependencies. ([4fb05a8](https://github.com/slsfi/digital-edition-frontend-ng/commit/4fb05a831c431514fbd6a72f16a7c90e25a816c3))
 
 ### Fixed
 
-- Generate sitemap prebuild-script: only include articles in default locale.
-- Canonical and alternate page URLs for articles when multiple site languages.
-- Scroll to top button alignment on index page.
-- Introduction title in download texts modal when a collection has a custom introduction title.
+- Generate sitemap prebuild-script: only include articles in default locale. ([bff9a2c](https://github.com/slsfi/digital-edition-frontend-ng/commit/bff9a2c78df1c1ab13fbd4eddaea5d3ad5ce8a99))
+- Canonical and alternate page URLs for articles when multiple site languages. ([58a1230](https://github.com/slsfi/digital-edition-frontend-ng/commit/58a12306db67cf8d0f50b824e781825bf81d365b))
+- Scroll to top button alignment on index page. ([d2af880](https://github.com/slsfi/digital-edition-frontend-ng/commit/d2af880d646180f710fe4e59fbf652ebe3070ff9))
+- Introduction title in download texts modal when a collection has a custom introduction title. ([a583686](https://github.com/slsfi/digital-edition-frontend-ng/commit/a583686ac68457686f3f046bed37b0f020ad7128))
 
 
 
@@ -1114,7 +1118,8 @@ siteLogoDimensions: {
 
 
 
-[unreleased]: https://github.com/slsfi/digital-edition-frontend-ng/compare/2.3.2...HEAD
+[unreleased]: https://github.com/slsfi/digital-edition-frontend-ng/compare/2.4.0...HEAD
+[2.4.0]: https://github.com/slsfi/digital-edition-frontend-ng/compare/2.3.2...2.4.0
 [2.3.2]: https://github.com/slsfi/digital-edition-frontend-ng/compare/2.3.1...2.3.2
 [2.3.1]: https://github.com/slsfi/digital-edition-frontend-ng/compare/2.3.0...2.3.1
 [2.3.0]: https://github.com/slsfi/digital-edition-frontend-ng/compare/2.2.2...2.3.0

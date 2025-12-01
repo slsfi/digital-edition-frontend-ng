@@ -12,6 +12,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 - Support `language` property of collection menu items.
 
+### Changed
+
+- Deps: update `angular/cli` to 20.3.12 and `angular/core` to 20.3.14.
+
 ### Fixed
 
 - Generate sitemap prebuild-script: only include articles in default locale.

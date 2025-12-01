@@ -12,6 +12,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 - Support `language` property of collection menu items.
 
+### Fixed
+
+- Generate sitemap prebuild-script: only include articles in default locale.
+
 
 
 ## [2.3.2] – 2025-11-22

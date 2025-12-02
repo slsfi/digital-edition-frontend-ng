@@ -12,6 +12,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 - Deps: update `express` to 5.2.1.
 - Deps (dev): update `@types/express` to 5.0.6.
+- Deps (dev): update `jasmine-core` to 5.13.0.
 
 
 

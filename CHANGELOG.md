@@ -11,6 +11,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 ### Changed
 
 - Deps: update `express` to 5.2.1.
+- Deps (dev): update `@types/express` to 5.0.6.
 
 
 

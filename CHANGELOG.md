@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+### Changed
+
+- Deps: update `express` to 5.2.1.
+
 
 
 ## [2.4.0] – 2025-12-01

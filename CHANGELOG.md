@@ -8,11 +8,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+
+
+## [2.4.1] – 2025-12-02
+
 ### Changed
 
-- Deps: update `express` to 5.2.1.
-- Deps (dev): update `@types/express` to 5.0.6.
-- Deps (dev): update `jasmine-core` to 5.13.0.
+- Deps: update `express` to 5.2.1. ([f78059c](https://github.com/slsfi/digital-edition-frontend-ng/commit/f78059cf66e0d36256f8986e2f945b0883c3410f))
+- Deps (dev): update `@types/express` to 5.0.6. ([211e261](https://github.com/slsfi/digital-edition-frontend-ng/commit/211e2611816140114430cfdb22d3356f02a1631b))
+- Deps (dev): update `jasmine-core` to 5.13.0. ([f78059c](https://github.com/slsfi/digital-edition-frontend-ng/commit/f78059cf66e0d36256f8986e2f945b0883c3410f))
 
 
 
@@ -1124,7 +1128,8 @@ siteLogoDimensions: {
 
 
 
-[unreleased]: https://github.com/slsfi/digital-edition-frontend-ng/compare/2.4.0...HEAD
+[unreleased]: https://github.com/slsfi/digital-edition-frontend-ng/compare/2.4.1...HEAD
+[2.4.1]: https://github.com/slsfi/digital-edition-frontend-ng/compare/2.4.0...2.4.1
 [2.4.0]: https://github.com/slsfi/digital-edition-frontend-ng/compare/2.3.2...2.4.0
 [2.3.2]: https://github.com/slsfi/digital-edition-frontend-ng/compare/2.3.1...2.3.2
 [2.3.1]: https://github.com/slsfi/digital-edition-frontend-ng/compare/2.3.0...2.3.1

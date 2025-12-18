@@ -8,11 +8,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+
+
+## [2.4.2] – 2025-12-18
+
 ### Changed
 
-- Deps: update `angular/cli` to 20.3.13.
-- Deps (dev): update `@types/node` to 22.19.3.
-- Deps: update transitive dependencies.
+- Deps: update `angular/cli` to 20.3.13. ([5fa4eb0](https://github.com/slsfi/digital-edition-frontend-ng/commit/5fa4eb0759a2b71922020143b3ff42947ff7627b))
+- Deps (dev): update `@types/node` to 22.19.3. ([6ddc09c](https://github.com/slsfi/digital-edition-frontend-ng/commit/6ddc09c665a4040862c8ac1b092d83e56406842a))
+- Deps: update transitive dependencies. ([9f38091](https://github.com/slsfi/digital-edition-frontend-ng/commit/9f38091d50a5284d0bc91d5dca18ae0efc9b8f55))
 
 
 
@@ -1134,7 +1138,8 @@ siteLogoDimensions: {
 
 
 
-[unreleased]: https://github.com/slsfi/digital-edition-frontend-ng/compare/2.4.1...HEAD
+[unreleased]: https://github.com/slsfi/digital-edition-frontend-ng/compare/2.4.2...HEAD
+[2.4.2]: https://github.com/slsfi/digital-edition-frontend-ng/compare/2.4.1...2.4.2
 [2.4.1]: https://github.com/slsfi/digital-edition-frontend-ng/compare/2.4.0...2.4.1
 [2.4.0]: https://github.com/slsfi/digital-edition-frontend-ng/compare/2.3.2...2.4.0
 [2.3.2]: https://github.com/slsfi/digital-edition-frontend-ng/compare/2.3.1...2.3.2

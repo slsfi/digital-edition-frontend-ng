@@ -11,6 +11,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 ### Changed
 
 - Deps: update `angular/cli` to 20.3.14 and `angular/core` to 20.3.16.
+- Deps (dev): update `@types/jasmine` to 5.1.15.
 
 
 

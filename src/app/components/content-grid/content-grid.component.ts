@@ -2,11 +2,11 @@ import { ChangeDetectionStrategy, Component, DestroyRef, LOCALE_ID, inject, sign
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 import { IonicModule } from '@ionic/angular';
-import { catchError, filter, forkJoin, from, map, mergeMap, Observable, of, toArray } from 'rxjs';
+import { catchError, forkJoin, from, map, mergeMap, Observable, of, switchMap, toArray } from 'rxjs';
 
 import { config } from '@config';
 import { Article } from '@models/article.models';
-import { Collection } from '@models/collection.models';
+import { Collection, CollectionWithCover } from '@models/collection.models';
 import { ContentItem } from '@models/content-item.models';
 import { ParentChildPagePathPipe } from '@pipes/parent-child-page-path.pipe';
 import { CollectionsService } from '@services/collections.service';
@@ -39,6 +39,7 @@ export class ContentGridComponent {
   readonly includeEbooks: boolean = config.component?.contentGrid?.includeEbooks ?? false;
   readonly includeMediaCollection: boolean = config.component?.contentGrid?.includeMediaCollection ?? false;
   readonly showTitles: boolean = config.component?.contentGrid?.showTitles ?? true;
+  private readonly coverFetchConcurrency = 12;
 
   contentItems = signal<ContentItem[] | undefined>(undefined);
 
@@ -80,99 +81,92 @@ export class ContentGridComponent {
   }
 
   private getArticles(): Observable<ContentItem[]> {
-    let itemsList: ContentItem[] = [];
-    if (this.includeArticles && this.availableArticles.length) {
-      this.availableArticles.forEach((article: Article) => {
-        if (article.language === this.activeLocale) {
-          const item = new ContentItem(article);
-          itemsList.push(item);
-        }
-      });
-    }
+    const itemsList = (this.includeArticles && this.availableArticles.length)
+      ? this.availableArticles
+          .filter((article: Article) => article.language === this.activeLocale)
+          .map((article: Article) => new ContentItem(article))
+      : [];
+
     return of(itemsList);
   }
 
   private getEbooks(): Observable<ContentItem[]> {
-    let itemsList: ContentItem[] = [];
-    if (this.includeEbooks && this.availableEbooks.length) {
-      this.availableEbooks.forEach((ebook: any) => {
-        const ebookItem = new ContentItem(ebook);
-        itemsList.push(ebookItem);
-      });
-    }
+    const itemsList = (this.includeEbooks && this.availableEbooks.length)
+      ? this.availableEbooks.map((ebook: any) => new ContentItem(ebook))
+      : [];
+
     return of(itemsList);
   }
 
   private getCollections(): Observable<ContentItem[]> {
-    // Adapted from https://stackoverflow.com/a/55517145
-    // First get list of collections, then for each collection,
-    // get it's cover image URL and alt-text (if they pass the filter
-    // which checks that they are included in the collections in config)
-    // and append this information to the collection data
+    // First get list of collections, then for each filtered collection
+    // fetch cover image URL and alt text from markdown content.
     return this.collectionsService.getCollections().pipe(
-      mergeMap((collectionsList: Collection[]) =>
-        // 'from' emits each collection separately
-        from(collectionsList).pipe(
-          // Filter collections to include only those with IDs in
-          // this.flattenedCollectionSortOrder, which comes from config
-          filter((collection: Collection) =>
-            this.flattenedCollectionSortOrder.includes(collection.id)
-          ),
-          // load cover info for each collection that passes the filter
-          // (mergeMap fetches in parallell, to fetch sequentially you'd
-          // use concatMap)
-          mergeMap((collection: Collection) => 
-            this.mdService.getMdContent(
-              `${this.activeLocale}-08-${collection.id}`
-            ).pipe(
-              // add image alt-text and cover URL from response to
-              // collection data
-              map((md: string) => {
-                // try to capture first image from the Markdown: ![alt](url)
-                const m = md.match(/!\[(.*?)\]\((.*?)\)/);
-                const imageAltText = m?.[1] || undefined;
-                const imageURL = m?.[2] || undefined;
+      switchMap((collectionsList: Collection[]) => {
+        const filteredCollections = collectionsList.filter((collection: Collection) =>
+          this.flattenedCollectionSortOrder.includes(collection.id)
+        );
 
-                return {
-                  ...collection,
-                  imageAltText,
-                  imageURL,
-                };
-              }),
-              catchError((error: any) => {
-                // error getting collection cover URL, so add collection
-                // with placeholder cover image
-                return of({
-                  ...collection,
-                  imageAltText: 'Collection cover image',
-                  imageURL: 'assets/images/collection-cover-placeholder.jpg'
-                });
-              })
-            ),
+        if (!filteredCollections.length) {
+          return of([]);
+        }
+
+        return from(filteredCollections).pipe(
+          // Fetch covers in parallel with capped concurrency to avoid
+          // overwhelming backend resources on large collection sets.
+          mergeMap(
+            (collection: Collection) => this.getCollectionWithCover(collection),
+            this.coverFetchConcurrency
           ),
-          map((collection: Collection) => {
-            return new ContentItem(collection);
-          }),
-          // collect all collections into an array
+          map((collectionWithCover: CollectionWithCover) => new ContentItem(collectionWithCover)),
           toArray(),
-          // sort array of collections to correspond to the collection
-          // order specified in config
           map((collectionItemsList: ContentItem[]) => {
-            if (this.flattenedCollectionSortOrder.length > 0)  {
+            if (this.flattenedCollectionSortOrder.length > 0) {
               return this.sortCollectionsList(
-                collectionItemsList, this.flattenedCollectionSortOrder
+                collectionItemsList,
+                this.flattenedCollectionSortOrder
               );
-            } else {
-              return collectionItemsList;
             }
+            return collectionItemsList;
           })
-        )
-      ),
-      catchError((error: any) => {
+        );
+      }),
+      catchError((error: unknown) => {
         console.error('Error loading collections data', error);
         return of([]);
       })
     );
+  }
+
+  private getCollectionWithCover(collection: Collection): Observable<CollectionWithCover> {
+    return this.mdService.getMdContent(
+      `${this.activeLocale}-08-${collection.id}`
+    ).pipe(
+      map((md: string) => {
+        const { imageAltText, imageURL } = this.extractFirstMarkdownImage(md);
+        return {
+          ...collection,
+          imageAltText,
+          imageURL,
+        };
+      }),
+      catchError(() => {
+        // Error getting collection cover data: use placeholder cover image.
+        return of({
+          ...collection,
+          imageAltText: 'Collection cover image',
+          imageURL: 'assets/images/collection-cover-placeholder.jpg'
+        });
+      })
+    );
+  }
+
+  private extractFirstMarkdownImage(md: string): { imageAltText?: string; imageURL?: string } {
+    const m = md.match(/!\[(.*?)\]\((.*?)\)/);
+    return {
+      imageAltText: m?.[1] || undefined,
+      imageURL: m?.[2] || undefined
+    };
   }
 
   private getMediaCollection(): Observable<ContentItem[]> {

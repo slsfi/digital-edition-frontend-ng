@@ -1,5 +1,5 @@
-import { Component, LOCALE_ID, OnInit, inject } from '@angular/core';
-import { AsyncPipe } from '@angular/common';
+import { ChangeDetectionStrategy, Component, DestroyRef, LOCALE_ID, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 import { IonicModule } from '@ionic/angular';
 import { catchError, filter, forkJoin, from, map, mergeMap, Observable, of, toArray } from 'rxjs';
@@ -13,14 +13,22 @@ import { CollectionsService } from '@services/collections.service';
 import { MarkdownService } from '@services/markdown.service';
 
 
+// ─────────────────────────────────────────────────────────────────────────────
+// * This component is zoneless-ready. *
+// ─────────────────────────────────────────────────────────────────────────────
 @Component({
   selector: 'content-grid',
   templateUrl: './content-grid.component.html',
   styleUrls: ['./content-grid.component.scss'],
-  imports: [AsyncPipe, IonicModule, RouterLink, ParentChildPagePathPipe]
+  imports: [IonicModule, RouterLink, ParentChildPagePathPipe],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class ContentGridComponent implements OnInit {
+export class ContentGridComponent {
+  // -----------------------------------------------------------------------------
+  // Dependency injection, fields, and local state
+  // -----------------------------------------------------------------------------
   private collectionsService = inject(CollectionsService);
+  private destroyRef = inject(DestroyRef);
   private mdService = inject(MarkdownService);
   private activeLocale = inject(LOCALE_ID);
 
@@ -32,10 +40,20 @@ export class ContentGridComponent implements OnInit {
   readonly includeMediaCollection: boolean = config.component?.contentGrid?.includeMediaCollection ?? false;
   readonly showTitles: boolean = config.component?.contentGrid?.showTitles ?? true;
 
-  contentItems$: Observable<ContentItem[]>;
+  contentItems = signal<ContentItem[] | undefined>(undefined);
 
-  ngOnInit() {
-    this.contentItems$ = forkJoin(
+  // -----------------------------------------------------------------------------
+  // Constructor
+  // -----------------------------------------------------------------------------
+  constructor() {
+    this.loadContentItems();
+  }
+
+  // -----------------------------------------------------------------------------
+  // Data loading and mapping
+  // -----------------------------------------------------------------------------
+  private loadContentItems(): void {
+    forkJoin(
       [
         this.getArticles(),
         this.getEbooks(),
@@ -43,18 +61,22 @@ export class ContentGridComponent implements OnInit {
         this.getMediaCollection()
       ]
     ).pipe(
-      map((res: any[]) => {
+      map((res: ContentItem[][]) => {
         const items = res.flat();
         // Add 'thumb' to end of cover image filenames
         items.forEach(item => {
-          const lastIndex = item.imageURL?.lastIndexOf('.') ?? -1;
-          if (lastIndex > -1) {
-            item.imageURL = item.imageURL.substring(0, lastIndex) + '_thumb' + item.imageURL.substring(lastIndex);
+          const imageURL = item.imageURL;
+          const lastIndex = imageURL?.lastIndexOf('.') ?? -1;
+          if (imageURL && lastIndex > -1) {
+            item.imageURL = imageURL.substring(0, lastIndex) + '_thumb' + imageURL.substring(lastIndex);
           }
         });
         return items;
-      })
-    );
+      }),
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe((items: ContentItem[]) => {
+      this.contentItems.set(items);
+    });
   }
 
   private getArticles(): Observable<ContentItem[]> {

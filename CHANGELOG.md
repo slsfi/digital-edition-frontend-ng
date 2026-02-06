@@ -11,6 +11,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 ### Changed
 
 - Deps: update `angular/cli` to 20.3.15.
+- Deps (dev): update `@types/node` to 22.19.7.
 
 
 ## [2.4.3] – 2026-01-14

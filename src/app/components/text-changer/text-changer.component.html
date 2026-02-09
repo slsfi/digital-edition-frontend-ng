@@ -1,10 +1,14 @@
 @if (flattenedToc().length) {
+  @let prev = prevItem();
+  @let current = currentItem();
+  @let next = nextItem();
+
   <div class="text-changer-wrapper"
         [class.mobile-mode]="mobileMode"
         [class.desktop-mode]="!mobileMode"
   >
     <div class="prev-wrapper">
-      @if (prevItem(); as prev) {
+      @if (prev) {
         <a class="prev-button"
               [ariaLabel]="mobileMode ? prevLabel : null"
               [routerLink]="prev.itemId | collectionPagePath: prev.page"
@@ -20,12 +24,12 @@
       }
     </div>
     <div class="current-text-name">
-      @if (currentItem(); as current) {
+      @if (current) {
         <p>{{current.text}} {{current.text_two || ''}}</p>
       }
     </div>
     <div class="next-wrapper">
-      @if (nextItem(); as next) {
+      @if (next) {
         <a class="next-button"
               [ariaLabel]="mobileMode ? nextLabel : null"
               [routerLink]="next.itemId | collectionPagePath: next.page"

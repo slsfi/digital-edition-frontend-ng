@@ -1,4 +1,4 @@
-import { Component, LOCALE_ID, OnInit, ViewChild, DOCUMENT, inject, input } from '@angular/core';
+import { Component, LOCALE_ID, OnInit, DOCUMENT, inject, input, viewChild } from '@angular/core';
 import { AsyncPipe, NgStyle } from '@angular/common';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { ActivatedRoute } from '@angular/router';
@@ -25,7 +25,7 @@ export class PdfViewerComponent implements OnInit {
   private document = inject<Document>(DOCUMENT);
 
   readonly pdfFileName = input<string>('');
-  @ViewChild('downloadOptionsPopover') downloadOptionsPopover: any;
+  readonly downloadOptionsPopover = viewChild<any>('downloadOptionsPopover');
 
   readonly showURNButton: boolean = config.component?.epub?.showURNButton ?? false;
 
@@ -94,8 +94,11 @@ export class PdfViewerComponent implements OnInit {
   }
 
   openDownloadPopover(event: any) {
-    this.downloadOptionsPopover.event = event;
-    this.downloadPopoverIsOpen = true;
+    const popover = this.downloadOptionsPopover();
+    if (popover) {
+      popover.event = event;
+      this.downloadPopoverIsOpen = true;
+    }
   }
 
   closeDownloadPopover() {

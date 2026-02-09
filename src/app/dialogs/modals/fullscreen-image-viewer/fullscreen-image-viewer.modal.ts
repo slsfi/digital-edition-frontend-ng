@@ -1,4 +1,4 @@
-import { Component, HostListener, Input, OnInit, inject } from '@angular/core';
+import { Component, Input, OnInit, inject } from '@angular/core';
 import { NgStyle } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IonicModule, ModalController } from '@ionic/angular';
@@ -12,7 +12,12 @@ import { isBrowser } from '@utility-functions';
   selector: 'modal-fullscreen-image-viewer',
   templateUrl: './fullscreen-image-viewer.modal.html',
   styleUrls: ['./fullscreen-image-viewer.modal.scss'],
-  imports: [NgStyle, FormsModule, IonicModule, DraggableImageDirective]
+  imports: [NgStyle, FormsModule, IonicModule, DraggableImageDirective],
+  // Change image on keyboard arrow key strokes
+  host: {
+    '(document:keyup.arrowleft)': 'previous()',
+    '(document:keyup.arrowright)': 'next()'
+  }
 })
 export class FullscreenImageViewerModal implements OnInit {
   private modalCtrl = inject(ModalController);
@@ -33,14 +38,6 @@ export class FullscreenImageViewerModal implements OnInit {
   showBackside: boolean = false;
   toolbarHeight: number = 0;
   zoom: number = 1.0;
-
-  @HostListener('document:keyup.arrowleft') onKeyArrowLeft() {
-    this.previous();
-  }
-
-  @HostListener('document:keyup.arrowright') onKeyArrowRight() {
-    this.next();
-  }
 
   ngOnInit() {
     this.mobileMode = this.platformService.isMobile();

@@ -65,22 +65,14 @@ export class TextChangerComponent {
   // -----------------------------------------------------------------------------
   // Derived computeds (pure, no side-effects)
   // -----------------------------------------------------------------------------
-  readonly prevItem = computed(() => {
+  readonly navItems = computed(() => {
     const items = this.flattenedToc();
     const index = this.currentTocTextIndex();
-    return index > 0 ? items[index - 1] : null;
-  });
-
-  readonly currentItem = computed(() => {
-    const items = this.flattenedToc();
-    const index = this.currentTocTextIndex();
-    return items.length > 0 ? items[index] : null;
-  });
-
-  readonly nextItem = computed(() => {
-    const items = this.flattenedToc();
-    const index = this.currentTocTextIndex();
-    return index < items.length - 1 ? items[index + 1] : null;
+    return {
+      prev: index > 0 ? items[index - 1] : null,
+      current: items.length > 0 ? items[index] : null,
+      next: index < items.length - 1 ? items[index + 1] : null
+    };
   });
 
 

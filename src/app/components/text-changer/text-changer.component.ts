@@ -40,7 +40,7 @@ export class TextChangerComponent {
   private tocService = inject(CollectionTableOfContentsService);
   private destroyRef = inject(DestroyRef);
 
-  readonly parentPageType = input<string>('text');
+  readonly parentPageType = input<string>('');
   // ionViewActive is true when the parent page component is active in the DOM,
   // i.e. the component has entered the Ionic life cycle hook ionViewWillEnter.
   // Set to false when the parent component has entered ionViewWillLeave life
@@ -56,8 +56,8 @@ export class TextChangerComponent {
   private textItemID = signal('');
   private textPosition = signal('');
   private tocItemId = signal('');
-  readonly mobileMode = this.platformService.isMobile();
 
+  readonly mobileMode = this.platformService.isMobile();
   readonly nextLabel: string = $localize`:@@TextChanger.NextLabel:Följande text`;
   readonly prevLabel: string = $localize`:@@TextChanger.PrevLabel:Föregående text`;
 
@@ -89,7 +89,7 @@ export class TextChangerComponent {
   // -----------------------------------------------------------------------------
   constructor() {
     this.registerTocAndRouteSubscription();
-    this.registerIonViewActivationEffect();
+    this.registerPageTypeAndIdentityEffect();
   }
 
   private registerTocAndRouteSubscription() {
@@ -138,23 +138,24 @@ export class TextChangerComponent {
         this.flattenedToc.set(this.getFrontmatterPages(collectionID, toc).concat(toc.children ?? []));
       }
 
-      this.updateCurrentText();
     });
   }
 
-  private registerIonViewActivationEffect() {
-    let initialized = false;
-    let previousActive = false;
-
+  private registerPageTypeAndIdentityEffect() {
     effect(() => {
+      // Re-evaluate current/prev/next when page type or ids change while active.
+      // This is especially important for frontmatter navigation where route params
+      // can stay unchanged between pages.
       const active = this.ionViewActive();
-      if (initialized && active && !previousActive) {
-        // Update current text when the ionic view becomes active again.
-        console.log('updating current text because ion view got active')
-        untracked(() => this.updateCurrentText());
+      this.parentPageType();
+      this.flattenedToc();
+      this.tocItemId();
+
+      if (!active) {
+        return;
       }
-      previousActive = active;
-      initialized = true;
+
+      untracked(() => this.updateCurrentText());
     });
   }
 
@@ -192,8 +193,18 @@ export class TextChangerComponent {
    */
   private updateCurrentText() {
     const pageType = this.parentPageType();
+    if (!pageType) {
+      return;
+    }
     const tocItems = this.flattenedToc();
     if (tocItems.length === 0) {
+      return;
+    }
+    // Ignore transient states while route/toc signals are still settling.
+    if (!this.collectionId()) {
+      return;
+    }
+    if (pageType === 'text' && !this.textItemID()) {
       return;
     }
 
@@ -210,7 +221,9 @@ export class TextChangerComponent {
     } else if (textItemIdIndex > -1) {
       this.currentTocTextIndex.set(textItemIdIndex);
     } else {
-      console.error('Unable to find the current text in flattenedTOC in text-changer component.');
+      console.error(
+        `Unable to find current text in flattenedTOC in text-changer component (pageType="${pageType}", tocItemId="${this.tocItemId()}", textItemID="${this.textItemID()}").`
+      );
       this.currentTocTextIndex.set(0);
     }
 
@@ -232,6 +245,16 @@ export class TextChangerComponent {
   }
 
   private getCurrentTextIndex(searchItemId: string, pageType: string, tocItems: any[]): number {
+    // Prefer a strict frontmatter match first.
+    if (pageType !== 'text') {
+      const frontMatterIndex = tocItems.findIndex(
+        item => item.page === pageType && item.itemId === this.collectionId()
+      );
+      if (frontMatterIndex > -1) {
+        return frontMatterIndex;
+      }
+    }
+
     return tocItems.findIndex(item => {
       if (!item.page && item.itemId === searchItemId) {
         return true;

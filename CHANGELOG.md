@@ -12,6 +12,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 - Migrate content-grid, occurrences-accordion, pdf-viewer, and text-changer components, as well as download-texts modal to zoneless-ready.
 - Migrate decorator query fields to signals.
+- Replace `HostListener` decorators with the `host` property on `Component` decorator.
 - Deps: update `@angular/cli` to 20.3.15.
 - Deps: update `htmlparser2` to 10.1.0.
 - Deps (dev): update `@types/node` to 22.19.7.

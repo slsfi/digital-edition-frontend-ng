@@ -6,6 +6,7 @@ import { catchError, forkJoin, from, map, mergeMap, Observable, of, switchMap, t
 
 import { config } from '@config';
 import { Article } from '@models/article.models';
+import { Ebook } from '@models/ebook.models';
 import { Collection, CollectionWithCover } from '@models/collection.models';
 import { ContentItem } from '@models/content-item.models';
 import { ParentChildPagePathPipe } from '@pipes/parent-child-page-path.pipe';
@@ -33,7 +34,7 @@ export class ContentGridComponent {
   private activeLocale = inject(LOCALE_ID);
 
   readonly availableArticles: Article[] = config.articles ?? [];
-  readonly availableEbooks: any[] = config.ebooks ?? [];
+  readonly availableEbooks: Ebook[] = config.ebooks ?? [];
   readonly flattenedCollectionSortOrder: number[] = ((config.collections?.order as number[][]) ?? []).flat();
   readonly includeArticles: boolean = config.component?.contentGrid?.includeArticles ?? false;
   readonly includeEbooks: boolean = config.component?.contentGrid?.includeEbooks ?? false;
@@ -92,7 +93,7 @@ export class ContentGridComponent {
 
   private getEbooks(): Observable<ContentItem[]> {
     const itemsList = (this.includeEbooks && this.availableEbooks.length)
-      ? this.availableEbooks.map((ebook: any) => new ContentItem(ebook))
+      ? this.availableEbooks.map((ebook: Ebook) => new ContentItem(ebook))
       : [];
 
     return of(itemsList);

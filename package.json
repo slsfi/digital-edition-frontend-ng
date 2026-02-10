@@ -48,7 +48,7 @@
     "@angular/localize": "^20.3.16",
     "@types/express": "^5.0.6",
     "@types/jasmine": "~5.1.15",
-    "@types/node": "^22.19.9",
+    "@types/node": "^22.19.10",
     "browser-sync": "^3.0.4",
     "gzipper": "^8.2.1",
     "jasmine-core": "~5.13.0",

@@ -10,7 +10,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ### Changed
 
-- Migrate content-grid, occurrences-accordion, pdf-viewer, and text-changer components, as well as download-texts modal to zoneless-ready.
+- Migrate content-grid, occurrences-accordion, pdf-viewer, and text-changer components to zoneless-ready.
+- Migrate download-texts and fullscreen-image-viewer modals to zoneless-ready.
 - Migrate decorator query fields to signals.
 - Replace `HostListener` decorators with the `host` property on `Component` decorator.
 - Defer loading content-grid on home page to the browser.

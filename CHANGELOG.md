@@ -20,6 +20,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - Deps (dev): update `karma-jasmine-html-reporter` to 2.2.0.
 - Deps: update transitive dependencies.
 
+### Fixed
+
+- Treat input variables as readonly in fullscreen image viewer modal.
 
 
 ## [2.4.3] – 2026-01-14

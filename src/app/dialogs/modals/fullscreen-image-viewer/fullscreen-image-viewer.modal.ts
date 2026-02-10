@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, ElementRef, Input, OnInit, afterNextRender, afterRenderEffect, computed, inject, signal, untracked, viewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ElementRef, Input, OnInit, afterRenderEffect, computed, inject, signal, untracked, viewChild } from '@angular/core';
 import { IonicModule, ModalController } from '@ionic/angular';
 
 import { DraggableImageDirective } from '@directives/draggable-image.directive';
@@ -56,8 +56,11 @@ export class FullscreenImageViewerModal implements OnInit {
   // Constructor and lifecycle wiring
   // ─────────────────────────────────────────────────────────────────────────────
   constructor() {
-    // Run toolbar height calculation when description is toggled or active
-    // image changes.
+    // Run toolbar height calculation on initial rendering and re-run when
+    // description is toggled or active image changes.
+    // ! Known bug: when this initially runs, the toolbar height is 0 in the DOM,
+    // so we won't get the initial height calculation. The fallback is good enough
+    // though.
     afterRenderEffect({
       write: () => {
         this.showDescription();

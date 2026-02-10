@@ -8,22 +8,27 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+
+
+## [2.4.4] – 2026-02-10
+
 ### Changed
 
-- Migrate content-grid, occurrences-accordion, pdf-viewer, and text-changer components to zoneless-ready.
-- Migrate download-texts and fullscreen-image-viewer modals to zoneless-ready.
-- Migrate decorator query fields to signals.
-- Replace `HostListener` decorators with the `host` property on `Component` decorator.
-- Defer loading content-grid on home page to the browser.
-- Deps: update `@angular/cli` to 20.3.16.
-- Deps: update `htmlparser2` to 10.1.0.
-- Deps (dev): update `@types/node` to 22.19.10.
-- Deps (dev): update `karma-jasmine-html-reporter` to 2.2.0.
-- Deps: update transitive dependencies.
+- Migrate content-grid, occurrences-accordion, pdf-viewer, and text-changer components to zoneless-ready. ([6794f33](https://github.com/slsfi/digital-edition-frontend-ng/commit/6794f33e65f0a6c1f3e3a501953e30ad0f972ac9), [89fb737](https://github.com/slsfi/digital-edition-frontend-ng/commit/89fb737b3895d7193b22df6e83d4e357f79d5a40), [bf5351f](https://github.com/slsfi/digital-edition-frontend-ng/commit/bf5351f8ee24c1f352bb36458cd61ab6a65279ca), [bf2d3a0](https://github.com/slsfi/digital-edition-frontend-ng/commit/bf2d3a0a39f6b9681f9c2618dc33176aef556ae1))
+- Migrate download-texts and fullscreen-image-viewer modals to zoneless-ready. ([17dec08](https://github.com/slsfi/digital-edition-frontend-ng/commit/17dec08c82dc7b54f0fa51ea568a9eae353d2c61), [45521de](https://github.com/slsfi/digital-edition-frontend-ng/commit/45521de7cdb8d33296d50e5bec76f1931a408995))
+- Migrate decorator query fields to signals. ([786b0be](https://github.com/slsfi/digital-edition-frontend-ng/commit/786b0be704d62d0c5a57103222aa85ed9b1be7fb))
+- Replace `HostListener` decorators with the `host` property on `Component` decorator. ([54e5d8e](https://github.com/slsfi/digital-edition-frontend-ng/commit/54e5d8ef28be0678b52bd5b3a3cc0a339f1aa759))
+- Defer loading content-grid on home page to the browser. ([aca23d9](https://github.com/slsfi/digital-edition-frontend-ng/commit/aca23d9f9ac5c3bab04859791ff7efc19a748bdf))
+- Deps: update `@angular/cli` to 20.3.16. ([1da60d7](https://github.com/slsfi/digital-edition-frontend-ng/commit/1da60d7a2ef0b1a72b9e6464fac46b592f7aa586), [7f59010](https://github.com/slsfi/digital-edition-frontend-ng/commit/7f59010047be7f4a03e4e6c5ec668e4fbc34ea78))
+- Deps: update `htmlparser2` to 10.1.0. ([04d2a73](https://github.com/slsfi/digital-edition-frontend-ng/commit/04d2a732871f59db52de92341808dda5b74003ca))
+- Deps (dev): update `@types/node` to 22.19.10. ([d08a223](https://github.com/slsfi/digital-edition-frontend-ng/commit/d08a2234b82d8e3b6c37c0db5beebe573896f8ee), [10d46f9](https://github.com/slsfi/digital-edition-frontend-ng/commit/10d46f99d0ae99a6f12d4a9200001cf480e7f5ad))
+- Deps (dev): update `karma-jasmine-html-reporter` to 2.2.0. ([8156fb9](https://github.com/slsfi/digital-edition-frontend-ng/commit/8156fb95bcfb8da2c4ccc5ee06d2b1ffde421b7d))
+- Deps: update transitive dependencies. ([4f35d4d](https://github.com/slsfi/digital-edition-frontend-ng/commit/4f35d4d4b24bcc19321547047885230aaf21258d), [bbe30f1](https://github.com/slsfi/digital-edition-frontend-ng/commit/bbe30f166c945a673e5a15ca211913535db55b44))
 
 ### Fixed
 
-- Treat input variables as readonly in fullscreen image viewer modal.
+- Treat input variables as readonly in fullscreen image viewer modal. ([5b759a9](https://github.com/slsfi/digital-edition-frontend-ng/commit/5b759a97be0c5e3c69524479b4ab1b78ba71c21e))
+
 
 
 ## [2.4.3] – 2026-01-14
@@ -1165,7 +1170,8 @@ siteLogoDimensions: {
 
 
 
-[unreleased]: https://github.com/slsfi/digital-edition-frontend-ng/compare/2.4.3...HEAD
+[unreleased]: https://github.com/slsfi/digital-edition-frontend-ng/compare/2.4.4...HEAD
+[2.4.4]: https://github.com/slsfi/digital-edition-frontend-ng/compare/2.4.3...2.4.4
 [2.4.3]: https://github.com/slsfi/digital-edition-frontend-ng/compare/2.4.2...2.4.3
 [2.4.2]: https://github.com/slsfi/digital-edition-frontend-ng/compare/2.4.1...2.4.2
 [2.4.1]: https://github.com/slsfi/digital-edition-frontend-ng/compare/2.4.0...2.4.1

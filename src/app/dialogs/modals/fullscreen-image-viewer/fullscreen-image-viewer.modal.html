@@ -3,7 +3,7 @@
 @let imageTitles = normImageTitles();
 
 <div class="full-page-modal">
-  <div class="facsimile-button-group">
+  <div #facsToolbar class="facsimile-button-group">
     <div class="action-buttons">
       <ion-fab>
         @if (!mobileModeValue && imageURLs.length > 1) {
@@ -52,8 +52,7 @@
               min="1"
               [max]="imageURLs.length ? imageURLs.length : null"
               (ionChange)="setImageNr($event)"
-              [ngModel]="inputImageNumber()"
-              (ngModelChange)="inputImageNumber.set($event)"
+              [value]="inputImageNumber()"
         ></ion-input>
       }
       <ion-fab>
@@ -105,7 +104,7 @@
                   "
           alt="Skannat faksimil"
           i18n-alt="@@Facsimiles.AltText"
-          [ngStyle]="imageStyle()"
+          [style]="imageStyle()"
           (wheel)="zoomWithMouseWheel($event)"
           [draggableImage]="[prevX(), prevY()]"
           [angle]="angle()"

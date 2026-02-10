@@ -1,6 +1,4 @@
-import { ChangeDetectionStrategy, Component, Input, OnInit, afterNextRender, afterRenderEffect, computed, inject, signal, untracked } from '@angular/core';
-import { NgStyle } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { ChangeDetectionStrategy, Component, ElementRef, Input, OnInit, afterNextRender, afterRenderEffect, computed, inject, signal, untracked, viewChild } from '@angular/core';
 import { IonicModule, ModalController } from '@ionic/angular';
 
 import { DraggableImageDirective } from '@directives/draggable-image.directive';
@@ -14,7 +12,7 @@ import { PlatformService } from '@services/platform.service';
   selector: 'modal-fullscreen-image-viewer',
   templateUrl: './fullscreen-image-viewer.modal.html',
   styleUrls: ['./fullscreen-image-viewer.modal.scss'],
-  imports: [NgStyle, FormsModule, IonicModule, DraggableImageDirective],
+  imports: [IonicModule, DraggableImageDirective],
   changeDetection: ChangeDetectionStrategy.OnPush,
   // Change image on keyboard arrow key strokes
   host: {
@@ -35,9 +33,11 @@ export class FullscreenImageViewerModal implements OnInit {
   @Input() imageTitles: string[] = [];
   @Input() imageURLs: string[] = [];
 
+  private readonly toolbar = viewChild<ElementRef<HTMLElement>>('facsToolbar');
+
   activeImageIndex = signal(0);
   angle = signal(0);
-  inputImageNumber = signal(1);
+  inputImageNumber = computed(() => this.activeImageIndex() + 1);
   mobileMode = signal(false);
   normImageTitles = signal<string[]>([]);
   prevX = signal(0);
@@ -52,20 +52,11 @@ export class FullscreenImageViewerModal implements OnInit {
     'max-height': `calc(100vh - ${this.toolbarHeight()}px)`
   }));
 
-
   // ─────────────────────────────────────────────────────────────────────────────
   // Constructor and lifecycle wiring
   // ─────────────────────────────────────────────────────────────────────────────
   constructor() {
-    // Run a single toolbar height calculation when the component has finished
-    // rendering.
-    afterNextRender({
-      write: () => {
-        this.toolbarHeight.set(this.getToolbarHeight());
-      },
-    });
-
-    // Re-run toolbar height calculation when description is toggled or active
+    // Run toolbar height calculation when description is toggled or active
     // image changes.
     afterRenderEffect({
       write: () => {
@@ -101,7 +92,6 @@ export class FullscreenImageViewerModal implements OnInit {
       this.activeImageIndex.set(0);
     }
 
-    this.inputImageNumber.set(this.activeImageIndex() + 1);
   }
 
   // ─────────────────────────────────────────────────────────────────────────────
@@ -112,13 +102,11 @@ export class FullscreenImageViewerModal implements OnInit {
   }
 
   previous() {
-    this.activeImageIndex.update((value: number) => value - 1);
-    this.checkImageIndexValidity();
+    this.setActiveIndex(this.activeImageIndex() - 1);
   }
 
   next() {
-    this.activeImageIndex.update((value: number) => value + 1);
-    this.checkImageIndexValidity();
+    this.setActiveIndex(this.activeImageIndex() + 1);
   }
 
   zoomIn() {
@@ -169,12 +157,11 @@ export class FullscreenImageViewerModal implements OnInit {
   }
 
   setImageNr(_event: any) {
-    if (this.inputImageNumber() < 1) {
-      this.inputImageNumber.set(1);
-    } else if (this.inputImageNumber() > this.imageURLs.length) {
-      this.inputImageNumber.set(this.imageURLs.length);
+    const value = Number(_event?.detail?.value);
+    if (!Number.isFinite(value)) {
+      return;
     }
-    this.activeImageIndex.set(this.inputImageNumber() - 1);
+    this.setActiveIndex(value - 1, true);
   }
 
   getBacksideUrl(frontsideUrl: string) {
@@ -185,23 +172,25 @@ export class FullscreenImageViewerModal implements OnInit {
   // Internal helpers
   // ─────────────────────────────────────────────────────────────────────────────
 
-  private checkImageIndexValidity() {
-    const activeImageIndex = this.activeImageIndex();
-
-    if (activeImageIndex < 0) {
-      this.activeImageIndex.set(this.imageURLs.length - 1);
-      this.inputImageNumber.set(this.imageURLs.length);
-    } else if (activeImageIndex > this.imageURLs.length - 1) {
+  private setActiveIndex(index: number, clamp = false) {
+    const length = this.imageURLs.length;
+    if (length === 0) {
       this.activeImageIndex.set(0);
-      this.inputImageNumber.set(1);
-    } else {
-      this.inputImageNumber.set(activeImageIndex + 1);
+      return;
     }
+
+    if (clamp) {
+      const clamped = Math.min(Math.max(index, 0), length - 1);
+      this.activeImageIndex.set(clamped);
+      return;
+    }
+
+    const wrapped = ((index % length) + length) % length;
+    this.activeImageIndex.set(wrapped);
   }
 
   private getToolbarHeight() {
-    const toolbarElem = document.querySelector<HTMLElement>('.facsimile-button-group');
-    return Math.ceil(toolbarElem?.getBoundingClientRect().bottom || 137);
+    return Math.ceil(this.toolbar()?.nativeElement.getBoundingClientRect().bottom || 137);
   }
 
   private getImageTransform() {

@@ -23,15 +23,17 @@ export class FullscreenImageViewerModal implements OnInit {
   private modalCtrl = inject(ModalController);
   private platformService = inject(PlatformService);
 
-  @Input() activeImageIndex: number = 0;
+  @Input() startImageIndex: number = 0;
   @Input() backsides: any[] = [];
   @Input() imageDescriptions: string[] = [];
   @Input() imageTitles: string[] = [];
   @Input() imageURLs: string[] = [];
 
+  activeImageIndex: number = 0;
   angle: number = 0;
   inputImageNumber: number = 1;
   mobileMode: boolean = false;
+  normImageTitles: string[] = [];
   prevX: number = 0;
   prevY: number = 0;
   showDescription: boolean = true;
@@ -41,23 +43,20 @@ export class FullscreenImageViewerModal implements OnInit {
 
   ngOnInit() {
     this.mobileMode = this.platformService.isMobile();
+    this.activeImageIndex = this.startImageIndex;
 
     // Append dot to image titles
     if (this.imageTitles.length > 0) {
-      for (let x = 0; x < this.imageTitles.length; x++) {
-        if (
-          this.imageTitles[x] &&
-          this.imageTitles[x] !== 'null'
-        ) {
-          if (
-            this.imageTitles[x].slice(-1) !== '.' &&
-            this.imageTitles[x].slice(-1) !== '!' &&
-            this.imageTitles[x].slice(-1) !== ':'
-          ) {
-            this.imageTitles[x] = this.imageTitles[x].trim() + '.';
+      this.normImageTitles = this.imageTitles.map((origTitle: string) => {
+        if (origTitle && origTitle !== 'null') {
+          const trimmed = origTitle.trim();
+          const lastChar = trimmed.slice(-1);
+          if (lastChar !== '.' && lastChar !== '!' && lastChar !== ':') {
+            return trimmed + '.';
           }
         }
-      }
+        return origTitle;
+      });
     }
 
     if (this.activeImageIndex < 0 || this.activeImageIndex > this.imageURLs.length - 1) {

@@ -31,7 +31,7 @@
         <ion-fab-button size="small" (click)="reset()" title="Återställ" i18n-title="@@Facsimiles.Reset">
           <ion-icon name="scan-outline" aria-label="Återställ" i18n-aria-label="@@Facsimiles.Reset"></ion-icon>
         </ion-fab-button>
-        @if ((imageDescriptions && imageDescriptions[activeImageIndex]) || (imageTitles && imageTitles[activeImageIndex])) {
+        @if ((imageDescriptions && imageDescriptions[activeImageIndex]) || (normImageTitles && normImageTitles[activeImageIndex])) {
           <ion-fab-button size="small" (click)="toggleImageDescription()" title="Visa/dölj beskrivning" i18n-title="@@FullscreenImageViewer.ToggleDescription">
             <ion-icon name="information-outline" aria-label="Visa/dölj beskrivning" i18n-aria-label="@@FullscreenImageViewer.ToggleDescription"></ion-icon>
           </ion-fab-button>
@@ -57,10 +57,10 @@
         </ion-fab-button>
       </ion-fab>
     </div>
-    @if ((imageDescriptions && imageDescriptions[activeImageIndex]) || (imageTitles && imageTitles[activeImageIndex])) {
+    @if ((imageDescriptions && imageDescriptions[activeImageIndex]) || (normImageTitles && normImageTitles[activeImageIndex])) {
       <div class="image-description" [class.visuallyhidden]="!showDescription">
-        @if (imageTitles && imageTitles[activeImageIndex]) {
-          <span class="image-title" [innerHTML]="imageTitles[activeImageIndex] + ' '"></span>
+        @if (normImageTitles && normImageTitles[activeImageIndex]) {
+          <span class="image-title" [innerHTML]="normImageTitles[activeImageIndex] + ' '"></span>
         }
         @if (imageDescriptions && imageDescriptions[activeImageIndex]) {
           <span [innerHTML]="imageDescriptions[activeImageIndex]"></span>

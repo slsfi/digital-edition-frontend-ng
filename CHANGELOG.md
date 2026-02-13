@@ -8,6 +8,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+### Changed
+
+- Deps: update `@angular/cli` to 19.2.20 and `@angular/core` to 19.2.18.
+
+
 
 
 ## [1.8.2] – 2025-06-24

@@ -8,9 +8,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+
+
+## [2.4.6] – 2026-02-13
+
 ### Changed
 
-- Update `nginx` to 1.28.2.
+- Update `nginx` to 1.28.2. ([3115154](https://github.com/slsfi/digital-edition-frontend-ng/commit/311515499f23f66474373759700974b8055c8849))
 
 
 
@@ -1187,7 +1191,8 @@ siteLogoDimensions: {
 
 
 
-[unreleased]: https://github.com/slsfi/digital-edition-frontend-ng/compare/2.4.5...HEAD
+[unreleased]: https://github.com/slsfi/digital-edition-frontend-ng/compare/2.4.6...HEAD
+[2.4.6]: https://github.com/slsfi/digital-edition-frontend-ng/compare/2.4.5...2.4.6
 [2.4.5]: https://github.com/slsfi/digital-edition-frontend-ng/compare/2.4.4...2.4.5
 [2.4.4]: https://github.com/slsfi/digital-edition-frontend-ng/compare/2.4.3...2.4.4
 [2.4.3]: https://github.com/slsfi/digital-edition-frontend-ng/compare/2.4.2...2.4.3

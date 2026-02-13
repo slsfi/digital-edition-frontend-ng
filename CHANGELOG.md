@@ -13,6 +13,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - Update GitHub Actions in the Docker build-and-push workflow.
 - Harden Docker build and refresh docs.
 - Update README.
+- Deps: update `marked` to 17.0.2.
 - Deps (dev): update `@types/node` to 22.19.11.
 
 

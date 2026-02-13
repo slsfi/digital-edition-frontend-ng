@@ -18,6 +18,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - Deps (dev): update `@types/express` to 4.17.25.
 - Deps (dev): update `@types/jasmine` to 5.1.15.
 - Deps (dev): update `@types/node` to 20.19.33.
+- Deps (dev): update `karma-jasmine-html-reporter` to 2.2.0.
 
 
 

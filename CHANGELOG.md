@@ -8,18 +8,22 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+
+
+## [1.8.3] – 2026-02-13
+
 ### Changed
 
-- Update `nginx` to 1.28.2 and remove `extra_hosts` from `compose.yml`.
-- Deps: update `@angular/cli` to 19.2.20 and `@angular/core` to 19.2.18.
-- Deps: update `express` to 4.22.1.
-- Deps: update `htmlparser2` to 10.1.0.
-- Deps: update `marked-footnote` to 1.4.0.
-- Deps (dev): update `@types/express` to 4.17.25.
-- Deps (dev): update `@types/jasmine` to 5.1.15.
-- Deps (dev): update `@types/node` to 20.19.33.
-- Deps (dev): update `karma-jasmine-html-reporter` to 2.2.0.
-- Deps: update transitive dependencies.
+- Update `nginx` to 1.28.2 and remove `extra_hosts` from `compose.yml`. ([7ababb7](https://github.com/slsfi/digital-edition-frontend-ng/commit/7ababb7a1c14b9d1687971fb418b26fcd1ebf703))
+- Deps: update `@angular/cli` to 19.2.20 and `@angular/core` to 19.2.18. ([76d613e](https://github.com/slsfi/digital-edition-frontend-ng/commit/76d613e07bc28375b6994677d81cab367479dc3e))
+- Deps: update `express` to 4.22.1. ([7e5276e](https://github.com/slsfi/digital-edition-frontend-ng/commit/7e5276e584acc7c701d20c42850f38f290d9f867))
+- Deps: update `htmlparser2` to 10.1.0. ([294b8fa](https://github.com/slsfi/digital-edition-frontend-ng/commit/294b8fab5f93f956355f4316e045ee6df9008ac5))
+- Deps: update `marked-footnote` to 1.4.0. ([5e5f662](https://github.com/slsfi/digital-edition-frontend-ng/commit/5e5f6624d8e89a5aefe99b2462f443142c6dbef5))
+- Deps (dev): update `@types/express` to 4.17.25. ([8ca4843](https://github.com/slsfi/digital-edition-frontend-ng/commit/8ca484399678dedc5232aadb88153c550a96f282))
+- Deps (dev): update `@types/jasmine` to 5.1.15. ([c35e641](https://github.com/slsfi/digital-edition-frontend-ng/commit/c35e641a172c8c5cac34f66a365e69fbd37d7c63))
+- Deps (dev): update `@types/node` to 20.19.33. ([e6f197e](https://github.com/slsfi/digital-edition-frontend-ng/commit/e6f197e68bf69da69439854ef187ec3fd9b55ef4))
+- Deps (dev): update `karma-jasmine-html-reporter` to 2.2.0. ([3f4a061](https://github.com/slsfi/digital-edition-frontend-ng/commit/3f4a061d5cc547013dd082d087e3961bf8311f3f))
+- Deps: update transitive dependencies. ([39b996d](https://github.com/slsfi/digital-edition-frontend-ng/commit/39b996d5196c5738fdc49800a7c1f3200057caf0))
 
 
 
@@ -798,7 +802,8 @@ siteLogoDimensions: {
 
 
 
-[unreleased]: https://github.com/slsfi/digital-edition-frontend-ng/compare/1.8.2...HEAD
+[unreleased]: https://github.com/slsfi/digital-edition-frontend-ng/compare/1.8.3...1.x.x
+[1.8.3]: https://github.com/slsfi/digital-edition-frontend-ng/compare/1.8.2...1.8.3
 [1.8.2]: https://github.com/slsfi/digital-edition-frontend-ng/compare/1.8.1...1.8.2
 [1.8.1]: https://github.com/slsfi/digital-edition-frontend-ng/compare/1.8.0...1.8.1
 [1.8.0]: https://github.com/slsfi/digital-edition-frontend-ng/compare/1.7.0...1.8.0

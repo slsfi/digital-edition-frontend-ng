@@ -12,6 +12,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 - Deps: update `@angular/cli` to 19.2.20 and `@angular/core` to 19.2.18.
 - Deps: update `express` to 4.22.1.
+- Deps: update `htmlparser2` to 10.1.0.
 - Deps: update `marked-footnote` to 1.4.0.
 - Deps (dev): update `@types/express` to 4.17.25.
 - Deps (dev): update `@types/jasmine` to 5.1.15.

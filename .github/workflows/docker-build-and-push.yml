@@ -29,7 +29,7 @@ jobs:
 
     steps:
       # Check out repository.
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       # Log in with GitHub token credentials.
       - name: Log in to ghcr.io
@@ -56,7 +56,7 @@ jobs:
       # or with "main" if built against main (commit push) or built using
       # workflow_dispatch.
       - name: Build and push docker image
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           context: .
           push: true

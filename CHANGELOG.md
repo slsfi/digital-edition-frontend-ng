@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+### Changed
+
+- Update GitHub Actions in the Docker build-and-push workflow.
+
 
 
 ## [2.4.4] – 2026-02-10

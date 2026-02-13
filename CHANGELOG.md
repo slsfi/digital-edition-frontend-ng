@@ -15,6 +15,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - Update README.
 - Deps: update `marked` to 17.0.2.
 - Deps (dev): update `@types/node` to 22.19.11.
+- Deps: update transitive dependencies.
 
 
 

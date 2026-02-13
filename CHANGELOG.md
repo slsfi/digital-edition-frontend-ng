@@ -10,6 +10,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ### Changed
 
+- Update `nginx` to 1.28.2 and remove `extra_hosts` from `compose.yml`.
 - Deps: update `@angular/cli` to 19.2.20 and `@angular/core` to 19.2.18.
 - Deps: update `express` to 4.22.1.
 - Deps: update `htmlparser2` to 10.1.0.

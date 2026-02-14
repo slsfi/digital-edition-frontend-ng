@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+### Changed
+
+- Remove GHA cache export/import from Docker build and push workflow.
+
 
 
 ## [2.4.6] – 2026-02-13

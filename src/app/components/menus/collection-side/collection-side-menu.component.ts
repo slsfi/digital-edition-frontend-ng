@@ -10,6 +10,7 @@ import { ArrayIncludesAnyPipe } from '@pipes/array-includes-any.pipe';
 import { ArrayIncludesPipe } from '@pipes/array-includes.pipe';
 import { CollectionPagePathPipe } from '@pipes/collection-page-path.pipe';
 import { CollectionPagePositionQueryparamPipe } from '@pipes/collection-page-position-queryparam.pipe';
+import { CollectionTocPathNode } from '@models/menu.models';
 import { CollectionTableOfContentsService } from '@services/collection-toc.service';
 import { ScrollService } from '@services/scroll.service';
 import { addOrRemoveValueInNewArray, enableFrontMatterPageOrTextViewType, isBrowser } from '@utility-functions';
@@ -318,7 +319,7 @@ export class CollectionSideMenuComponent {
   private findPathToItem(
     array: any[] | undefined,
     searchItemId: string
-  ): Array<{ id: string; leaf: boolean }> | null {
+  ): CollectionTocPathNode[] | null {
     if (!Array.isArray(array) || !searchItemId) return null;
 
     for (const item of array) {

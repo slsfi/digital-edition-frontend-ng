@@ -20,7 +20,7 @@ import { addOrRemoveValueInNewArray, enableFrontMatterPageOrTextViewType, isBrow
 // * This component is zoneless-ready. *
 // ─────────────────────────────────────────────────────────────────────────────
 // Because pure pipes are used in the template to check included items in
-// `selectedMenu`, the array has to be recreated every time it changes, otherwise
+// `expandedMenuIds`, the array has to be recreated every time it changes, otherwise
 // the changes won't be reflected in the view.
 @Component({
   selector: 'collection-side-menu',
@@ -57,9 +57,8 @@ export class CollectionSideMenuComponent {
 
   readonly activeMenuOrder = signal<string>('');
   readonly collectionMenu = signal<any[]>([]);
-  readonly currentMenuItemId = signal<string | null>(null);
-  readonly currentMenuItemIsLeaf = signal<boolean>(true);
-  readonly selectedMenu = signal<string[]>([]);  // list of all open menu ids
+  readonly highlightedMenuItemId = signal<string | null>(null);
+  readonly expandedMenuIds = signal<string[]>([]);  // list of all open branch ids
 
   readonly menuReady = signal(false);           // true after a TOC load finishes
   readonly menuReadyStamp = signal(0);          // increments after each TOC load
@@ -164,8 +163,8 @@ export class CollectionSideMenuComponent {
 
       // reset state for new menu
       this.collectionMenu.set([]);
-      this.selectedMenu.set([]);
-      this.currentMenuItemId.set('');
+      this.expandedMenuIds.set([]);
+      this.highlightedMenuItemId.set('');
 
       // compute initial scroll timeout based on order change
       const scrollTimeout = untracked(this.activeMenuOrder) !== toc.order ? 1000 : 700;
@@ -189,8 +188,8 @@ export class CollectionSideMenuComponent {
 
       // set menu tree + initial open nodes
       if (toc.children?.length) {
-        const selected = this.recursiveInitializeSelectedMenu(toc.children, []);
-        this.selectedMenu.set(selected);
+        const expanded = this.recursiveInitializeExpandedMenuIds(toc.children, []);
+        this.expandedMenuIds.set(expanded);
         this.collectionMenu.set(toc.children);
       }
 
@@ -240,18 +239,8 @@ export class CollectionSideMenuComponent {
   }
 
   private updateHighlightedMenuItem(scrollTimeout: number = 600) {
-    // Remove previously highlighted leaf item from selectedMenu if present.
-    // Keep branch nodes (items with children) open to avoid collapsing
-    // sibling menus when navigating between them.
-    const selectedMenu = this.selectedMenu();
-    const currentId = this.currentMenuItemId();
-    if (currentId && this.currentMenuItemIsLeaf() && selectedMenu.includes(currentId)) {
-      this.selectedMenu.set(selectedMenu.filter(id => id !== currentId));
-    }
-
     // Resolve new selected item and it's menu path
     let itemId = this.getItemId();
-    let itemIsLeaf = true;
 
     if (this.routeUrlSegments()?.[2]?.path === 'text') {
       const collectionMenu = this.collectionMenu();
@@ -270,20 +259,19 @@ export class CollectionSideMenuComponent {
       // Open all branches in the path (union into a *new* array for
       // OnPush + pure pipes)
       if (path?.length) {
-        const set = new Set(this.selectedMenu());
+        const set = new Set(this.expandedMenuIds());
         for (const node of path) {
-          if (node.id) {
+          // only add branch nodes to the array of expanded menu item ids
+          if (node.id && !node.leaf) {
             set.add(node.id);
           }
         }
-        this.selectedMenu.set(Array.from(set));
-        itemIsLeaf = path[path.length - 1].leaf;
+        this.expandedMenuIds.set(Array.from(set));
       }
     }
 
     // Update currently selected menu item
-    this.currentMenuItemId.set(itemId);
-    this.currentMenuItemIsLeaf.set(itemIsLeaf);
+    this.highlightedMenuItemId.set(itemId);
     this.scrollHighlightedMenuItemIntoView(itemId, scrollTimeout);
   }
 
@@ -345,10 +333,10 @@ export class CollectionSideMenuComponent {
    * `nodeId` is a string starting with "n" and followed by incremental numbers.
    * Each new branch is indicated by a dash and the counter is reset.
    * For example: n1-1-2. This way each item gets a unique identifier.
-   * The method returns a new array of the given `accMenu` menu items containing
-   * any items with `collapsed` property set to `false`.
+   * The method returns a new array of expanded branch ids, i.e. branch items
+   * (`children` exists) with `collapsed` property set to `false`.
    */
-  private recursiveInitializeSelectedMenu(
+  private recursiveInitializeExpandedMenuIds(
     array: any[],
     accMenu: string[],
     parentNodeId?: string
@@ -356,13 +344,13 @@ export class CollectionSideMenuComponent {
     for (let i = 0; i < array.length; i++) {
       array[i]["nodeId"] = (parentNodeId ? `${parentNodeId}-` : 'n') + (i+1);
 
-      if (array[i]["collapsed"] === false) {
+      if (array[i]["collapsed"] === false && array[i]["children"]?.length) {
         const selectedId = array[i]["itemId"] || array[i]["nodeId"];
         accMenu = addOrRemoveValueInNewArray(accMenu, selectedId);
       }
 
       if (array[i]["children"]?.length) {
-        accMenu = this.recursiveInitializeSelectedMenu(
+        accMenu = this.recursiveInitializeExpandedMenuIds(
           array[i]["children"], accMenu, array[i]["nodeId"]
         );
       }
@@ -414,7 +402,9 @@ export class CollectionSideMenuComponent {
 
   toggle(menuItem: any) {
     const id = menuItem.itemId || menuItem.nodeId;
-    this.selectedMenu.set(addOrRemoveValueInNewArray(this.selectedMenu(), id));
+    if (id && menuItem?.children?.length) {
+      this.expandedMenuIds.set(addOrRemoveValueInNewArray(this.expandedMenuIds(), id));
+    }
   }
 
   async setActiveMenuSorting(event: any) {

@@ -12,10 +12,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 - Remove GHA cache export/import from Docker build and push workflow.
 - Migrate illustration modal to zoneless-ready.
+- Collection side menu: clarify highlight state naming and expansion semantics.
 
 ### Fixed
 
-- Ccollection side menu: prevent branch collapse while keeping selectedMenu bounded.
+- Collection side menu: prevent branch collapse while keeping selectedMenu bounded.
 
 
 

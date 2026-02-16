@@ -6,9 +6,9 @@ import { IonicModule, ModalController } from '@ionic/angular';
 import { NamedEntityService } from '@services/named-entity.service';
 
 
-// -----------------------------------------------------------------------------
+// ─────────────────────────────────────────────────────────────────────────────
 // * This component is zoneless-ready. *
-// -----------------------------------------------------------------------------
+// ─────────────────────────────────────────────────────────────────────────────
 @Component({
   selector: 'modal-index-filter',
   templateUrl: './index-filter.modal.html',
@@ -17,9 +17,9 @@ import { NamedEntityService } from '@services/named-entity.service';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class IndexFilterModal implements OnInit {
-  // -----------------------------------------------------------------------------
+  // ─────────────────────────────────────────────────────────────────────────────
   // Dependency injection, @Input properties, local state signals
-  // -----------------------------------------------------------------------------
+  // ─────────────────────────────────────────────────────────────────────────────
   private destroyRef = inject(DestroyRef);
   private modalCtrl = inject(ModalController);
   private namedEntityService = inject(NamedEntityService);
@@ -36,9 +36,9 @@ export class IndexFilterModal implements OnInit {
   shouldFilterYear = signal(false);
   showLoading = signal(false);
 
-  // -----------------------------------------------------------------------------
+  // ─────────────────────────────────────────────────────────────────────────────
   // Lifecycle wiring
-  // -----------------------------------------------------------------------------
+  // ─────────────────────────────────────────────────────────────────────────────
   ngOnInit() {
     if (this.activeFilters?.filterYearMin) {
       this.filterYearMin = Number(this.activeFilters.filterYearMin);
@@ -53,9 +53,9 @@ export class IndexFilterModal implements OnInit {
     this.setFilters();
   }
 
-  // -----------------------------------------------------------------------------
+  // ─────────────────────────────────────────────────────────────────────────────
   // Public UI actions (called from template)
-  // -----------------------------------------------------------------------------
+  // ─────────────────────────────────────────────────────────────────────────────
   cancel() {
     return this.modalCtrl.dismiss(null, 'close');
   }
@@ -120,9 +120,9 @@ export class IndexFilterModal implements OnInit {
     return this.modalCtrl.dismiss(filters, 'apply');
   }
 
-  // -----------------------------------------------------------------------------
+  // ─────────────────────────────────────────────────────────────────────────────
   // Internal helpers
-  // -----------------------------------------------------------------------------
+  // ─────────────────────────────────────────────────────────────────────────────
   private setFilters() {
     this.showLoading.set(true);
     const typeKey: string = (this.searchType === 'persons') ? 'filterPersonTypes'

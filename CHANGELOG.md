@@ -13,6 +13,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - Remove GHA cache export/import from Docker build and push workflow.
 - Migrate illustration modal to zoneless-ready.
 
+### Fixed
+
+- Avoid collapsing previous collection menu item with children.
+
 
 
 ## [2.4.6] – 2026-02-13

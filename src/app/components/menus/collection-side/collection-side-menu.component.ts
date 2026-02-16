@@ -241,7 +241,7 @@ export class CollectionSideMenuComponent {
   private updateHighlightedMenuItem(scrollTimeout: number = 600) {
     // Remove previously highlighted leaf item from selectedMenu if present.
     // Keep branch nodes (items with children) open to avoid collapsing
-    // sibling chapter menus when navigating between chapter links.
+    // sibling menus when navigating between them.
     const selectedMenu = this.selectedMenu();
     const currentId = this.currentMenuItemId();
     if (currentId && this.currentMenuItemIsLeaf() && selectedMenu.includes(currentId)) {
@@ -339,7 +339,8 @@ export class CollectionSideMenuComponent {
   }
 
   /**
-   * Recursively add `nodeId` property to each object in the given array (in-place).
+   * Recursively add `nodeId` property to each object in the given array
+   * (in-place).
    * `nodeId` is a string starting with "n" and followed by incremental numbers.
    * Each new branch is indicated by a dash and the counter is reset.
    * For example: n1-1-2. This way each item gets a unique identifier.

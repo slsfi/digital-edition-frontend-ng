@@ -400,6 +400,30 @@ export class CollectionSideMenuComponent {
   // UI
   // ─────────────────────────────────────────────────────────────────────────────
 
+  onBranchLinkClick(event: MouseEvent, menuItem: any) {
+    if (!menuItem?.itemId || !menuItem?.children?.length) {
+      return;
+    }
+    if (this.highlightedMenuItemId() !== menuItem.itemId) {
+      return;
+    }
+    // Let modified clicks keep native browser behavior.
+    if (
+      event.defaultPrevented ||
+      event.button !== 0 ||
+      event.ctrlKey ||
+      event.metaKey ||
+      event.shiftKey ||
+      event.altKey
+    ) {
+      return;
+    }
+
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    this.toggle(menuItem);
+  }
+
   toggle(menuItem: any) {
     const id = menuItem.itemId || menuItem.nodeId;
     if (id && menuItem?.children?.length) {

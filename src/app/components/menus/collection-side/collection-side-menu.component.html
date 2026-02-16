@@ -97,6 +97,7 @@
         <a
               [routerLink]="item.itemId | collectionPagePath"
               [queryParams]="item.itemId | collectionPagePositionQueryparam"
+              (click)="onBranchLinkClick($event, item)"
               [class.menu-highlight]="highlItem === item.itemId"
               [class.submenu-label]="item.children"
         >

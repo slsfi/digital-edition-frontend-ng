@@ -15,7 +15,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ### Fixed
 
-- Avoid collapsing previous collection menu item with children.
+- Ccollection side menu: prevent branch collapse while keeping selectedMenu bounded.
 
 
 

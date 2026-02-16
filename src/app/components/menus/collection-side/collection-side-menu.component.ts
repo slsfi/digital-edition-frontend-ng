@@ -10,6 +10,7 @@ import { ArrayIncludesAnyPipe } from '@pipes/array-includes-any.pipe';
 import { ArrayIncludesPipe } from '@pipes/array-includes.pipe';
 import { CollectionPagePathPipe } from '@pipes/collection-page-path.pipe';
 import { CollectionPagePositionQueryparamPipe } from '@pipes/collection-page-position-queryparam.pipe';
+import { CollectionTocPathNode } from '@models/menu.models';
 import { CollectionTableOfContentsService } from '@services/collection-toc.service';
 import { ScrollService } from '@services/scroll.service';
 import { addOrRemoveValueInNewArray, enableFrontMatterPageOrTextViewType, isBrowser } from '@utility-functions';
@@ -57,6 +58,7 @@ export class CollectionSideMenuComponent {
   readonly activeMenuOrder = signal<string>('');
   readonly collectionMenu = signal<any[]>([]);
   readonly currentMenuItemId = signal<string | null>(null);
+  readonly currentMenuItemIsLeaf = signal<boolean>(true);
   readonly selectedMenu = signal<string[]>([]);  // list of all open menu ids
 
   readonly menuReady = signal(false);           // true after a TOC load finishes
@@ -238,15 +240,18 @@ export class CollectionSideMenuComponent {
   }
 
   private updateHighlightedMenuItem(scrollTimeout: number = 600) {
-    // Remove previously highlighted menu item from selectedMenu if present
+    // Remove previously highlighted leaf item from selectedMenu if present.
+    // Keep branch nodes (items with children) open to avoid collapsing
+    // sibling menus when navigating between them.
     const selectedMenu = this.selectedMenu();
     const currentId = this.currentMenuItemId();
-    if (currentId && selectedMenu.includes(currentId)) {
+    if (currentId && this.currentMenuItemIsLeaf() && selectedMenu.includes(currentId)) {
       this.selectedMenu.set(selectedMenu.filter(id => id !== currentId));
     }
 
     // Resolve new selected item and it's menu path
     let itemId = this.getItemId();
+    let itemIsLeaf = true;
 
     if (this.routeUrlSegments()?.[2]?.path === 'text') {
       const collectionMenu = this.collectionMenu();
@@ -266,17 +271,19 @@ export class CollectionSideMenuComponent {
       // OnPush + pure pipes)
       if (path?.length) {
         const set = new Set(this.selectedMenu());
-        for (const id of path) {
-          if (id) {
-            set.add(id);
+        for (const node of path) {
+          if (node.id) {
+            set.add(node.id);
           }
         }
         this.selectedMenu.set(Array.from(set));
+        itemIsLeaf = path[path.length - 1].leaf;
       }
     }
 
     // Update currently selected menu item
     this.currentMenuItemId.set(itemId);
+    this.currentMenuItemIsLeaf.set(itemIsLeaf);
     this.scrollHighlightedMenuItemIntoView(itemId, scrollTimeout);
   }
 
@@ -303,23 +310,29 @@ export class CollectionSideMenuComponent {
   }
 
   /**
-   * Depth-first search that returns the *path* of ids to open from root to the
-   * matched item. Each element in the path is item.itemId (if present) else item.nodeId.
+   * Depth-first search that returns the *path* from root to the matched item.
+   * Each path entry contains:
+   * - id: item.itemId (if present) else item.nodeId
+   * - leaf: true if the node has no children
    * Returns null if not found. No side effects.
    */
-  private findPathToItem(array: any[] | undefined, searchItemId: string): string[] | null {
+  private findPathToItem(
+    array: any[] | undefined,
+    searchItemId: string
+  ): CollectionTocPathNode[] | null {
     if (!Array.isArray(array) || !searchItemId) return null;
 
     for (const item of array) {
       const selfId = this.getSelectableId(item);
-      if (item?.itemId === searchItemId) {
-        return selfId ? [selfId] : [];
-      }
       const children = item?.children as any[] | undefined;
+      const leaf = !children?.length;
+      if (item?.itemId === searchItemId) {
+        return selfId ? [{ id: selfId, leaf }] : [];
+      }
       if (children?.length) {
         const childPath = this.findPathToItem(children, searchItemId);
         if (childPath) {
-          return selfId ? [selfId, ...childPath] : childPath;
+          return selfId ? [{ id: selfId, leaf }, ...childPath] : childPath;
         }
       }
     }
@@ -327,7 +340,8 @@ export class CollectionSideMenuComponent {
   }
 
   /**
-   * Recursively add `nodeId` property to each object in the given array (in-place).
+   * Recursively add `nodeId` property to each object in the given array
+   * (in-place).
    * `nodeId` is a string starting with "n" and followed by incremental numbers.
    * Each new branch is indicated by a dash and the counter is reset.
    * For example: n1-1-2. This way each item gets a unique identifier.

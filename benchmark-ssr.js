@@ -10,6 +10,7 @@ const DEFAULT_ROUTES = [
   '/sv/',
   '/sv/collection/216/introduction',
   '/sv/collection/216/text/20280',
+  '/sv/collection/211/text/20210',
 ];
 
 /*

@@ -11,6 +11,10 @@ import { CollectionSideMenuComponent } from '@components/menus/collection-side/c
 import { MainSideMenuComponent } from '@components/menus/main-side/main-side-menu.component';
 import { StaticHtmlComponent } from '@components/static-html/static-html.component';
 import { TopMenuComponent } from '@components/menus/top/top-menu.component';
+import {
+  BrowserCollectionTextViewsQueryParamSyncService,
+  CollectionTextViewsQueryParamSyncService
+} from '@services/collection-text-views-query-param-sync.service';
 
 
 @NgModule({
@@ -31,7 +35,11 @@ import { TopMenuComponent } from '@components/menus/top/top-menu.component';
   ],
   providers: [
     provideHttpClient(withFetch()),
-    { provide: RouteReuseStrategy, useClass: IonicRouteStrategy }
+    { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
+    {
+      provide: CollectionTextViewsQueryParamSyncService,
+      useClass: BrowserCollectionTextViewsQueryParamSyncService
+    }
   ],
   bootstrap: [AppComponent]
 })

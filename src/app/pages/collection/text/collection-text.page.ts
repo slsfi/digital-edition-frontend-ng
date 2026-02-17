@@ -18,7 +18,7 @@ import { UrlService } from '@services/url.service';
 import { ViewOptionsService } from '@services/view-options.service';
 import { CollectionTextViewsQueryParamSyncService } from '@services/collection-text-views-query-param-sync.service';
 import { RouteStateSourceService } from '@services/route-state-source.service';
-import { enableFrontMatterPageOrTextViewType, moveArrayItem } from '@utility-functions';
+import { enableFrontMatterPageOrTextViewType, isBrowser, moveArrayItem } from '@utility-functions';
 
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -198,7 +198,7 @@ export class CollectionTextPage implements OnInit {
       this.collectionContentService.previousReadViewTextId = this.collectionContentService.readViewTextId;
       this.collectionContentService.readViewTextId = routeTextItemID;
 
-      if (this.enableLegacyIDs) {
+      if (this.enableLegacyIDs && isBrowser()) {
         this.setCollectionAndPublicationLegacyId(publicationID);
       }
 

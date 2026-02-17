@@ -20,6 +20,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - Math-Jax directive: switch from `ngOnChanges` to `afterRenderEffect`.
 - Lazy-load modal/popover components via dynamic imports on page actions.
 - Avoid collection-text query-param route churn via platform-specific sync service.
+- Add shared RouteStateSourceService for collection text/introduction pages.
+- Skip legacy-id prefetch on server in collection text page.
 
 ### Fixed
 

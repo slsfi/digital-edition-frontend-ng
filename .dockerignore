@@ -18,6 +18,7 @@ README.md
 CHANGELOG.md
 compose.yml
 nginx.conf
+scripts/benchmark-ssr.js
 
 # OS/log noise
 *.log

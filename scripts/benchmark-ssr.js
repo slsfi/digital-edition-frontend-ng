@@ -19,9 +19,17 @@ const DEFAULT_ROUTES = [
  * Usage:
  *   npm run bench:ssr -- [options] [route ...]
  *
+ * Output model:
+ *   - Cold run: first request per route (run 1)
+ *   - Warm runs: subsequent requests (runs 2..N)
+ *   - Warm summary includes avg, median, p95, min, and max
+ *
  * Supported CLI arguments:
+ *   --warm-runs <n> | --warm-runs=<n>
+ *     Number of warm requests per route (default: 5).
+ *
  *   --runs <n> | --runs=<n>
- *     Number of benchmark requests per route (default: 5).
+ *     Alias for --warm-runs.
  *
  *   --port <n> | --port=<n>
  *     Port used when starting dist/app/proxy-server.js (default: 4201).
@@ -52,6 +60,7 @@ const DEFAULT_ROUTES = [
  *
  * Examples:
  *   npm run bench:ssr
+ *   npm run bench:ssr -- --warm-runs=8
  *   npm run bench:ssr -- --runs=8
  *   npm run bench:ssr -- --routes=/sv/,/sv/collection/216/introduction
  *   npm run bench:ssr -- /sv/ /sv/collection/216/text/20280
@@ -65,7 +74,8 @@ Usage:
   npm run bench:ssr -- [options] [route ...]
 
 Options:
-  --runs <n> | --runs=<n>                    Number of runs per route (default: 5)
+  --warm-runs <n> | --warm-runs=<n>          Number of warm runs per route (default: 5)
+  --runs <n> | --runs=<n>                    Alias for --warm-runs
   --port <n> | --port=<n>                    Port for proxy-server.js when auto-starting (default: 4201)
   --route <path> | --route=<path>            Add one route (repeatable)
   --routes <csv> | --routes=<csv>            Add comma-separated routes
@@ -75,8 +85,14 @@ Options:
   --request-timeout-ms <n>                   Request timeout in ms (default: 120000)
   --help, -h                                 Show this help
 
+Output:
+  cold = run 1 per route
+  warm = runs 2..N per route
+  warm summary includes avg, median, p95, min, max
+
 Examples:
   npm run bench:ssr
+  npm run bench:ssr -- --warm-runs=8
   npm run bench:ssr -- --runs=8
   npm run bench:ssr -- --routes=/sv/,/sv/collection/216/introduction
   npm run bench:ssr -- /sv/ /sv/collection/216/text/20280
@@ -86,7 +102,7 @@ Examples:
 
 function parseArgs(argv) {
   const opts = {
-    runs: 5,
+    warmRuns: 5,
     port: 4201,
     startupTimeoutMs: 30000,
     requestTimeoutMs: 120000,
@@ -111,12 +127,22 @@ function parseArgs(argv) {
       continue;
     }
 
+    if (arg.startsWith('--warm-runs=')) {
+      opts.warmRuns = Number(arg.split('=')[1]);
+      continue;
+    }
+    if (arg === '--warm-runs' && argv[i + 1]) {
+      opts.warmRuns = Number(argv[++i]);
+      continue;
+    }
+
+    // Backward-compatible alias for --warm-runs.
     if (arg.startsWith('--runs=')) {
-      opts.runs = Number(arg.split('=')[1]);
+      opts.warmRuns = Number(arg.split('=')[1]);
       continue;
     }
     if (arg === '--runs' && argv[i + 1]) {
-      opts.runs = Number(argv[++i]);
+      opts.warmRuns = Number(argv[++i]);
       continue;
     }
 
@@ -192,8 +218,8 @@ function parseArgs(argv) {
     opts.routes = routes;
   }
 
-  if (!Number.isFinite(opts.runs) || opts.runs < 1) {
-    throw new Error('Invalid --runs value');
+  if (!Number.isFinite(opts.warmRuns) || opts.warmRuns < 0) {
+    throw new Error('Invalid --warm-runs/--runs value');
   }
   if (!Number.isFinite(opts.port) || opts.port < 1) {
     throw new Error('Invalid --port value');
@@ -262,8 +288,26 @@ async function waitForServer(baseUrl, readyRoute, startupTimeoutMs, requestTimeo
   throw new Error(`SSR server did not start within ${startupTimeoutMs} ms`);
 }
 
-function routeSummary(resultsForRoute) {
-  const values = resultsForRoute.map((r) => r.ms);
+function percentile(values, p) {
+  if (values.length === 0) return NaN;
+  if (values.length === 1) return values[0];
+
+  const sorted = [...values].sort((a, b) => a - b);
+  const rank = (p / 100) * (sorted.length - 1);
+  const lower = Math.floor(rank);
+  const upper = Math.ceil(rank);
+  const weight = rank - lower;
+
+  if (upper === lower) return sorted[lower];
+  return sorted[lower] + (sorted[upper] - sorted[lower]) * weight;
+}
+
+function computeStats(rows) {
+  const values = rows.map((r) => r.ms);
+  if (values.length === 0) {
+    return null;
+  }
+
   const sorted = [...values].sort((a, b) => a - b);
   const avg = values.reduce((a, b) => a + b, 0) / values.length;
   const min = sorted[0];
@@ -273,8 +317,9 @@ function routeSummary(resultsForRoute) {
     sorted.length % 2 === 1
       ? sorted[mid]
       : (sorted[mid - 1] + sorted[mid]) / 2;
+  const p95 = percentile(values, 95);
 
-  return { avg, min, max, median };
+  return { avg, min, max, median, p95 };
 }
 
 function fmtMs(ms) {
@@ -336,9 +381,10 @@ async function main() {
 
   try {
     const results = [];
+    const totalRequestsPerRoute = opts.warmRuns + 1;
 
     for (const route of routes) {
-      for (let run = 1; run <= opts.runs; run++) {
+      for (let run = 1; run <= totalRequestsPerRoute; run++) {
         const result = await fetchWithTiming(
           getUrl(baseUrl, route),
           opts.requestTimeoutMs,
@@ -355,7 +401,8 @@ async function main() {
     }
 
     console.log(`Base URL: ${baseUrl}`);
-    console.log(`Runs per route: ${opts.runs}`);
+    console.log(`Warm runs per route: ${opts.warmRuns}`);
+    console.log(`Total requests per route (cold + warm): ${totalRequestsPerRoute}`);
     console.table(
       results.map((r) => ({
         route: r.route,
@@ -373,20 +420,40 @@ async function main() {
       grouped.get(row.route).push(row);
     }
 
-    const summary = [];
+    const coldRows = [];
+    const warmSummary = [];
+
     for (const [route, rows] of grouped.entries()) {
-      const stats = routeSummary(rows);
-      summary.push({
+      const sortedRows = [...rows].sort((a, b) => a.run - b.run);
+      const cold = sortedRows[0];
+      const warmRows = sortedRows.filter((r) => r.run > 1);
+      const warmOkRows = warmRows.filter((r) => r.status !== 'ERR');
+      const warmStats = computeStats(warmOkRows);
+
+      coldRows.push({
         route,
-        avg_ms: fmtMs(stats.avg),
-        median_ms: fmtMs(stats.median),
-        min_ms: fmtMs(stats.min),
-        max_ms: fmtMs(stats.max),
+        status: cold?.status ?? 'N/A',
+        cold_ms: cold ? fmtMs(cold.ms) : null,
+        bytes: cold?.bytes ?? 0,
+        error: cold?.error ?? '',
+      });
+
+      warmSummary.push({
+        route,
+        warm_runs: warmRows.length,
+        warm_err: warmRows.length - warmOkRows.length,
+        avg_ms: warmStats ? fmtMs(warmStats.avg) : null,
+        median_ms: warmStats ? fmtMs(warmStats.median) : null,
+        p95_ms: warmStats ? fmtMs(warmStats.p95) : null,
+        min_ms: warmStats ? fmtMs(warmStats.min) : null,
+        max_ms: warmStats ? fmtMs(warmStats.max) : null,
       });
     }
 
-    console.log('Summary');
-    console.table(summary);
+    console.log('Cold runs (run 1 per route)');
+    console.table(coldRows);
+    console.log('Warm summary (runs 2..N, successful responses only)');
+    console.table(warmSummary);
   } finally {
     stopServer();
   }

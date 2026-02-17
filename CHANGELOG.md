@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+### Added
+
+- Benchmark script for measuring SSR performance.
+
 ### Changed
 
 - Remove GHA cache export/import from Docker build and push workflow.

@@ -22,6 +22,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - Avoid collection-text query-param route churn via platform-specific sync service.
 - Add shared RouteStateSourceService for collection text/introduction pages.
 - Skip legacy-id prefetch on server in collection text page.
+- Skip static-html defer placeholder when static collection menus are disabled.
 
 ### Fixed
 

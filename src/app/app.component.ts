@@ -22,6 +22,7 @@ export class AppComponent implements OnDestroy, OnInit {
   private tocService = inject(CollectionTableOfContentsService);
 
   readonly enableCollectionSideMenuSSR: boolean = config.app?.ssr?.collectionSideMenu ?? false;
+  readonly prebuiltCollectionMenus: boolean = config.app?.prebuild?.staticCollectionMenus ?? true;
   readonly enableRouterLoadingBar: boolean = config.app?.enableRouterLoadingBar ?? false;
 
   appIsStarting: boolean = true;

@@ -1,7 +1,7 @@
-import { Component, ElementRef, LOCALE_ID, NgZone, OnDestroy, OnInit, Renderer2, inject } from '@angular/core';
+import { Component, DestroyRef, ElementRef, LOCALE_ID, NgZone, OnDestroy, OnInit, Renderer2, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ModalController, PopoverController } from '@ionic/angular';
-import { combineLatest, map, Subscription } from 'rxjs';
 
 import { config } from '@config';
 import { CollectionContentService } from '@services/collection-content.service';
@@ -11,6 +11,7 @@ import { PlatformService } from '@services/platform.service';
 import { ScrollService } from '@services/scroll.service';
 import { TooltipService } from '@services/tooltip.service';
 import { ViewOptionsService } from '@services/view-options.service';
+import { RouteStateSourceService } from '@services/route-state-source.service';
 import { isBrowser } from '@utility-functions';
 
 
@@ -23,6 +24,7 @@ import { isBrowser } from '@utility-functions';
 export class CollectionIntroductionPage implements OnInit, OnDestroy {
   private collectionContentService = inject(CollectionContentService);
   private collectionsService = inject(CollectionsService);
+  private destroyRef = inject(DestroyRef);
   private elementRef = inject(ElementRef);
   private modalCtrl = inject(ModalController);
   private ngZone = inject(NgZone);
@@ -32,6 +34,7 @@ export class CollectionIntroductionPage implements OnInit, OnDestroy {
   private renderer2 = inject(Renderer2);
   private tooltipService = inject(TooltipService);
   private route = inject(ActivatedRoute);
+  private routeStateSource = inject(RouteStateSourceService);
   private router = inject(Router);
   private scrollService = inject(ScrollService);
   viewOptionsService = inject(ViewOptionsService);
@@ -73,7 +76,6 @@ export class CollectionIntroductionPage implements OnInit, OnDestroy {
   toolTipScaleValue: number | null = null;
   toolTipText: string = '';
   tooltipVisible: boolean = false;
-  urlParametersSubscription: Subscription | null = null;
   userIsTouching: boolean = false;
 
   private unlistenClickEvents?: () => void;
@@ -112,11 +114,10 @@ export class CollectionIntroductionPage implements OnInit, OnDestroy {
   ngOnInit() {
     this.mobileMode = this.platformService.isMobile();
 
-    this.urlParametersSubscription = combineLatest(
-      [this.route.params, this.route.queryParams]
-    ).pipe(
-      map(([params, queryParams]) => ({...params, ...queryParams}))
-    ).subscribe(routeParams => {
+    this.routeStateSource.get(this.route).pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe(({ params, queryParams }) => {
+      const routeParams = { ...params, ...queryParams };
       
       // Check if there is a text position in the route params
       // (comes from queryParams)
@@ -154,7 +155,6 @@ export class CollectionIntroductionPage implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    this.urlParametersSubscription?.unsubscribe();
     this.unlistenClickEvents?.();
     this.unlistenKeyUpEnterEvents?.();
     this.unlistenMouseoverEvents?.();

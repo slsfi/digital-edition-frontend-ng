@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, DestroyRef, ElementRef, Injector, L
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
 import { IonFabButton, IonFabList, IonPopover, ModalController, PopoverController } from '@ionic/angular';
-import { combineLatest, distinctUntilChanged, filter, Observable } from 'rxjs';
+import { distinctUntilChanged, Observable } from 'rxjs';
 
 import { config } from '@config';
 import { TextKey, ViewState, ViewType, ViewUid } from '@models/collection.models';
@@ -17,6 +17,7 @@ import { TooltipService } from '@services/tooltip.service';
 import { UrlService } from '@services/url.service';
 import { ViewOptionsService } from '@services/view-options.service';
 import { CollectionTextViewsQueryParamSyncService } from '@services/collection-text-views-query-param-sync.service';
+import { RouteStateSourceService } from '@services/route-state-source.service';
 import { enableFrontMatterPageOrTextViewType, moveArrayItem } from '@utility-functions';
 
 
@@ -47,6 +48,7 @@ export class CollectionTextPage implements OnInit {
   private popoverCtrl = inject(PopoverController);
   private renderer2 = inject(Renderer2);
   private route = inject(ActivatedRoute);
+  private routeStateSource = inject(RouteStateSourceService);
   private scrollService = inject(ScrollService);
   private tooltipService = inject(TooltipService);
   private urlService = inject(UrlService);
@@ -154,18 +156,20 @@ export class CollectionTextPage implements OnInit {
 
   /**
    * Wire route + queryParam reactions.
-   * Subscribes to the route’s path parameters and query parameters and keeps the
-   * component’s state in sync with the URL — only while the page is active.
    *
-   * Converts the `activeComponent` signal to an Observable (`active$`) and
-   * gates emissions with `filter(([, , active]) => active)`. This prevents any
-   * updates while the page is cached/inactive in Ionic’s `IonRouterOutlet`.
+   * Keeps component state in sync with route path params and query params.
+   * The `activeComponent` signal is converted to an Observable (`active$`)
+   * and used to gate browser-side emissions, so updates run only while this
+   * page is active (important with Ionic `IonRouterOutlet` page caching).
+   *
+   * Route-state retrieval is delegated to a platform-specific source:
+   * - Browser: reactive stream of route/query changes, gated by `active$`.
+   * - Server (SSR): single snapshot emission for the current request.
    */
   private initRouteSync() {
-    combineLatest([this.route.params, this.route.queryParams, this.active$]).pipe(
-      filter(([, , active]) => active === true),
+    this.routeStateSource.get(this.route, this.active$).pipe(
       takeUntilDestroyed(this.destroyRef)
-    ).subscribe(([params, queryParams]) => {
+    ).subscribe(({ params, queryParams }) => {
       this.onRouteParams(params);
       this.onQueryParams(queryParams);
     });
@@ -1936,3 +1940,5 @@ export class CollectionTextPage implements OnInit {
   }
 
 }
+
+

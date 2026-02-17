@@ -12,6 +12,10 @@ import { MainSideMenuComponent } from '@components/menus/main-side/main-side-men
 import { StaticHtmlComponent } from '@components/static-html/static-html.component';
 import { TopMenuComponent } from '@components/menus/top/top-menu.component';
 import {
+  BrowserRouteStateSourceService,
+  RouteStateSourceService
+} from '@services/route-state-source.service';
+import {
   BrowserCollectionTextViewsQueryParamSyncService,
   CollectionTextViewsQueryParamSyncService
 } from '@services/collection-text-views-query-param-sync.service';
@@ -36,6 +40,10 @@ import {
   providers: [
     provideHttpClient(withFetch()),
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
+    {
+      provide: RouteStateSourceService,
+      useClass: BrowserRouteStateSourceService
+    },
     {
       provide: CollectionTextViewsQueryParamSyncService,
       useClass: BrowserCollectionTextViewsQueryParamSyncService

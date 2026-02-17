@@ -6,6 +6,10 @@ import { IonicServerModule } from '@ionic/angular-server';
 import { AppModule } from './app.module';
 import { AppComponent } from './app.component';
 import {
+  RouteStateSourceService,
+  ServerRouteStateSourceService
+} from '@services/route-state-source.service';
+import {
   CollectionTextViewsQueryParamSyncService,
   ServerCollectionTextViewsQueryParamSyncService
 } from '@services/collection-text-views-query-param-sync.service';
@@ -19,6 +23,10 @@ import {
   ],
   providers: [
     provideHttpClient(withFetch()),
+    {
+      provide: RouteStateSourceService,
+      useClass: ServerRouteStateSourceService
+    },
     {
       provide: CollectionTextViewsQueryParamSyncService,
       useClass: ServerCollectionTextViewsQueryParamSyncService

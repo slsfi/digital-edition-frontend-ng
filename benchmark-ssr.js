@@ -21,7 +21,7 @@ const DEFAULT_ROUTES = [
  *
  * Supported CLI arguments:
  *   --runs <n> | --runs=<n>
- *     Number of benchmark requests per route (default: 3).
+ *     Number of benchmark requests per route (default: 5).
  *
  *   --port <n> | --port=<n>
  *     Port used when starting dist/app/proxy-server.js (default: 4201).
@@ -52,7 +52,7 @@ const DEFAULT_ROUTES = [
  *
  * Examples:
  *   npm run bench:ssr
- *   npm run bench:ssr -- --runs=5
+ *   npm run bench:ssr -- --runs=8
  *   npm run bench:ssr -- --routes=/sv/,/sv/collection/216/introduction
  *   npm run bench:ssr -- /sv/ /sv/collection/216/text/20280
  *   npm run bench:ssr -- --skip-start --base-url=http://127.0.0.1:4201
@@ -65,7 +65,7 @@ Usage:
   npm run bench:ssr -- [options] [route ...]
 
 Options:
-  --runs <n> | --runs=<n>                    Number of runs per route (default: 3)
+  --runs <n> | --runs=<n>                    Number of runs per route (default: 5)
   --port <n> | --port=<n>                    Port for proxy-server.js when auto-starting (default: 4201)
   --route <path> | --route=<path>            Add one route (repeatable)
   --routes <csv> | --routes=<csv>            Add comma-separated routes
@@ -77,7 +77,7 @@ Options:
 
 Examples:
   npm run bench:ssr
-  npm run bench:ssr -- --runs=5
+  npm run bench:ssr -- --runs=8
   npm run bench:ssr -- --routes=/sv/,/sv/collection/216/introduction
   npm run bench:ssr -- /sv/ /sv/collection/216/text/20280
   npm run bench:ssr -- --skip-start --base-url=http://127.0.0.1:4201
@@ -86,7 +86,7 @@ Examples:
 
 function parseArgs(argv) {
   const opts = {
-    runs: 3,
+    runs: 5,
     port: 4201,
     startupTimeoutMs: 30000,
     requestTimeoutMs: 120000,

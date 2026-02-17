@@ -13,6 +13,10 @@ import {
   CollectionTextViewsQueryParamSyncService,
   ServerCollectionTextViewsQueryParamSyncService
 } from '@services/collection-text-views-query-param-sync.service';
+import {
+  RouterNavigationSourceService,
+  ServerRouterNavigationSourceService
+} from '@services/router-navigation-source.service';
 
 
 @NgModule({
@@ -30,6 +34,10 @@ import {
     {
       provide: CollectionTextViewsQueryParamSyncService,
       useClass: ServerCollectionTextViewsQueryParamSyncService
+    },
+    {
+      provide: RouterNavigationSourceService,
+      useClass: ServerRouterNavigationSourceService
     }
   ],
   bootstrap: [AppComponent],

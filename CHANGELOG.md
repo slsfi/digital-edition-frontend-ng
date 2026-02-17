@@ -19,6 +19,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - Collection side menu: clarify highlight state naming and expansion semantics.
 - Math-Jax directive: switch from `ngOnChanges` to `afterRenderEffect`.
 - Lazy-load modal/popover components via dynamic imports on page actions.
+- Avoid collection-text query-param route churn via platform-specific sync service.
 
 ### Fixed
 

@@ -5,6 +5,10 @@ import { IonicServerModule } from '@ionic/angular-server';
 
 import { AppModule } from './app.module';
 import { AppComponent } from './app.component';
+import {
+  CollectionTextViewsQueryParamSyncService,
+  ServerCollectionTextViewsQueryParamSyncService
+} from '@services/collection-text-views-query-param-sync.service';
 
 
 @NgModule({
@@ -13,7 +17,13 @@ import { AppComponent } from './app.component';
     ServerModule,
     IonicServerModule,
   ],
-  providers: [provideHttpClient(withFetch())],
+  providers: [
+    provideHttpClient(withFetch()),
+    {
+      provide: CollectionTextViewsQueryParamSyncService,
+      useClass: ServerCollectionTextViewsQueryParamSyncService
+    }
+  ],
   bootstrap: [AppComponent],
 })
 export class AppServerModule {}

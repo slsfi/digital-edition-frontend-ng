@@ -1,7 +1,6 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, ElementRef, Injector, LOCALE_ID, NgZone, OnInit, Renderer2, afterNextRender, inject, signal, viewChild, viewChildren } from '@angular/core';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
-import { Location } from '@angular/common';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import { IonFabButton, IonFabList, IonPopover, ModalController, PopoverController } from '@ionic/angular';
 import { combineLatest, distinctUntilChanged, filter, Observable } from 'rxjs';
 
@@ -17,6 +16,7 @@ import { ScrollService } from '@services/scroll.service';
 import { TooltipService } from '@services/tooltip.service';
 import { UrlService } from '@services/url.service';
 import { ViewOptionsService } from '@services/view-options.service';
+import { CollectionTextViewsQueryParamSyncService } from '@services/collection-text-views-query-param-sync.service';
 import { enableFrontMatterPageOrTextViewType, moveArrayItem } from '@utility-functions';
 
 
@@ -40,7 +40,6 @@ export class CollectionTextPage implements OnInit {
   private elementRef = inject(ElementRef);
   private headService = inject(DocumentHeadService);
   private injector = inject(Injector);
-  private location = inject(Location);
   private modalCtrl = inject(ModalController);
   private ngZone = inject(NgZone);
   private parserService = inject(HtmlParserService);
@@ -48,10 +47,10 @@ export class CollectionTextPage implements OnInit {
   private popoverCtrl = inject(PopoverController);
   private renderer2 = inject(Renderer2);
   private route = inject(ActivatedRoute);
-  private router = inject(Router);
   private scrollService = inject(ScrollService);
   private tooltipService = inject(TooltipService);
   private urlService = inject(UrlService);
+  private viewsQueryParamSync = inject(CollectionTextViewsQueryParamSyncService);
   protected viewOptionsService = inject(ViewOptionsService);
   private activeLocale = inject(LOCALE_ID);
 
@@ -266,22 +265,7 @@ export class CollectionTextPage implements OnInit {
         }
       }
 
-      // Clear the array keeping track of recently open views in
-      // text service and populate it with the current ones.
-      this.collectionContentService.recentCollectionTextViews = [];
-      parsedViews.forEach((v: ViewState) => {
-        const cachedViewObj: ViewState = { type: v.type };
-        if (
-          v.sortOrder &&
-          (
-            v.type === 'variants' ||
-            v.type === 'facsimiles'
-          )
-        ) {
-          cachedViewObj.sortOrder = v.sortOrder;
-        }
-        this.collectionContentService.recentCollectionTextViews.push(cachedViewObj);
-      });
+      this.cacheRecentViews(parsedViews);
     } else {
       this.setViews();
     }
@@ -380,15 +364,16 @@ export class CollectionTextPage implements OnInit {
     //      c) default view types.
     const currentViews = this.views();
     const enabledViewTypes = this.enabledViewTypes();
+    let nextViews = currentViews;
+    let typesOnly = false;
 
     if (currentViews.length > 0) {
       // a) show current views
-      this.updateViewsInRouterQueryParams(currentViews);
-      this.setActiveViewInMobileMode(currentViews);
+      nextViews = currentViews;
     } else if (this.collectionContentService.recentCollectionTextViews.length > 0) {
       // b) show recent view types
       // if different collection than previously pass type of views only
-      const typesOnly =
+      typesOnly =
         this.textKey().collectionID !==
         this.collectionContentService.previousReadViewTextId.split('_')[0];
 
@@ -409,17 +394,40 @@ export class CollectionTextPage implements OnInit {
         }
       }
 
-      newViews = this.ensureUids(newViews)[0];
-      this.updateViewsInRouterQueryParams(newViews, typesOnly);
-      this.setActiveViewInMobileMode(newViews);
+      nextViews = this.ensureUids(newViews)[0];
     } else {
       // c) show default view types
-      const defaultViews = this.ensureUids(
+      nextViews = this.ensureUids(
         this.computeDefaultViewTypes(enabledViewTypes)
       )[0];
-      this.updateViewsInRouterQueryParams(defaultViews);
-      this.setActiveViewInMobileMode(defaultViews);
     }
+
+    if (nextViews !== currentViews) {
+      this.views.set(nextViews);
+    }
+    this.cacheRecentViews(nextViews);
+    // Keep URL in sync without triggering an extra route cycle.
+    this.updateViewsInRouterQueryParams(nextViews, typesOnly, true);
+    this.setActiveViewInMobileMode(nextViews);
+  }
+
+  private cacheRecentViews(views: ViewState[]) {
+    // Clear the array keeping track of recently open views in
+    // text service and populate it with the current ones.
+    this.collectionContentService.recentCollectionTextViews = [];
+    views.forEach((v: ViewState) => {
+      const cachedViewObj: ViewState = { type: v.type };
+      if (
+        v.sortOrder &&
+        (
+          v.type === 'variants' ||
+          v.type === 'facsimiles'
+        )
+      ) {
+        cachedViewObj.sortOrder = v.sortOrder;
+      }
+      this.collectionContentService.recentCollectionTextViews.push(cachedViewObj);
+    });
   }
 
   /**
@@ -636,25 +644,7 @@ export class CollectionTextPage implements OnInit {
 
     const nextViewsParam = this.urlService.stringify(trimmedViews, true);
 
-    if (silent) {
-      // Build a UrlTree, then replace the URL WITHOUT navigating.
-      const tree = this.router.createUrlTree([], {
-        relativeTo: this.route,
-        queryParams: { views: nextViewsParam },
-        queryParamsHandling: 'merge',
-      });
-
-      // This updates the address bar (like replaceUrl) but does
-      // NOT fire a new navigation.
-      this.location.replaceState(this.router.serializeUrl(tree));
-    } else {
-      this.router.navigate([], {
-        relativeTo: this.route,
-        queryParams: { views: nextViewsParam },
-        queryParamsHandling: 'merge',
-        replaceUrl: true
-      });
-    }
+    this.viewsQueryParamSync.update(nextViewsParam, this.route, silent);
   }
 
   /**

@@ -1940,5 +1940,3 @@ export class CollectionTextPage implements OnInit {
   }
 
 }
-
-

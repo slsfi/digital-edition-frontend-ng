@@ -288,7 +288,7 @@ async function main() {
     return;
   }
 
-  const repoRoot = path.resolve(__dirname, '..');
+  const repoRoot = path.resolve(__dirname);
   const baseUrl = opts.baseUrl || `http://127.0.0.1:${opts.port}`;
   const routes = opts.routes.map(normalizeRoute);
   const serverEntrypoint = path.join(repoRoot, 'dist', 'app', 'proxy-server.js');

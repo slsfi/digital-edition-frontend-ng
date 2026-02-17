@@ -13,6 +13,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - Remove GHA cache export/import from Docker build and push workflow.
 - Migrate illustration, index-filter, named-entity, and reference-data modals to zoneless-ready.
 - Collection side menu: clarify highlight state naming and expansion semantics.
+- Math-Jax directive: switch from `ngOnChanges` to `afterRenderEffect`.
 
 ### Fixed
 

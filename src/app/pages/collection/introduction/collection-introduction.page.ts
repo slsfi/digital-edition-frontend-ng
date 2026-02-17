@@ -4,11 +4,6 @@ import { ModalController, PopoverController } from '@ionic/angular';
 import { combineLatest, map, Subscription } from 'rxjs';
 
 import { config } from '@config';
-import { DownloadTextsModal } from '@modals/download-texts/download-texts.modal';
-import { IllustrationModal } from '@modals/illustration/illustration.modal';
-import { NamedEntityModal } from '@modals/named-entity/named-entity.modal';
-import { ReferenceDataModal } from '@modals/reference-data/reference-data.modal';
-import { ViewOptionsPopover } from '@popovers/view-options/view-options.popover';
 import { CollectionContentService } from '@services/collection-content.service';
 import { CollectionsService } from '@services/collections.service';
 import { HtmlParserService } from '@services/html-parser.service';
@@ -815,6 +810,7 @@ export class CollectionIntroductionPage implements OnInit, OnDestroy {
   }
 
   async showSemanticDataObjectModal(id: string, type: string) {
+    const { NamedEntityModal } = await import('@modals/named-entity/named-entity.modal');
     const modal = await this.modalCtrl.create({
       component: NamedEntityModal,
       componentProps: { id, type }
@@ -824,6 +820,7 @@ export class CollectionIntroductionPage implements OnInit, OnDestroy {
   }
 
   async showIllustrationModal(imageNumber: string) {
+    const { IllustrationModal } = await import('@modals/illustration/illustration.modal');
     const modal = await this.modalCtrl.create({
       component: IllustrationModal,
       componentProps: { 'imageNumber': imageNumber }
@@ -834,6 +831,7 @@ export class CollectionIntroductionPage implements OnInit, OnDestroy {
 
   async showViewOptionsPopover(event: any) {
     const toggles = this.viewOptionsTogglesIntro;
+    const { ViewOptionsPopover } = await import('@popovers/view-options/view-options.popover');
     const popover = await this.popoverCtrl.create({
       component: ViewOptionsPopover,
       componentProps: { toggles },
@@ -847,6 +845,7 @@ export class CollectionIntroductionPage implements OnInit, OnDestroy {
   }
 
   async showReference() {
+    const { ReferenceDataModal } = await import('@modals/reference-data/reference-data.modal');
     const modal = await this.modalCtrl.create({
       component: ReferenceDataModal,
       componentProps: { origin: 'page-introduction' }
@@ -856,6 +855,7 @@ export class CollectionIntroductionPage implements OnInit, OnDestroy {
   }
 
   async showDownloadModal() {
+    const { DownloadTextsModal } = await import('@modals/download-texts/download-texts.modal');
     const modal = await this.modalCtrl.create({
       component: DownloadTextsModal,
       componentProps: { origin: 'page-introduction', collectionId: this.collectionID }

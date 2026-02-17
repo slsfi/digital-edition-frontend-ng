@@ -6,12 +6,8 @@ import { IonFabButton, IonFabList, IonPopover, ModalController, PopoverControlle
 import { combineLatest, distinctUntilChanged, filter, Observable } from 'rxjs';
 
 import { config } from '@config';
-import { DownloadTextsModal } from '@modals/download-texts/download-texts.modal';
-import { NamedEntityModal } from '@modals/named-entity/named-entity.modal';
-import { ReferenceDataModal } from '@modals/reference-data/reference-data.modal';
 import { TextKey, ViewState, ViewType, ViewUid } from '@models/collection.models';
 import { Illustration } from '@models/illustration.models';
-import { ViewOptionsPopover } from '@popovers/view-options/view-options.popover';
 import { CollectionContentService } from '@services/collection-content.service';
 import { CollectionsService } from '@services/collections.service';
 import { DocumentHeadService } from '@services/document-head.service';
@@ -1878,6 +1874,7 @@ export class CollectionTextPage implements OnInit {
   }
 
   private async showSemanticDataObjectModal(id: string, type: string) {
+    const { NamedEntityModal } = await import('@modals/named-entity/named-entity.modal');
     const modal = await this.modalCtrl.create({
       component: NamedEntityModal,
       componentProps: { id, type }
@@ -1887,6 +1884,7 @@ export class CollectionTextPage implements OnInit {
   }
 
   async showViewOptionsPopover(event: any) {
+    const { ViewOptionsPopover } = await import('@popovers/view-options/view-options.popover');
     const popover = await this.popoverCtrl.create({
       component: ViewOptionsPopover,
       cssClass: 'view-options-popover',
@@ -1899,6 +1897,7 @@ export class CollectionTextPage implements OnInit {
   }
 
   async showReference() {
+    const { ReferenceDataModal } = await import('@modals/reference-data/reference-data.modal');
     // Get URL of Page and then the URI
     const modal = await this.modalCtrl.create({
       component: ReferenceDataModal,
@@ -1909,6 +1908,7 @@ export class CollectionTextPage implements OnInit {
   }
 
   async showDownloadModal() {
+    const { DownloadTextsModal } = await import('@modals/download-texts/download-texts.modal');
     const modal = await this.modalCtrl.create({
       component: DownloadTextsModal,
       componentProps: { origin: 'page-text', textKey: this.textKey() }

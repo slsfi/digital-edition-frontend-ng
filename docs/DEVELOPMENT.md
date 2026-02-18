@@ -86,6 +86,40 @@ The workflow also runs `docker pull node:${NODE_IMAGE_TAG}` before the build. Th
 When updating which Node.js image is used for the build, remember to update both `docker-build-and-push.yml` and `Dockerfile`.
 
 
+## Router preloading strategy
+
+The app uses a platform-specific router preloading strategy:
+
+- **Browser**: lazy routes are preloaded by default on good networks (when idle), unless route data overrides this behavior.
+- **Server (SSR)**: no route preloading (`NoPreloading`).
+
+Implementation files:
+
+- [`src/app/services/router-preloading-strategy.service.ts`](../src/app/services/router-preloading-strategy.service.ts)
+- [`src/app/app-routing.module.ts`](../src/app/app-routing.module.ts)
+- [`src/app/app.module.ts`](../src/app/app.module.ts)
+- [`src/app/app.server.module.ts`](../src/app/app.server.module.ts)
+
+Route-level preload behavior is set with route `data.preload` in `app-routing.module.ts`:
+
+- `'eager'`: preload as soon as router preloading runs.
+- `'idle'`: preload when browser is idle.
+- `'idle-if-fast'`: preload when browser is idle and network is considered good.
+- missing: defaults to `'idle-if-fast'`.
+- `'off'`: no preloading.
+
+`'idle-if-fast'` currently means:
+
+- do **not** preload if `navigator.connection.saveData === true`
+- do **not** preload if `navigator.connection.effectiveType` is `slow-2g`, `2g`, or `3g`
+- if `navigator.connection` is unavailable, preload is allowed
+
+Current route policy:
+
+- default for lazy routes: `idle-if-fast`
+- optional per-route overrides: `eager`, `idle`, or `off`
+
+
 ## Dependencies
 
 The app is built on Angular and uses many web components from Ionic. It also has a few other essential dependencies, which are briefly described below.

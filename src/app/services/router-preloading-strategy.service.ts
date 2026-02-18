@@ -21,7 +21,7 @@ export abstract class RouterPreloadingStrategyService implements PreloadingStrat
 @Injectable()
 export class BrowserRouterPreloadingStrategyService
   extends RouterPreloadingStrategyService {
-  private readonly strategy = new NoPreloading();
+  private readonly strategy = new PreloadAllModules();
 
   preload(route: Route, load: () => Observable<any>): Observable<any> {
     return this.strategy.preload(route, load);

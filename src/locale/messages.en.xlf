@@ -966,6 +966,12 @@
         <target>Content 5</target>
       </segment>
     </unit>
+    <unit id="MainSideMenu.CookiePolicy">
+      <segment state="initial">
+        <source>Kakor och besöksstatistik</source>
+        <target>Cookies and visitor statistics</target>
+      </segment>
+    </unit>
     <unit id="MainSideMenu.Ebooks">
       <segment state="initial">
         <source>E-böcker</source>
@@ -1008,10 +1014,22 @@
         <target>Media collections</target>
       </segment>
     </unit>
+    <unit id="MainSideMenu.PrivacyPolicy">
+      <segment state="initial">
+        <source>Dataskyddsbeskrivning</source>
+        <target>Privacy policy</target>
+      </segment>
+    </unit>
     <unit id="MainSideMenu.Search">
       <segment state="initial">
         <source>Sök i utgåvan</source>
         <target>Search the edition</target>
+      </segment>
+    </unit>
+    <unit id="MainSideMenu.TermsOfUse">
+      <segment state="initial">
+        <source>Användarvillkor</source>
+        <target>Terms of use</target>
       </segment>
     </unit>
     <unit id="Manuscripts.ChangeManuscript">

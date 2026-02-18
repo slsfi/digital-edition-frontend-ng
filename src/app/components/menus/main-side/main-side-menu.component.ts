@@ -169,7 +169,10 @@ export class MainSideMenuComponent {
       indexPersons: () => this.getIndexPageMenuItem('persons'),
       indexPlaces: () => this.getIndexPageMenuItem('places'),
       indexWorks: () => this.getIndexPageMenuItem('works'),
-      search: () => this.getSearchPageMenuItem()
+      search: () => this.getSearchPageMenuItem(),
+      cookiePolicy: () => this.getCookiePolicyPageMenuItem(),
+      privacyPolicy: () => this.getPrivacyPolicyPageMenuItem(),
+      termsOfUse: () => this.getTermsOfUsePageMenuItem(),
     };
 
     return Object.entries(enabledPages)
@@ -203,6 +206,33 @@ export class MainSideMenuComponent {
         return of({ menuType: 'about', menuData: [] });
       })
     );
+  }
+
+  private getCookiePolicyPageMenuItem(): Observable<MainMenuGroupNode> {
+    const menuData: MainMenuNode[] = [{
+      id: '',
+      title: $localize`:@@MainSideMenu.CookiePolicy:Kakor och besöksstatistik`,
+      parentPath: '/cookie-policy'
+    }];
+    return of({ menuType: 'cookie-policy', menuData });
+  }
+
+  private getPrivacyPolicyPageMenuItem(): Observable<MainMenuGroupNode> {
+    const menuData: MainMenuNode[] = [{
+      id: '',
+      title: $localize`:@@MainSideMenu.PrivacyPolicy:Dataskyddsbeskrivning`,
+      parentPath: '/privacy-policy'
+    }];
+    return of({ menuType: 'privacy-policy', menuData });
+  }
+
+  private getTermsOfUsePageMenuItem(): Observable<MainMenuGroupNode> {
+    const menuData: MainMenuNode[] = [{
+      id: '',
+      title: $localize`:@@MainSideMenu.TermsOfUse:Användarvillkor`,
+      parentPath: '/terms'
+    }];
+    return of({ menuType: 'terms', menuData });
   }
 
   private getArticlePagesMenu(): Observable<MainMenuGroupNode> {

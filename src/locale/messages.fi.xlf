@@ -966,6 +966,12 @@
         <target>Sisältö 5</target>
       </segment>
     </unit>
+    <unit id="MainSideMenu.CookiePolicy">
+      <segment state="initial">
+        <source>Kakor och besöksstatistik</source>
+        <target>Evästeet ja kävijätilastot</target>
+      </segment>
+    </unit>
     <unit id="MainSideMenu.Ebooks">
       <segment state="initial">
         <source>E-böcker</source>
@@ -1008,10 +1014,22 @@
         <target>Kuvakokoelmat</target>
       </segment>
     </unit>
+    <unit id="MainSideMenu.PrivacyPolicy">
+      <segment state="initial">
+        <source>Dataskyddsbeskrivning</source>
+        <target>Tietosuojakäytäntö</target>
+      </segment>
+    </unit>
     <unit id="MainSideMenu.Search">
       <segment state="initial">
         <source>Sök i utgåvan</source>
         <target>Hae editiosta</target>
+      </segment>
+    </unit>
+    <unit id="MainSideMenu.TermsOfUse">
+      <segment state="initial">
+        <source>Användarvillkor</source>
+        <target>Käyttöehdot</target>
       </segment>
     </unit>
     <unit id="Manuscripts.ChangeManuscript">

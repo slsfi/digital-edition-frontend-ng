@@ -331,7 +331,10 @@ export const config: Config = {
         indexPersons: true,
         indexPlaces: true,
         indexWorks: false,
-        search: true
+        search: true,
+        cookiePolicy: false,
+        privacyPolicy: false,
+        termsOfUse: false,
       },
       defaultExpanded: false,
       ungroupArticles: false

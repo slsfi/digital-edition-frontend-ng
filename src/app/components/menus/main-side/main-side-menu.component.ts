@@ -169,10 +169,26 @@ export class MainSideMenuComponent {
       indexPersons: () => this.getIndexPageMenuItem('persons'),
       indexPlaces: () => this.getIndexPageMenuItem('places'),
       indexWorks: () => this.getIndexPageMenuItem('works'),
-      search: () => this.getSearchPageMenuItem(),
-      cookiePolicy: () => this.getCookiePolicyPageMenuItem(),
-      privacyPolicy: () => this.getPrivacyPolicyPageMenuItem(),
-      termsOfUse: () => this.getTermsOfUsePageMenuItem(),
+      search: () => this.getRootPageMenuItem(
+        'search',
+        $localize`:@@MainSideMenu.Search:Sök i utgåvan`
+      ),
+      cookiePolicy: () => this.getRootPageMenuItem(
+        'cookie-policy',
+        $localize`:@@MainSideMenu.CookiePolicy:Kakor och besöksstatistik`
+      ),
+      privacyPolicy: () => this.getRootPageMenuItem(
+        'privacy-policy',
+        $localize`:@@MainSideMenu.PrivacyPolicy:Dataskyddsbeskrivning`
+      ),
+      termsOfUse: () => this.getRootPageMenuItem(
+        'terms',
+        $localize`:@@MainSideMenu.TermsOfUse:Användarvillkor`
+      ),
+      accessibilityStatement: () => this.getRootPageMenuItem(
+        'accessibility-statement',
+        $localize`:@@MainSideMenu.AccessibilityStatement:Tillgänglighetsutlåtande`
+      ),
     };
 
     return Object.entries(enabledPages)
@@ -208,31 +224,17 @@ export class MainSideMenuComponent {
     );
   }
 
-  private getCookiePolicyPageMenuItem(): Observable<MainMenuGroupNode> {
+  /**
+   * Build a single root-level menu item where menuType maps directly to route path,
+   * e.g. menuType "cookie-policy" becomes parentPath "/cookie-policy".
+   */
+  private getRootPageMenuItem(menuType: string, title: string): Observable<MainMenuGroupNode> {
     const menuData: MainMenuNode[] = [{
       id: '',
-      title: $localize`:@@MainSideMenu.CookiePolicy:Kakor och besöksstatistik`,
-      parentPath: '/cookie-policy'
+      title,
+      parentPath: `/${menuType}`
     }];
-    return of({ menuType: 'cookie-policy', menuData });
-  }
-
-  private getPrivacyPolicyPageMenuItem(): Observable<MainMenuGroupNode> {
-    const menuData: MainMenuNode[] = [{
-      id: '',
-      title: $localize`:@@MainSideMenu.PrivacyPolicy:Dataskyddsbeskrivning`,
-      parentPath: '/privacy-policy'
-    }];
-    return of({ menuType: 'privacy-policy', menuData });
-  }
-
-  private getTermsOfUsePageMenuItem(): Observable<MainMenuGroupNode> {
-    const menuData: MainMenuNode[] = [{
-      id: '',
-      title: $localize`:@@MainSideMenu.TermsOfUse:Användarvillkor`,
-      parentPath: '/terms'
-    }];
-    return of({ menuType: 'terms', menuData });
+    return of({ menuType, menuData });
   }
 
   private getArticlePagesMenu(): Observable<MainMenuGroupNode> {
@@ -378,15 +380,6 @@ export class MainSideMenuComponent {
       menuType: indexType,
       menuData: [{ id: '', title, parentPath: `/index/${indexType}` }]
     });
-  }
-
-  private getSearchPageMenuItem(): Observable<MainMenuGroupNode> {
-    const menuData: MainMenuNode[] = [{
-      id: '',
-      title: $localize`:@@MainSideMenu.Search:Sök i utgåvan`,
-      parentPath: '/search'
-    }];
-    return of({ menuType: 'search', menuData });
   }
 
   private groupCollections(collections: Collection[]): Collection[][] {

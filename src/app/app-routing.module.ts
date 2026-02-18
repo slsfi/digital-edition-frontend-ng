@@ -35,6 +35,23 @@ const routes: Routes = [
     loadChildren: () => import('./pages/about/about.module').then( m => m.AboutPageModule)
   },
   {
+    path: 'terms-of-use',
+    redirectTo: 'terms',
+    pathMatch: 'full'
+  },
+  {
+    path: 'accessibility-statement',
+    data: {
+      backendPageId: '05-04'
+    },
+    loadChildren: () => import('./pages/about/about.module').then( m => m.AboutPageModule)
+  },
+  {
+    path: 'accessibility',
+    redirectTo: 'accessibility-statement',
+    pathMatch: 'full'
+  },
+  {
     path: 'article',
     loadChildren: () => import('./pages/article/article.module').then( m => m.ArticlePageModule)
   },

@@ -930,6 +930,12 @@
         <target>No legend available.</target>
       </segment>
     </unit>
+    <unit id="MainSideMenu.AccessibilityStatement">
+      <segment state="initial">
+        <source>Tillgänglighetsutlåtande</source>
+        <target>Accessibility statement</target>
+      </segment>
+    </unit>
     <unit id="MainSideMenu.AriaLabel">
       <segment state="initial">
         <source>Sekundär meny</source>

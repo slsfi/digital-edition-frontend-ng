@@ -335,6 +335,7 @@ export const config: Config = {
         cookiePolicy: false,
         privacyPolicy: false,
         termsOfUse: false,
+        accessibilityStatement: false,
       },
       defaultExpanded: false,
       ungroupArticles: false

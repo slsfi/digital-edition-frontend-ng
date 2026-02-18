@@ -930,6 +930,12 @@
         <target>Lukuohjetta ei ole saatavilla.</target>
       </segment>
     </unit>
+    <unit id="MainSideMenu.AccessibilityStatement">
+      <segment state="initial">
+        <source>Tillgänglighetsutlåtande</source>
+        <target>Saavutettavuusseloste</target>
+      </segment>
+    </unit>
     <unit id="MainSideMenu.AriaLabel">
       <segment state="initial">
         <source>Sekundär meny</source>

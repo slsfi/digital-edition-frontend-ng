@@ -776,6 +776,11 @@
         <source>Inga teckenförklaringar tillgängliga.</source>
       </segment>
     </unit>
+    <unit id="MainSideMenu.AccessibilityStatement">
+      <segment>
+        <source>Tillgänglighetsutlåtande</source>
+      </segment>
+    </unit>
     <unit id="MainSideMenu.AriaLabel">
       <segment>
         <source>Sekundär meny</source>

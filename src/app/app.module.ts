@@ -23,6 +23,10 @@ import {
   BrowserRouterNavigationSourceService,
   RouterNavigationSourceService
 } from '@services/router-navigation-source.service';
+import {
+  BrowserRouterPreloadingStrategyService,
+  RouterPreloadingStrategyService
+} from '@services/router-preloading-strategy.service';
 
 
 @NgModule({
@@ -55,6 +59,10 @@ import {
     {
       provide: RouterNavigationSourceService,
       useClass: BrowserRouterNavigationSourceService
+    },
+    {
+      provide: RouterPreloadingStrategyService,
+      useClass: BrowserRouterPreloadingStrategyService
     }
   ],
   bootstrap: [AppComponent]

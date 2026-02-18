@@ -24,6 +24,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - Skip legacy-id prefetch on server in collection text page.
 - Skip static-html defer placeholder when static collection menus are disabled.
 - Use platform-specific navigation source in AppComponent.
+- Disable route preloading on server via platform strategy providers.
 
 ### Fixed
 

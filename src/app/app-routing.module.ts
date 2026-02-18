@@ -1,5 +1,7 @@
 import { NgModule } from '@angular/core';
-import { PreloadAllModules, RouterModule, Routes } from '@angular/router';
+import { RouterModule, Routes } from '@angular/router';
+
+import { RouterPreloadingStrategyService } from '@services/router-preloading-strategy.service';
 
 
 const routes: Routes = [
@@ -68,7 +70,10 @@ const routes: Routes = [
 
 @NgModule({
   imports: [
-    RouterModule.forRoot(routes, { preloadingStrategy: PreloadAllModules, initialNavigation: 'enabledBlocking' })
+    RouterModule.forRoot(routes, {
+      preloadingStrategy: RouterPreloadingStrategyService,
+      initialNavigation: 'enabledBlocking'
+    })
   ],
   exports: [RouterModule]
 })

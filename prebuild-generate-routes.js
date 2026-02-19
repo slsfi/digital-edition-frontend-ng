@@ -33,6 +33,8 @@ function generateRoutes() {
   }
 
   const sourceRouteBlocks = extractRouteBlocks(sourceContent);
+  validateSourceRouteBlocks(sourceRouteBlocks);
+
   const includeByPath = common.getRouteIncludeByPath(config);
 
   const filteredRoutes = sourceRouteBlocks.filter((routeBlock) => {
@@ -44,6 +46,7 @@ function generateRoutes() {
     const include = includeByPath[routePath];
     return include === undefined ? true : include;
   });
+  validateFilteredRoutes(sourceRouteBlocks, filteredRoutes);
 
   const fileContent = renderRoutesFile(filteredRoutes, featureBasedRoutes);
 
@@ -94,11 +97,20 @@ function extractRouteBlocks(sourceContent) {
 
     if (char === '}') {
       objectDepth -= 1;
+      if (objectDepth < 0) {
+        console.error(`Unable to parse routes from ${sourceRoutesFilepath}: invalid object depth.`);
+        process.exit(1);
+      }
       if (objectDepth === 0 && objectStart >= 0) {
         routeBlocks.push(routesBody.slice(objectStart, i + 1).trim());
         objectStart = -1;
       }
     }
+  }
+
+  if (objectDepth !== 0 || objectStart !== -1) {
+    console.error(`Unable to parse routes from ${sourceRoutesFilepath}: unterminated route object.`);
+    process.exit(1);
   }
 
   return routeBlocks;
@@ -162,6 +174,52 @@ function getRoutePath(routeBlock) {
     return null;
   }
   return pathMatch[1] ?? pathMatch[2] ?? pathMatch[3] ?? null;
+}
+
+function validateSourceRouteBlocks(sourceRouteBlocks) {
+  if (!sourceRouteBlocks.length) {
+    console.error(
+      `Unable to generate routes: no route objects were extracted from ${sourceRoutesFilepath}.`
+    );
+    process.exit(1);
+  }
+}
+
+function validateFilteredRoutes(sourceRouteBlocks, filteredRoutes) {
+  if (!filteredRoutes.length) {
+    console.error(
+      'Unable to generate routes: filtering removed all routes. Check feature flags and parser output.'
+    );
+    process.exit(1);
+  }
+
+  if (filteredRoutes.length > sourceRouteBlocks.length) {
+    console.error(
+      'Unable to generate routes: filtered route count exceeded source route count.'
+    );
+    process.exit(1);
+  }
+
+  const sourceHasRootRoute = hasRouteWithPath(sourceRouteBlocks, '');
+  const sourceHasFallbackRoute = hasRouteWithPath(sourceRouteBlocks, '**');
+
+  if (sourceHasRootRoute && !hasRouteWithPath(filteredRoutes, '')) {
+    console.error(
+      'Unable to generate routes: root route path (\'\') disappeared after filtering.'
+    );
+    process.exit(1);
+  }
+
+  if (sourceHasFallbackRoute && !hasRouteWithPath(filteredRoutes, '**')) {
+    console.error(
+      'Unable to generate routes: wildcard fallback route path (\'**\') disappeared after filtering.'
+    );
+    process.exit(1);
+  }
+}
+
+function hasRouteWithPath(routeBlocks, routePath) {
+  return routeBlocks.some((routeBlock) => getRoutePath(routeBlock) === routePath);
 }
 
 function renderRoutesFile(routes, featureBasedRoutes) {

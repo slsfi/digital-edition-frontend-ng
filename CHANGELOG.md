@@ -28,6 +28,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - Use platform-specific navigation source in AppComponent.
 - Disable route preloading on server via platform strategy providers.
 - Default lazy-route preloading to idle-if-fast in browser.
+- Deps: update `marked` to 17.0.3.
 
 ### Fixed
 

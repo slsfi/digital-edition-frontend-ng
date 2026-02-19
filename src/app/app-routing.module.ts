@@ -15,41 +15,23 @@ const routes: Routes = [
   },
   {
     path: 'cookie-policy',
-    data: {
-      backendPageId: '05-01'
-    },
+    data: { backendPageId: '05-01' },
     loadChildren: () => import('./pages/about/about.module').then( m => m.AboutPageModule)
   },
   {
     path: 'privacy-policy',
-    data: {
-      backendPageId: '05-02'
-    },
+    data: { backendPageId: '05-02' },
     loadChildren: () => import('./pages/about/about.module').then( m => m.AboutPageModule)
   },
   {
     path: 'terms',
-    data: {
-      backendPageId: '05-03'
-    },
+    data: { backendPageId: '05-03' },
     loadChildren: () => import('./pages/about/about.module').then( m => m.AboutPageModule)
-  },
-  {
-    path: 'terms-of-use',
-    redirectTo: 'terms',
-    pathMatch: 'full'
   },
   {
     path: 'accessibility-statement',
-    data: {
-      backendPageId: '05-04'
-    },
+    data: { backendPageId: '05-04' },
     loadChildren: () => import('./pages/about/about.module').then( m => m.AboutPageModule)
-  },
-  {
-    path: 'accessibility',
-    redirectTo: 'accessibility-statement',
-    pathMatch: 'full'
   },
   {
     path: 'article',

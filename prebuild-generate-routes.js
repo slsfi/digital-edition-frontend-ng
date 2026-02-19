@@ -37,7 +37,7 @@ function generateRoutes() {
 
   const filteredRoutes = sourceRouteBlocks.filter((routeBlock) => {
     const routePath = getRoutePath(routeBlock);
-    if (!routePath) {
+    if (routePath === null) {
       return true;
     }
 
@@ -55,6 +55,7 @@ function generateRoutes() {
 
 function extractRouteBlocks(sourceContent) {
   const routesBody = extractRoutesArrayBody(sourceContent);
+  const sanitizedRoutesBody = stripCommentsPreserveLiterals(routesBody);
   const routeBlocks = [];
 
   let inString = false;
@@ -63,8 +64,8 @@ function extractRouteBlocks(sourceContent) {
   let objectDepth = 0;
   let objectStart = -1;
 
-  for (let i = 0; i < routesBody.length; i++) {
-    const char = routesBody[i];
+  for (let i = 0; i < sanitizedRoutesBody.length; i++) {
+    const char = sanitizedRoutesBody[i];
 
     if (inString) {
       if (escapeNext) {
@@ -105,6 +106,7 @@ function extractRouteBlocks(sourceContent) {
 
 function extractRoutesArrayBody(sourceContent) {
   const startMatch = sourceContent.match(/export\s+const\s+routes\s*:\s*Routes\s*=\s*\[/);
+  const sanitizedSourceContent = stripCommentsPreserveLiterals(sourceContent);
 
   if (!startMatch || startMatch.index === undefined) {
     console.error(`Unable to parse routes from ${sourceRoutesFilepath}.`);
@@ -117,8 +119,8 @@ function extractRoutesArrayBody(sourceContent) {
   let escapeNext = false;
   let bracketDepth = 1;
 
-  for (let i = bodyStart; i < sourceContent.length; i++) {
-    const char = sourceContent[i];
+  for (let i = bodyStart; i < sanitizedSourceContent.length; i++) {
+    const char = sanitizedSourceContent[i];
 
     if (inString) {
       if (escapeNext) {
@@ -155,8 +157,11 @@ function extractRoutesArrayBody(sourceContent) {
 }
 
 function getRoutePath(routeBlock) {
-  const pathMatch = routeBlock.match(/path:\s*'([^']+)'/);
-  return pathMatch ? pathMatch[1] : null;
+  const pathMatch = routeBlock.match(/path\s*:\s*(?:'([^']*)'|"([^"]*)"|`([^`]*)`)/);
+  if (!pathMatch) {
+    return null;
+  }
+  return pathMatch[1] ?? pathMatch[2] ?? pathMatch[3] ?? null;
 }
 
 function renderRoutesFile(routes, featureBasedRoutes) {
@@ -211,4 +216,86 @@ function normalizeRouteBlockIndentation(routeBlock) {
   ];
 
   return normalizedLines.join('\n');
+}
+
+/**
+ * Replaces line and block comments with whitespace while preserving string
+ * and template literal content as-is. Output length is identical to input.
+ */
+function stripCommentsPreserveLiterals(value) {
+  let output = '';
+  let inString = false;
+  let stringQuote = '';
+  let escapeNext = false;
+  let inLineComment = false;
+  let inBlockComment = false;
+
+  for (let i = 0; i < value.length; i++) {
+    const char = value[i];
+    const nextChar = value[i + 1];
+
+    if (inLineComment) {
+      if (char === '\n' || char === '\r') {
+        inLineComment = false;
+        output += char;
+      } else {
+        output += ' ';
+      }
+      continue;
+    }
+
+    if (inBlockComment) {
+      if (char === '*' && nextChar === '/') {
+        output += '  ';
+        inBlockComment = false;
+        i += 1;
+      } else if (char === '\n' || char === '\r') {
+        output += char;
+      } else {
+        output += ' ';
+      }
+      continue;
+    }
+
+    if (inString) {
+      output += char;
+      if (escapeNext) {
+        escapeNext = false;
+        continue;
+      }
+      if (char === '\\') {
+        escapeNext = true;
+        continue;
+      }
+      if (char === stringQuote) {
+        inString = false;
+      }
+      continue;
+    }
+
+    if (char === '\'' || char === '"' || char === '`') {
+      inString = true;
+      stringQuote = char;
+      output += char;
+      continue;
+    }
+
+    if (char === '/' && nextChar === '/') {
+      output += '  ';
+      inLineComment = true;
+      i += 1;
+      continue;
+    }
+
+    if (char === '/' && nextChar === '*') {
+      output += '  ';
+      inBlockComment = true;
+      i += 1;
+      continue;
+    }
+
+    output += char;
+  }
+
+  return output;
 }

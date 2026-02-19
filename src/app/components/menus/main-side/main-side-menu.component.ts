@@ -24,7 +24,7 @@ import { addOrRemoveValueInNewArray, sortArrayOfObjectsAlphabetically, splitFile
 // * This component is zoneless-ready. *
 // ─────────────────────────────────────────────────────────────────────────────
 // Because pure pipes are used in the template to check included items in
-// `selectedMenu`, the array has to be recreated every time it changes, otherwise
+// `expandedMenuIds`, the array has to be recreated every time it changes, otherwise
 // the changes won't be reflected in the view.
 @Component({
   selector: 'main-side-menu',
@@ -49,7 +49,7 @@ export class MainSideMenuComponent {
   readonly urlSegments = input<UrlSegment[]>([]);
 
   readonly mainMenu = signal<MainMenuNode[]>([]);
-  readonly selectedMenu = signal<string[]>([]);
+  readonly expandedMenuIds = signal<string[]>([]);
   readonly highlightedNodeId = signal<string>('');
   readonly primaryMenu = computed(() => this.mainMenu().filter(
     (item: MainMenuNode) => !this.isSecondaryMenuItem(item)
@@ -104,7 +104,7 @@ export class MainSideMenuComponent {
           }, [])
         : [];
 
-    this.selectedMenu.set(initialSelected);
+    this.expandedMenuIds.set(initialSelected);
     this.mainMenu.set(menu);
     this.menuReady.set(true);  // signals first menu load is done
   });
@@ -524,9 +524,9 @@ export class MainSideMenuComponent {
         return item;
       } else if (item.children) {
         const result = this.recursiveFindCurrentMenuItem(item.children, targetPath);
-        if (result && item.nodeId && !this.selectedMenu().includes(item.nodeId)) {
-          this.selectedMenu.set(
-            addOrRemoveValueInNewArray(this.selectedMenu(), item.nodeId)
+        if (result && item.nodeId && !this.expandedMenuIds().includes(item.nodeId)) {
+          this.expandedMenuIds.set(
+            addOrRemoveValueInNewArray(this.expandedMenuIds(), item.nodeId)
           );
         }
         return result;
@@ -543,8 +543,8 @@ export class MainSideMenuComponent {
 
   toggle(menuItem: MainMenuNode) {
     if (menuItem.nodeId) {
-      this.selectedMenu.set(
-        addOrRemoveValueInNewArray(this.selectedMenu(), menuItem.nodeId)
+      this.expandedMenuIds.set(
+        addOrRemoveValueInNewArray(this.expandedMenuIds(), menuItem.nodeId)
       );
     }
   }

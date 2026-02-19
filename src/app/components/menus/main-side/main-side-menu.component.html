@@ -1,11 +1,17 @@
-@let menu = mainMenu();
+@let primaryItems = primaryMenu();
+@let legalItems = legalMenu();
 @let open = selectedMenu();
 @let hl   = highlightedNodeId();
 
 <h2 id="main-side-menu-label" class="screen-reader-only" i18n="@@MainSideMenu.AriaLabel">Sekundär meny</h2>
-@if (menu.length) {
-  <ul role="menu">
-    <ng-container *ngTemplateOutlet="recursiveMenu; context: {$implicit: menu}"/>
+@if (primaryItems.length) {
+  <ul role="menu" class="primary-menu-list">
+    <ng-container *ngTemplateOutlet="recursiveMenu; context: {$implicit: primaryItems}"/>
+  </ul>
+}
+@if (legalItems.length) {
+  <ul role="menu" class="legal-menu-list">
+    <ng-container *ngTemplateOutlet="recursiveMenu; context: {$implicit: legalItems}"/>
   </ul>
 }
 

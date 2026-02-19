@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, LOCALE_ID, effect, inject, input, signal, untracked } from '@angular/core';
+import { ChangeDetectionStrategy, Component, LOCALE_ID, computed, effect, inject, input, signal, untracked } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { NgTemplateOutlet } from '@angular/common';
 import { RouterLink, UrlSegment } from '@angular/router';
@@ -51,6 +51,12 @@ export class MainSideMenuComponent {
   readonly mainMenu = signal<MainMenuNode[]>([]);
   readonly selectedMenu = signal<string[]>([]);
   readonly highlightedNodeId = signal<string>('');
+  readonly primaryMenu = computed(() => this.mainMenu().filter(
+    (item: MainMenuNode) => !this.isLegalMenuItem(item)
+  ));
+  readonly legalMenu = computed(() => this.mainMenu().filter(
+    (item: MainMenuNode) => this.isLegalMenuItem(item)
+  ));
 
   // Config flag: expand root items on first load
   private readonly defaultExpanded = config.component?.mainSideMenu?.defaultExpanded ?? false;
@@ -58,6 +64,12 @@ export class MainSideMenuComponent {
   // List of paths to pages that are accessed from the top menu. The HTML document
   // title for these is NOT set by this component, but by app.component.ts.
   private readonly topMenuItems: readonly string[] = ['/', '/content', '/search'];
+  private readonly legalMenuTypes: readonly string[] = [
+    'cookie-policy',
+    'privacy-policy',
+    'terms',
+    'accessibility-statement'
+  ];
 
   // Menu Observable to signal
   private readonly menuDataSig = toSignal<MainMenuNode[] | null>(
@@ -444,6 +456,10 @@ export class MainSideMenuComponent {
         });
       }
     }
+  }
+
+  private isLegalMenuItem(item: MainMenuNode): boolean {
+    return item.menuType ? this.legalMenuTypes.includes(item.menuType) : false;
   }
 
 

@@ -776,6 +776,11 @@
         <source>Inga teckenförklaringar tillgängliga.</source>
       </segment>
     </unit>
+    <unit id="MainSideMenu.AccessibilityStatement">
+      <segment>
+        <source>Tillgänglighetsutlåtande</source>
+      </segment>
+    </unit>
     <unit id="MainSideMenu.AriaLabel">
       <segment>
         <source>Sekundär meny</source>
@@ -804,6 +809,11 @@
     <unit id="MainSideMenu.CollectionsGroup5">
       <segment>
         <source>Innehåll 5</source>
+      </segment>
+    </unit>
+    <unit id="MainSideMenu.CookiePolicy">
+      <segment>
+        <source>Kakor och besöksstatistik</source>
       </segment>
     </unit>
     <unit id="MainSideMenu.Ebooks">
@@ -841,9 +851,19 @@
         <source>Bildbank</source>
       </segment>
     </unit>
+    <unit id="MainSideMenu.PrivacyPolicy">
+      <segment>
+        <source>Dataskyddsbeskrivning</source>
+      </segment>
+    </unit>
     <unit id="MainSideMenu.Search">
       <segment>
         <source>Sök i utgåvan</source>
+      </segment>
+    </unit>
+    <unit id="MainSideMenu.TermsOfUse">
+      <segment>
+        <source>Användarvillkor</source>
       </segment>
     </unit>
     <unit id="Manuscripts.ChangeManuscript">

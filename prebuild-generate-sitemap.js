@@ -69,6 +69,21 @@ async function generateSitemap() {
     }
   }
 
+  // Get root-level static pages URLs
+  const rootPages = [
+    { configKey: 'cookiePolicy', route: 'cookie-policy' },
+    { configKey: 'privacyPolicy', route: 'privacy-policy' },
+    { configKey: 'termsOfUse', route: 'terms' },
+    { configKey: 'accessibilityStatement', route: 'accessibility-statement' }
+  ];
+  const enabledRootPages = rootPages.filter(
+    (page) => config.component?.mainSideMenu?.items?.[page.configKey]
+  );
+  if (enabledRootPages.length) {
+    const rootPageRoutes = enabledRootPages.map((page) => page.route);
+    urlCounter += generateRootPageURLs(rootPageRoutes, urlOrigin, locale);
+  }
+
   // Get article-pages URLs
   if (config.component?.mainSideMenu?.items?.articles && config.articles?.length) {
     urlCounter += generateArticleURLs(config.articles, urlOrigin, locale);
@@ -166,6 +181,16 @@ function generateArticleURLs(articles, urlOrigin, locale) {
       appendToSitemapFile(url + '\n');
       counter += 1;
     }
+  }
+  return counter;
+}
+
+function generateRootPageURLs(routes, urlOrigin, locale) {
+  let counter = 0;
+  for (let i = 0; i < routes.length; i++) {
+    const url = `${urlOrigin}/${locale}/${routes[i]}`;
+    appendToSitemapFile(url + '\n');
+    counter += 1;
   }
   return counter;
 }

@@ -11,6 +11,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 ### Added
 
 - Benchmark script for measuring SSR performance.
+- Support for dedicated cookie policy, privacy policy, terms of use, and accessibility statement pages. The content of these must be defined in Markdown files in the backend (Markdown folder named `05`: the cookie policy file must have id `01`, the privacy policy `02`, the terms of use `03`, and the accessibility statement `04`). The pages can be enabled in the main side menu by setting the following flags in `component.mainSideMenu.items` in the config to `true`: `cookiePolicy`, `privacyPolicy`, `termsOfUse`, `accessibilityStatement` (all default to `false`).
 
 ### Changed
 

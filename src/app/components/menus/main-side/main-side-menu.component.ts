@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, LOCALE_ID, effect, inject, input, signal, untracked } from '@angular/core';
+import { ChangeDetectionStrategy, Component, LOCALE_ID, computed, effect, inject, input, signal, untracked } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { NgTemplateOutlet } from '@angular/common';
 import { RouterLink, UrlSegment } from '@angular/router';
@@ -24,7 +24,7 @@ import { addOrRemoveValueInNewArray, sortArrayOfObjectsAlphabetically, splitFile
 // * This component is zoneless-ready. *
 // ─────────────────────────────────────────────────────────────────────────────
 // Because pure pipes are used in the template to check included items in
-// `selectedMenu`, the array has to be recreated every time it changes, otherwise
+// `expandedMenuIds`, the array has to be recreated every time it changes, otherwise
 // the changes won't be reflected in the view.
 @Component({
   selector: 'main-side-menu',
@@ -49,8 +49,14 @@ export class MainSideMenuComponent {
   readonly urlSegments = input<UrlSegment[]>([]);
 
   readonly mainMenu = signal<MainMenuNode[]>([]);
-  readonly selectedMenu = signal<string[]>([]);
+  readonly expandedMenuIds = signal<string[]>([]);
   readonly highlightedNodeId = signal<string>('');
+  readonly primaryMenu = computed(() => this.mainMenu().filter(
+    (item: MainMenuNode) => !this.isSecondaryMenuItem(item)
+  ));
+  readonly secondaryMenu = computed(() => this.mainMenu().filter(
+    (item: MainMenuNode) => this.isSecondaryMenuItem(item)
+  ));
 
   // Config flag: expand root items on first load
   private readonly defaultExpanded = config.component?.mainSideMenu?.defaultExpanded ?? false;
@@ -58,6 +64,14 @@ export class MainSideMenuComponent {
   // List of paths to pages that are accessed from the top menu. The HTML document
   // title for these is NOT set by this component, but by app.component.ts.
   private readonly topMenuItems: readonly string[] = ['/', '/content', '/search'];
+  // Menu type identifiers that should be rendered in the secondary (footer) menu
+  // list.
+  private readonly secondaryMenuTypes: readonly string[] = [
+    'cookie-policy',
+    'privacy-policy',
+    'terms',
+    'accessibility-statement'
+  ];
 
   // Menu Observable to signal
   private readonly menuDataSig = toSignal<MainMenuNode[] | null>(
@@ -90,7 +104,7 @@ export class MainSideMenuComponent {
           }, [])
         : [];
 
-    this.selectedMenu.set(initialSelected);
+    this.expandedMenuIds.set(initialSelected);
     this.mainMenu.set(menu);
     this.menuReady.set(true);  // signals first menu load is done
   });
@@ -169,7 +183,26 @@ export class MainSideMenuComponent {
       indexPersons: () => this.getIndexPageMenuItem('persons'),
       indexPlaces: () => this.getIndexPageMenuItem('places'),
       indexWorks: () => this.getIndexPageMenuItem('works'),
-      search: () => this.getSearchPageMenuItem()
+      search: () => this.getRootPageMenuItem(
+        'search',
+        $localize`:@@MainSideMenu.Search:Sök i utgåvan`
+      ),
+      cookiePolicy: () => this.getRootPageMenuItem(
+        'cookie-policy',
+        $localize`:@@MainSideMenu.CookiePolicy:Kakor och besöksstatistik`
+      ),
+      privacyPolicy: () => this.getRootPageMenuItem(
+        'privacy-policy',
+        $localize`:@@MainSideMenu.PrivacyPolicy:Dataskyddsbeskrivning`
+      ),
+      termsOfUse: () => this.getRootPageMenuItem(
+        'terms',
+        $localize`:@@MainSideMenu.TermsOfUse:Användarvillkor`
+      ),
+      accessibilityStatement: () => this.getRootPageMenuItem(
+        'accessibility-statement',
+        $localize`:@@MainSideMenu.AccessibilityStatement:Tillgänglighetsutlåtande`
+      ),
     };
 
     return Object.entries(enabledPages)
@@ -203,6 +236,19 @@ export class MainSideMenuComponent {
         return of({ menuType: 'about', menuData: [] });
       })
     );
+  }
+
+  /**
+   * Build a single root-level menu item where menuType maps directly to route path,
+   * e.g. menuType "cookie-policy" becomes parentPath "/cookie-policy".
+   */
+  private getRootPageMenuItem(menuType: string, title: string): Observable<MainMenuGroupNode> {
+    const menuData: MainMenuNode[] = [{
+      id: '',
+      title,
+      parentPath: `/${menuType}`
+    }];
+    return of({ menuType, menuData });
   }
 
   private getArticlePagesMenu(): Observable<MainMenuGroupNode> {
@@ -350,15 +396,6 @@ export class MainSideMenuComponent {
     });
   }
 
-  private getSearchPageMenuItem(): Observable<MainMenuGroupNode> {
-    const menuData: MainMenuNode[] = [{
-      id: '',
-      title: $localize`:@@MainSideMenu.Search:Sök i utgåvan`,
-      parentPath: '/search'
-    }];
-    return of({ menuType: 'search', menuData });
-  }
-
   private groupCollections(collections: Collection[]): Collection[][] {
     const collectionOrder: number[][] = config.collections?.order ?? [];
     if (collectionOrder.length < 1) {
@@ -423,6 +460,10 @@ export class MainSideMenuComponent {
     }
   }
 
+  private isSecondaryMenuItem(item: MainMenuNode): boolean {
+    return item.menuType ? this.secondaryMenuTypes.includes(item.menuType) : false;
+  }
+
 
   // ─────────────────────────────────────────────────────────────────────────────
   // Highlighting
@@ -483,9 +524,9 @@ export class MainSideMenuComponent {
         return item;
       } else if (item.children) {
         const result = this.recursiveFindCurrentMenuItem(item.children, targetPath);
-        if (result && item.nodeId && !this.selectedMenu().includes(item.nodeId)) {
-          this.selectedMenu.set(
-            addOrRemoveValueInNewArray(this.selectedMenu(), item.nodeId)
+        if (result && item.nodeId && !this.expandedMenuIds().includes(item.nodeId)) {
+          this.expandedMenuIds.set(
+            addOrRemoveValueInNewArray(this.expandedMenuIds(), item.nodeId)
           );
         }
         return result;
@@ -502,8 +543,8 @@ export class MainSideMenuComponent {
 
   toggle(menuItem: MainMenuNode) {
     if (menuItem.nodeId) {
-      this.selectedMenu.set(
-        addOrRemoveValueInNewArray(this.selectedMenu(), menuItem.nodeId)
+      this.expandedMenuIds.set(
+        addOrRemoveValueInNewArray(this.expandedMenuIds(), menuItem.nodeId)
       );
     }
   }

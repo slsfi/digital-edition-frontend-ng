@@ -930,6 +930,12 @@
         <target>Inga teckenförklaringar tillgängliga.</target>
       </segment>
     </unit>
+    <unit id="MainSideMenu.AccessibilityStatement">
+      <segment state="initial">
+        <source>Tillgänglighetsutlåtande</source>
+        <target>Tillgänglighetsutlåtande</target>
+      </segment>
+    </unit>
     <unit id="MainSideMenu.AriaLabel">
       <segment state="initial">
         <source>Sekundär meny</source>
@@ -964,6 +970,12 @@
       <segment state="initial">
         <source>Innehåll 5</source>
         <target>Innehåll 5</target>
+      </segment>
+    </unit>
+    <unit id="MainSideMenu.CookiePolicy">
+      <segment state="initial">
+        <source>Kakor och besöksstatistik</source>
+        <target>Kakor och besöksstatistik</target>
       </segment>
     </unit>
     <unit id="MainSideMenu.Ebooks">
@@ -1008,10 +1020,22 @@
         <target>Bildbank</target>
       </segment>
     </unit>
+    <unit id="MainSideMenu.PrivacyPolicy">
+      <segment state="initial">
+        <source>Dataskyddsbeskrivning</source>
+        <target>Dataskyddsbeskrivning</target>
+      </segment>
+    </unit>
     <unit id="MainSideMenu.Search">
       <segment state="initial">
         <source>Sök i utgåvan</source>
         <target>Sök i utgåvan</target>
+      </segment>
+    </unit>
+    <unit id="MainSideMenu.TermsOfUse">
+      <segment state="initial">
+        <source>Användarvillkor</source>
+        <target>Användarvillkor</target>
       </segment>
     </unit>
     <unit id="Manuscripts.ChangeManuscript">

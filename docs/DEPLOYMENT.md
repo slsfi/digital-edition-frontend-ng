@@ -23,6 +23,8 @@ For example, if the base app is on version `1.0.2`, the release targets the `pro
 
 The Docker images built this way are pushed to and stored in the [GitHub Container Registry][ghcr_docs].
 
+The production build command `npm run build:ssr` runs route generation before compiling Angular. Feature-based route/module exclusion is disabled by default and can be enabled in [`src/assets/config/config.ts`][config_ts] by setting `app.prebuild.featureBasedRoutes` to `true`.
+
 **Important!** Before creating a new release, push a commit that updates:
 
 1. the image tag in [`compose.yml`][docker_compose_file] to the release tag you are going to use,
@@ -62,6 +64,7 @@ Then redeploy the app.
 
 [build_workflow]: ../.github/workflows/docker-build-and-push.yml
 [changelog]: ../CHANGELOG.md
+[config_ts]: ../src/assets/config/config.ts
 [digital-edition-frontend-ng]: https://github.com/slsfi/digital-edition-frontend-ng
 [docker_compose_file]: ../compose.yml
 [docker_compose_reference]: https://docs.docker.com/compose/

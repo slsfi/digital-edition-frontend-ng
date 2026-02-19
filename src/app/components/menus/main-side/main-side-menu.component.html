@@ -1,5 +1,5 @@
 @let primaryItems = primaryMenu();
-@let legalItems = legalMenu();
+@let secondaryItems = secondaryMenu();
 @let open = selectedMenu();
 @let hl   = highlightedNodeId();
 
@@ -9,9 +9,9 @@
     <ng-container *ngTemplateOutlet="recursiveMenu; context: {$implicit: primaryItems}"/>
   </ul>
 }
-@if (legalItems.length) {
-  <ul role="menu" class="legal-menu-list">
-    <ng-container *ngTemplateOutlet="recursiveMenu; context: {$implicit: legalItems}"/>
+@if (secondaryItems.length) {
+  <ul role="menu" class="secondary-menu-list">
+    <ng-container *ngTemplateOutlet="recursiveMenu; context: {$implicit: secondaryItems}"/>
   </ul>
 }
 

@@ -1,6 +1,12 @@
 // Import general styles for the side menu, these are common with the collection-side-menu
 @use "../../../../theme/common/side-menu.scss";
 
+:host {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+}
+
 li.home-menu-item {
   background-color: var(--side-menu-back-button-background-color);
   border-bottom: 1px solid var(--side-menu-divider-color);
@@ -27,7 +33,9 @@ li.home-menu-item {
   }
 }
 
-ul.legal-menu-list {
+ul.secondary-menu-list {
+  margin-top: auto;
+
   li {
     a,
     button {
@@ -40,11 +48,10 @@ ul.legal-menu-list {
     }
   }
 
-  /*
   li:first-of-type {
+    margin-top: -1px; // makes the top border overlap with the bottom border of the last item of the primary menu list, when the two lists are merged because the content is tall
     .label {
       border-top: 1px solid var(--side-menu-divider-color);
     }
   }
-  */
 }

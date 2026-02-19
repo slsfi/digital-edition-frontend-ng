@@ -69,19 +69,19 @@ async function generateSitemap() {
     }
   }
 
-  // Get legal pages URLs
-  const legalPages = [
+  // Get root-level static pages URLs
+  const rootPages = [
     { configKey: 'cookiePolicy', route: 'cookie-policy' },
     { configKey: 'privacyPolicy', route: 'privacy-policy' },
     { configKey: 'termsOfUse', route: 'terms' },
     { configKey: 'accessibilityStatement', route: 'accessibility-statement' }
   ];
-  const enabledLegalPages = legalPages.filter(
+  const enabledRootPages = rootPages.filter(
     (page) => config.component?.mainSideMenu?.items?.[page.configKey]
   );
-  if (enabledLegalPages.length) {
-    const legalPageRoutes = enabledLegalPages.map((page) => page.route);
-    urlCounter += generateRootPageURLs(legalPageRoutes, urlOrigin, locale);
+  if (enabledRootPages.length) {
+    const rootPageRoutes = enabledRootPages.map((page) => page.route);
+    urlCounter += generateRootPageURLs(rootPageRoutes, urlOrigin, locale);
   }
 
   // Get article-pages URLs

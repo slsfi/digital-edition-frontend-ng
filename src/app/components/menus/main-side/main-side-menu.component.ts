@@ -52,10 +52,10 @@ export class MainSideMenuComponent {
   readonly selectedMenu = signal<string[]>([]);
   readonly highlightedNodeId = signal<string>('');
   readonly primaryMenu = computed(() => this.mainMenu().filter(
-    (item: MainMenuNode) => !this.isLegalMenuItem(item)
+    (item: MainMenuNode) => !this.isSecondaryMenuItem(item)
   ));
-  readonly legalMenu = computed(() => this.mainMenu().filter(
-    (item: MainMenuNode) => this.isLegalMenuItem(item)
+  readonly secondaryMenu = computed(() => this.mainMenu().filter(
+    (item: MainMenuNode) => this.isSecondaryMenuItem(item)
   ));
 
   // Config flag: expand root items on first load
@@ -64,7 +64,9 @@ export class MainSideMenuComponent {
   // List of paths to pages that are accessed from the top menu. The HTML document
   // title for these is NOT set by this component, but by app.component.ts.
   private readonly topMenuItems: readonly string[] = ['/', '/content', '/search'];
-  private readonly legalMenuTypes: readonly string[] = [
+  // Menu type identifiers that should be rendered in the secondary (footer) menu
+  // list.
+  private readonly secondaryMenuTypes: readonly string[] = [
     'cookie-policy',
     'privacy-policy',
     'terms',
@@ -458,8 +460,8 @@ export class MainSideMenuComponent {
     }
   }
 
-  private isLegalMenuItem(item: MainMenuNode): boolean {
-    return item.menuType ? this.legalMenuTypes.includes(item.menuType) : false;
+  private isSecondaryMenuItem(item: MainMenuNode): boolean {
+    return item.menuType ? this.secondaryMenuTypes.includes(item.menuType) : false;
   }
 
 

@@ -159,6 +159,50 @@ function enableFrontMatterPage(type, collectionId, config) {
 }
 
 /**
+ * Returns route inclusion flags keyed by the app route path.
+ * The logic mirrors feature-based route generation.
+ * @param {object} config
+ * @returns {Record<string, boolean>}
+ */
+function getRouteIncludeByPath(config) {
+  const mainSideMenuItems = config.component?.mainSideMenu?.items ?? {};
+  const topMenu = config.component?.topMenu ?? {};
+  const frontMatterPages = config.collections?.frontMatterPages ?? {};
+  const hasArticles = Array.isArray(config.articles) && config.articles.length > 0;
+  const hasEbooks = Array.isArray(config.ebooks) && config.ebooks.length > 0;
+  const hasCollectionsInOrder = Array.isArray(config.collections?.order)
+    && config.collections.order.flat().length > 0;
+  const collectionsEnabled = !!mainSideMenuItems.collections && hasCollectionsInOrder;
+
+  return {
+    '': true,
+    'about': !!mainSideMenuItems.about,
+    'cookie-policy': !!mainSideMenuItems.cookiePolicy,
+    'privacy-policy': !!mainSideMenuItems.privacyPolicy,
+    'terms': !!mainSideMenuItems.termsOfUse,
+    'accessibility-statement': !!mainSideMenuItems.accessibilityStatement,
+    'article': !!mainSideMenuItems.articles && hasArticles,
+    'content': true,
+    'collection/:collectionID/cover': collectionsEnabled && !!frontMatterPages.cover,
+    'collection/:collectionID/title': collectionsEnabled && !!frontMatterPages.title,
+    'collection/:collectionID/foreword': collectionsEnabled && !!frontMatterPages.foreword,
+    'collection/:collectionID/introduction': collectionsEnabled && !!frontMatterPages.introduction,
+    'collection/:collectionID/text': collectionsEnabled,
+    'ebook': !!mainSideMenuItems.ebooks && hasEbooks,
+    'home': true,
+    'index/:type': !!(
+      mainSideMenuItems.indexKeywords ||
+      mainSideMenuItems.indexPersons ||
+      mainSideMenuItems.indexPlaces ||
+      mainSideMenuItems.indexWorks
+    ),
+    'media-collection': !!mainSideMenuItems.mediaCollections,
+    'search': !!mainSideMenuItems.search || !!topMenu.showElasticSearchButton,
+    '**': true
+  };
+}
+
+/**
  * Export all functions in this file as a CommonJS module.
  */
 module.exports = {
@@ -168,5 +212,6 @@ module.exports = {
   flattenObjectTree,
   getTranslation,
   sleep,
-  enableFrontMatterPage
+  enableFrontMatterPage,
+  getRouteIncludeByPath
 };

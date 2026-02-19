@@ -97,10 +97,12 @@ Implementation files:
 
 - [`src/app/services/router-preloading-strategy.service.ts`](../src/app/services/router-preloading-strategy.service.ts)
 - [`src/app/app-routing.module.ts`](../src/app/app-routing.module.ts)
+- [`src/app/app.routes.ts`](../src/app/app.routes.ts)
+- [`src/app/app.routes.generated.ts`](../src/app/app.routes.generated.ts)
 - [`src/app/app.module.ts`](../src/app/app.module.ts)
 - [`src/app/app.server.module.ts`](../src/app/app.server.module.ts)
 
-Route-level preload behavior is set with route `data.preload` in `app-routing.module.ts`:
+Route-level preload behavior is set with route `data.preload` in `app.routes.ts`:
 
 - `'eager'`: preload as soon as router preloading runs.
 - `'idle'`: preload when browser is idle.
@@ -118,6 +120,37 @@ Current route policy:
 
 - default for lazy routes: `idle-if-fast`
 - optional per-route overrides: `eager`, `idle`, or `off`
+
+
+## Feature-based route generation
+
+The app can generate routes at build time based on values in [`src/assets/config/config.ts`](../src/assets/config/config.ts).
+
+- Canonical routes source (edited by developers): [`src/app/app.routes.ts`](../src/app/app.routes.ts)
+- Generated file: [`src/app/app.routes.generated.ts`](../src/app/app.routes.generated.ts)
+- Generator script: [`prebuild-generate-routes.js`](../prebuild-generate-routes.js)
+- npm command: `npm run generate-routes`
+
+Feature toggle in config:
+
+- `app.prebuild.featureBasedRoutes` (default: `false`)
+- when `false`, the generated routes include all default lazy routes
+- when `true`, the generated routes include only feature-enabled lazy routes
+- filtering is path-based in `prebuild-generate-routes.js`; any new route not listed in the filter map remains included by default
+
+Build behavior:
+
+- development builds/serve use `src/app/app.routes.ts` directly (all routes enabled)
+- production builds replace `src/app/app.routes.ts` with `src/app/app.routes.generated.ts` using Angular `fileReplacements`
+- `build:ssr` runs `generate-routes` explicitly before the production build
+
+If you run production Angular CLI commands directly, run `npm run generate-routes` first.
+
+Parser smoke tests:
+
+- Test script: [`scripts/test-prebuild-generate-routes.js`](../scripts/test-prebuild-generate-routes.js)
+- npm command: `npm run test:routes-parser`
+- run these tests after changes to `prebuild-generate-routes.js` and after route syntax refactors in `src/app/app.routes.ts`
 
 
 ## Dependencies

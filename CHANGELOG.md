@@ -12,6 +12,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 - Benchmark script for measuring SSR performance.
 - Support for dedicated cookie policy, privacy policy, terms of use, and accessibility statement pages. The content of these must be defined in Markdown files in the backend (Markdown folder named `05`: the cookie policy file must have id `01`, the privacy policy `02`, the terms of use `03`, and the accessibility statement `04`). The pages can be enabled in the main side menu by setting the following flags in `component.mainSideMenu.items` in the config to `true`: `cookiePolicy`, `privacyPolicy`, `termsOfUse`, `accessibilityStatement` (all default to `false`).
+- Config-driven feature-based production route generation: `src/app/app.routes.ts` remains the canonical full route list, `src/app/app.routes.generated.ts` is generated for production builds (or copied 1:1 when the feature is disabled), production uses file replacement to switch route files, and sitemap inclusion now follows the same route-enable logic (excluding `search` and `index/:type` by design).
 
 ### Changed
 

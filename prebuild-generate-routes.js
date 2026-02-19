@@ -36,6 +36,7 @@ function generateRoutes() {
   validateSourceRouteBlocks(sourceRouteBlocks);
 
   const includeByPath = common.getRouteIncludeByPath(config);
+  const unknownRoutePaths = new Set();
 
   const filteredRoutes = sourceRouteBlocks.filter((routeBlock) => {
     const routePath = getRoutePath(routeBlock);
@@ -44,8 +45,12 @@ function generateRoutes() {
     }
 
     const include = includeByPath[routePath];
+    if (include === undefined) {
+      unknownRoutePaths.add(routePath);
+    }
     return include === undefined ? true : include;
   });
+  warnUnknownRoutePaths(unknownRoutePaths);
   validateFilteredRoutes(sourceRouteBlocks, filteredRoutes);
 
   const fileContent = renderRoutesFile(filteredRoutes, featureBasedRoutes);
@@ -220,6 +225,18 @@ function validateFilteredRoutes(sourceRouteBlocks, filteredRoutes) {
 
 function hasRouteWithPath(routeBlocks, routePath) {
   return routeBlocks.some((routeBlock) => getRoutePath(routeBlock) === routePath);
+}
+
+function warnUnknownRoutePaths(unknownRoutePaths) {
+  if (!unknownRoutePaths.size) {
+    return;
+  }
+
+  const sortedPaths = Array.from(unknownRoutePaths).sort();
+  console.warn(
+    `Warning: route include map is missing ${sortedPaths.length} route path(s): ${sortedPaths.join(', ')}. ` +
+    'These routes are included by default.'
+  );
 }
 
 function renderRoutesFile(routes, featureBasedRoutes) {

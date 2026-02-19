@@ -6,8 +6,6 @@ const configFilepath = 'src/assets/config/config.ts';
 const sourceRoutesFilepath = 'src/app/app.routes.ts';
 const outputFilepath = 'src/app/app.routes.generated.ts';
 
-generateRoutes();
-
 /**
  * Generates the app routes file used by AppRoutingModule.
  *
@@ -374,3 +372,15 @@ function stripCommentsPreserveLiterals(value) {
 
   return output;
 }
+
+if (require.main === module) {
+  generateRoutes();
+}
+
+module.exports = {
+  generateRoutes,
+  extractRouteBlocks,
+  extractRoutesArrayBody,
+  getRoutePath,
+  stripCommentsPreserveLiterals
+};

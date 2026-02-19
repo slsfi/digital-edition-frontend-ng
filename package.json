@@ -16,6 +16,7 @@
     "build:ssr": "npm run generate-routes && ng build --configuration production && ng run app:server:production && node ./postbuild-copy-files.js",
     "serve:ssr": "node dist/app/proxy-server.js",
     "ssr-start": "npm run build:ssr && npm run serve:ssr",
+    "test:routes-parser": "node ./scripts/test-prebuild-generate-routes.js",
     "bench:ssr": "node ./scripts/benchmark-ssr.js",
     "bench:ssr:build": "npm run build:ssr && npm run bench:ssr",
     "gzipper": "gzipper",

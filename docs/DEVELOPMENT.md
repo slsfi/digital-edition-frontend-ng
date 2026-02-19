@@ -146,6 +146,12 @@ Build behavior:
 
 If you run production Angular CLI commands directly, run `npm run generate-routes` first.
 
+Parser smoke tests:
+
+- Test script: [`scripts/test-prebuild-generate-routes.js`](../scripts/test-prebuild-generate-routes.js)
+- npm command: `npm run test:routes-parser`
+- run these tests after changes to `prebuild-generate-routes.js` and after route syntax refactors in `src/app/app.routes.ts`
+
 
 ## Dependencies
 

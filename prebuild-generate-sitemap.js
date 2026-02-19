@@ -69,6 +69,21 @@ async function generateSitemap() {
     }
   }
 
+  // Get legal pages URLs
+  const legalPages = [
+    { configKey: 'cookiePolicy', route: 'cookie-policy' },
+    { configKey: 'privacyPolicy', route: 'privacy-policy' },
+    { configKey: 'termsOfUse', route: 'terms' },
+    { configKey: 'accessibilityStatement', route: 'accessibility-statement' }
+  ];
+  const enabledLegalPages = legalPages.filter(
+    (page) => config.component?.mainSideMenu?.items?.[page.configKey]
+  );
+  if (enabledLegalPages.length) {
+    const legalPageRoutes = enabledLegalPages.map((page) => page.route);
+    urlCounter += generateRootPageURLs(legalPageRoutes, urlOrigin, locale);
+  }
+
   // Get article-pages URLs
   if (config.component?.mainSideMenu?.items?.articles && config.articles?.length) {
     urlCounter += generateArticleURLs(config.articles, urlOrigin, locale);
@@ -166,6 +181,16 @@ function generateArticleURLs(articles, urlOrigin, locale) {
       appendToSitemapFile(url + '\n');
       counter += 1;
     }
+  }
+  return counter;
+}
+
+function generateRootPageURLs(routes, urlOrigin, locale) {
+  let counter = 0;
+  for (let i = 0; i < routes.length; i++) {
+    const url = `${urlOrigin}/${locale}/${routes[i]}`;
+    appendToSitemapFile(url + '\n');
+    counter += 1;
   }
   return counter;
 }

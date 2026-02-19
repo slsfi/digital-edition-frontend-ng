@@ -57,7 +57,7 @@ async function fetchFromAPI(endpoint) {
       return null;
     }
   } catch (err) {
-    console.error(`Error while fetching ${endpoint}:`, err);
+    // console.error(`Error while fetching ${endpoint}:`, err);
     return null;
   }
 }

@@ -8,35 +8,39 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+
+
+## [2.5.0] – 2026-02-20
+
 ### Added
 
-- Benchmark script for measuring SSR performance.
-- Support for dedicated cookie policy, privacy policy, terms of use, and accessibility statement pages. The content of these must be defined in Markdown files in the backend (Markdown folder named `05`: the cookie policy file must have id `01`, the privacy policy `02`, the terms of use `03`, and the accessibility statement `04`). The pages can be enabled in the main side menu by setting the following flags in `component.mainSideMenu.items` in the config to `true`: `cookiePolicy`, `privacyPolicy`, `termsOfUse`, `accessibilityStatement` (all default to `false`).
-- Config-driven feature-based production route generation (disabled by default): enable by setting `app.prebuild.featureBasedRoutes` to `true` in the config. `src/app/app.routes.ts` remains the canonical full route list, `src/app/app.routes.generated.ts` is generated for production builds (or copied 1:1 when the feature is disabled), production uses file replacement to switch route files, and sitemap inclusion now follows the same route-enable logic (excluding `search` and `index/:type` by design).
-- SSR smoke test script for validating key server-rendered HTML responses on localhost, with development docs.
+- Support for dedicated cookie policy, privacy policy, terms of use, and accessibility statement pages. The content of these must be defined in Markdown files in the backend (Markdown folder named `05`: the cookie policy file must have id `01`, the privacy policy `02`, the terms of use `03`, and the accessibility statement `04`). The pages can be enabled in the main side menu by setting the following flags in `component.mainSideMenu.items` in the config to `true`: `cookiePolicy`, `privacyPolicy`, `termsOfUse`, `accessibilityStatement` (all default to `false`). ([ad9af28](https://github.com/slsfi/digital-edition-frontend-ng/commit/ad9af2803972b50e83d61ccf246f57f92640660a))
+- Config-driven feature-based production route generation (disabled by default): enable by setting `app.prebuild.featureBasedRoutes` to `true` in the config. `src/app/app.routes.ts` remains the canonical full route list, `src/app/app.routes.generated.ts` is generated for production builds (or copied 1:1 when the feature is disabled), production uses file replacement to switch route files, and sitemap inclusion now follows the same route-enable logic (excluding `search` and `index/:type` by design). ([96f611a](https://github.com/slsfi/digital-edition-frontend-ng/commit/96f611a538f0535e90aaba51877c3d11b2b9e80c))
+- Benchmark script for measuring SSR performance, with development docs. ([1c76329](https://github.com/slsfi/digital-edition-frontend-ng/commit/1c7632959b2368c720076fc519c4797b1ca5d849), [545ec87](https://github.com/slsfi/digital-edition-frontend-ng/commit/545ec8775eff3c85cfd8d8e1c5a4c3f9aa5570bd))
+- SSR smoke test script for validating key server-rendered HTML responses on localhost, with development docs. ([947b57b](https://github.com/slsfi/digital-edition-frontend-ng/commit/947b57b7f9e3e6f12b3471cf35249624d4d52c32), [2137fe0](https://github.com/slsfi/digital-edition-frontend-ng/commit/2137fe0d5d392db36307058a270909bdedc888fd))
 
 ### Changed
 
-- Remove GHA cache export/import from Docker build and push workflow.
-- Migrate illustration, index-filter, named-entity, and reference-data modals to zoneless-ready.
-- Collection side menu: clarify highlight state naming and expansion semantics.
-- Math-Jax directive: switch from `ngOnChanges` to `afterRenderEffect`.
-- Lazy-load modal/popover components via dynamic imports on page actions.
-- Avoid collection-text query-param route churn via platform-specific sync service.
-- Add shared RouteStateSourceService for collection text/introduction pages.
-- Skip legacy-id prefetch on server in collection text page.
-- Skip static-html defer placeholder when static collection menus are disabled.
-- Use platform-specific navigation source in AppComponent.
-- Disable route preloading on server via platform strategy providers.
-- Default lazy-route preloading to idle-if-fast in browser.
-- Deps: update `marked` to 17.0.3.
-- Deps: update transitive dependencies.
+- Remove GHA cache export/import from Docker build and push workflow. ([fa0cb88](https://github.com/slsfi/digital-edition-frontend-ng/commit/fa0cb880fa476018c7f9b1b0efc52923b21e5d80))
+- Migrate illustration, index-filter, named-entity, and reference-data modals to zoneless-ready. ([bbe69a0](https://github.com/slsfi/digital-edition-frontend-ng/commit/bbe69a0bc2e0132269a2f45e03fe8ca89ce22b2a), [c57e1f6](https://github.com/slsfi/digital-edition-frontend-ng/commit/c57e1f6e69fa9583951f82929e5d9f1a89ad2927), [dac6de4](https://github.com/slsfi/digital-edition-frontend-ng/commit/dac6de4cf85d72500a2ba249ed4816a3e5f3479c), [a5d5c93](https://github.com/slsfi/digital-edition-frontend-ng/commit/a5d5c93084f8fc2ce7aeed65fbfb76ae18bc8a86))
+- Collection side menu: clarify highlight state naming and expansion semantics. ([42f1715](https://github.com/slsfi/digital-edition-frontend-ng/commit/42f171528937a3f6c9190764e174febb98eebadb))
+- Math-Jax directive: switch from `ngOnChanges` to `afterRenderEffect`. ([343fad8](https://github.com/slsfi/digital-edition-frontend-ng/commit/343fad870cc0030b3cc86a5066d63fa3ba510a8b))
+- Lazy-load modal/popover components via dynamic imports on page actions. ([66bdfb9](https://github.com/slsfi/digital-edition-frontend-ng/commit/66bdfb9014788ab1d593b5edf0c95c0413c80c04))
+- Avoid collection-text query-param route churn via platform-specific sync service. ([b3dd705](https://github.com/slsfi/digital-edition-frontend-ng/commit/b3dd7053c8d0b451a742584224d1e54701400980))
+- Add shared RouteStateSourceService for collection text/introduction pages. ([c51de43](https://github.com/slsfi/digital-edition-frontend-ng/commit/c51de43c9cec5a5b12e07386dbc82acd676186d7))
+- Skip legacy-id prefetch on server in collection text page. ([c6c5044](https://github.com/slsfi/digital-edition-frontend-ng/commit/c6c50445f714372e30fa78dcc10b6e5bb3b96963))
+- Skip static-html defer placeholder when static collection menus are disabled. ([63b29d1](https://github.com/slsfi/digital-edition-frontend-ng/commit/63b29d18f876d69c62239ed2e29b5e2f34269266))
+- Use platform-specific navigation source in AppComponent. ([2e0809b](https://github.com/slsfi/digital-edition-frontend-ng/commit/2e0809b5e448a2bcb1876b7277d1fa488ec04288))
+- Disable route preloading on server via platform strategy providers. ([f0856f3](https://github.com/slsfi/digital-edition-frontend-ng/commit/f0856f300b7f55522d2f294941af34ae56799c4e))
+- Default lazy-route preloading to idle-if-fast in browser. ([1d334e0](https://github.com/slsfi/digital-edition-frontend-ng/commit/1d334e08f33ed579232ddd5755f1e114b99fa9ef))
+- Deps: update `marked` to 17.0.3. ([aec1860](https://github.com/slsfi/digital-edition-frontend-ng/commit/aec1860ee48ea906ff2f023b9adf363bf4bbd163))
+- Deps: update transitive dependencies. ([b44b9bf](https://github.com/slsfi/digital-edition-frontend-ng/commit/b44b9bfd02f5b0ded9f4dc5c4bd41649f94ac935), [476f667](https://github.com/slsfi/digital-edition-frontend-ng/commit/476f66796c3dfae039b007566f7722a3e9d5e56e))
 
 ### Fixed
 
-- Collection side menu: prevent branch collapse while keeping selectedMenu bounded.
-- Collection side menu: support repeat-click collapse for highlighted branch links.
-- Resolve canonical/og URLs from SSR request origin and path.
+- Collection side menu: prevent branch collapse while keeping selectedMenu bounded. ([aa1ec93](https://github.com/slsfi/digital-edition-frontend-ng/commit/aa1ec939151976118be1d2cbbf5ce6793685199a))
+- Collection side menu: support repeat-click collapse for highlighted branch links. ([4cf2dcc](https://github.com/slsfi/digital-edition-frontend-ng/commit/4cf2dcc871cd5e9cdb4fb8b90c1322153ffeb26e))
+- Resolve canonical/og URLs from SSR request origin and path. ([e4414db](https://github.com/slsfi/digital-edition-frontend-ng/commit/e4414db2c5d2d3ccff5b6891ee468787c4ac9d46))
 
 
 
@@ -1221,7 +1225,8 @@ siteLogoDimensions: {
 
 
 
-[unreleased]: https://github.com/slsfi/digital-edition-frontend-ng/compare/2.4.6...HEAD
+[unreleased]: https://github.com/slsfi/digital-edition-frontend-ng/compare/2.5.0...HEAD
+[2.5.0]: https://github.com/slsfi/digital-edition-frontend-ng/compare/2.4.6...2.5.0
 [2.4.6]: https://github.com/slsfi/digital-edition-frontend-ng/compare/2.4.5...2.4.6
 [2.4.5]: https://github.com/slsfi/digital-edition-frontend-ng/compare/2.4.4...2.4.5
 [2.4.4]: https://github.com/slsfi/digital-edition-frontend-ng/compare/2.4.3...2.4.4

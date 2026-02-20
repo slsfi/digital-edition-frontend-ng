@@ -1,6 +1,9 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { NavigationEnd, Router } from '@angular/router';
 import { Observable, filter, map, of } from 'rxjs';
+import { Request } from 'express';
+
+import { REQUEST } from 'src/express.tokens';
 
 
 /**
@@ -40,7 +43,9 @@ export class BrowserRouterNavigationSourceService
 @Injectable()
 export class ServerRouterNavigationSourceService
   extends RouterNavigationSourceService {
+  private request = inject<Request>(REQUEST, { optional: true });
+
   get(router: Router): Observable<string> {
-    return of(router.url);
+    return of(this.request?.url || this.request?.originalUrl || router.url);
   }
 }

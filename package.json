@@ -17,6 +17,7 @@
     "serve:ssr": "node dist/app/proxy-server.js",
     "ssr-start": "npm run build:ssr && npm run serve:ssr",
     "test:routes-parser": "node ./scripts/test-prebuild-generate-routes.js",
+    "test:ssr:smoke": "node ./scripts/test-ssr-smoke.js",
     "bench:ssr": "node ./scripts/benchmark-ssr.js",
     "bench:ssr:build": "npm run build:ssr && npm run bench:ssr",
     "gzipper": "gzipper",

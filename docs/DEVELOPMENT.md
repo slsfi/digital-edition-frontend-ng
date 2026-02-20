@@ -75,6 +75,7 @@ docker compose down --volumes
 ```
 
 
+
 ## Node.js version and building using GitHub Actions
 
 The Node.js Docker-image tag can be passed as a build argument to `Dockerfile` using the argument `NODE_IMAGE_TAG`. `Dockerfile` sets a default value for the argument if it is not passed.
@@ -84,6 +85,7 @@ By default the app is built using GitHub Actions according to the workflow defin
 The workflow also runs `docker pull node:${NODE_IMAGE_TAG}` before the build. This is intentional for explicitness and log visibility.
 
 When updating which Node.js image is used for the build, remember to update both `docker-build-and-push.yml` and `Dockerfile`.
+
 
 
 ## Router preloading strategy
@@ -122,6 +124,7 @@ Current route policy:
 - optional per-route overrides: `eager`, `idle`, or `off`
 
 
+
 ## Feature-based route generation
 
 The app can generate routes at build time based on values in [`src/assets/config/config.ts`](../src/assets/config/config.ts).
@@ -151,6 +154,7 @@ Parser smoke tests:
 - Test script: [`scripts/test-prebuild-generate-routes.js`](../scripts/test-prebuild-generate-routes.js)
 - npm command: `npm run test:routes-parser`
 - run these tests after changes to `prebuild-generate-routes.js` and after route syntax refactors in `src/app/app.routes.ts`
+
 
 
 ## Dependencies
@@ -258,6 +262,7 @@ Library for extracting and merging i18n xliff translation files for Angular proj
 Angular testing frameworks, not in use.
 
 
+
 ## SSR smoke test (localhost)
 
 Use the SSR smoke test to verify that selected routes return expected server-rendered HTML in the initial response.
@@ -303,6 +308,58 @@ Updating checks:
 - Edit `TEST_CASES` in [`scripts/test-ssr-smoke.js`](../scripts/test-ssr-smoke.js) when expected content changes.
 - Prefer deterministic snippets that are stable across builds.
 - Use regex checks when HTML attribute order can vary.
+
+
+
+## SSR benchmark (localhost)
+
+Use the SSR benchmark to measure response-time performance of server-rendered routes (cold and warm runs).
+
+- Test script: [`scripts/benchmark-ssr.js`](../scripts/benchmark-ssr.js)
+- npm commands: `npm run bench:ssr`, `npm run bench:ssr:build`
+- Default base URL: `http://127.0.0.1:4201`
+
+Recommended workflow:
+
+1. Build and run benchmark in one command:
+
+```bash
+npm run bench:ssr:build
+```
+
+2. Or, if you already built SSR output, run only the benchmark:
+
+```bash
+npm run bench:ssr
+```
+
+3. Or benchmark an already running SSR server:
+
+```bash
+npm run bench:ssr -- --skip-start --base-url=http://127.0.0.1:4201
+```
+
+Optional arguments:
+
+- `--warm-runs=<number>` (or `--runs=<number>`) to set warm requests per route.
+- `--route=<path>` or `--routes=<comma,separated,paths>` to target specific routes.
+- `--port=<number>` to set the auto-started server port.
+- `--base-url=<url>` to target another host/port.
+- `--startup-timeout-ms=<number>` to adjust server startup wait time.
+- `--request-timeout-ms=<number>` to adjust per-request timeout.
+- `--skip-start` to benchmark without starting `dist/app/proxy-server.js`.
+
+Example:
+
+```bash
+npm run bench:ssr -- --warm-runs=8 --routes=/sv/,/sv/collection/216/text/20280
+```
+
+What the benchmark reports:
+
+- Per-request timing table with status, elapsed milliseconds, and response size.
+- Cold run summary (run 1 per route).
+- Warm run summary with `avg`, `median`, `p95`, `min`, and `max`.
 
 
 

@@ -3,7 +3,7 @@
 const { performance } = require('node:perf_hooks');
 
 /**
- * SSR smoke tests for a running localhost server.
+ * SSR smoke tests for a running SSR server (typically localhost).
  *
  * Purpose:
  * - Quickly verify that selected routes return server-rendered HTML.
@@ -21,6 +21,7 @@ const { performance } = require('node:perf_hooks');
  * Usage:
  * - npm run test:ssr:smoke
  * - npm run test:ssr:smoke -- --base-url=http://localhost:4201
+ * - npm run test:ssr:smoke -- --base-url=https://topelius.sls.fi
  * - npm run test:ssr:smoke -- --timeout-ms=5000
  *
  * Exit codes:
@@ -30,7 +31,8 @@ const { performance } = require('node:perf_hooks');
  * Maintenance:
  * - Keep TEST_CASES aligned with stable SSR output.
  * - Prefer short, deterministic snippets that should always be present.
- * - Use "regex" checks when attribute order may vary in generated HTML.
+ * - Use "regex" checks only when attribute order may vary in generated HTML.
+ * - Use per-test `headers` to simulate proxy behavior (for example forwarded HTTPS).
  */
 const DEFAULT_BASE_URL = 'http://localhost:4201';
 const DEFAULT_TIMEOUT_MS = 30000;
@@ -41,6 +43,9 @@ const DEFAULT_TIMEOUT_MS = 30000;
  * Check types:
  * - includes: strict substring match.
  * - regex: regular-expression match (useful for attribute-order tolerance).
+ *
+ * Optional test-case fields:
+ * - headers: request headers to send for the route.
  */
 const TEST_CASES = [
   {
@@ -55,6 +60,37 @@ const TEST_CASES = [
     ],
   },
   {
+    name: 'SEO tags home sv',
+    route: '/sv/',
+    checks: [
+      {
+        description: 'Canonical link points to Swedish home',
+        type: 'includes',
+        value: '<link rel="canonical" href="http://localhost:4201/sv/">',
+      },
+      {
+        description: 'Alternate hreflang sv points to Swedish home',
+        type: 'includes',
+        value: '<link rel="alternate" hreflang="sv" href="http://localhost:4201/sv/">',
+      },
+      {
+        description: 'Alternate hreflang fi points to Finnish home',
+        type: 'includes',
+        value: '<link rel="alternate" hreflang="fi" href="http://localhost:4201/fi/">',
+      },
+      {
+        description: 'Alternate hreflang x-default points to Swedish home',
+        type: 'includes',
+        value: '<link rel="alternate" hreflang="x-default" href="http://localhost:4201/sv/">',
+      },
+      {
+        description: 'og:url points to Swedish home',
+        type: 'includes',
+        value: '<meta property="og:url" content="http://localhost:4201/sv/">',
+      },
+    ],
+  },
+  {
     name: 'Home page Markdown fi',
     route: '/fi/',
     checks: [
@@ -62,6 +98,37 @@ const TEST_CASES = [
         description: 'Contains Finnish home markdown snippet',
         type: 'includes',
         value: '<b class="sc-ion-content">Lyriikka</b>',
+      },
+    ],
+  },
+  {
+    name: 'SEO tags home fi',
+    route: '/fi/',
+    checks: [
+      {
+        description: 'Canonical link points to Swedish home',
+        type: 'includes',
+        value: '<link rel="canonical" href="http://localhost:4201/sv/">',
+      },
+      {
+        description: 'Alternate hreflang sv points to Swedish home',
+        type: 'includes',
+        value: '<link rel="alternate" hreflang="sv" href="http://localhost:4201/sv/">',
+      },
+      {
+        description: 'Alternate hreflang fi points to Finnish home',
+        type: 'includes',
+        value: '<link rel="alternate" hreflang="fi" href="http://localhost:4201/fi/">',
+      },
+      {
+        description: 'Alternate hreflang x-default points to Swedish home',
+        type: 'includes',
+        value: '<link rel="alternate" hreflang="x-default" href="http://localhost:4201/sv/">',
+      },
+      {
+        description: 'og:url points to Finnish home',
+        type: 'includes',
+        value: '<meta property="og:url" content="http://localhost:4201/fi/">',
       },
     ],
   },
@@ -81,10 +148,9 @@ const TEST_CASES = [
     route: '/sv/about/03-01-01',
     checks: [
       {
-        description: 'Contains og:title meta tag with expected content',
-        type: 'regex',
-        value:
-          /<meta\b(?=[^>]*\bproperty=["']og:title["'])(?=[^>]*\bcontent=["']Webbplatsens titel["'])[^>]*>/i,
+        description: 'Contains og:title meta tag with expected About-page content',
+        type: 'includes',
+        value: '<meta property="og:title" content="Zacharias Topelius i korthet">',
       },
     ],
   },
@@ -96,6 +162,100 @@ const TEST_CASES = [
         description: 'Contains collection text snippet',
         type: 'includes',
         value: '<span class="tei tooltip ttAbbreviations sc-ion-content">Mina Herrar</span>',
+      },
+    ],
+  },
+  {
+    name: 'SEO tags collection text sv',
+    route: '/sv/collection/216/text/20280',
+    checks: [
+      {
+        description: 'Canonical link points to Swedish collection text route',
+        type: 'includes',
+        value: '<link rel="canonical" href="http://localhost:4201/sv/collection/216/text/20280">',
+      },
+      {
+        description: 'Alternate hreflang sv points to Swedish collection text route',
+        type: 'includes',
+        value: '<link rel="alternate" hreflang="sv" href="http://localhost:4201/sv/collection/216/text/20280">',
+      },
+      {
+        description: 'Alternate hreflang fi points to Finnish collection text route',
+        type: 'includes',
+        value: '<link rel="alternate" hreflang="fi" href="http://localhost:4201/fi/collection/216/text/20280">',
+      },
+      {
+        description: 'Alternate hreflang x-default points to Swedish collection text route',
+        type: 'includes',
+        value: '<link rel="alternate" hreflang="x-default" href="http://localhost:4201/sv/collection/216/text/20280">',
+      },
+      {
+        description: 'og:url points to Swedish collection text route',
+        type: 'includes',
+        value: '<meta property="og:url" content="http://localhost:4201/sv/collection/216/text/20280">',
+      },
+    ],
+  },
+  {
+    name: 'SEO canonical strips query params',
+    route: '/sv/collection/211/text/20128?views=(type:readingtext)',
+    checks: [
+      {
+        description: 'Canonical link excludes query params',
+        type: 'includes',
+        value: '<link rel="canonical" href="http://localhost:4201/sv/collection/211/text/20128">',
+      },
+    ],
+  },
+  {
+    name: 'SEO tags collection text fi',
+    route: '/fi/collection/211/text/20128',
+    checks: [
+      {
+        description: 'Canonical link points to Swedish collection text route',
+        type: 'includes',
+        value: '<link rel="canonical" href="http://localhost:4201/sv/collection/211/text/20128">',
+      },
+      {
+        description: 'Alternate hreflang sv points to Swedish collection text route',
+        type: 'includes',
+        value: '<link rel="alternate" hreflang="sv" href="http://localhost:4201/sv/collection/211/text/20128">',
+      },
+      {
+        description: 'Alternate hreflang fi points to Finnish collection text route',
+        type: 'includes',
+        value: '<link rel="alternate" hreflang="fi" href="http://localhost:4201/fi/collection/211/text/20128">',
+      },
+      {
+        description: 'Alternate hreflang x-default points to Swedish collection text route',
+        type: 'includes',
+        value: '<link rel="alternate" hreflang="x-default" href="http://localhost:4201/sv/collection/211/text/20128">',
+      },
+      {
+        description: 'og:url points to Finnish collection text route',
+        type: 'includes',
+        value: '<meta property="og:url" content="http://localhost:4201/fi/collection/211/text/20128">',
+      },
+    ],
+  },
+  {
+    name: 'SEO tags with forwarded https headers (simulated proxy)',
+    route: '/sv/collection/219/text/19443',
+    headers: {
+      Host: 'topelius.sls.fi',
+      'X-Forwarded-Host': 'topelius.sls.fi',
+      'X-Forwarded-Proto': 'https',
+    },
+    checks: [
+      {
+        description: 'Canonical link uses https forwarded origin',
+        type: 'includes',
+        value: '<link rel="canonical" href="https://topelius.sls.fi/sv/collection/219/text/19443">',
+      },
+      {
+        description: 'og:url uses https forwarded origin',
+        type: 'includes',
+        value: '<meta property="og:url" content="https://topelius.sls.fi/sv/collection/219/text/19443">',
       },
     ],
   },
@@ -166,13 +326,16 @@ function getUrl(baseUrl, route) {
   return `${baseUrl.replace(/\/+$/, '')}${normalizeRoute(route)}`;
 }
 
-async function fetchHtml(url, timeoutMs) {
+async function fetchHtml(url, timeoutMs, headers) {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), timeoutMs);
   const started = performance.now();
 
   try {
-    const response = await fetch(url, { signal: controller.signal });
+    const response = await fetch(url, {
+      signal: controller.signal,
+      headers: headers || undefined,
+    });
     const body = await response.text();
     const elapsedMs = performance.now() - started;
     return {
@@ -226,7 +389,7 @@ function runCheck(body, check) {
 
 async function runTest(baseUrl, timeoutMs, testCase) {
   const url = getUrl(baseUrl, testCase.route);
-  const response = await fetchHtml(url, timeoutMs);
+  const response = await fetchHtml(url, timeoutMs, testCase.headers);
   const errors = [];
 
   if (!response.ok) {

@@ -197,6 +197,32 @@ const TEST_CASES = [
     ],
   },
   {
+    name: 'Ionic SSR ion-button structure',
+    route: '/sv/collection/200/text/19870',
+    checks: [
+      {
+        description: 'Contains hydrated ion-button host element',
+        type: 'regex',
+        value: /<ion-button\b[^>]*\bclass=["'][^"']*\bion-button\b[^"']*\bhydrated\b[^"']*["'][^>]*>/i,
+      },
+      {
+        description: 'Contains native button inside ion-button',
+        type: 'regex',
+        value: /<ion-button\b[\s\S]*?<button\b[^>]*\bclass=["'][^"']*\bbutton-native\b[^"']*["'][^>]*\bpart=["']native["'][^>]*>/i,
+      },
+      {
+        description: 'Contains expected ion-icon inside ion-button',
+        type: 'regex',
+        value: /<ion-button\b[\s\S]*?<ion-icon\b[^>]*\bname=["']arrow-redo-sharp["'][^>]*\bhydrated\b[^>]*>/i,
+      },
+      {
+        description: 'Contains expected button label text',
+        type: 'regex',
+        value: /<ion-button\b[\s\S]*?<span\b[^>]*\bside-title\b[^>]*>\s*Hänvisa\s*<\/span>/i,
+      },
+    ],
+  },
+  {
     name: 'SEO canonical strips query params',
     route: '/sv/collection/211/text/20128?views=(type:readingtext)',
     checks: [

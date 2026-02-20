@@ -8,35 +8,39 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+
+
+## [2.5.0] – 2026-02-20
+
 ### Added
 
-- Benchmark script for measuring SSR performance.
-- Support for dedicated cookie policy, privacy policy, terms of use, and accessibility statement pages. The content of these must be defined in Markdown files in the backend (Markdown folder named `05`: the cookie policy file must have id `01`, the privacy policy `02`, the terms of use `03`, and the accessibility statement `04`). The pages can be enabled in the main side menu by setting the following flags in `component.mainSideMenu.items` in the config to `true`: `cookiePolicy`, `privacyPolicy`, `termsOfUse`, `accessibilityStatement` (all default to `false`).
-- Config-driven feature-based production route generation (disabled by default): enable by setting `app.prebuild.featureBasedRoutes` to `true` in the config. `src/app/app.routes.ts` remains the canonical full route list, `src/app/app.routes.generated.ts` is generated for production builds (or copied 1:1 when the feature is disabled), production uses file replacement to switch route files, and sitemap inclusion now follows the same route-enable logic (excluding `search` and `index/:type` by design).
-- SSR smoke test script for validating key server-rendered HTML responses on localhost, with development docs.
+- Support for dedicated cookie policy, privacy policy, terms of use, and accessibility statement pages. The content of these must be defined in Markdown files in the backend (Markdown folder named `05`: the cookie policy file must have id `01`, the privacy policy `02`, the terms of use `03`, and the accessibility statement `04`). The pages can be enabled in the main side menu by setting the following flags in `component.mainSideMenu.items` in the config to `true`: `cookiePolicy`, `privacyPolicy`, `termsOfUse`, `accessibilityStatement` (all default to `false`). ([]())
+- Config-driven feature-based production route generation (disabled by default): enable by setting `app.prebuild.featureBasedRoutes` to `true` in the config. `src/app/app.routes.ts` remains the canonical full route list, `src/app/app.routes.generated.ts` is generated for production builds (or copied 1:1 when the feature is disabled), production uses file replacement to switch route files, and sitemap inclusion now follows the same route-enable logic (excluding `search` and `index/:type` by design). ([]())
+- Benchmark script for measuring SSR performance, with development docs. ([]())
+- SSR smoke test script for validating key server-rendered HTML responses on localhost, with development docs. ([]())
 
 ### Changed
 
-- Remove GHA cache export/import from Docker build and push workflow.
-- Migrate illustration, index-filter, named-entity, and reference-data modals to zoneless-ready.
-- Collection side menu: clarify highlight state naming and expansion semantics.
-- Math-Jax directive: switch from `ngOnChanges` to `afterRenderEffect`.
-- Lazy-load modal/popover components via dynamic imports on page actions.
-- Avoid collection-text query-param route churn via platform-specific sync service.
-- Add shared RouteStateSourceService for collection text/introduction pages.
-- Skip legacy-id prefetch on server in collection text page.
-- Skip static-html defer placeholder when static collection menus are disabled.
-- Use platform-specific navigation source in AppComponent.
-- Disable route preloading on server via platform strategy providers.
-- Default lazy-route preloading to idle-if-fast in browser.
-- Deps: update `marked` to 17.0.3.
-- Deps: update transitive dependencies.
+- Remove GHA cache export/import from Docker build and push workflow. ([]())
+- Migrate illustration, index-filter, named-entity, and reference-data modals to zoneless-ready. ([]())
+- Collection side menu: clarify highlight state naming and expansion semantics. ([]())
+- Math-Jax directive: switch from `ngOnChanges` to `afterRenderEffect`. ([]())
+- Lazy-load modal/popover components via dynamic imports on page actions. ([]())
+- Avoid collection-text query-param route churn via platform-specific sync service. ([]())
+- Add shared RouteStateSourceService for collection text/introduction pages. ([]())
+- Skip legacy-id prefetch on server in collection text page. ([]())
+- Skip static-html defer placeholder when static collection menus are disabled. ([]())
+- Use platform-specific navigation source in AppComponent. ([]())
+- Disable route preloading on server via platform strategy providers. ([]())
+- Default lazy-route preloading to idle-if-fast in browser. ([]())
+- Deps: update `marked` to 17.0.3. ([]())
+- Deps: update transitive dependencies. ([](), []())
 
 ### Fixed
 
-- Collection side menu: prevent branch collapse while keeping selectedMenu bounded.
-- Collection side menu: support repeat-click collapse for highlighted branch links.
-- Resolve canonical/og URLs from SSR request origin and path.
+- Collection side menu: prevent branch collapse while keeping selectedMenu bounded. ([]())
+- Collection side menu: support repeat-click collapse for highlighted branch links. ([]())
+- Resolve canonical/og URLs from SSR request origin and path. ([]())
 
 
 
@@ -1221,7 +1225,8 @@ siteLogoDimensions: {
 
 
 
-[unreleased]: https://github.com/slsfi/digital-edition-frontend-ng/compare/2.4.6...HEAD
+[unreleased]: https://github.com/slsfi/digital-edition-frontend-ng/compare/2.5.0...HEAD
+[2.5.0]: https://github.com/slsfi/digital-edition-frontend-ng/compare/2.4.6...2.5.0
 [2.4.6]: https://github.com/slsfi/digital-edition-frontend-ng/compare/2.4.5...2.4.6
 [2.4.5]: https://github.com/slsfi/digital-edition-frontend-ng/compare/2.4.4...2.4.5
 [2.4.4]: https://github.com/slsfi/digital-edition-frontend-ng/compare/2.4.3...2.4.4

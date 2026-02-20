@@ -75,6 +75,53 @@ docker compose down --volumes
 ```
 
 
+## SSR smoke test (localhost)
+
+Use the SSR smoke test to verify that selected routes return expected server-rendered HTML in the initial response.
+
+- Test script: [`scripts/test-ssr-smoke.js`](../scripts/test-ssr-smoke.js)
+- npm command: `npm run test:ssr:smoke`
+- Default base URL: `http://localhost:4201`
+
+Recommended workflow:
+
+1. Build and start the SSR app:
+
+```bash
+npm run build:ssr
+npm run serve:ssr
+```
+
+2. In another terminal, run:
+
+```bash
+npm run test:ssr:smoke
+```
+
+Optional arguments:
+
+- `--base-url=<url>` to target another local host/port.
+- `--timeout-ms=<number>` to change per-request timeout.
+
+Example:
+
+```bash
+npm run test:ssr:smoke -- --base-url=http://localhost:4201 --timeout-ms=5000
+```
+
+What the smoke test validates per route:
+
+- HTTP status is `200`.
+- `Content-Type` contains `text/html`.
+- Expected SSR HTML snippets or patterns are present in the raw response body.
+
+Updating checks:
+
+- Edit `TEST_CASES` in [`scripts/test-ssr-smoke.js`](../scripts/test-ssr-smoke.js) when expected content changes.
+- Prefer deterministic snippets that are stable across builds.
+- Use regex checks when HTML attribute order can vary.
+
+
 ## Node.js version and building using GitHub Actions
 
 The Node.js Docker-image tag can be passed as a build argument to `Dockerfile` using the argument `NODE_IMAGE_TAG`. `Dockerfile` sets a default value for the argument if it is not passed.

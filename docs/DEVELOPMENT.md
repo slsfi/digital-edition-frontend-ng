@@ -263,7 +263,7 @@ Angular testing frameworks, not in use.
 
 
 
-## SSR smoke test (localhost)
+## SSR smoke test (local or remote)
 
 Use the SSR smoke test to verify that selected routes return expected server-rendered HTML in the initial response.
 
@@ -288,7 +288,7 @@ npm run test:ssr:smoke
 
 Optional arguments:
 
-- `--base-url=<url>` to target another local host/port.
+- `--base-url=<url>` to target another host/port (including remote environments).
 - `--timeout-ms=<number>` to change per-request timeout.
 
 Example:
@@ -302,12 +302,13 @@ What the smoke test validates per route:
 - HTTP status is `200`.
 - `Content-Type` contains `text/html`.
 - Expected SSR HTML snippets or patterns are present in the raw response body.
+- Optional per-test request headers can be set in `TEST_CASES` (for example to simulate forwarded HTTPS headers).
 
 Updating checks:
 
 - Edit `TEST_CASES` in [`scripts/test-ssr-smoke.js`](../scripts/test-ssr-smoke.js) when expected content changes.
 - Prefer deterministic snippets that are stable across builds.
-- Use regex checks when HTML attribute order can vary.
+- Use regex checks only when HTML attribute order can vary.
 
 
 

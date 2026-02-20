@@ -36,6 +36,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 - Collection side menu: prevent branch collapse while keeping selectedMenu bounded.
 - Collection side menu: support repeat-click collapse for highlighted branch links.
+- Resolve canonical/og URLs from SSR request origin and path.
 
 
 

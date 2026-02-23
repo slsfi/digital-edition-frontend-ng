@@ -79,11 +79,13 @@ export class AuthService {
   refreshToken(): Observable<string> {
     if (this.refreshTokenInProgress) {
       return this.refreshTokenSubject.pipe(
-        filter(token => token !== null),
+        filter((token): token is string => token !== null),
         take(1)
       );
     } else {
       this.refreshTokenInProgress = true;
+      // Start a fresh refresh cycle so waiters cannot receive a stale token.
+      this.refreshTokenSubject.next(null);
       const url = `${this.backendAuthBaseURL}auth/refresh`;
       const headers = { Authorization: `Bearer ${this.getRefreshToken()}` };
       return this.http.post<RefreshTokenResponse>(url, null, { headers }).pipe(
@@ -96,6 +98,9 @@ export class AuthService {
         }),
         catchError((error) => {
           this.refreshTokenInProgress = false;
+          // Propagate refresh failure to concurrent waiters and reset subject.
+          this.refreshTokenSubject.error(error);
+          this.refreshTokenSubject = new BehaviorSubject<string | null>(null);
           this.logout();
           return throwError(() => error);
         })

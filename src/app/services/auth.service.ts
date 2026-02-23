@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable, signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { BehaviorSubject, catchError, filter, map, Observable, take, throwError } from 'rxjs';
+import { BehaviorSubject, catchError, filter, finalize, map, Observable, take, throwError } from 'rxjs';
 
 import { config } from '@config';
 import { LoginRequest, LoginResponse, RefreshTokenResponse } from '@models/auth.models';
@@ -87,24 +87,34 @@ export class AuthService {
       this.refreshTokenInProgress = true;
       // Start a fresh refresh cycle so waiters cannot receive a stale token.
       this.refreshTokenSubject.next(null);
+      let refreshCompleted = false;
       const url = `${this.backendAuthBaseURL}auth/refresh`;
       const headers = { Authorization: `Bearer ${this.getRefreshToken()}` };
       return this.http.post<RefreshTokenResponse>(url, null, { headers }).pipe(
         map((response) => {
+          refreshCompleted = true;
           const { access_token } = response;
           this.setStorageItem('access_token', access_token);
-          this.refreshTokenInProgress = false;
           this.refreshTokenSubject.next(access_token);
           this._isAuthenticated.set(true);
           return access_token;
         }),
         catchError((error) => {
-          this.refreshTokenInProgress = false;
+          refreshCompleted = true;
           // Propagate refresh failure to concurrent waiters and reset subject.
           this.refreshTokenSubject.error(error);
           this.refreshTokenSubject = new BehaviorSubject<string | null>(null);
           this.logout();
           return throwError(() => error);
+        }),
+        finalize(() => {
+          this.refreshTokenInProgress = false;
+          if (!refreshCompleted) {
+            this.refreshTokenSubject.error(
+              new Error('Refresh token request was canceled before completion.')
+            );
+            this.refreshTokenSubject = new BehaviorSubject<string | null>(null);
+          }
         })
       );
     }

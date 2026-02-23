@@ -63,7 +63,7 @@ describe('authGuard', () => {
     it('redirects protected route to /login when unauthenticated', () => {
       const result = runGuard('/collection/123/text');
 
-      expect(asUrl(result)).toBe('/login');
+      expect(asUrl(result)).toBe('/login?returnUrl=%2Fcollection%2F123%2Ftext');
     });
 
     it('allows /login when unauthenticated', () => {
@@ -72,7 +72,7 @@ describe('authGuard', () => {
       expect(result).toBe(true);
     });
 
-    it('redirects /login to / when authenticated', () => {
+    it('redirects /login to / when authenticated and returnUrl is missing', () => {
       isAuthenticated.set(true);
 
       const result = runGuard('/login');
@@ -80,10 +80,26 @@ describe('authGuard', () => {
       expect(asUrl(result)).toBe('/');
     });
 
-    it('treats /login with query params as login route', () => {
+    it('redirects /login to returnUrl when authenticated', () => {
       isAuthenticated.set(true);
 
-      const result = runGuard('/login?next=%2Fsearch');
+      const result = runGuard('/login?returnUrl=%2Fsearch');
+
+      expect(asUrl(result)).toBe('/search');
+    });
+
+    it('ignores unsafe returnUrl and redirects /login to / when authenticated', () => {
+      isAuthenticated.set(true);
+
+      const result = runGuard('/login?returnUrl=%2F%2Fevil.example');
+
+      expect(asUrl(result)).toBe('/');
+    });
+
+    it('ignores login-loop returnUrl and redirects /login to / when authenticated', () => {
+      isAuthenticated.set(true);
+
+      const result = runGuard('/login?returnUrl=%2Flogin%3FreturnUrl%3D%252Fsearch');
 
       expect(asUrl(result)).toBe('/');
     });

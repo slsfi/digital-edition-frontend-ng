@@ -1,14 +1,14 @@
 import { HttpClient, provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
-import { Router } from '@angular/router';
+import { DefaultUrlSerializer, Router, UrlTree } from '@angular/router';
 
 import { AuthTokenStorageService } from '@services/auth-token-storage.service';
 import { AuthService } from './auth.service';
 
 describe('AuthService', () => {
   let httpMock: HttpTestingController;
-  let router: jasmine.SpyObj<Pick<Router, 'navigate'>>;
+  let router: jasmine.SpyObj<Pick<Router, 'navigateByUrl' | 'parseUrl'>>;
   let tokenStorage: jasmine.SpyObj<Pick<AuthTokenStorageService, 'setItem' | 'getItem' | 'removeItem'>>;
   let tokenMap: Map<string, string>;
 
@@ -18,9 +18,12 @@ describe('AuthService', () => {
 
   beforeEach(() => {
     tokenMap = new Map<string, string>();
+    const urlSerializer = new DefaultUrlSerializer();
 
-    router = jasmine.createSpyObj<Pick<Router, 'navigate'>>('Router', ['navigate']);
-    router.navigate.and.resolveTo(true);
+    router = jasmine.createSpyObj<Pick<Router, 'navigateByUrl' | 'parseUrl'>>('Router', ['navigateByUrl', 'parseUrl']);
+    router.navigateByUrl.and.resolveTo(true);
+    router.parseUrl.and.callFake((url: string): UrlTree => urlSerializer.parse(url));
+    Object.defineProperty(router, 'url', { value: '/login', writable: true });
 
     tokenStorage = jasmine.createSpyObj<
       Pick<AuthTokenStorageService, 'setItem' | 'getItem' | 'removeItem'>
@@ -79,7 +82,58 @@ describe('AuthService', () => {
     expect(tokenMap.get('access_token')).toBe('access-token-1');
     expect(tokenMap.get('refresh_token')).toBe('refresh-token-1');
     expect(service.isAuthenticated()).toBeTrue();
-    expect(router.navigate).toHaveBeenCalledWith(['/']);
+    expect(router.navigateByUrl).toHaveBeenCalledWith('/');
+  });
+
+  it('navigates to returnUrl query param after successful login when safe', () => {
+    (router as unknown as { url: string }).url = '/login?returnUrl=%2Fcollection%2F123%2Ftext';
+    const service = createService();
+
+    service.login('user@example.com', 'secret');
+
+    const request = httpMock.expectOne((req) => req.url.endsWith('/auth/login'));
+    request.flush({
+      access_token: 'access-token-1',
+      refresh_token: 'refresh-token-1',
+      msg: 'ok',
+      user_projects: []
+    });
+
+    expect(router.navigateByUrl).toHaveBeenCalledWith('/collection/123/text');
+  });
+
+  it('ignores unsafe returnUrl query param after successful login', () => {
+    (router as unknown as { url: string }).url = '/login?returnUrl=%2F%2Fevil.example';
+    const service = createService();
+
+    service.login('user@example.com', 'secret');
+
+    const request = httpMock.expectOne((req) => req.url.endsWith('/auth/login'));
+    request.flush({
+      access_token: 'access-token-1',
+      refresh_token: 'refresh-token-1',
+      msg: 'ok',
+      user_projects: []
+    });
+
+    expect(router.navigateByUrl).toHaveBeenCalledWith('/');
+  });
+
+  it('ignores login-loop returnUrl query param after successful login', () => {
+    (router as unknown as { url: string }).url = '/login?returnUrl=%2Flogin%3FreturnUrl%3D%252Fsearch';
+    const service = createService();
+
+    service.login('user@example.com', 'secret');
+
+    const request = httpMock.expectOne((req) => req.url.endsWith('/auth/login'));
+    request.flush({
+      access_token: 'access-token-1',
+      refresh_token: 'refresh-token-1',
+      msg: 'ok',
+      user_projects: []
+    });
+
+    expect(router.navigateByUrl).toHaveBeenCalledWith('/');
   });
 
   it('clears auth state when login fails', () => {

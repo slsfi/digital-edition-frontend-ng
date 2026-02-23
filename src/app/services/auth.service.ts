@@ -45,10 +45,10 @@ export class AuthService {
    * Executes login request and stores received tokens on success.
    *
    * Current behavior:
-   * - On success: persist tokens, navigate to root, mark authenticated.
+   * - On success: persist tokens, navigate to returnUrl/root, mark authenticated.
    * - On error: clear auth state via logout().
    */
-  login(email: string, password: string): void {
+  login(email: string, password: string, redirectURL?: string): void {
     const url = `${this.backendAuthBaseURL}auth/login`;
     const body: LoginRequest = { email, password };
     this.http.post<LoginResponse>(url, body).subscribe({
@@ -56,7 +56,7 @@ export class AuthService {
         const { access_token, refresh_token } = response;
         this.setStorageItem('access_token', access_token);
         this.setStorageItem('refresh_token', refresh_token);
-        this.router.navigate(['/']);
+        this.router.navigateByUrl(this.resolvePostLoginRedirectURL(redirectURL));
         this._isAuthenticated.set(true);
       },
       error: () => {
@@ -170,6 +170,61 @@ export class AuthService {
     } catch {
       return '';
     }
+  }
+
+  /**
+   * Resolves post-login navigation target.
+   *
+   * Priority:
+   * 1) redirectURL argument (if valid)
+   * 2) `returnUrl` query parameter on current router URL (if valid)
+   * 3) root route (`/`)
+   */
+  private resolvePostLoginRedirectURL(redirectURL?: string): string {
+    const safeRedirectURL = this.getSafeInternalRedirectURL(redirectURL);
+    if (safeRedirectURL) {
+      return safeRedirectURL;
+    }
+
+    const returnURLFromRoute = this.getReturnURLFromCurrentRoute();
+    if (returnURLFromRoute) {
+      return returnURLFromRoute;
+    }
+
+    return '/';
+  }
+
+  private getReturnURLFromCurrentRoute(): string | null {
+    try {
+      const urlTree = this.router.parseUrl(this.router.url);
+      const returnUrl = urlTree.queryParams?.['returnUrl'];
+      return this.getSafeInternalRedirectURL(returnUrl);
+    } catch {
+      return null;
+    }
+  }
+
+  /**
+   * Returns valid app-internal redirect path or null.
+   *
+   * Rules:
+   * - Must start with `/`
+   * - Must not start with `//` (protocol-relative external target)
+   */
+  private getSafeInternalRedirectURL(value: unknown): string | null {
+    if (typeof value !== 'string') {
+      return null;
+    }
+
+    if (!value.startsWith('/') || value.startsWith('//')) {
+      return null;
+    }
+
+    if (value === '/login' || value.startsWith('/login?') || value.startsWith('/login/')) {
+      return null;
+    }
+
+    return value;
   }
 
   /**

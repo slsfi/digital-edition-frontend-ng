@@ -103,5 +103,14 @@ describe('authGuard', () => {
 
       expect(asUrl(result)).toBe('/');
     });
+
+    it('ignores too-long returnUrl and redirects /login to / when authenticated', () => {
+      isAuthenticated.set(true);
+      const longReturnUrl = `/${'a'.repeat(2001)}`;
+
+      const result = runGuard(`/login?returnUrl=${encodeURIComponent(longReturnUrl)}`);
+
+      expect(asUrl(result)).toBe('/');
+    });
   });
 });

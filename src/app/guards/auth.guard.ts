@@ -4,6 +4,8 @@ import { CanActivateFn, Router } from '@angular/router';
 import { AuthService } from '@services/auth.service';
 import { AUTH_ENABLED } from '@tokens/auth.tokens';
 
+const MAX_RETURN_URL_LENGTH = 2000;
+
 /**
  * Route guard for authentication-gated pages.
  *
@@ -57,6 +59,16 @@ function getSafeReturnUrl(router: Router, currentUrl: string): string | null {
     }
 
     if (returnUrl === '/login' || returnUrl.startsWith('/login?') || returnUrl.startsWith('/login/')) {
+      return null;
+    }
+
+    if (returnUrl.length > MAX_RETURN_URL_LENGTH) {
+      return null;
+    }
+
+    try {
+      router.parseUrl(returnUrl);
+    } catch {
       return null;
     }
 

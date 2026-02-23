@@ -136,6 +136,48 @@ describe('AuthService', () => {
     expect(router.navigateByUrl).toHaveBeenCalledWith('/');
   });
 
+  it('ignores returnUrl when Angular router parsing of the target fails', () => {
+    (router as unknown as { url: string }).url = '/login?returnUrl=%2Fbroken';
+    const fallbackParser = new DefaultUrlSerializer();
+    router.parseUrl.and.callFake((url: string): UrlTree => {
+      if (url === '/broken') {
+        throw new Error('invalid redirect target');
+      }
+      return fallbackParser.parse(url);
+    });
+    const service = createService();
+
+    service.login('user@example.com', 'secret');
+
+    const request = httpMock.expectOne((req) => req.url.endsWith('/auth/login'));
+    request.flush({
+      access_token: 'access-token-1',
+      refresh_token: 'refresh-token-1',
+      msg: 'ok',
+      user_projects: []
+    });
+
+    expect(router.navigateByUrl).toHaveBeenCalledWith('/');
+  });
+
+  it('ignores too-long returnUrl query param after successful login', () => {
+    const longReturnUrl = `/${'a'.repeat(2001)}`;
+    (router as unknown as { url: string }).url = `/login?returnUrl=${encodeURIComponent(longReturnUrl)}`;
+    const service = createService();
+
+    service.login('user@example.com', 'secret');
+
+    const request = httpMock.expectOne((req) => req.url.endsWith('/auth/login'));
+    request.flush({
+      access_token: 'access-token-1',
+      refresh_token: 'refresh-token-1',
+      msg: 'ok',
+      user_projects: []
+    });
+
+    expect(router.navigateByUrl).toHaveBeenCalledWith('/');
+  });
+
   it('clears auth state when login fails', () => {
     tokenMap.set('access_token', 'stale-access');
     tokenMap.set('refresh_token', 'stale-refresh');

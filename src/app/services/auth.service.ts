@@ -7,6 +7,8 @@ import { config } from '@config';
 import { LoginRequest, LoginResponse, RefreshTokenResponse } from '@models/auth.models';
 import { AuthTokenStorageService } from '@services/auth-token-storage.service';
 
+const MAX_RETURN_URL_LENGTH = 2000;
+
 /**
  * Authentication state + token lifecycle service.
  *
@@ -210,6 +212,8 @@ export class AuthService {
    * Rules:
    * - Must start with `/`
    * - Must not start with `//` (protocol-relative external target)
+   * - Must be <= MAX_RETURN_URL_LENGTH
+   * - Must be parseable by Angular router
    */
   private getSafeInternalRedirectURL(value: unknown): string | null {
     if (typeof value !== 'string') {
@@ -221,6 +225,16 @@ export class AuthService {
     }
 
     if (value === '/login' || value.startsWith('/login?') || value.startsWith('/login/')) {
+      return null;
+    }
+
+    if (value.length > MAX_RETURN_URL_LENGTH) {
+      return null;
+    }
+
+    try {
+      this.router.parseUrl(value);
+    } catch {
       return null;
     }
 

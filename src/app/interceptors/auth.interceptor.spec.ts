@@ -10,16 +10,17 @@ import { AuthService } from '@services/auth.service';
 describe('authInterceptor', () => {
   let http: HttpClient;
   let httpMock: HttpTestingController;
-  let authService: jasmine.SpyObj<Pick<AuthService, 'getAccessToken' | 'refreshToken' | 'logout'>>;
+  let authService: jasmine.SpyObj<Pick<AuthService, 'getAccessToken' | 'getRefreshToken' | 'refreshToken' | 'logout'>>;
   let router: jasmine.SpyObj<Pick<Router, 'navigate'>>;
 
   beforeEach(() => {
-    authService = jasmine.createSpyObj<Pick<AuthService, 'getAccessToken' | 'refreshToken' | 'logout'>>(
+    authService = jasmine.createSpyObj<Pick<AuthService, 'getAccessToken' | 'getRefreshToken' | 'refreshToken' | 'logout'>>(
       'AuthService',
-      ['getAccessToken', 'refreshToken', 'logout']
+      ['getAccessToken', 'getRefreshToken', 'refreshToken', 'logout']
     );
     router = jasmine.createSpyObj<Pick<Router, 'navigate'>>('Router', ['navigate']);
     router.navigate.and.resolveTo(true);
+    authService.getRefreshToken.and.returnValue('refresh-token');
 
     TestBed.configureTestingModule({
       providers: [
@@ -73,6 +74,46 @@ describe('authInterceptor', () => {
     retryReq.flush({ ok: true });
 
     expect(authService.refreshToken).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not try to refresh when /auth/login returns 401', () => {
+    authService.getAccessToken.and.returnValue('expired-token');
+
+    let receivedError: any;
+    http.post('/auth/login', { email: 'u', password: 'p' }).subscribe({
+      error: (error) => {
+        receivedError = error;
+      }
+    });
+
+    const loginReq = httpMock.expectOne('/auth/login');
+    expect(loginReq.request.headers.has('Authorization')).toBeFalse();
+    loginReq.flush({ message: 'invalid credentials' }, { status: 401, statusText: 'Unauthorized' });
+
+    expect(authService.refreshToken).not.toHaveBeenCalled();
+    expect(authService.logout).not.toHaveBeenCalled();
+    expect(router.navigate).not.toHaveBeenCalled();
+    expect(receivedError).toEqual(jasmine.objectContaining({ status: 401 }));
+  });
+
+  it('does not try to refresh when refresh token is missing', () => {
+    authService.getAccessToken.and.returnValue('expired-token');
+    authService.getRefreshToken.and.returnValue(null);
+
+    let receivedError: any;
+    http.get('/api/protected').subscribe({
+      error: (error) => {
+        receivedError = error;
+      }
+    });
+
+    const req = httpMock.expectOne('/api/protected');
+    req.flush({ message: 'unauthorized' }, { status: 401, statusText: 'Unauthorized' });
+
+    expect(authService.refreshToken).not.toHaveBeenCalled();
+    expect(authService.logout).not.toHaveBeenCalled();
+    expect(router.navigate).not.toHaveBeenCalled();
+    expect(receivedError).toEqual(jasmine.objectContaining({ status: 401 }));
   });
 
   it('logs out and redirects to /login when refresh returns 401', () => {

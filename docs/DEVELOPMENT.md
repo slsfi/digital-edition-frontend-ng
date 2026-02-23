@@ -170,6 +170,7 @@ Authentication support is optional and controlled by config. This is intended so
 5. Protect routes by adding `canActivate: [authGuard]` in [`src/app/app.routes.ts`](../src/app/app.routes.ts) for the pages that require authentication.
 6. Keep login route enabled with `canMatch: [authFeatureEnabledMatchGuard]` so `/login` is only matchable when auth feature is enabled.
 7. If using production build with feature-based routes, run `npm run generate-routes` after route/config changes (or use `npm run build:ssr`, which runs it automatically).
+In feature-based route mode, the `login` route is included only when `app.auth.enabled` is `true`.
 
 ### Behavior when disabled
 

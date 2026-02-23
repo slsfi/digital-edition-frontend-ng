@@ -168,6 +168,7 @@ function getRouteIncludeByPath(config) {
   const mainSideMenuItems = config.component?.mainSideMenu?.items ?? {};
   const topMenu = config.component?.topMenu ?? {};
   const frontMatterPages = config.collections?.frontMatterPages ?? {};
+  const authEnabled = config.app?.auth?.enabled === true;
   const hasArticles = Array.isArray(config.articles) && config.articles.length > 0;
   const hasEbooks = Array.isArray(config.ebooks) && config.ebooks.length > 0;
   const hasCollectionsInOrder = Array.isArray(config.collections?.order)
@@ -189,6 +190,7 @@ function getRouteIncludeByPath(config) {
     'collection/:collectionID/introduction': collectionsEnabled && !!frontMatterPages.introduction,
     'collection/:collectionID/text': collectionsEnabled,
     'ebook': !!mainSideMenuItems.ebooks && hasEbooks,
+    'login': authEnabled,
     'home': true,
     'index/:type': !!(
       mainSideMenuItems.indexKeywords ||

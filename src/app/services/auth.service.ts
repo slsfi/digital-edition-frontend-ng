@@ -74,6 +74,10 @@ export class AuthService {
    * - If a refresh request is already in progress, subsequent callers wait for
    *   the next token emitted by refreshTokenSubject.
    * - Otherwise this method starts one refresh request and broadcasts result.
+   *
+   * Defensive behavior:
+   * - If no refresh token is available, this method fails fast, logs out, and
+   *   does not issue a network request.
    */
   refreshToken(): Observable<string> {
     if (this.refreshTokenInProgress) {
@@ -82,12 +86,18 @@ export class AuthService {
         take(1)
       );
     } else {
+      const refreshToken = this.getRefreshToken();
+      if (!refreshToken) {
+        this.logout();
+        return throwError(() => new Error('Refresh token is missing.'));
+      }
+
       this.refreshTokenInProgress = true;
       // Start a fresh refresh cycle so waiters cannot receive a stale token.
       this.refreshTokenSubject.next(null);
       let refreshCompleted = false;
       const url = `${this.backendAuthBaseURL}auth/refresh`;
-      const headers = { Authorization: `Bearer ${this.getRefreshToken()}` };
+      const headers = { Authorization: `Bearer ${refreshToken}` };
       return this.http.post<RefreshTokenResponse>(url, null, { headers }).pipe(
         map((response) => {
           refreshCompleted = true;

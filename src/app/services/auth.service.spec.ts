@@ -214,6 +214,25 @@ describe('AuthService', () => {
     expect(service.isAuthenticated()).toBeTrue();
   });
 
+  it('fails fast, logs out, and skips HTTP when refresh token is missing', () => {
+    tokenMap.set('access_token', 'stale-access-token');
+    const service = createService();
+    let receivedError: any;
+
+    service.refreshToken().subscribe({
+      next: () => fail('expected refreshToken() to error when refresh token is missing'),
+      error: (error) => {
+        receivedError = error;
+      }
+    });
+
+    httpMock.expectNone((req) => req.url.endsWith('/auth/refresh'));
+    expect(receivedError).toEqual(jasmine.any(Error));
+    expect(service.isAuthenticated()).toBeFalse();
+    expect(tokenMap.has('access_token')).toBeFalse();
+    expect(tokenMap.has('refresh_token')).toBeFalse();
+  });
+
   it('uses a single refresh request for concurrent callers and resolves both', () => {
     tokenMap.set('refresh_token', 'refresh-token-1');
     const service = createService();

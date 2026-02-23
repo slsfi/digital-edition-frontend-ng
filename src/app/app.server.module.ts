@@ -1,10 +1,11 @@
 import { NgModule } from '@angular/core';
-import { provideHttpClient, withFetch } from '@angular/common/http';
+import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
 import { ServerModule } from '@angular/platform-server';
 import { IonicServerModule } from '@ionic/angular-server';
 
 import { AppModule } from './app.module';
 import { AppComponent } from './app.component';
+import { authInterceptor } from '@interceptors/auth.interceptor';
 import {
   RouteStateSourceService,
   ServerRouteStateSourceService
@@ -34,7 +35,10 @@ import {
     IonicServerModule,
   ],
   providers: [
-    provideHttpClient(withFetch()),
+    provideHttpClient(
+      withFetch(),
+      withInterceptors([authInterceptor])
+    ),
     {
       provide: RouteStateSourceService,
       useClass: ServerRouteStateSourceService

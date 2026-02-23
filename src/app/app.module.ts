@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { provideHttpClient, withFetch } from '@angular/common/http';
+import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
 import { BrowserModule } from '@angular/platform-browser';
 import { RouteReuseStrategy } from '@angular/router';
 import { IonicModule, IonicRouteStrategy } from '@ionic/angular';
@@ -11,6 +11,7 @@ import { CollectionSideMenuComponent } from '@components/menus/collection-side/c
 import { MainSideMenuComponent } from '@components/menus/main-side/main-side-menu.component';
 import { StaticHtmlComponent } from '@components/static-html/static-html.component';
 import { TopMenuComponent } from '@components/menus/top/top-menu.component';
+import { authInterceptor } from '@interceptors/auth.interceptor';
 import {
   BrowserRouteStateSourceService,
   RouteStateSourceService
@@ -50,7 +51,10 @@ import {
     TopMenuComponent
   ],
   providers: [
-    provideHttpClient(withFetch()),
+    provideHttpClient(
+      withFetch(),
+      withInterceptors([authInterceptor])
+    ),
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
     {
       provide: RouteStateSourceService,

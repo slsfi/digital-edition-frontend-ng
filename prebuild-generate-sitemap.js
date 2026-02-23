@@ -4,6 +4,19 @@ const common = require('./prebuild-common-fns');
 
 const configFilepath = 'src/assets/config/config.ts';
 const sitemapFilename = 'sitemap.txt';
+const SITEMAP_EXCLUDED_ROUTE_PATH_KEYS = Object.freeze([
+  'login'
+]);
+const AUTH_PROTECTED_ROUTE_PATH_KEYS = Object.freeze([
+  'collection/:collectionID/cover',
+  'collection/:collectionID/title',
+  'collection/:collectionID/foreword',
+  'collection/:collectionID/introduction',
+  'collection/:collectionID/text',
+  'index/:type',
+  'media-collection',
+  'search'
+]);
 
 generateSitemap();
 
@@ -26,7 +39,11 @@ generateSitemap();
  */
 async function generateSitemap() {
   const config = common.getConfig(configFilepath);
-  const routeIncludeByPath = common.getRouteIncludeByPath(config);
+  const authEnabled = config.app?.auth?.enabled === true;
+  const routeIncludeByPath = getSitemapRouteIncludeByPath(
+    common.getRouteIncludeByPath(config),
+    authEnabled
+  );
   const generateSitemap = config.app?.prebuild?.sitemap ?? true;
   
   if (generateSitemap) {
@@ -151,6 +168,24 @@ async function generateSitemap() {
 
   const summary = `Generated URLs: ${urlCounter}\n`;
   console.log(summary);
+}
+
+function getSitemapRouteIncludeByPath(routeIncludeByPath, authEnabled) {
+  const includeByPath = { ...routeIncludeByPath };
+
+  for (const routePathKey of SITEMAP_EXCLUDED_ROUTE_PATH_KEYS) {
+    includeByPath[routePathKey] = false;
+  }
+
+  if (!authEnabled) {
+    return includeByPath;
+  }
+
+  for (const routePathKey of AUTH_PROTECTED_ROUTE_PATH_KEYS) {
+    includeByPath[routePathKey] = false;
+  }
+
+  return includeByPath;
 }
 
 function initializeSitemapFile(urlOrigin, locale) {

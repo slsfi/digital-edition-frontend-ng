@@ -197,6 +197,12 @@ In feature-based route mode, the `login` route is included only when `app.auth.e
 
 With current token storage strategy (no auth cookies), SSR cannot identify authenticated browser users on initial request. This means hard refresh on protected routes can SSR-render login/redirect-first behavior, then client-side state can take over after bootstrap.
 
+### Sitemap behavior in auth mode
+
+- `/login` is excluded from sitemap generation.
+- When `app.auth.enabled` is `true`, auth-protected routes are excluded from sitemap generation.
+- In current route setup this means collection routes and media-collection routes are excluded from `sitemap.txt` in auth mode.
+
 
 
 ## Dependencies

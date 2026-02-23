@@ -6,6 +6,7 @@ import { of, throwError } from 'rxjs';
 
 import { authInterceptor } from './auth.interceptor';
 import { AuthService } from '@services/auth.service';
+import { AUTH_ENABLED } from '@tokens/auth.tokens';
 
 describe('authInterceptor', () => {
   let http: HttpClient;
@@ -26,6 +27,7 @@ describe('authInterceptor', () => {
       providers: [
         provideHttpClient(withInterceptors([authInterceptor])),
         provideHttpClientTesting(),
+        { provide: AUTH_ENABLED, useValue: true },
         { provide: AuthService, useValue: authService },
         { provide: Router, useValue: router }
       ]

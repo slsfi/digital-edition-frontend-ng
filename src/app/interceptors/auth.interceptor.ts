@@ -4,8 +4,14 @@ import { Router } from '@angular/router';
 import { catchError, switchMap, throwError } from 'rxjs';
 
 import { AuthService } from '@services/auth.service';
+import { AUTH_ENABLED } from '@tokens/auth.tokens';
 
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
+  const authEnabled = inject(AUTH_ENABLED);
+  if (!authEnabled) {
+    return next(req);
+  }
+
   const router = inject(Router);
   const authService = inject(AuthService);
   const authToken = authService.getAccessToken();

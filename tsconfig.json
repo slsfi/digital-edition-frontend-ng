@@ -56,6 +56,9 @@
       "@services/*": [
         "src/app/services/*"
       ],
+      "@tokens/*": [
+        "src/app/tokens/*"
+      ],
       "@utility-functions": [
         "src/app/utils/utility-functions"
       ]

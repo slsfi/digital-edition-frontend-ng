@@ -30,7 +30,7 @@ export class AuthService {
   private readonly _isAuthenticated = signal<boolean>(false);
   readonly isAuthenticated = this._isAuthenticated.asReadonly();
 
-  private backendAuthBaseURL: string = config?.app?.backendAuthBaseURL ?? '';
+  private backendAuthBaseURL: string = this.resolveBackendAuthBaseURL();
   private refreshTokenInProgress = false;
   private refreshTokenSubject: BehaviorSubject<string | null> = new BehaviorSubject<string | null>(null);
 
@@ -38,10 +38,6 @@ export class AuthService {
    * Initializes base URL formatting and initial auth state from stored token.
    */
   constructor() {
-    if (!this.backendAuthBaseURL.endsWith('/')) {
-      this.backendAuthBaseURL = `${this.backendAuthBaseURL}/`;
-    }
-
     this._isAuthenticated.set(this.getAccessToken() !== null);
   }
 
@@ -148,6 +144,32 @@ export class AuthService {
    */
   private setStorageItem(key: string, value: string): void {
     this.tokenStorage.setItem(key, value);
+  }
+
+  /**
+   * Resolves auth base URL from config.
+   *
+   * Priority:
+   * 1) app.backendAuthBaseURL
+   * 2) root origin extracted from app.backendBaseURL
+   */
+  private resolveBackendAuthBaseURL(): string {
+    const backendAuthBaseURL = config?.app?.backendAuthBaseURL;
+    if (backendAuthBaseURL) {
+      return backendAuthBaseURL.endsWith('/') ? backendAuthBaseURL : `${backendAuthBaseURL}/`;
+    }
+
+    const backendBaseURL = config?.app?.backendBaseURL;
+    if (!backendBaseURL) {
+      return '';
+    }
+
+    try {
+      const parsed = new URL(backendBaseURL);
+      return `${parsed.protocol}//${parsed.host}/`;
+    } catch {
+      return '';
+    }
   }
 
   /**

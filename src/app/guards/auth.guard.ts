@@ -1,8 +1,8 @@
 import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
 
-import { config } from '@config';
 import { AuthService } from '@services/auth.service';
+import { AUTH_ENABLED } from '@tokens/auth.tokens';
 
 /**
  * Route guard for authentication-gated pages.
@@ -11,7 +11,7 @@ import { AuthService } from '@services/auth.service';
  * - Authenticated users can access protected routes.
  * - Unauthenticated users are redirected to `/login`.
  * - Authenticated users trying to open `/login` are redirected to `/`.
- * - If `config.app.auth.enabled !== true`, guard is a no-op and always allows.
+ * - If `AUTH_ENABLED` is false, guard is a no-op and always allows.
  *
  * Auth state is read synchronously from AuthService's signal.
  *
@@ -19,7 +19,8 @@ import { AuthService } from '@services/auth.service';
  * which is the recommended Angular guard pattern.
  */
 export const authGuard: CanActivateFn = (_route, state) => {
-  if (config?.app?.auth?.enabled !== true) {
+  const authEnabled = inject(AUTH_ENABLED);
+  if (!authEnabled) {
     return true;
   }
 

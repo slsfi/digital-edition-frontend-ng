@@ -1,10 +1,10 @@
+import { inject } from '@angular/core';
 import { CanMatchFn } from '@angular/router';
-
-import { config } from '@config';
+import { AUTH_ENABLED } from '@tokens/auth.tokens';
 
 /**
  * Exposes auth-only routes (for example `/login`) only when auth feature is enabled.
  */
 export const authFeatureEnabledMatchGuard: CanMatchFn = () => {
-  return config?.app?.auth?.enabled === true;
+  return inject(AUTH_ENABLED);
 };

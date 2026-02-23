@@ -1,22 +1,15 @@
 import { TestBed } from '@angular/core/testing';
 
-import { config } from '@config';
+import { AUTH_ENABLED } from '@tokens/auth.tokens';
 import { authFeatureEnabledMatchGuard } from './auth-feature-enabled-match.guard';
 
 describe('authFeatureEnabledMatchGuard', () => {
-  let previousAuthEnabled: boolean;
-
-  beforeEach(() => {
-    config.app.auth = config.app.auth || {};
-    previousAuthEnabled = config?.app?.auth?.enabled === true;
-  });
-
-  afterEach(() => {
-    config.app.auth.enabled = previousAuthEnabled;
-  });
-
   it('returns false when auth feature is disabled', () => {
-    config.app.auth.enabled = false;
+    TestBed.configureTestingModule({
+      providers: [
+        { provide: AUTH_ENABLED, useValue: false }
+      ]
+    });
 
     const result = TestBed.runInInjectionContext(() =>
       authFeatureEnabledMatchGuard({} as any, [] as any)
@@ -26,7 +19,11 @@ describe('authFeatureEnabledMatchGuard', () => {
   });
 
   it('returns true when auth feature is enabled', () => {
-    config.app.auth.enabled = true;
+    TestBed.configureTestingModule({
+      providers: [
+        { provide: AUTH_ENABLED, useValue: true }
+      ]
+    });
 
     const result = TestBed.runInInjectionContext(() =>
       authFeatureEnabledMatchGuard({} as any, [] as any)

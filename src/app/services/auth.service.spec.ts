@@ -153,6 +153,25 @@ describe('AuthService', () => {
     expect(router.navigateByUrl).toHaveBeenCalledWith('/search');
   });
 
+  it('ignores non-matching marker value and uses query returnUrl', () => {
+    (router as unknown as { url: string }).url = '/login?rt=unexpected&returnUrl=%2Fsearch';
+    redirectStorage.consumeReturnUrl.and.returnValue('/collection/123/text');
+    const service = createService();
+
+    service.login('user@example.com', 'secret');
+
+    const request = httpMock.expectOne((req) => req.url.endsWith('/auth/login'));
+    request.flush({
+      access_token: 'access-token-1',
+      refresh_token: 'refresh-token-1',
+      msg: 'ok',
+      user_projects: []
+    });
+
+    expect(redirectStorage.consumeReturnUrl).not.toHaveBeenCalled();
+    expect(router.navigateByUrl).toHaveBeenCalledWith('/search');
+  });
+
   it('ignores unsafe returnUrl query param after successful login', () => {
     (router as unknown as { url: string }).url = '/login?returnUrl=%2F%2Fevil.example';
     const service = createService();
@@ -253,12 +272,12 @@ describe('AuthService', () => {
     expect(redirectStorage.clearReturnUrl).toHaveBeenCalledTimes(1);
   });
 
-  it('does not clear stored marker return URL on logout when already unauthenticated', () => {
+  it('also clears stored marker return URL on logout when already unauthenticated', () => {
     const service = createService();
 
     service.logout();
 
-    expect(redirectStorage.clearReturnUrl).not.toHaveBeenCalled();
+    expect(redirectStorage.clearReturnUrl).toHaveBeenCalledTimes(1);
   });
 
   it('updates signal and access token on successful refresh', () => {

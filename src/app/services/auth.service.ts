@@ -7,7 +7,8 @@ import { config } from '@config';
 import { LoginRequest, LoginResponse, RefreshTokenResponse } from '@models/auth.models';
 import {
   AuthRedirectStorageService,
-  AUTH_REDIRECT_MARKER_QUERY_PARAM
+  AUTH_REDIRECT_MARKER_QUERY_PARAM,
+  AUTH_REDIRECT_MARKER_VALUE
 } from '@services/auth-redirect-storage.service';
 import { AuthTokenStorageService } from '@services/auth-token-storage.service';
 
@@ -136,16 +137,14 @@ export class AuthService {
   /**
    * Clears auth tokens and updates in-memory auth state.
    *
-   * Stale redirect targets are cleared on explicit authenticated logout.
+   * Stale redirect targets are always cleared to avoid carrying redirect intent
+   * across explicit logout/login boundaries.
    */
   logout(): void {
-    const wasAuthenticated = this._isAuthenticated();
     this.removeStorageItem('access_token');
     this.removeStorageItem('refresh_token');
     this._isAuthenticated.set(false);
-    if (wasAuthenticated) {
-      this.redirectStorage.clearReturnUrl();
-    }
+    this.redirectStorage.clearReturnUrl();
   }
 
   /**
@@ -227,7 +226,8 @@ export class AuthService {
    * Resolves post-login target from marker-based redirect flow.
    *
    * Behavior:
-   * - Reads current URL query params and checks for redirect marker presence.
+   * - Reads current URL query params and checks for expected redirect marker
+   *   value (`rt=1`).
    * - If marker exists, consumes one-time stored redirect target from
    *   AuthRedirectStorageService.
    * - Validates consumed target using getSafeInternalRedirectURL.
@@ -302,13 +302,14 @@ export class AuthService {
   }
 
   /**
-   * Returns true when a redirect marker query parameter is present.
+   * Returns true only when a redirect marker query parameter has the expected
+   * marker value.
    *
    * Marker value is treated as a presence flag only; redirect target safety is
    * validated separately.
    */
   private hasRedirectMarker(value: unknown): boolean {
-    return typeof value === 'string' && value.length > 0;
+    return value === AUTH_REDIRECT_MARKER_VALUE;
   }
 
   /**

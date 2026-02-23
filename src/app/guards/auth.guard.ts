@@ -71,7 +71,7 @@ export const authGuard: CanActivateFn = (_route, state) => {
  * Resolves a safe redirect target when the current route is `/login`.
  *
  * Resolution order:
- * 1) marker-based value from redirect storage (`rt` query param present)
+ * 1) marker-based value from redirect storage (`rt=1`)
  * 2) legacy `returnUrl` query parameter
  *
  * All resolved candidates are validated by `getSafeInternalURL`.
@@ -104,16 +104,17 @@ function getSafeLoginRouteRedirectURL(
 }
 
 /**
- * Returns true when the marker query parameter is present.
+ * Returns true only when the redirect marker query parameter has the expected
+ * marker value.
  *
  * Marker values are intentionally treated as opaque presence flags. The exact
  * value is not security-sensitive because target validation happens separately.
  *
  * @param value Query parameter value to evaluate.
- * @returns `true` when value is a non-empty string.
+ * @returns `true` when value equals AUTH_REDIRECT_MARKER_VALUE.
  */
 function hasRedirectMarker(value: unknown): boolean {
-  return typeof value === 'string' && value.length > 0;
+  return value === AUTH_REDIRECT_MARKER_VALUE;
 }
 
 /**

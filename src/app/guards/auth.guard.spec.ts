@@ -125,6 +125,15 @@ describe('authGuard', () => {
       expect(asUrl(result)).toBe('/collection/123/text');
     });
 
+    it('ignores non-matching marker value and uses legacy returnUrl when authenticated', () => {
+      isAuthenticated.set(true);
+
+      const result = runGuard('/login?rt=unexpected&returnUrl=%2Fsearch');
+
+      expect(authRedirectStorage.consumeReturnUrl).not.toHaveBeenCalled();
+      expect(asUrl(result)).toBe('/search');
+    });
+
     it('falls back to / when stored marker URL is missing or invalid', () => {
       isAuthenticated.set(true);
       authRedirectStorage.consumeReturnUrl.and.returnValue('//evil.example');

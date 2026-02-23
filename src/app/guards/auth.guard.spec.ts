@@ -2,6 +2,7 @@ import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { CanActivateFn, UrlTree, provideRouter } from '@angular/router';
 
+import { config } from '@config';
 import { authGuard } from './auth.guard';
 import { AuthService } from '@services/auth.service';
 
@@ -9,6 +10,7 @@ describe('authGuard', () => {
   const executeGuard: CanActivateFn = (...guardParameters) =>
     TestBed.runInInjectionContext(() => authGuard(...guardParameters));
   const isAuthenticated = signal<boolean>(false);
+  let previousAuthEnabled: boolean;
 
   function asUrl(value: unknown): string | null {
     return value instanceof UrlTree ? value.toString() : null;
@@ -19,6 +21,9 @@ describe('authGuard', () => {
   }
 
   beforeEach(() => {
+    config.app.auth = config.app.auth || {};
+    previousAuthEnabled = config?.app?.auth?.enabled === true;
+    config.app.auth.enabled = true;
     isAuthenticated.set(false);
     TestBed.configureTestingModule({
       providers: [
@@ -29,6 +34,10 @@ describe('authGuard', () => {
         }
       ]
     });
+  });
+
+  afterEach(() => {
+    config.app.auth.enabled = previousAuthEnabled;
   });
 
   it('allows protected route when authenticated', () => {

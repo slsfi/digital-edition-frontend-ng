@@ -19,6 +19,9 @@ export const config: Config = {
       multilingualNamedEntityData: false
     },
     enableRouterLoadingBar: true,
+    auth: {
+      enabled: false
+    },
     openGraphMetaTags: {
       enabled: true,
       image: {

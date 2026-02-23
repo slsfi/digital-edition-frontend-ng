@@ -11,6 +11,7 @@ import { CollectionSideMenuComponent } from '@components/menus/collection-side/c
 import { MainSideMenuComponent } from '@components/menus/main-side/main-side-menu.component';
 import { StaticHtmlComponent } from '@components/static-html/static-html.component';
 import { TopMenuComponent } from '@components/menus/top/top-menu.component';
+import { config } from '@config';
 import { authInterceptor } from '@interceptors/auth.interceptor';
 import {
   BrowserRouteStateSourceService,
@@ -33,6 +34,8 @@ import {
   RouterPreloadingStrategyService
 } from '@services/router-preloading-strategy.service';
 
+const authEnabled = config?.app?.auth?.enabled === true;
+
 
 @NgModule({
   declarations: [
@@ -53,7 +56,7 @@ import {
   providers: [
     provideHttpClient(
       withFetch(),
-      withInterceptors([authInterceptor])
+      ...(authEnabled ? [withInterceptors([authInterceptor])] : [])
     ),
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
     {

@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 
+import { authFeatureEnabledMatchGuard } from '@guards/auth-feature-enabled-match.guard';
 import { authGuard } from '@guards/auth.guard';
 
 /**
@@ -78,6 +79,7 @@ export const routes: Routes = [
   {
     path: 'login',
     loadChildren: () => import('./pages/login/login.module').then(m => m.LoginPageModule),
+    canMatch: [authFeatureEnabledMatchGuard],
     canActivate: [authGuard]
   },
   {

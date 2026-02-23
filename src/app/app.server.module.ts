@@ -5,6 +5,7 @@ import { IonicServerModule } from '@ionic/angular-server';
 
 import { AppModule } from './app.module';
 import { AppComponent } from './app.component';
+import { config } from '@config';
 import { authInterceptor } from '@interceptors/auth.interceptor';
 import {
   RouteStateSourceService,
@@ -27,6 +28,8 @@ import {
   ServerRouterPreloadingStrategyService
 } from '@services/router-preloading-strategy.service';
 
+const authEnabled = config?.app?.auth?.enabled === true;
+
 
 @NgModule({
   imports: [
@@ -37,7 +40,7 @@ import {
   providers: [
     provideHttpClient(
       withFetch(),
-      withInterceptors([authInterceptor])
+      ...(authEnabled ? [withInterceptors([authInterceptor])] : [])
     ),
     {
       provide: RouteStateSourceService,

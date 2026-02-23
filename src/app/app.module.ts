@@ -26,6 +26,10 @@ import {
   BrowserAuthTokenStorageService
 } from '@services/auth-token-storage.service';
 import {
+  AuthRedirectStorageService,
+  BrowserAuthRedirectStorageService
+} from '@services/auth-redirect-storage.service';
+import {
   BrowserRouterNavigationSourceService,
   RouterNavigationSourceService
 } from '@services/router-navigation-source.service';
@@ -74,6 +78,10 @@ const authEnabled = config?.app?.auth?.enabled === true;
     {
       provide: AuthTokenStorageService,
       useClass: BrowserAuthTokenStorageService
+    },
+    {
+      provide: AuthRedirectStorageService,
+      useClass: BrowserAuthRedirectStorageService
     },
     {
       provide: RouterPreloadingStrategyService,

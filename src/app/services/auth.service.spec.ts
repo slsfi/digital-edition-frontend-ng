@@ -3,12 +3,18 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 import { TestBed } from '@angular/core/testing';
 import { DefaultUrlSerializer, Router, UrlTree } from '@angular/router';
 
+import {
+  AuthRedirectStorageService,
+  AUTH_REDIRECT_MARKER_QUERY_PARAM,
+  AUTH_REDIRECT_MARKER_VALUE
+} from '@services/auth-redirect-storage.service';
 import { AuthTokenStorageService } from '@services/auth-token-storage.service';
 import { AuthService } from './auth.service';
 
 describe('AuthService', () => {
   let httpMock: HttpTestingController;
   let router: jasmine.SpyObj<Pick<Router, 'navigateByUrl' | 'parseUrl'>>;
+  let redirectStorage: jasmine.SpyObj<Pick<AuthRedirectStorageService, 'consumeReturnUrl' | 'clearReturnUrl'>>;
   let tokenStorage: jasmine.SpyObj<Pick<AuthTokenStorageService, 'setItem' | 'getItem' | 'removeItem'>>;
   let tokenMap: Map<string, string>;
 
@@ -24,6 +30,11 @@ describe('AuthService', () => {
     router.navigateByUrl.and.resolveTo(true);
     router.parseUrl.and.callFake((url: string): UrlTree => urlSerializer.parse(url));
     Object.defineProperty(router, 'url', { value: '/login', writable: true });
+
+    redirectStorage = jasmine.createSpyObj<
+      Pick<AuthRedirectStorageService, 'consumeReturnUrl' | 'clearReturnUrl'>
+    >('AuthRedirectStorageService', ['consumeReturnUrl', 'clearReturnUrl']);
+    redirectStorage.consumeReturnUrl.and.returnValue(null);
 
     tokenStorage = jasmine.createSpyObj<
       Pick<AuthTokenStorageService, 'setItem' | 'getItem' | 'removeItem'>
@@ -41,6 +52,7 @@ describe('AuthService', () => {
         provideHttpClient(),
         provideHttpClientTesting(),
         { provide: Router, useValue: router },
+        { provide: AuthRedirectStorageService, useValue: redirectStorage },
         { provide: AuthTokenStorageService, useValue: tokenStorage }
       ]
     });
@@ -100,6 +112,45 @@ describe('AuthService', () => {
     });
 
     expect(router.navigateByUrl).toHaveBeenCalledWith('/collection/123/text');
+  });
+
+  it('prefers marker-based stored return URL over query returnUrl after successful login', () => {
+    (router as unknown as { url: string }).url =
+      `/login?${AUTH_REDIRECT_MARKER_QUERY_PARAM}=${AUTH_REDIRECT_MARKER_VALUE}&returnUrl=%2Fsearch`;
+    redirectStorage.consumeReturnUrl.and.returnValue('/collection/123/text');
+    const service = createService();
+
+    service.login('user@example.com', 'secret');
+
+    const request = httpMock.expectOne((req) => req.url.endsWith('/auth/login'));
+    request.flush({
+      access_token: 'access-token-1',
+      refresh_token: 'refresh-token-1',
+      msg: 'ok',
+      user_projects: []
+    });
+
+    expect(redirectStorage.consumeReturnUrl).toHaveBeenCalledTimes(1);
+    expect(router.navigateByUrl).toHaveBeenCalledWith('/collection/123/text');
+  });
+
+  it('falls back to query returnUrl when marker is present but stored target is missing', () => {
+    (router as unknown as { url: string }).url =
+      `/login?${AUTH_REDIRECT_MARKER_QUERY_PARAM}=${AUTH_REDIRECT_MARKER_VALUE}&returnUrl=%2Fsearch`;
+    redirectStorage.consumeReturnUrl.and.returnValue(null);
+    const service = createService();
+
+    service.login('user@example.com', 'secret');
+
+    const request = httpMock.expectOne((req) => req.url.endsWith('/auth/login'));
+    request.flush({
+      access_token: 'access-token-1',
+      refresh_token: 'refresh-token-1',
+      msg: 'ok',
+      user_projects: []
+    });
+
+    expect(router.navigateByUrl).toHaveBeenCalledWith('/search');
   });
 
   it('ignores unsafe returnUrl query param after successful login', () => {
@@ -191,6 +242,23 @@ describe('AuthService', () => {
     expect(service.isAuthenticated()).toBeFalse();
     expect(tokenMap.has('access_token')).toBeFalse();
     expect(tokenMap.has('refresh_token')).toBeFalse();
+  });
+
+  it('clears stored marker return URL on logout when authenticated', () => {
+    tokenMap.set('access_token', 'access-token-1');
+    const service = createService();
+
+    service.logout();
+
+    expect(redirectStorage.clearReturnUrl).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not clear stored marker return URL on logout when already unauthenticated', () => {
+    const service = createService();
+
+    service.logout();
+
+    expect(redirectStorage.clearReturnUrl).not.toHaveBeenCalled();
   });
 
   it('updates signal and access token on successful refresh', () => {

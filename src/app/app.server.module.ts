@@ -20,6 +20,10 @@ import {
   ServerAuthTokenStorageService
 } from '@services/auth-token-storage.service';
 import {
+  AuthRedirectStorageService,
+  ServerAuthRedirectStorageService
+} from '@services/auth-redirect-storage.service';
+import {
   RouterNavigationSourceService,
   ServerRouterNavigationSourceService
 } from '@services/router-navigation-source.service';
@@ -57,6 +61,10 @@ const authEnabled = config?.app?.auth?.enabled === true;
     {
       provide: AuthTokenStorageService,
       useClass: ServerAuthTokenStorageService
+    },
+    {
+      provide: AuthRedirectStorageService,
+      useClass: ServerAuthRedirectStorageService
     },
     {
       provide: RouterPreloadingStrategyService,

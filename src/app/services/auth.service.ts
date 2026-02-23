@@ -5,6 +5,10 @@ import { BehaviorSubject, catchError, filter, finalize, map, Observable, take, t
 
 import { config } from '@config';
 import { LoginRequest, LoginResponse, RefreshTokenResponse } from '@models/auth.models';
+import {
+  AuthRedirectStorageService,
+  AUTH_REDIRECT_MARKER_QUERY_PARAM
+} from '@services/auth-redirect-storage.service';
 import { AuthTokenStorageService } from '@services/auth-token-storage.service';
 
 const MAX_RETURN_URL_LENGTH = 2000;
@@ -27,6 +31,7 @@ const MAX_RETURN_URL_LENGTH = 2000;
 export class AuthService {
   private readonly http = inject(HttpClient);
   private readonly router = inject(Router);
+  private readonly redirectStorage = inject(AuthRedirectStorageService);
   private readonly tokenStorage = inject(AuthTokenStorageService);
 
   private readonly _isAuthenticated = signal<boolean>(false);
@@ -130,11 +135,17 @@ export class AuthService {
 
   /**
    * Clears auth tokens and updates in-memory auth state.
+   *
+   * Stale redirect targets are cleared on explicit authenticated logout.
    */
   logout(): void {
+    const wasAuthenticated = this._isAuthenticated();
     this.removeStorageItem('access_token');
     this.removeStorageItem('refresh_token');
     this._isAuthenticated.set(false);
+    if (wasAuthenticated) {
+      this.redirectStorage.clearReturnUrl();
+    }
   }
 
   /**
@@ -188,11 +199,17 @@ export class AuthService {
    * Resolves post-login navigation target.
    *
    * Priority:
-   * 1) redirectURL argument (if valid)
-   * 2) `returnUrl` query parameter on current router URL (if valid)
-   * 3) root route (`/`)
+   * 1) marker-based stored return URL (if marker present and target valid)
+   * 2) redirectURL argument (if valid)
+   * 3) `returnUrl` query parameter on current router URL (if valid)
+   * 4) root route (`/`)
    */
   private resolvePostLoginRedirectURL(redirectURL?: string): string {
+    const returnURLFromMarker = this.getReturnURLFromRedirectMarker();
+    if (returnURLFromMarker) {
+      return returnURLFromMarker;
+    }
+
     const safeRedirectURL = this.getSafeInternalRedirectURL(redirectURL);
     if (safeRedirectURL) {
       return safeRedirectURL;
@@ -206,6 +223,39 @@ export class AuthService {
     return '/';
   }
 
+  /**
+   * Resolves post-login target from marker-based redirect flow.
+   *
+   * Behavior:
+   * - Reads current URL query params and checks for redirect marker presence.
+   * - If marker exists, consumes one-time stored redirect target from
+   *   AuthRedirectStorageService.
+   * - Validates consumed target using getSafeInternalRedirectURL.
+   *
+   * Returns null when marker is missing, storage has no value, parsing fails,
+   * or the consumed target is unsafe/invalid.
+   */
+  private getReturnURLFromRedirectMarker(): string | null {
+    try {
+      const urlTree = this.router.parseUrl(this.router.url);
+      const marker = urlTree.queryParams?.[AUTH_REDIRECT_MARKER_QUERY_PARAM];
+      if (!this.hasRedirectMarker(marker)) {
+        return null;
+      }
+
+      const returnUrl = this.redirectStorage.consumeReturnUrl();
+      return this.getSafeInternalRedirectURL(returnUrl);
+    } catch {
+      return null;
+    }
+  }
+
+  /**
+   * Resolves post-login target from legacy `returnUrl` query parameter.
+   *
+   * This keeps backward compatibility for old links/bookmarks and for contexts
+   * where marker storage is unavailable.
+   */
   private getReturnURLFromCurrentRoute(): string | null {
     try {
       const urlTree = this.router.parseUrl(this.router.url);
@@ -249,6 +299,16 @@ export class AuthService {
     }
 
     return value;
+  }
+
+  /**
+   * Returns true when a redirect marker query parameter is present.
+   *
+   * Marker value is treated as a presence flag only; redirect target safety is
+   * validated separately.
+   */
+  private hasRedirectMarker(value: unknown): boolean {
+    return typeof value === 'string' && value.length > 0;
   }
 
   /**

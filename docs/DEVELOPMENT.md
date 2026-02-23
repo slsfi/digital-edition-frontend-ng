@@ -157,6 +157,47 @@ Parser smoke tests:
 
 
 
+## Optional authentication feature
+
+Authentication support is optional and controlled by config. This is intended so the base app can stay auth-disabled by default, while selected forks can enable auth.
+
+### Enable in a fork
+
+1. Set `app.auth.enabled` to `true` in [`src/assets/config/config.ts`](../src/assets/config/config.ts).
+2. Configure auth API base URL by setting `app.backendAuthBaseURL`.
+3. If `app.backendAuthBaseURL` is missing, auth service falls back to the origin of `app.backendBaseURL` (for example `https://api.example.org/digitaledition` becomes `https://api.example.org/`).
+4. Ensure backend exposes auth endpoints expected by frontend: `POST <backendAuthBaseURL>/auth/login` and `POST <backendAuthBaseURL>/auth/refresh`.
+5. Protect routes by adding `canActivate: [authGuard]` in [`src/app/app.routes.ts`](../src/app/app.routes.ts) for the pages that require authentication.
+6. Keep login route enabled with `canMatch: [authFeatureEnabledMatchGuard]` so `/login` is only matchable when auth feature is enabled.
+7. If using production build with feature-based routes, run `npm run generate-routes` after route/config changes (or use `npm run build:ssr`, which runs it automatically).
+
+### Behavior when disabled
+
+- `AUTH_ENABLED` resolves to `false` from config.
+- Auth guard is effectively a no-op.
+- Auth interceptor is not registered in browser/server modules.
+- `/login` is not matchable because `authFeatureEnabledMatchGuard` returns `false`.
+
+### Redirect behavior and privacy hardening
+
+- Unauthenticated access to protected routes redirects to `/login?rt=1`.
+- Intended target URL is stored in session-scoped redirect storage (browser `sessionStorage`) and consumed once after successful login.
+- If marker storage is unavailable (for example SSR), fallback uses legacy `returnUrl` query param.
+- Redirect target validation requires all of the following: starts with `/`, does not start with `//`, does not target `/login`, is parseable by Angular router, and is at most 2000 characters.
+
+### Interceptor and refresh hardening
+
+- Bearer token is attached only to requests targeting configured backend URLs (`backendBaseURL` / `backendAuthBaseURL`).
+- Bearer token is never attached to `/auth/*` endpoints.
+- Refresh attempt is only made for backend 401 responses outside `/auth/*`.
+- `AuthService.refreshToken()` has defense-in-depth: if refresh token is missing, it fails fast, logs out, and skips network request.
+
+### SSR note
+
+With current token storage strategy (no auth cookies), SSR cannot identify authenticated browser users on initial request. This means hard refresh on protected routes can SSR-render login/redirect-first behavior, then client-side state can take over after bootstrap.
+
+
+
 ## Dependencies
 
 The app is built on Angular and uses many web components from Ionic. It also has a few other essential dependencies, which are briefly described below.

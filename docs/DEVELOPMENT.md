@@ -203,6 +203,11 @@ With current token storage strategy (no auth cookies), SSR cannot identify authe
 - When `app.auth.enabled` is `true`, auth-protected routes are excluded from sitemap generation.
 - In current route setup this means collection routes and media-collection routes are excluded from `sitemap.txt` in auth mode.
 
+### Static collection menus in auth mode
+
+- When `app.auth.enabled` is `true`, `prebuild-generate-static-collection-menus.js` skips generating static collection TOC HTML fragments.
+- `StaticHtmlComponent` also forces prebuilt collection menus off in auth mode, even if `app.prebuild.staticCollectionMenus` is `true` or missing.
+
 
 
 ## Dependencies

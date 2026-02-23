@@ -1,5 +1,7 @@
 import { Routes } from '@angular/router';
 
+import { authGuard } from '@guards/auth.guard';
+
 /**
  * Canonical app routes definition.
  *
@@ -46,23 +48,28 @@ export const routes: Routes = [
   },
   {
     path: 'collection/:collectionID/cover',
-    loadChildren: () => import('./pages/collection/cover/collection-cover.module').then(m => m.CollectionCoverPageModule)
+    loadChildren: () => import('./pages/collection/cover/collection-cover.module').then(m => m.CollectionCoverPageModule),
+    canActivate: [authGuard]
   },
   {
     path: 'collection/:collectionID/title',
-    loadChildren: () => import('./pages/collection/title/collection-title.module').then(m => m.CollectionTitlePageModule)
+    loadChildren: () => import('./pages/collection/title/collection-title.module').then(m => m.CollectionTitlePageModule),
+    canActivate: [authGuard]
   },
   {
     path: 'collection/:collectionID/foreword',
-    loadChildren: () => import('./pages/collection/foreword/collection-foreword.module').then(m => m.CollectionForewordPageModule)
+    loadChildren: () => import('./pages/collection/foreword/collection-foreword.module').then(m => m.CollectionForewordPageModule),
+    canActivate: [authGuard]
   },
   {
     path: 'collection/:collectionID/introduction',
-    loadChildren: () => import('./pages/collection/introduction/collection-introduction.module').then(m => m.CollectionIntroductionPageModule)
+    loadChildren: () => import('./pages/collection/introduction/collection-introduction.module').then(m => m.CollectionIntroductionPageModule),
+    canActivate: [authGuard]
   },
   {
     path: 'collection/:collectionID/text',
-    loadChildren: () => import('./pages/collection/text/collection-text.module').then(m => m.CollectionTextPageModule)
+    loadChildren: () => import('./pages/collection/text/collection-text.module').then(m => m.CollectionTextPageModule),
+    canActivate: [authGuard]
   },
   {
     path: 'ebook',
@@ -75,15 +82,18 @@ export const routes: Routes = [
   },
   {
     path: 'index/:type',
-    loadChildren: () => import('./pages/index/index.module').then(m => m.IndexPageModule)
+    loadChildren: () => import('./pages/index/index.module').then(m => m.IndexPageModule),
+    canActivate: [authGuard]
   },
   {
     path: 'media-collection',
-    loadChildren: () => import('./pages/media-collection/media-collection.module').then(m => m.MediaCollectionPageModule)
+    loadChildren: () => import('./pages/media-collection/media-collection.module').then(m => m.MediaCollectionPageModule),
+    canActivate: [authGuard]
   },
   {
     path: 'search',
-    loadChildren: () => import('./pages/elastic-search/elastic-search.module').then(m => m.ElasticSearchPageModule)
+    loadChildren: () => import('./pages/elastic-search/elastic-search.module').then(m => m.ElasticSearchPageModule),
+    canActivate: [authGuard]
   },
   {
     path: '**',

@@ -244,6 +244,8 @@ function renderRoutesFile(routes, featureBasedRoutes) {
 
   return `import { Routes } from '@angular/router';
 
+import { authGuard } from '@guards/auth.guard';
+
 /**
  * AUTO-GENERATED FILE. DO NOT EDIT MANUALLY.
  * Source: prebuild-generate-routes.js

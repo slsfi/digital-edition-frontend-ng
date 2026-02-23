@@ -6,6 +6,7 @@ export const config: Config = {
     projectNameDB: "topelius",
     projectId: 10,
     backendBaseURL: "https://api.sls.fi/digitaledition",
+    backendAuthBaseURL: "https://api.sls.fi/",
     alternateFacsimileBaseURL: "",
     i18n: {
       languages: [

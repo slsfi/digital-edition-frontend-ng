@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { inject, Injectable } from '@angular/core';
+import { inject, Injectable, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { BehaviorSubject, catchError, filter, map, Observable, take, throwError } from 'rxjs';
 
@@ -11,7 +11,7 @@ import { AuthTokenStorageService } from '@services/auth-token-storage.service';
  * Authentication state + token lifecycle service.
  *
  * Responsibilities:
- * - Keep in-memory auth state (`isAuthenticated$`).
+ * - Keep in-memory auth state (`isAuthenticated` signal).
  * - Perform login and refresh-token requests.
  * - Persist/remove tokens through a platform-specific storage abstraction.
  *
@@ -27,7 +27,8 @@ export class AuthService {
   private readonly router = inject(Router);
   private readonly tokenStorage = inject(AuthTokenStorageService);
 
-  isAuthenticated$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
+  private readonly _isAuthenticated = signal<boolean>(false);
+  readonly isAuthenticated = this._isAuthenticated.asReadonly();
 
   private backendAuthBaseURL: string = config?.app?.backendAuthBaseURL ?? '';
   private refreshTokenInProgress = false;
@@ -41,7 +42,7 @@ export class AuthService {
       this.backendAuthBaseURL = `${this.backendAuthBaseURL}/`;
     }
 
-    this.isAuthenticated$.next(this.getAccessToken() !== null);
+    this._isAuthenticated.set(this.getAccessToken() !== null);
   }
 
   /**
@@ -60,7 +61,7 @@ export class AuthService {
         this.setStorageItem('access_token', access_token);
         this.setStorageItem('refresh_token', refresh_token);
         this.router.navigate(['/']);
-        this.isAuthenticated$.next(true);
+        this._isAuthenticated.set(true);
       },
       error: () => {
         this.logout();
@@ -94,6 +95,7 @@ export class AuthService {
           this.setStorageItem('access_token', access_token);
           this.refreshTokenInProgress = false;
           this.refreshTokenSubject.next(access_token);
+          this._isAuthenticated.set(true);
           return access_token;
         }),
         catchError((error) => {
@@ -114,7 +116,7 @@ export class AuthService {
   logout(): void {
     this.removeStorageItem('access_token');
     this.removeStorageItem('refresh_token');
-    this.isAuthenticated$.next(false);
+    this._isAuthenticated.set(false);
   }
 
   /**

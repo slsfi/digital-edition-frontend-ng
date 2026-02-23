@@ -76,6 +76,11 @@ export const routes: Routes = [
     loadChildren: () => import('./pages/ebook/ebook.module').then(m => m.EbookPageModule)
   },
   {
+    path: 'login',
+    loadChildren: () => import('./pages/login/login.module').then(m => m.LoginPageModule),
+    canActivate: [authGuard]
+  },
+  {
     path: 'home',
     redirectTo: '',
     pathMatch: 'full'

@@ -94,6 +94,7 @@ describe('AuthService', () => {
     expect(tokenMap.get('access_token')).toBe('access-token-1');
     expect(tokenMap.get('refresh_token')).toBe('refresh-token-1');
     expect(service.isAuthenticated()).toBeTrue();
+    expect(service.loginError()).toBeNull();
     expect(router.navigateByUrl).toHaveBeenCalledWith('/');
   });
 
@@ -259,8 +260,34 @@ describe('AuthService', () => {
     request.flush({ detail: 'invalid credentials' }, { status: 401, statusText: 'Unauthorized' });
 
     expect(service.isAuthenticated()).toBeFalse();
+    expect(service.loginError()).toBe('invalid_credentials');
     expect(tokenMap.has('access_token')).toBeFalse();
     expect(tokenMap.has('refresh_token')).toBeFalse();
+    expect(redirectStorage.clearReturnUrl).not.toHaveBeenCalled();
+  });
+
+  it('sets generic login error code when login fails with non-401 status', () => {
+    const service = createService();
+
+    service.login('user@example.com', 'wrong-password');
+
+    const request = httpMock.expectOne((req) => req.url.endsWith('/auth/login'));
+    request.flush({ detail: 'server error' }, { status: 500, statusText: 'Server Error' });
+
+    expect(service.loginError()).toBe('request_failed');
+  });
+
+  it('clears login error state explicitly', () => {
+    const service = createService();
+
+    service.login('user@example.com', 'wrong-password');
+
+    const request = httpMock.expectOne((req) => req.url.endsWith('/auth/login'));
+    request.flush({ detail: 'invalid credentials' }, { status: 401, statusText: 'Unauthorized' });
+    expect(service.loginError()).toBe('invalid_credentials');
+
+    service.clearLoginError();
+    expect(service.loginError()).toBeNull();
   });
 
   it('clears stored marker return URL on logout when authenticated', () => {

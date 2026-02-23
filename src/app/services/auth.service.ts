@@ -14,6 +14,8 @@ import { AuthTokenStorageService } from '@services/auth-token-storage.service';
 
 const MAX_RETURN_URL_LENGTH = 2000;
 
+export type LoginErrorCode = 'invalid_credentials' | 'request_failed';
+
 /**
  * Authentication state + token lifecycle service.
  *
@@ -37,6 +39,8 @@ export class AuthService {
 
   private readonly _isAuthenticated = signal<boolean>(false);
   readonly isAuthenticated = this._isAuthenticated.asReadonly();
+  private readonly _loginError = signal<LoginErrorCode | null>(null);
+  readonly loginError = this._loginError.asReadonly();
 
   private backendAuthBaseURL: string = this.resolveBackendAuthBaseURL();
   private refreshTokenInProgress = false;
@@ -54,9 +58,11 @@ export class AuthService {
    *
    * Current behavior:
    * - On success: persist tokens, navigate to returnUrl/root, mark authenticated.
-   * - On error: clear auth state via logout().
+   * - On error: clear auth tokens/state but preserve redirect intent so users
+   *   can retry credentials and still land on intended page.
    */
   login(email: string, password: string, redirectURL?: string): void {
+    this._loginError.set(null);
     const url = `${this.backendAuthBaseURL}auth/login`;
     const body: LoginRequest = { email, password };
     this.http.post<LoginResponse>(url, body).subscribe({
@@ -67,10 +73,18 @@ export class AuthService {
         this.router.navigateByUrl(this.resolvePostLoginRedirectURL(redirectURL));
         this._isAuthenticated.set(true);
       },
-      error: () => {
-        this.logout();
+      error: (error) => {
+        this.clearAuthState(false);
+        this._loginError.set(error?.status === 401 ? 'invalid_credentials' : 'request_failed');
       }
     });
+  }
+
+  /**
+   * Clears the current login error state.
+   */
+  clearLoginError(): void {
+    this._loginError.set(null);
   }
 
   /**
@@ -141,10 +155,7 @@ export class AuthService {
    * across explicit logout/login boundaries.
    */
   logout(): void {
-    this.removeStorageItem('access_token');
-    this.removeStorageItem('refresh_token');
-    this._isAuthenticated.set(false);
-    this.redirectStorage.clearReturnUrl();
+    this.clearAuthState(true);
   }
 
   /**
@@ -310,6 +321,15 @@ export class AuthService {
    */
   private hasRedirectMarker(value: unknown): boolean {
     return value === AUTH_REDIRECT_MARKER_VALUE;
+  }
+
+  private clearAuthState(clearRedirectTarget: boolean): void {
+    this.removeStorageItem('access_token');
+    this.removeStorageItem('refresh_token');
+    this._isAuthenticated.set(false);
+    if (clearRedirectTarget) {
+      this.redirectStorage.clearReturnUrl();
+    }
   }
 
   /**

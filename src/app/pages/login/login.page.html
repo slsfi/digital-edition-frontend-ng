@@ -1,6 +1,74 @@
 <ion-content>
   <article class="login-page">
-    <h1 i18n="@@Login.Title">Log in</h1>
-    <p i18n="@@Login.Placeholder">Login page placeholder. Form will be added in a later step.</p>
+    <form class="login-form" [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+      <h1 i18n="@@Login.Title">Logga in</h1>
+
+      <ion-input
+        formControlName="email"
+        type="email"
+        fill="outline"
+        labelPlacement="stacked"
+        autocomplete="email"
+        inputmode="email"
+        (ionInput)="clearAuthError()"
+        i18n-label="@@Login.EmailLabel"
+        label="E-postadress"
+      >
+      </ion-input>
+
+      <ion-input
+        formControlName="password"
+        type="password"
+        fill="outline"
+        labelPlacement="stacked"
+        autocomplete="current-password"
+        (ionInput)="clearAuthError()"
+        i18n-label="@@Login.PasswordLabel"
+        label="Lösenord"
+      >
+        <ion-input-password-toggle slot="end"></ion-input-password-toggle>
+      </ion-input>
+      <div class="forgot-password">
+        <a href="/" i18n="@@Login.ForgotPassword">Glömt lösenordet?</a>
+      </div>
+      @if (loginError() === 'invalid_credentials') {
+        <p class="form-error auth-error" i18n="@@Login.InvalidCredentials">Felaktig e-postadress eller lösenord.</p>
+      }
+      @if (loginError() === 'request_failed') {
+        <p class="form-error auth-error" i18n="@@Login.RequestFailed">Inloggningen misslyckades. Försök igen senare.</p>
+      }
+
+      <ion-button
+        type="submit"
+        expand="block"
+        [disabled]="form.invalid"
+        i18n="@@Login.SubmitButton"
+      >Logga in</ion-button>
+
+      <div class="authentication-divider">
+        <span i18n="@@Login.OrDivider">eller</span>
+      </div>
+      <div class="alt-actions">
+        <a href="/" i18n="@@Login.CreateAccount">Skapa ett konto</a>
+      </div>
+    </form>
   </article>
+  @if (showTermsLink || showPrivacyPolicyLink) {
+    <footer class="legal-consent-footer">
+      @if (showTermsLink && showPrivacyPolicyLink) {
+        <p class="legal-consent" i18n="@@Login.ConsentTermsAndPrivacy">
+          Genom att logga in godkänner du <a [routerLink]="['/terms']">användarvillkoren</a> och
+          <a [routerLink]="['/privacy-policy']">dataskyddsbeskrivningen</a>.
+        </p>
+      } @else if (showTermsLink) {
+        <p class="legal-consent" i18n="@@Login.ConsentTermsOnly">
+          Genom att logga in godkänner du <a [routerLink]="['/terms']">användarvillkoren</a>.
+        </p>
+      } @else if (showPrivacyPolicyLink) {
+        <p class="legal-consent" i18n="@@Login.ConsentPrivacyOnly">
+          Genom att logga in godkänner du <a [routerLink]="['/privacy-policy']">dataskyddsbeskrivningen</a>.
+        </p>
+      }
+    </footer>
+  }
 </ion-content>

@@ -1,17 +1,31 @@
-import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { inject, Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { BehaviorSubject, catchError, filter, map, Observable, take, throwError } from 'rxjs';
 
 import { config } from '@config';
 import { LoginRequest, LoginResponse, RefreshTokenResponse } from '@models/auth.models';
+import { AuthTokenStorageService } from '@services/auth-token-storage.service';
 
+/**
+ * Authentication state + token lifecycle service.
+ *
+ * Responsibilities:
+ * - Keep in-memory auth state (`isAuthenticated$`).
+ * - Perform login and refresh-token requests.
+ * - Persist/remove tokens through a platform-specific storage abstraction.
+ *
+ * SSR note:
+ * This service does not access browser globals directly. Token persistence is
+ * delegated to AuthTokenStorageService so browser/server behavior can differ.
+ */
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
   private readonly http = inject(HttpClient);
   private readonly router = inject(Router);
+  private readonly tokenStorage = inject(AuthTokenStorageService);
 
   isAuthenticated$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
 
@@ -19,26 +33,32 @@ export class AuthService {
   private refreshTokenInProgress = false;
   private refreshTokenSubject: BehaviorSubject<string | null> = new BehaviorSubject<string | null>(null);
 
+  /**
+   * Initializes base URL formatting and initial auth state from stored token.
+   */
   constructor() {
     if (!this.backendAuthBaseURL.endsWith('/')) {
       this.backendAuthBaseURL = `${this.backendAuthBaseURL}/`;
     }
 
-    if (this.getAccessToken()) {
-      this.isAuthenticated$.next(true);
-    } else {
-      this.isAuthenticated$.next(false);
-    }
+    this.isAuthenticated$.next(this.getAccessToken() !== null);
   }
 
+  /**
+   * Executes login request and stores received tokens on success.
+   *
+   * Current behavior:
+   * - On success: persist tokens, navigate to root, mark authenticated.
+   * - On error: clear auth state via logout().
+   */
   login(email: string, password: string): void {
     const url = `${this.backendAuthBaseURL}auth/login`;
     const body: LoginRequest = { email, password };
     this.http.post<LoginResponse>(url, body).subscribe({
       next: (response) => {
         const { access_token, refresh_token } = response;
-        localStorage.setItem('access_token', access_token);
-        localStorage.setItem('refresh_token', refresh_token);
+        this.setStorageItem('access_token', access_token);
+        this.setStorageItem('refresh_token', refresh_token);
         this.router.navigate(['/']);
         this.isAuthenticated$.next(true);
       },
@@ -48,6 +68,14 @@ export class AuthService {
     });
   }
 
+  /**
+   * Requests a new access token using the refresh token.
+   *
+   * Concurrency behavior:
+   * - If a refresh request is already in progress, subsequent callers wait for
+   *   the next token emitted by refreshTokenSubject.
+   * - Otherwise this method starts one refresh request and broadcasts result.
+   */
   refreshToken(): Observable<string> {
     if (this.refreshTokenInProgress) {
       return this.refreshTokenSubject.pipe(
@@ -61,7 +89,7 @@ export class AuthService {
       return this.http.post<RefreshTokenResponse>(url, null, { headers }).pipe(
         map((response) => {
           const { access_token } = response;
-          localStorage.setItem('access_token', access_token);
+          this.setStorageItem('access_token', access_token);
           this.refreshTokenInProgress = false;
           this.refreshTokenSubject.next(access_token);
           return access_token;
@@ -75,17 +103,48 @@ export class AuthService {
     }
   }
 
+  /**
+   * Clears auth tokens and updates in-memory auth state.
+   */
   logout(): void {
-    localStorage.clear();
+    this.removeStorageItem('access_token');
+    this.removeStorageItem('refresh_token');
     this.isAuthenticated$.next(false);
   }
 
+  /**
+   * Returns currently stored access token, or null if unavailable.
+   */
   getAccessToken(): string | null {
-    return localStorage.getItem('access_token')
+    return this.getStorageItem('access_token');
   }
 
+  /**
+   * Returns currently stored refresh token, or null if unavailable.
+   */
   getRefreshToken(): string | null {
-    return localStorage.getItem('refresh_token');
+    return this.getStorageItem('refresh_token');
+  }
+
+  /**
+   * Persists one token key/value through platform-specific storage.
+   */
+  private setStorageItem(key: string, value: string): void {
+    this.tokenStorage.setItem(key, value);
+  }
+
+  /**
+   * Reads one token value from platform-specific storage.
+   */
+  private getStorageItem(key: string): string | null {
+    return this.tokenStorage.getItem(key);
+  }
+
+  /**
+   * Removes one token key from platform-specific storage.
+   */
+  private removeStorageItem(key: string): void {
+    this.tokenStorage.removeItem(key);
   }
 
 }

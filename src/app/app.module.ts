@@ -20,6 +20,10 @@ import {
   CollectionTextViewsQueryParamSyncService
 } from '@services/collection-text-views-query-param-sync.service';
 import {
+  AuthTokenStorageService,
+  BrowserAuthTokenStorageService
+} from '@services/auth-token-storage.service';
+import {
   BrowserRouterNavigationSourceService,
   RouterNavigationSourceService
 } from '@services/router-navigation-source.service';
@@ -59,6 +63,10 @@ import {
     {
       provide: RouterNavigationSourceService,
       useClass: BrowserRouterNavigationSourceService
+    },
+    {
+      provide: AuthTokenStorageService,
+      useClass: BrowserAuthTokenStorageService
     },
     {
       provide: RouterPreloadingStrategyService,

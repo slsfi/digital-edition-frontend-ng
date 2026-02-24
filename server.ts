@@ -13,6 +13,39 @@ import { join } from 'node:path';
 import AppServerModule from './src/main.server';
 import { environment } from './src/environments/environment';
 import { REQUEST } from './src/express.tokens';
+import { config } from './src/assets/config/config';
+
+const LOOPBACK_ALLOWED_HOSTS = ['localhost', '127.0.0.1', '[::1]'] as const;
+
+/**
+ * Resolves a hostname from `config.app.siteURLOrigin` for SSR host validation.
+ */
+function getConfiguredAllowedHost(): string | undefined {
+  const siteURLOrigin = config?.app?.siteURLOrigin;
+  if (typeof siteURLOrigin !== 'string' || siteURLOrigin.trim().length === 0) {
+    return undefined;
+  }
+
+  const normalizedOrigin = /^[a-zA-Z][a-zA-Z\d+\-.]*:\/\//.test(siteURLOrigin)
+    ? siteURLOrigin
+    : `https://${siteURLOrigin}`;
+
+  try {
+    return new URL(normalizedOrigin).hostname.toLowerCase();
+  } catch {
+    return undefined;
+  }
+}
+
+function getAllowedHosts(): string[] {
+  const allowedHosts = new Set<string>(LOOPBACK_ALLOWED_HOSTS);
+  const configuredHost = getConfiguredAllowedHost();
+  if (configuredHost) {
+    allowedHosts.add(configuredHost);
+  }
+
+  return [...allowedHosts];
+}
 
 // The Express app is exported so that it can be used by serverless Functions.
 export function app(lang: string): express.Express {
@@ -23,7 +56,12 @@ export function app(lang: string): express.Express {
     ? join(browserDistFolder, 'index.original.html')
     : join(browserDistFolder, 'index.html');
 
-  const commonEngine = new CommonEngine();
+  const allowedHosts = getAllowedHosts();
+  const commonEngine = new CommonEngine({
+    // `NG_ALLOWED_HOSTS` from environment is also merged by Angular internally.
+    allowedHosts,
+  });
+  // console.log(`[SSR][${lang}] allowedHosts: ${allowedHosts.join(', ')}`);
 
   server.set('view engine', 'html');
   server.set('views', browserDistFolder);

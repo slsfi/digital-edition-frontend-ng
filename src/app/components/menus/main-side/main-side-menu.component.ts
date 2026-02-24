@@ -101,9 +101,15 @@ export class MainSideMenuComponent {
     const menu = this.authEnabled
       ? this.withAuthMenuItem(rawMenu, this.getAuthService().isAuthenticated())
       : rawMenu;
+    if (this.authEnabled) {
+      // Ensure inserted auth menu item also receives a nodeId for highlighting.
+      this.recursiveAddNodeIdsToMenu(menu);
+    }
+    this.mainMenu.set(menu);
 
-    // If configured, expand all root items that have children
-    const initialSelected = this.defaultExpanded
+    if (!this.menuReady()) {
+      // If configured, expand all root items that have children on first load.
+      const initialSelected = this.defaultExpanded
         ? menu.reduce<string[]>((acc, item) => {
             if (item?.children && item.nodeId) {
               acc.push(item.nodeId);
@@ -111,10 +117,9 @@ export class MainSideMenuComponent {
             return acc;
           }, [])
         : [];
-
-    this.expandedMenuIds.set(initialSelected);
-    this.mainMenu.set(menu);
-    this.menuReady.set(true);  // signals first menu load is done
+      this.expandedMenuIds.set(initialSelected);
+      this.menuReady.set(true);  // signals first menu load is done
+    }
   });
 
   // Update highlighted menu item: run after menu is ready and when URL changes

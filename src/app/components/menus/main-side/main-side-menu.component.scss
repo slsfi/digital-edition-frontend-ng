@@ -12,16 +12,6 @@ li.home-menu-item {
   border-bottom: 1px solid var(--side-menu-divider-color);
   color: var(--side-menu-back-button-text-color);
 
-  ion-icon {
-    color: var(--side-menu-back-button-text-color);
-    font-size: 1.5rem;
-    margin-right: 0.5rem;
-
-    &.home-icon {
-      margin-inline-start: auto;
-    }
-  }
-
   a {
     height: 50px;
     display: flex;
@@ -29,6 +19,26 @@ li.home-menu-item {
 
     .label {
       border-bottom: 0;
+    }
+  }
+}
+
+li.icon-menu-item {
+  ion-icon {
+    &.item-icon {
+      margin-right: 0.375rem;
+      margin-inline-start: auto;
+      font-size: 1.75rem;
+    }
+
+    &.home-icon {
+      color: var(--side-menu-back-button-text-color);
+      font-size: 1.5rem;
+      margin-right: 0.5rem;
+    }
+
+    &.log-in-icon {
+      font-size: 2rem;
     }
   }
 }

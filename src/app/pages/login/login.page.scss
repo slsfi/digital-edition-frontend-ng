@@ -6,15 +6,20 @@ ion-content::part(scroll) {
 .login-page {
   flex: 1;
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: center;
-  padding-block: 1.5rem;
+  justify-content: flex-start;
+  padding-block: 3.5rem 1.5rem;
 }
 
 .login-form {
   width: min(100%, 28rem);
   display: grid;
   gap: 0.9rem;
+}
+
+.login-form > :not(h1) {
+  font-size: 1.125rem;
 }
 
 h1 {
@@ -83,4 +88,8 @@ ion-input.input-fill-outline {
   margin: 0;
   text-align: center;
   font-size: 0.9375rem;
+}
+
+ion-button.button.custom-button {
+  min-height: 42px;
 }

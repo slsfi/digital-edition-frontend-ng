@@ -50,6 +50,8 @@ export class MainSideMenuComponent {
   private readonly activeLocale = inject(LOCALE_ID);
   private readonly authEnabled = inject(AUTH_ENABLED);
   private authService: AuthService | null = null;
+  private readonly authMenuLoginLabel = $localize`:@@MainSideMenu.Login:Logga in`;
+  private readonly authMenuAccountLabel = $localize`:@@MainSideMenu.Account:Användarkonto`;
 
   readonly urlSegments = input<UrlSegment[]>([]);
 
@@ -62,6 +64,15 @@ export class MainSideMenuComponent {
   readonly secondaryMenu = computed(() => this.mainMenu().filter(
     (item: MainMenuNode) => this.isSecondaryMenuItem(item)
   ));
+  readonly isAuthenticated = computed(() => this.authEnabled
+    ? this.getAuthService().isAuthenticated()
+    : false
+  );
+  readonly authMenuPath = computed(() => this.isAuthenticated() ? '/account' : '/login');
+  readonly authMenuTitle = computed(() => this.isAuthenticated()
+    ? this.authMenuAccountLabel
+    : this.authMenuLoginLabel
+  );
 
   // Config flag: expand root items on first load
   private readonly defaultExpanded = config.component?.mainSideMenu?.defaultExpanded ?? false;
@@ -98,19 +109,12 @@ export class MainSideMenuComponent {
     if (!rawMenu) {
       return;
     }
-    const menu = this.authEnabled
-      ? this.withAuthMenuItem(rawMenu, this.getAuthService().isAuthenticated())
-      : rawMenu;
-    if (this.authEnabled) {
-      // Ensure inserted auth menu item also receives a nodeId for highlighting.
-      this.recursiveAddNodeIdsToMenu(menu);
-    }
-    this.mainMenu.set(menu);
+    this.mainMenu.set(rawMenu);
 
     if (!this.menuReady()) {
       // If configured, expand all root items that have children on first load.
       const initialSelected = this.defaultExpanded
-        ? menu.reduce<string[]>((acc, item) => {
+        ? rawMenu.reduce<string[]>((acc, item) => {
             if (item?.children && item.nodeId) {
               acc.push(item.nodeId);
             }
@@ -177,16 +181,19 @@ export class MainSideMenuComponent {
    * config.
    */
   private getMenuItemsArray(): Observable<MainMenuGroupNode>[] {
-    // Get enabled menu items from config, and prepend with the home
-    // menu item, which is forced to always be shown.
+    // Get enabled menu items from config, and prepend with home and auth.
+    // Home is always shown; auth is shown only when auth feature is enabled.
     let enabledPages = {
       home: true,
+      auth: this.authEnabled,
       ...(config.component?.mainSideMenu?.items ?? {})
     };
     enabledPages.home = true;
+    enabledPages.auth = this.authEnabled;
 
     const menuItemGetters: Record<string, () => Observable<MainMenuGroupNode>> = {
       home: () => this.getHomePageMenuItem(),
+      auth: () => this.getAuthMenuItem(),
       about: () => this.getAboutPagesMenu(),
       articles: () => this.getArticlePagesMenu(),
       ebooks: () => this.getEbookPagesMenu(),
@@ -232,36 +239,13 @@ export class MainSideMenuComponent {
     return of({ menuType: 'home', menuData });
   }
 
-  /**
-   * Adds a dynamic auth entry right after Home:
-   * - unauthenticated users: `/login`
-   * - authenticated users: `/account`
-   *
-   * Entry is only included when auth feature is enabled.
-   */
-  private withAuthMenuItem(menu: MainMenuNode[], isAuthenticated: boolean): MainMenuNode[] {
-    if (!this.authEnabled) {
-      return [...menu];
-    }
-
-    const authMenuItem: MainMenuNode = {
+  private getAuthMenuItem(): Observable<MainMenuGroupNode> {
+    const menuData: MainMenuNode[] = [{
       id: '',
-      title: isAuthenticated
-        ? $localize`:@@MainSideMenu.Account:Användarkonto`
-        : $localize`:@@MainSideMenu.Login:Logga in`,
-      parentPath: isAuthenticated ? '/account' : '/login',
-      menuType: isAuthenticated ? 'account' : 'login'
-    };
-    const menuWithAuthEntry = [...menu];
-    const homeIndex = menuWithAuthEntry.findIndex((item: MainMenuNode) => item.menuType === 'home');
-
-    if (homeIndex >= 0) {
-      menuWithAuthEntry.splice(homeIndex + 1, 0, authMenuItem);
-    } else {
-      menuWithAuthEntry.unshift(authMenuItem);
-    }
-
-    return menuWithAuthEntry;
+      title: this.authMenuLoginLabel,
+      parentPath: '/login'
+    }];
+    return of({ menuType: 'auth', menuData });
   }
 
   /**
@@ -520,6 +504,20 @@ export class MainSideMenuComponent {
     return item.menuType ? this.secondaryMenuTypes.includes(item.menuType) : false;
   }
 
+  private getMenuItemPath(item: MainMenuNode): string {
+    if (item.menuType === 'auth') {
+      return this.authMenuPath();
+    }
+    return item.parentPath ? `${item.parentPath}${item.id ? `/${item.id}` : ''}` : '';
+  }
+
+  private getMenuItemTitle(item: MainMenuNode): string | undefined {
+    if (item.menuType === 'auth') {
+      return this.authMenuTitle();
+    }
+    return item.title;
+  }
+
 
   // ─────────────────────────────────────────────────────────────────────────────
   // Highlighting
@@ -551,31 +549,31 @@ export class MainSideMenuComponent {
     targetPath: string
   ): MainMenuNode | undefined {
     return menu.find((item: MainMenuNode) => {
-      let itemPath = item.parentPath;
-      if (item.id) {
-        itemPath += '/' + item.id;
-      }
+      const isAuthItem = item.menuType === 'auth';
+      const isAuthPath = targetPath === '/login' || targetPath === '/account';
+      const itemPath = this.getMenuItemPath(item);
 
-      if (itemPath === targetPath) {
+      if (itemPath === targetPath || (isAuthItem && isAuthPath)) {
         // Update highlighted menu item
         if (item.nodeId) {
           this.highlightedNodeId.set(item.nodeId);
         }
 
         // Update HTML document title
+        const itemTitle = this.getMenuItemTitle(item);
         if (item.parentPath === '/media-collection') {
           this.headService.setTitle([
-            String(item.title),
+            String(itemTitle),
             $localize`:@@MainSideMenu.MediaCollections:Bildbank`
           ]);
         } else if (
-          item.parentPath &&
-          !this.topMenuItems.includes(item.parentPath) &&
+          itemPath &&
+          !this.topMenuItems.includes(itemPath) &&
           this.urlSegments()[0]?.path !== 'collection'
         ) {
           // For top menu items the title is set by app.component, and
           // for collections the title is set by the text-changer component
-          this.headService.setTitle([String(item.title)]);
+          this.headService.setTitle([String(itemTitle)]);
         }
         return item;
       } else if (item.children) {

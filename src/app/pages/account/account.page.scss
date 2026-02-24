@@ -10,3 +10,11 @@
     text-align: center;
   }
 }
+
+.account-page > :not(h1) {
+  font-size: 1.125rem;
+}
+
+ion-button.button.custom-button {
+  min-height: 42px;
+}

@@ -57,7 +57,7 @@ export class AuthService {
    * Executes login request and stores received tokens on success.
    *
    * Current behavior:
-   * - On success: persist tokens, navigate to returnUrl/root, mark authenticated.
+   * - On success: persist tokens, navigate to returnUrl/account, mark authenticated.
    * - On error: clear auth tokens/state but preserve redirect intent so users
    *   can retry credentials and still land on intended page.
    */
@@ -212,7 +212,7 @@ export class AuthService {
    * 1) marker-based stored return URL (if marker present and target valid)
    * 2) redirectURL argument (if valid)
    * 3) `returnUrl` query parameter on current router URL (if valid)
-   * 4) root route (`/`)
+   * 4) account route (`/account`)
    */
   private resolvePostLoginRedirectURL(redirectURL?: string): string {
     const returnURLFromMarker = this.getReturnURLFromRedirectMarker();
@@ -230,7 +230,7 @@ export class AuthService {
       return returnURLFromRoute;
     }
 
-    return '/';
+    return '/account';
   }
 
   /**

@@ -95,7 +95,7 @@ describe('AuthService', () => {
     expect(tokenMap.get('refresh_token')).toBe('refresh-token-1');
     expect(service.isAuthenticated()).toBeTrue();
     expect(service.loginError()).toBeNull();
-    expect(router.navigateByUrl).toHaveBeenCalledWith('/');
+    expect(router.navigateByUrl).toHaveBeenCalledWith('/account');
   });
 
   it('navigates to returnUrl query param after successful login when safe', () => {
@@ -187,7 +187,7 @@ describe('AuthService', () => {
       user_projects: []
     });
 
-    expect(router.navigateByUrl).toHaveBeenCalledWith('/');
+    expect(router.navigateByUrl).toHaveBeenCalledWith('/account');
   });
 
   it('ignores login-loop returnUrl query param after successful login', () => {
@@ -204,7 +204,7 @@ describe('AuthService', () => {
       user_projects: []
     });
 
-    expect(router.navigateByUrl).toHaveBeenCalledWith('/');
+    expect(router.navigateByUrl).toHaveBeenCalledWith('/account');
   });
 
   it('ignores returnUrl when Angular router parsing of the target fails', () => {
@@ -228,7 +228,7 @@ describe('AuthService', () => {
       user_projects: []
     });
 
-    expect(router.navigateByUrl).toHaveBeenCalledWith('/');
+    expect(router.navigateByUrl).toHaveBeenCalledWith('/account');
   });
 
   it('ignores too-long returnUrl query param after successful login', () => {
@@ -246,7 +246,7 @@ describe('AuthService', () => {
       user_projects: []
     });
 
-    expect(router.navigateByUrl).toHaveBeenCalledWith('/');
+    expect(router.navigateByUrl).toHaveBeenCalledWith('/account');
   });
 
   it('clears auth state when login fails', () => {

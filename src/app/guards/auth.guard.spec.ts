@@ -99,6 +99,13 @@ describe('authGuard', () => {
       expect(result).toBe(true);
     });
 
+    it('allows /login marker flow when unauthenticated without consuming stored return URL', () => {
+      const result = runGuard(`/login?${AUTH_REDIRECT_MARKER_QUERY_PARAM}=${AUTH_REDIRECT_MARKER_VALUE}`);
+
+      expect(result).toBe(true);
+      expect(authRedirectStorage.consumeReturnUrl).not.toHaveBeenCalled();
+    });
+
     it('redirects /login to / when authenticated and returnUrl is missing', () => {
       isAuthenticated.set(true);
 

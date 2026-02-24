@@ -40,14 +40,16 @@ export const authGuard: CanActivateFn = (_route, state) => {
   const authRedirectStorage = inject(AuthRedirectStorageService);
   const isAuthenticated = authService.isAuthenticated();
   const isLoginRoute = state.url === '/login' || state.url.startsWith('/login?') || state.url.startsWith('/login/');
-  const loginRouteRedirectURL = getSafeLoginRouteRedirectURL(router, authRedirectStorage, state.url);
 
   if (isLoginRoute) {
-    return isAuthenticated
-      ? loginRouteRedirectURL
-        ? router.parseUrl(loginRouteRedirectURL) // User is authenticated, redirect to requested route when available
-        : router.createUrlTree(['/']) // User is authenticated, redirect to home and block the route
-      : true; // User is not authenticated, allow access to login
+    if (!isAuthenticated) {
+      return true; // User is not authenticated, allow access to login
+    }
+
+    const loginRouteRedirectURL = getSafeLoginRouteRedirectURL(router, authRedirectStorage, state.url);
+    return loginRouteRedirectURL
+      ? router.parseUrl(loginRouteRedirectURL) // User is authenticated, redirect to requested route when available
+      : router.createUrlTree(['/']); // User is authenticated, redirect to home and block the route
   }
 
   if (isAuthenticated) {

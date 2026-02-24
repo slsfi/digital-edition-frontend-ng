@@ -1,0 +1,12 @@
+.account-page {
+  width: min(100%, 28rem);
+  margin: 3rem auto 0;
+  display: grid;
+  gap: 1rem;
+
+  h1,
+  p {
+    margin: 0;
+    text-align: center;
+  }
+}

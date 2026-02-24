@@ -5,7 +5,8 @@ const common = require('./prebuild-common-fns');
 const configFilepath = 'src/assets/config/config.ts';
 const sitemapFilename = 'sitemap.txt';
 const SITEMAP_EXCLUDED_ROUTE_PATH_KEYS = Object.freeze([
-  'login'
+  'login',
+  'account'
 ]);
 const AUTH_PROTECTED_ROUTE_PATH_KEYS = Object.freeze([
   'collection/:collectionID/cover',

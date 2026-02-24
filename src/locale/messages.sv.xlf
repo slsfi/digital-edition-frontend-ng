@@ -18,6 +18,24 @@
         <target>Sidans innehåll kunde inte laddas.</target>
       </segment>
     </unit>
+    <unit id="Account.Description">
+      <segment state="initial">
+        <source>Du är inloggad.</source>
+        <target>Du är inloggad.</target>
+      </segment>
+    </unit>
+    <unit id="Account.LogoutButton">
+      <segment state="initial">
+        <source>Logga ut</source>
+        <target>Logga ut</target>
+      </segment>
+    </unit>
+    <unit id="Account.Title">
+      <segment state="initial">
+        <source>Användarkonto</source>
+        <target>Användarkonto</target>
+      </segment>
+    </unit>
     <unit id="Article.Contents">
       <segment state="initial">
         <source>Innehåll</source>
@@ -930,10 +948,88 @@
         <target>Inga teckenförklaringar tillgängliga.</target>
       </segment>
     </unit>
+    <unit id="Login.ConsentPrivacyOnly">
+      <segment state="initial">
+        <source> Genom att logga in godkänner du <pc id="0" equivStart="START_LINK" equivEnd="CLOSE_LINK" type="link" dispStart="&lt;a [routerLink]=&quot;[&apos;/privacy-policy&apos;]&quot;&gt;" dispEnd="&lt;/a&gt;">dataskyddsbeskrivningen</pc>. </source>
+        <target> Genom att logga in godkänner du <pc id="0" equivStart="START_LINK" equivEnd="CLOSE_LINK" type="link" dispStart="&lt;a [routerLink]=&quot;[&apos;/privacy-policy&apos;]&quot;&gt;" dispEnd="&lt;/a&gt;">dataskyddsbeskrivningen</pc>. </target>
+      </segment>
+    </unit>
+    <unit id="Login.ConsentTermsAndPrivacy">
+      <segment state="initial">
+        <source> Genom att logga in godkänner du <pc id="0" equivStart="START_LINK" equivEnd="CLOSE_LINK" type="link" dispStart="&lt;a [routerLink]=&quot;[&apos;/terms&apos;]&quot;&gt;" dispEnd="&lt;/a&gt;">användarvillkoren</pc> och <pc id="1" equivStart="START_LINK_1" equivEnd="CLOSE_LINK" type="link" dispStart="&lt;a [routerLink]=&quot;[&apos;/privacy-policy&apos;]&quot;&gt;" dispEnd="&lt;/a&gt;">dataskyddsbeskrivningen</pc>. </source>
+        <target> Genom att logga in godkänner du <pc id="0" equivStart="START_LINK" equivEnd="CLOSE_LINK" type="link" dispStart="&lt;a [routerLink]=&quot;[&apos;/terms&apos;]&quot;&gt;" dispEnd="&lt;/a&gt;">användarvillkoren</pc> och <pc id="1" equivStart="START_LINK_1" equivEnd="CLOSE_LINK" type="link" dispStart="&lt;a [routerLink]=&quot;[&apos;/privacy-policy&apos;]&quot;&gt;" dispEnd="&lt;/a&gt;">dataskyddsbeskrivningen</pc>. </target>
+      </segment>
+    </unit>
+    <unit id="Login.ConsentTermsOnly">
+      <segment state="initial">
+        <source> Genom att logga in godkänner du <pc id="0" equivStart="START_LINK" equivEnd="CLOSE_LINK" type="link" dispStart="&lt;a [routerLink]=&quot;[&apos;/terms&apos;]&quot;&gt;" dispEnd="&lt;/a&gt;">användarvillkoren</pc>. </source>
+        <target> Genom att logga in godkänner du <pc id="0" equivStart="START_LINK" equivEnd="CLOSE_LINK" type="link" dispStart="&lt;a [routerLink]=&quot;[&apos;/terms&apos;]&quot;&gt;" dispEnd="&lt;/a&gt;">användarvillkoren</pc>. </target>
+      </segment>
+    </unit>
+    <unit id="Login.CreateAccount">
+      <segment state="initial">
+        <source>Skapa ett användarkonto</source>
+        <target>Skapa ett användarkonto</target>
+      </segment>
+    </unit>
+    <unit id="Login.EmailLabel">
+      <segment state="initial">
+        <source>E-postadress</source>
+        <target>E-postadress</target>
+      </segment>
+    </unit>
+    <unit id="Login.ForgotPassword">
+      <segment state="initial">
+        <source>Glömt lösenordet?</source>
+        <target>Glömt lösenordet?</target>
+      </segment>
+    </unit>
+    <unit id="Login.InvalidCredentials">
+      <segment state="initial">
+        <source>Felaktig e-postadress eller lösenord.</source>
+        <target>Felaktig e-postadress eller lösenord.</target>
+      </segment>
+    </unit>
+    <unit id="Login.OrDivider">
+      <segment state="initial">
+        <source>eller</source>
+        <target>eller</target>
+      </segment>
+    </unit>
+    <unit id="Login.PasswordLabel">
+      <segment state="initial">
+        <source>Lösenord</source>
+        <target>Lösenord</target>
+      </segment>
+    </unit>
+    <unit id="Login.RequestFailed">
+      <segment state="initial">
+        <source>Inloggningen misslyckades. Försök igen senare.</source>
+        <target>Inloggningen misslyckades. Försök igen senare.</target>
+      </segment>
+    </unit>
+    <unit id="Login.SubmitButton">
+      <segment state="initial">
+        <source>Logga in</source>
+        <target>Logga in</target>
+      </segment>
+    </unit>
+    <unit id="Login.Title">
+      <segment state="initial">
+        <source>Logga in</source>
+        <target>Logga in</target>
+      </segment>
+    </unit>
     <unit id="MainSideMenu.AccessibilityStatement">
       <segment state="initial">
         <source>Tillgänglighetsutlåtande</source>
         <target>Tillgänglighetsutlåtande</target>
+      </segment>
+    </unit>
+    <unit id="MainSideMenu.Account">
+      <segment state="initial">
+        <source>Användarkonto</source>
+        <target>Användarkonto</target>
       </segment>
     </unit>
     <unit id="MainSideMenu.AriaLabel">
@@ -1012,6 +1108,12 @@
       <segment state="initial">
         <source>Verkregister</source>
         <target>Verkregister</target>
+      </segment>
+    </unit>
+    <unit id="MainSideMenu.Login">
+      <segment state="initial">
+        <source>Logga in</source>
+        <target>Logga in</target>
       </segment>
     </unit>
     <unit id="MainSideMenu.MediaCollections">

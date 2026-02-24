@@ -83,6 +83,12 @@ export const routes: Routes = [
     canActivate: [authGuard]
   },
   {
+    path: 'account',
+    loadChildren: () => import('./pages/account/account.module').then(m => m.AccountPageModule),
+    canMatch: [authFeatureEnabledMatchGuard],
+    canActivate: [authGuard]
+  },
+  {
     path: 'home',
     redirectTo: '',
     pathMatch: 'full'

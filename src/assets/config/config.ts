@@ -20,7 +20,7 @@ export const config: Config = {
     },
     enableRouterLoadingBar: true,
     auth: {
-      enabled: false
+      enabled: true
     },
     openGraphMetaTags: {
       enabled: true,
@@ -338,8 +338,8 @@ export const config: Config = {
         indexWorks: false,
         search: true,
         cookiePolicy: false,
-        privacyPolicy: false,
-        termsOfUse: false,
+        privacyPolicy: true,
+        termsOfUse: true,
         accessibilityStatement: false,
       },
       defaultExpanded: false,

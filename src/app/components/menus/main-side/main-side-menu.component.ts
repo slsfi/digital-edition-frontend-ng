@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, LOCALE_ID, computed, effect, inject, input, signal, untracked } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Injector, LOCALE_ID, computed, effect, inject, input, signal, untracked } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { NgTemplateOutlet } from '@angular/common';
 import { RouterLink, UrlSegment } from '@angular/router';
@@ -13,10 +13,12 @@ import { MediaCollection } from '@models/media-collection.models';
 import { fromCollectionToMainMenuNode, fromMdToMainMenuNode, fromMediaCollectionToMainMenuNode, MainMenuGroupNode, MainMenuNode, MdMenuNodeApiResponse } from '@models/menu.models';
 import { ArrayIncludesPipe } from '@pipes/array-includes.pipe';
 import { ParentChildPagePathPipe } from '@pipes/parent-child-page-path.pipe';
+import { AuthService } from '@services/auth.service';
 import { CollectionsService } from '@services/collections.service';
 import { DocumentHeadService } from '@services/document-head.service';
 import { MarkdownService } from '@services/markdown.service';
 import { MediaCollectionService } from '@services/media-collection.service';
+import { AUTH_ENABLED } from '@tokens/auth.tokens';
 import { addOrRemoveValueInNewArray, sortArrayOfObjectsAlphabetically, splitFilename } from '@utility-functions';
 
 
@@ -42,9 +44,12 @@ export class MainSideMenuComponent {
   // ─────────────────────────────────────────────────────────────────────────────
   private readonly collectionsService = inject(CollectionsService);
   private readonly headService = inject(DocumentHeadService);
+  private readonly injector = inject(Injector);
   private readonly mdcontentService = inject(MarkdownService);
   private readonly mediaCollectionService = inject(MediaCollectionService);
   private readonly activeLocale = inject(LOCALE_ID);
+  private readonly authEnabled = inject(AUTH_ENABLED);
+  private authService: AuthService | null = null;
 
   readonly urlSegments = input<UrlSegment[]>([]);
 
@@ -89,10 +94,13 @@ export class MainSideMenuComponent {
 
   // Load/shape menu
   private readonly loadEffect = effect(() => {
-    const menu = this.menuDataSig();
-    if (!menu) {
+    const rawMenu = this.menuDataSig();
+    if (!rawMenu) {
       return;
     }
+    const menu = this.authEnabled
+      ? this.withAuthMenuItem(rawMenu, this.getAuthService().isAuthenticated())
+      : rawMenu;
 
     // If configured, expand all root items that have children
     const initialSelected = this.defaultExpanded
@@ -217,6 +225,49 @@ export class MainSideMenuComponent {
       parentPath: '/'
     }];
     return of({ menuType: 'home', menuData });
+  }
+
+  /**
+   * Adds a dynamic auth entry right after Home:
+   * - unauthenticated users: `/login`
+   * - authenticated users: `/account`
+   *
+   * Entry is only included when auth feature is enabled.
+   */
+  private withAuthMenuItem(menu: MainMenuNode[], isAuthenticated: boolean): MainMenuNode[] {
+    if (!this.authEnabled) {
+      return [...menu];
+    }
+
+    const authMenuItem: MainMenuNode = {
+      id: '',
+      title: isAuthenticated
+        ? $localize`:@@MainSideMenu.Account:Användarkonto`
+        : $localize`:@@MainSideMenu.Login:Logga in`,
+      parentPath: isAuthenticated ? '/account' : '/login',
+      menuType: isAuthenticated ? 'account' : 'login'
+    };
+    const menuWithAuthEntry = [...menu];
+    const homeIndex = menuWithAuthEntry.findIndex((item: MainMenuNode) => item.menuType === 'home');
+
+    if (homeIndex >= 0) {
+      menuWithAuthEntry.splice(homeIndex + 1, 0, authMenuItem);
+    } else {
+      menuWithAuthEntry.unshift(authMenuItem);
+    }
+
+    return menuWithAuthEntry;
+  }
+
+  /**
+   * Lazy auth service resolution so projects with disabled auth don't initialize
+   * AuthService from this component.
+   */
+  private getAuthService(): AuthService {
+    if (!this.authService) {
+      this.authService = this.injector.get(AuthService);
+    }
+    return this.authService;
   }
 
   private getAboutPagesMenu(): Observable<MainMenuGroupNode> {

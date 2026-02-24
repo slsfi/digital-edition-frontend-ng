@@ -12,6 +12,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 - Deps: update `@angular/cli` to 20.3.17.
 
+### Fixed
+
+- Configure `CommonEngine` `allowedHosts` for Angular SSRF host validation.
+
 
 
 ## [2.5.0] – 2026-02-20

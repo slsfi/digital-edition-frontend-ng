@@ -986,8 +986,8 @@
     </unit>
     <unit id="Login.InvalidCredentials">
       <segment state="initial">
-        <source>Felaktig e-postadress eller lösenord.</source>
-        <target>Felaktig e-postadress eller lösenord.</target>
+        <source>Fel e-postadress eller lösenord.</source>
+        <target>Fel e-postadress eller lösenord.</target>
       </segment>
     </unit>
     <unit id="Login.OrDivider">

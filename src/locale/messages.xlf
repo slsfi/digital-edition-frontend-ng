@@ -823,7 +823,7 @@
     </unit>
     <unit id="Login.InvalidCredentials">
       <segment>
-        <source>Felaktig e-postadress eller lösenord.</source>
+        <source>Fel e-postadress eller lösenord.</source>
       </segment>
     </unit>
     <unit id="Login.OrDivider">

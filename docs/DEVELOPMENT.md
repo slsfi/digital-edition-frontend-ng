@@ -88,6 +88,112 @@ When updating which Node.js image is used for the build, remember to update both
 
 
 
+## Dependencies
+
+The app is built on Angular and uses many web components from Ionic. It also has a few other essential dependencies, which are briefly described below.
+
+
+### `@angular`
+
+The Angular documentation is available on <https://angular.dev/>.
+
+At it’s root, the Angular app uses NgModules, even though all components except `pages` use the standalone API. This is because currently, another dependency, `Ionic`, doesn’t support the Angular standalone API for SSR apps.
+
+#### Updating Angular
+
+Run
+
+```bash
+ng update @angular/cli @angular/core
+```
+
+For more detailed instructions see <https://angular.dev/cli/update>.
+
+When updating to a new major version of Angular:
+
+1. See the interactive [Angular update guide][angular_update_guide].
+2. Update Angular dependencies in `package.json`/`package-lock.json` (for example via `ng update`). The Docker build installs dependencies from the lockfile using `npm ci`, so there is no separate Angular version argument in [`Dockerfile`][dockerfile] to update.
+
+
+### `@ionic`
+
+The Ionic Framework documentation is available on <https://ionicframework.com/docs/>
+
+#### Updating Ionic
+
+Run
+
+```bash
+npm install @ionic/angular @ionic/angular-server
+```
+
+
+### [`express`][npm_express]
+
+Framework for running a web server in Node.js. This library is required by Angular to enable server-side rendering.
+
+
+### [`htmlparser2`][npm_htmlparser2]
+
+SSR-compatible HTML/XML parser, used in a few places in the app to parse HTML from the backend.
+
+
+### [`ionicons`][npm_ionicons]
+
+Iconset especially intended to be used with Ionic.
+
+
+### [`marked`][npm_marked]
+
+SSR-compatible Markdown parser. Parses Markdown to HTML. Any HTML in the Markdown is passed through as it is.
+
+
+### [`marked-custom-heading-id`][npm_marked-custom-heading-id]
+
+An extension to `marked` supporting adding custom ids to headings in the [Markdown Extended Syntax](https://www.markdownguide.org/extended-syntax/#heading-ids): `# heading {#custom-id}`.
+
+
+### [`marked-footnote`][npm_marked-footnote]
+
+An extension to `marked` supporting [GFM footnotes](https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax#footnotes) in Markdown.
+
+
+### [`rxjs`][npm_rxjs]
+
+Reactive extensions library. Used internally by Angular and heavily in the app for handling Observables.
+
+
+### [`tslib`][npm_tslib]
+
+Runtime library for TypeScript containing all of the TypeScript helper functions. Required by Angular.
+
+
+### [`zone.js`][npm_zone.js]
+
+Library for execution contexts (”zones”) that persist across async tasks. Required by Angular.
+
+
+### [`browser-sync`][npm_browser-sync] (devDependency)
+
+Required by the Angular builders.
+
+
+### [`gzipper`][npm_gzipper] (devDependency)
+
+Library for compressing files. Used in `Dockerfile` in a post-build step to create compressed (gzip) versions of static files. It’s configured in the `compress` script in `package.json`.
+
+
+### [`ng-extract-i18n-merge`][npm_ng-extract-i18n-merge] (devDependency)
+
+Library for extracting and merging i18n xliff translation files for Angular projects. This library extends the default Angular CLI, and is used to sort the keys in the xliff translation files. Used when running the `extract-i18n` script in `package.json` to create the xliff translation files for the app.
+
+
+### `jasmine` and `karma`
+
+Angular testing frameworks, not in use.
+
+
+
 ## Router preloading strategy
 
 The app uses a platform-specific router preloading strategy:
@@ -199,7 +305,7 @@ With current token storage strategy (no auth cookies), SSR cannot identify authe
 
 ### Sitemap behavior in auth mode
 
-- `/login` is excluded from sitemap generation.
+- `/login` and `/account` are excluded from sitemap generation.
 - When `app.auth.enabled` is `true`, auth-protected routes are excluded from sitemap generation.
 - In current route setup this means collection routes and media-collection routes are excluded from `sitemap.txt` in auth mode.
 
@@ -207,112 +313,6 @@ With current token storage strategy (no auth cookies), SSR cannot identify authe
 
 - When `app.auth.enabled` is `true`, `prebuild-generate-static-collection-menus.js` skips generating static collection TOC HTML fragments.
 - `StaticHtmlComponent` also forces prebuilt collection menus off in auth mode, even if `app.prebuild.staticCollectionMenus` is `true` or missing.
-
-
-
-## Dependencies
-
-The app is built on Angular and uses many web components from Ionic. It also has a few other essential dependencies, which are briefly described below.
-
-
-### `@angular`
-
-The Angular documentation is available on <https://angular.dev/>.
-
-At it’s root, the Angular app uses NgModules, even though all components except `pages` use the standalone API. This is because currently, another dependency, `Ionic`, doesn’t support the Angular standalone API for SSR apps.
-
-#### Updating Angular
-
-Run
-
-```bash
-ng update @angular/cli @angular/core
-```
-
-For more detailed instructions see <https://angular.dev/cli/update>.
-
-When updating to a new major version of Angular:
-
-1. See the interactive [Angular update guide][angular_update_guide].
-2. Update Angular dependencies in `package.json`/`package-lock.json` (for example via `ng update`). The Docker build installs dependencies from the lockfile using `npm ci`, so there is no separate Angular version argument in [`Dockerfile`][dockerfile] to update.
-
-
-### `@ionic`
-
-The Ionic Framework documentation is available on <https://ionicframework.com/docs/>
-
-#### Updating Ionic
-
-Run
-
-```bash
-npm install @ionic/angular @ionic/angular-server
-```
-
-
-### [`express`][npm_express]
-
-Framework for running a web server in Node.js. This library is required by Angular to enable server-side rendering.
-
-
-### [`htmlparser2`][npm_htmlparser2]
-
-SSR-compatible HTML/XML parser, used in a few places in the app to parse HTML from the backend.
-
-
-### [`ionicons`][npm_ionicons]
-
-Iconset especially intended to be used with Ionic.
-
-
-### [`marked`][npm_marked]
-
-SSR-compatible Markdown parser. Parses Markdown to HTML. Any HTML in the Markdown is passed through as it is.
-
-
-### [`marked-custom-heading-id`][npm_marked-custom-heading-id]
-
-An extension to `marked` supporting adding custom ids to headings in the [Markdown Extended Syntax](https://www.markdownguide.org/extended-syntax/#heading-ids): `# heading {#custom-id}`.
-
-
-### [`marked-footnote`][npm_marked-footnote]
-
-An extension to `marked` supporting [GFM footnotes](https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax#footnotes) in Markdown.
-
-
-### [`rxjs`][npm_rxjs]
-
-Reactive extensions library. Used internally by Angular and heavily in the app for handling Observables.
-
-
-### [`tslib`][npm_tslib]
-
-Runtime library for TypeScript containing all of the TypeScript helper functions. Required by Angular.
-
-
-### [`zone.js`][npm_zone.js]
-
-Library for execution contexts (”zones”) that persist across async tasks. Required by Angular.
-
-
-### [`browser-sync`][npm_browser-sync] (devDependency)
-
-Required by the Angular builders.
-
-
-### [`gzipper`][npm_gzipper] (devDependency)
-
-Library for compressing files. Used in `Dockerfile` in a post-build step to create compressed (gzip) versions of static files. It’s configured in the `compress` script in `package.json`.
-
-
-### [`ng-extract-i18n-merge`][npm_ng-extract-i18n-merge] (devDependency)
-
-Library for extracting and merging i18n xliff translation files for Angular projects. This library extends the default Angular CLI, and is used to sort the keys in the xliff translation files. Used when running the `extract-i18n` script in `package.json` to create the xliff translation files for the app.
-
-
-### `jasmine` and `karma`
-
-Angular testing frameworks, not in use.
 
 
 

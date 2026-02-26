@@ -31,6 +31,10 @@ import {
   RouterPreloadingStrategyService,
   ServerRouterPreloadingStrategyService
 } from '@services/router-preloading-strategy.service';
+import {
+  FacsimileImageService,
+  ServerFacsimileImageService
+} from '@services/facsimile-image.service';
 
 const authEnabled = config?.app?.auth?.enabled === true;
 
@@ -69,6 +73,10 @@ const authEnabled = config?.app?.auth?.enabled === true;
     {
       provide: RouterPreloadingStrategyService,
       useClass: ServerRouterPreloadingStrategyService
+    },
+    {
+      provide: FacsimileImageService,
+      useClass: ServerFacsimileImageService
     }
   ],
   bootstrap: [AppComponent],

@@ -315,6 +315,39 @@ With current token storage strategy (no auth cookies), SSR cannot identify authe
 - `StaticHtmlComponent` also forces prebuilt collection menus off in auth mode, even if `app.prebuild.staticCollectionMenus` is `true` or missing.
 
 
+## TODOs
+
+Use this section for cross-cutting TODOs that should stay visible outside local code comments.
+
+### Hydration migration
+
+Current status:
+
+- Client hydration is not enabled in this app right now (Ionic SSR limitation).
+- Facsimile image subtrees are explicitly marked with `ngSkipHydration` as a temporary safeguard.
+
+Current temporary markers:
+
+- [`src/app/components/collection-text-types/facsimiles/facsimiles.component.html`](../src/app/components/collection-text-types/facsimiles/facsimiles.component.html)
+- [`src/app/dialogs/modals/fullscreen-image-viewer/fullscreen-image-viewer.modal.html`](../src/app/dialogs/modals/fullscreen-image-viewer/fullscreen-image-viewer.modal.html)
+
+Related implementation notes:
+
+- [`src/app/components/collection-text-types/facsimiles/facsimiles.component.ts`](../src/app/components/collection-text-types/facsimiles/facsimiles.component.ts)
+- [`src/app/dialogs/modals/fullscreen-image-viewer/fullscreen-image-viewer.modal.ts`](../src/app/dialogs/modals/fullscreen-image-viewer/fullscreen-image-viewer.modal.ts)
+
+Why:
+
+- In auth-enabled mode, browser rendering may replace URL-based image `src` values with blob URLs after bootstrap.
+- If hydration is enabled later, this can cause SSR/client DOM differences unless initial `src` is deterministic.
+
+Exit criteria:
+
+1. Hydration is enabled in the app.
+2. Facsimile image `src` initialization is made hydration-safe (deterministic SSR/client initial value).
+3. Remove `ngSkipHydration` markers and remove/update the local TODO comments above.
+
+
 
 ## SSR smoke test (local or remote)
 

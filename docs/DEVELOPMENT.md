@@ -325,26 +325,30 @@ Current status:
 
 - Client hydration is not enabled in this app right now (Ionic SSR limitation).
 - Facsimile image subtrees are explicitly marked with `ngSkipHydration` as a temporary safeguard.
+- Media-collection thumbnails are also resolved through `FacsimileImageService`; in auth-enabled mode, browser `src` can become a blob URL after bootstrap.
 
 Current temporary markers:
 
 - [`src/app/components/collection-text-types/facsimiles/facsimiles.component.html`](../src/app/components/collection-text-types/facsimiles/facsimiles.component.html)
 - [`src/app/dialogs/modals/fullscreen-image-viewer/fullscreen-image-viewer.modal.html`](../src/app/dialogs/modals/fullscreen-image-viewer/fullscreen-image-viewer.modal.html)
+- [`src/app/pages/media-collection/media-collection.page.html`](../src/app/pages/media-collection/media-collection.page.html)
 
 Related implementation notes:
 
 - [`src/app/components/collection-text-types/facsimiles/facsimiles.component.ts`](../src/app/components/collection-text-types/facsimiles/facsimiles.component.ts)
 - [`src/app/dialogs/modals/fullscreen-image-viewer/fullscreen-image-viewer.modal.ts`](../src/app/dialogs/modals/fullscreen-image-viewer/fullscreen-image-viewer.modal.ts)
+- [`src/app/pages/media-collection/media-collection.page.ts`](../src/app/pages/media-collection/media-collection.page.ts)
 
 Why:
 
 - In auth-enabled mode, browser rendering may replace URL-based image `src` values with blob URLs after bootstrap.
 - If hydration is enabled later, this can cause SSR/client DOM differences unless initial `src` is deterministic.
+- This also applies to media-collection thumbnail images resolved via `FacsimileImageService`.
 
 Exit criteria:
 
 1. Hydration is enabled in the app.
-2. Facsimile image `src` initialization is made hydration-safe (deterministic SSR/client initial value).
+2. Facsimile and media-collection image `src` initialization is made hydration-safe (deterministic SSR/client initial value).
 3. Remove `ngSkipHydration` markers and remove/update the local TODO comments above.
 
 

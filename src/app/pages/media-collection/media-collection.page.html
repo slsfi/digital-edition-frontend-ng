@@ -151,13 +151,16 @@
 
 <ng-template #innerGridItem let-item>
   <figure>
-    @if (item.imageURLThumb) {
-      <img
-            [src]="item.imageURLThumb"
-            [alt]="item.imageAltText"
-            loading="lazy"
-      >
-    }
+    <div class="thumb-image-wrapper" ngSkipHydration>
+      @let thumbSrc = galleryThumbResolvedURLsByID[item.id];
+      @if (thumbSrc) {
+        <img
+              [attr.src]="thumbSrc"
+              [alt]="item.imageAltText"
+              loading="lazy"
+        >
+      }
+    </div>
     @if ((item.title || item.subTitle) && !namedEntityID || item.description) {
       <figcaption>
         @if ((item.title || item.subTitle) && !namedEntityID) {

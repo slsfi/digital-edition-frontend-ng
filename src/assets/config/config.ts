@@ -20,7 +20,7 @@ export const config: Config = {
     },
     enableRouterLoadingBar: true,
     auth: {
-      enabled: true
+      enabled: false
     },
     openGraphMetaTags: {
       enabled: true,

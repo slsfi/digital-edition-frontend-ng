@@ -78,6 +78,15 @@ describe('AuthService', () => {
     expect(service.isAuthenticated()).toBeTrue();
   });
 
+  it('initializes authenticatedEmail from storage when access token exists', () => {
+    tokenMap.set('access_token', 'existing-access-token');
+    tokenMap.set('auth_email', 'user@example.com');
+
+    const service = createService();
+
+    expect(service.authenticatedEmail()).toBe('user@example.com');
+  });
+
   it('sets tokens, navigates, and updates signal on successful login', () => {
     const service = createService();
 
@@ -93,7 +102,9 @@ describe('AuthService', () => {
 
     expect(tokenMap.get('access_token')).toBe('access-token-1');
     expect(tokenMap.get('refresh_token')).toBe('refresh-token-1');
+    expect(tokenMap.get('auth_email')).toBe('user@example.com');
     expect(service.isAuthenticated()).toBeTrue();
+    expect(service.authenticatedEmail()).toBe('user@example.com');
     expect(service.loginError()).toBeNull();
     expect(router.navigateByUrl).toHaveBeenCalledWith('/account');
   });
@@ -252,6 +263,7 @@ describe('AuthService', () => {
   it('clears auth state when login fails', () => {
     tokenMap.set('access_token', 'stale-access');
     tokenMap.set('refresh_token', 'stale-refresh');
+    tokenMap.set('auth_email', 'stale@example.com');
     const service = createService();
 
     service.login('user@example.com', 'wrong-password');
@@ -263,6 +275,8 @@ describe('AuthService', () => {
     expect(service.loginError()).toBe('invalid_credentials');
     expect(tokenMap.has('access_token')).toBeFalse();
     expect(tokenMap.has('refresh_token')).toBeFalse();
+    expect(tokenMap.has('auth_email')).toBeFalse();
+    expect(service.authenticatedEmail()).toBeNull();
     expect(redirectStorage.clearReturnUrl).not.toHaveBeenCalled();
   });
 
@@ -292,11 +306,14 @@ describe('AuthService', () => {
 
   it('clears stored marker return URL on logout when authenticated', () => {
     tokenMap.set('access_token', 'access-token-1');
+    tokenMap.set('auth_email', 'user@example.com');
     const service = createService();
 
     service.logout();
 
     expect(redirectStorage.clearReturnUrl).toHaveBeenCalledTimes(1);
+    expect(tokenMap.has('auth_email')).toBeFalse();
+    expect(service.authenticatedEmail()).toBeNull();
   });
 
   it('also clears stored marker return URL on logout when already unauthenticated', () => {

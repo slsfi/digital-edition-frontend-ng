@@ -1,7 +1,11 @@
 <ion-content>
   <article class="account-page">
     <h1 i18n="@@Account.Title">Användarkonto</h1>
-    <p i18n="@@Account.Description">Du är inloggad.</p>
+    @if (authenticatedEmail(); as email) {
+      <p i18n="@@Account.DescriptionWithEmail">Du är inloggad som {{ email }}.</p>
+    } @else {
+      <p i18n="@@Account.Description">Du är inloggad.</p>
+    }
     <ion-button
       type="button"
       expand="block"

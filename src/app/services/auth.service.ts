@@ -13,6 +13,7 @@ import {
 import { AuthTokenStorageService } from '@services/auth-token-storage.service';
 
 const MAX_RETURN_URL_LENGTH = 2000;
+const AUTH_EMAIL_STORAGE_KEY = 'auth_email';
 
 export type LoginErrorCode = 'invalid_credentials' | 'request_failed';
 
@@ -41,6 +42,8 @@ export class AuthService {
   readonly isAuthenticated = this._isAuthenticated.asReadonly();
   private readonly _loginError = signal<LoginErrorCode | null>(null);
   readonly loginError = this._loginError.asReadonly();
+  private readonly _authenticatedEmail = signal<string | null>(null);
+  readonly authenticatedEmail = this._authenticatedEmail.asReadonly();
 
   private backendAuthBaseURL: string = this.resolveBackendAuthBaseURL();
   private refreshTokenInProgress = false;
@@ -50,7 +53,13 @@ export class AuthService {
    * Initializes base URL formatting and initial auth state from stored token.
    */
   constructor() {
-    this._isAuthenticated.set(this.getAccessToken() !== null);
+    const accessToken = this.getAccessToken();
+    this._isAuthenticated.set(accessToken !== null);
+    if (accessToken !== null) {
+      this._authenticatedEmail.set(this.getStorageItem(AUTH_EMAIL_STORAGE_KEY));
+    } else {
+      this.removeStorageItem(AUTH_EMAIL_STORAGE_KEY);
+    }
   }
 
   /**
@@ -68,8 +77,11 @@ export class AuthService {
     this.http.post<LoginResponse>(url, body).subscribe({
       next: (response) => {
         const { access_token, refresh_token } = response;
+        const normalizedEmail = email.trim();
         this.setStorageItem('access_token', access_token);
         this.setStorageItem('refresh_token', refresh_token);
+        this.setStorageItem(AUTH_EMAIL_STORAGE_KEY, normalizedEmail);
+        this._authenticatedEmail.set(normalizedEmail);
         this.router.navigateByUrl(this.resolvePostLoginRedirectURL(redirectURL));
         this._isAuthenticated.set(true);
       },
@@ -326,7 +338,9 @@ export class AuthService {
   private clearAuthState(clearRedirectTarget: boolean): void {
     this.removeStorageItem('access_token');
     this.removeStorageItem('refresh_token');
+    this.removeStorageItem(AUTH_EMAIL_STORAGE_KEY);
     this._isAuthenticated.set(false);
+    this._authenticatedEmail.set(null);
     if (clearRedirectTarget) {
       this.redirectStorage.clearReturnUrl();
     }

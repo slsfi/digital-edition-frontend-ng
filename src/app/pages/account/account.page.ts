@@ -12,6 +12,7 @@ import { AuthService } from '@services/auth.service';
 export class AccountPage {
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
+  readonly authenticatedEmail = this.authService.authenticatedEmail;
 
   logout(): void {
     this.authService.logout();

@@ -24,6 +24,12 @@
         <target>You are logged in.</target>
       </segment>
     </unit>
+    <unit id="Account.DescriptionWithEmail">
+      <segment state="initial">
+        <source>Du är inloggad som <ph id="0" equiv="INTERPOLATION" disp="{{ email }}"/>.</source>
+        <target>You are logged in as <ph id="0" equiv="INTERPOLATION" disp="{{ email }}"/>.</target>
+      </segment>
+    </unit>
     <unit id="Account.LogoutButton">
       <segment state="initial">
         <source>Logga ut</source>

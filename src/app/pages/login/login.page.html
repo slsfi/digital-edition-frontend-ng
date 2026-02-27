@@ -3,6 +3,8 @@
     <form class="login-form" [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
       <h1 i18n="@@Login.Title">Logga in</h1>
 
+      <p class="center" i18n="@@Login.AccountRequiredForUse">För att komma åt innehållet i den digitala utgåvan behöver du ett användarkonto.</p>
+
       <ion-input
         formControlName="email"
         type="email"
@@ -28,9 +30,7 @@
       >
         <ion-input-password-toggle slot="end"></ion-input-password-toggle>
       </ion-input>
-      <div class="forgot-password">
-        <a href="/" i18n="@@Login.ForgotPassword">Glömt lösenordet?</a>
-      </div>
+      <p class="forgot-password"><a href="/" i18n="@@Login.ForgotPassword">Glömt lösenordet?</a></p>
       @if (loginError() === 'invalid_credentials') {
         <p class="form-error auth-error" i18n="@@Login.InvalidCredentials">Fel e-postadress eller lösenord.</p>
       }
@@ -49,9 +49,7 @@
       <div class="authentication-divider">
         <span i18n="@@Login.OrDivider">eller</span>
       </div>
-      <div class="alt-actions">
-        <a href="/" i18n="@@Login.CreateAccount">Skapa ett användarkonto</a>
-      </div>
+      <p class="center no-margins"><a href="/" i18n="@@Login.CreateAccount">Skapa ett användarkonto</a></p>
     </form>
   </article>
   @if (showTermsLink || showPrivacyPolicyLink) {

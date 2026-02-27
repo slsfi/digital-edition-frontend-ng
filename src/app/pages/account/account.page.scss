@@ -1,14 +1,17 @@
 .account-page {
   width: min(100%, 28rem);
-  margin: 3rem auto 0;
+  margin: 3.5rem auto 0;
   display: grid;
-  gap: 1rem;
+  gap: 0.9rem;
+}
 
-  h1,
-  p {
-    margin: 0;
-    text-align: center;
-  }
+h1 {
+  margin: 0 0 0.25rem;
+  text-align: center;
+}
+
+p {
+  text-align: center;
 }
 
 .account-page > :not(h1) {

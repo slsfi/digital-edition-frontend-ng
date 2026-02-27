@@ -27,6 +27,10 @@ h1 {
   text-align: center;
 }
 
+.center {
+  text-align: center;
+}
+
 .form-error {
   margin: -0.35rem 0 0.2rem;
   color: #a10606;
@@ -39,7 +43,7 @@ h1 {
 }
 
 .forgot-password {
-  margin-top: -0.35rem;
+  margin: -0.35rem 0 0 0;
   text-align: right;
 }
 
@@ -73,11 +77,8 @@ ion-input.input-fill-outline {
   }
 }
 
-.alt-actions {
-  a {
-    display: block;
-    text-align: center;
-  }
+.no-margins {
+  margin: 0;
 }
 
 .legal-consent-footer {

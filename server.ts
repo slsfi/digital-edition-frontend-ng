@@ -7,15 +7,18 @@ import { LOCALE_ID } from '@angular/core';
 import { APP_BASE_HREF } from '@angular/common';
 import { CommonEngine } from '@angular/ssr/node';
 import express from 'express';
-import { existsSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 import AppServerModule from './src/main.server';
 import { environment } from './src/environments/environment';
 import { REQUEST } from './src/express.tokens';
 import { config } from './src/assets/config/config';
+import { authProtectedRoutePaths } from './src/app/auth-protected-route-paths.generated';
 
 const LOOPBACK_ALLOWED_HOSTS = ['localhost', '127.0.0.1', '[::1]'] as const;
+const authEnabled = config?.app?.auth?.enabled === true;
+const authProtectedRouteSegmentPatterns = authProtectedRoutePaths.map((routePath) => toRouteSegments(routePath));
 
 /**
  * Resolves a hostname from `config.app.siteURLOrigin` for SSR host validation.
@@ -47,6 +50,46 @@ function getAllowedHosts(): string[] {
   return [...allowedHosts];
 }
 
+function toRouteSegments(routePath: string): string[] {
+  return routePath.split('/').filter(Boolean);
+}
+
+function isAuthProtectedRequestPath(pathname: string): boolean {
+  const requestSegments = pathname.split('/').filter(Boolean);
+  return authProtectedRouteSegmentPatterns.some((routeSegments) =>
+    routePatternMatchesPath(routeSegments, requestSegments)
+  );
+}
+
+function routePatternMatchesPath(routeSegments: string[], pathSegments: string[]): boolean {
+  if (!routeSegments.length) {
+    return true;
+  }
+
+  for (let i = 0; i < routeSegments.length; i++) {
+    const routeSegment = routeSegments[i];
+    const requestSegment = pathSegments[i];
+
+    if (routeSegment === '**') {
+      return true;
+    }
+
+    if (requestSegment === undefined) {
+      return false;
+    }
+
+    if (routeSegment.startsWith(':')) {
+      continue;
+    }
+
+    if (routeSegment !== requestSegment) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
 // The Express app is exported so that it can be used by serverless Functions.
 export function app(lang: string): express.Express {
   const server = express();
@@ -55,6 +98,7 @@ export function app(lang: string): express.Express {
   const indexHtml = existsSync(join(browserDistFolder, 'index.original.html'))
     ? join(browserDistFolder, 'index.original.html')
     : join(browserDistFolder, 'index.html');
+  const clientRenderIndexHtml = readFileSync(indexHtml, 'utf-8');
 
   const allowedHosts = getAllowedHosts();
   const commonEngine = new CommonEngine({
@@ -124,6 +168,12 @@ export function app(lang: string): express.Express {
 
     // Set Vary: User-Agent header for dynamically rendered pages
     res.setHeader('Vary', 'User-Agent');
+
+    if (authEnabled && isAuthProtectedRequestPath(req.path)) {
+      // Auth-protected routes are intentionally client-rendered to avoid SSR auth state mismatch.
+      res.status(200).type('html').send(clientRenderIndexHtml);
+      return;
+    }
 
     // * Inlining critical CSS is disabled here and in angular.json:
     // * architect.build.configurations.production.optimization.styles.inlineCritical

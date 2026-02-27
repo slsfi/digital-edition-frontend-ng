@@ -237,6 +237,7 @@ The app can generate routes at build time based on values in [`src/assets/config
 
 - Canonical routes source (edited by developers): [`src/app/app.routes.ts`](../src/app/app.routes.ts)
 - Generated file: [`src/app/app.routes.generated.ts`](../src/app/app.routes.generated.ts)
+- Generated auth-guarded route paths: [`src/app/auth-protected-route-paths.generated.ts`](../src/app/auth-protected-route-paths.generated.ts)
 - Generator script: [`prebuild-generate-routes.js`](../prebuild-generate-routes.js)
 - npm command: `npm run generate-routes`
 
@@ -301,7 +302,9 @@ In feature-based route mode, the `login` route is included only when `app.auth.e
 
 ### SSR note
 
-With current token storage strategy (no auth cookies), SSR cannot identify authenticated browser users on initial request. This means hard refresh on protected routes can SSR-render login/redirect-first behavior, then client-side state can take over after bootstrap.
+With current token storage strategy (no auth cookies), SSR cannot identify authenticated browser users on initial request.
+
+To avoid SSR/client mismatches on auth-guarded routes, the Express SSR server serves the client-rendered index HTML (CSR shell) for route paths generated in [`src/app/auth-protected-route-paths.generated.ts`](../src/app/auth-protected-route-paths.generated.ts) when `app.auth.enabled` is `true`. Non-protected routes continue to use SSR.
 
 ### Sitemap behavior in auth mode
 
@@ -318,6 +321,18 @@ With current token storage strategy (no auth cookies), SSR cannot identify authe
 ## TODOs
 
 Use this section for cross-cutting TODOs that should stay visible outside local code comments.
+
+### SSR route mode migration
+
+Current status:
+
+- Auth-protected routes are currently forced to client rendering in Express middleware in [`server.ts`](../server.ts), based on generated route-path metadata from [`src/app/auth-protected-route-paths.generated.ts`](../src/app/auth-protected-route-paths.generated.ts).
+- This is an implementation workaround for the current webpack-based SSR build setup.
+
+When migrating to Angular's `application` builder (`@angular-devkit/build-angular:application`):
+
+- Investigate replacing the current middleware-based implementation with Angular server-routes configuration (`withRoutes` / `RenderMode.Client`) for auth-protected routes.
+- Validate compatibility with feature-based route generation before removing the current workaround.
 
 ### Hydration migration
 

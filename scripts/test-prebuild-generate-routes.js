@@ -4,7 +4,9 @@ const path = require('path');
 const {
   extractRouteBlocks,
   extractRoutesArrayBody,
+  extractAuthProtectedRoutePaths,
   getRoutePath,
+  isAuthProtectedRouteBlock,
   stripCommentsPreserveLiterals
 } = require('../prebuild-generate-routes');
 
@@ -94,6 +96,32 @@ test('getRoutePath supports single, double and template literal paths', () => {
   assert.strictEqual(getRoutePath(`{ path: \`template\` }`), 'template');
   assert.strictEqual(getRoutePath(`{ path: '' }`), '');
   assert.strictEqual(getRoutePath(`{ redirectTo: '' }`), null);
+});
+
+test('isAuthProtectedRouteBlock detects authGuard in canActivate array', () => {
+  assert.strictEqual(
+    isAuthProtectedRouteBlock(`{ path: 'account', canActivate: [authGuard] }`),
+    true
+  );
+  assert.strictEqual(
+    isAuthProtectedRouteBlock(`{ path: 'account', canActivate: [authGuard, otherGuard] }`),
+    true
+  );
+  assert.strictEqual(
+    isAuthProtectedRouteBlock(`{ path: 'about', canActivate: [otherGuard] }`),
+    false
+  );
+});
+
+test('extractAuthProtectedRoutePaths returns unique guarded paths', () => {
+  const blocks = [
+    `{ path: 'account', canActivate: [authGuard] }`,
+    `{ path: 'search', canActivate: [authGuard, anotherGuard] }`,
+    `{ path: 'about' }`,
+    `{ path: 'account', canActivate: [authGuard] }`
+  ];
+  const paths = extractAuthProtectedRoutePaths(blocks);
+  assert.deepStrictEqual(paths, ['account', 'search']);
 });
 
 test('stripCommentsPreserveLiterals keeps string literals and length stable', () => {

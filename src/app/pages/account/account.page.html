@@ -2,7 +2,7 @@
   <article class="account-page">
     <h1 i18n="@@Account.Title">Användarkonto</h1>
     @if (authenticatedEmail(); as email) {
-      <p i18n="@@Account.DescriptionWithEmail">Du är inloggad som {{ email }}.</p>
+      <p><ng-container i18n="@@Account.DescriptionWithEmail">Du är inloggad med e-postadressen</ng-container><br> {{ email }}</p>
     } @else {
       <p i18n="@@Account.Description">Du är inloggad.</p>
     }

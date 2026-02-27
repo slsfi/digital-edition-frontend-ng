@@ -796,6 +796,11 @@
         <source>Inga teckenförklaringar tillgängliga.</source>
       </segment>
     </unit>
+    <unit id="Login.AccountNeededForAccess">
+      <segment>
+        <source>För att komma åt innehållet i den digitala utgåvan behöver du ett användarkonto.</source>
+      </segment>
+    </unit>
     <unit id="Login.ConsentPrivacyOnly">
       <segment>
         <source> Genom att logga in godkänner du <pc id="0" equivStart="START_LINK" equivEnd="CLOSE_LINK" type="link" dispStart="&lt;a [routerLink]=&quot;[&apos;/privacy-policy&apos;]&quot;&gt;" dispEnd="&lt;/a&gt;">dataskyddsbeskrivningen</pc>. </source>

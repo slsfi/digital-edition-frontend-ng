@@ -32,10 +32,10 @@
       </ion-input>
       <p class="forgot-password"><a href="/" i18n="@@Login.ForgotPassword">Glömt lösenordet?</a></p>
       @if (loginError() === 'invalid_credentials') {
-        <p class="form-error auth-error" i18n="@@Login.InvalidCredentials">Fel e-postadress eller lösenord.</p>
+        <p class="auth-error center" i18n="@@Login.InvalidCredentials">Fel e-postadress eller lösenord.</p>
       }
       @if (loginError() === 'request_failed') {
-        <p class="form-error auth-error" i18n="@@Login.RequestFailed">Inloggningen misslyckades. Försök igen senare.</p>
+        <p class="auth-error center" i18n="@@Login.RequestFailed">Inloggningen misslyckades. Försök igen senare.</p>
       }
 
       <ion-button

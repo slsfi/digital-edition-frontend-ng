@@ -195,11 +195,11 @@ export class AuthService {
    * Resolves auth base URL from config.
    *
    * Priority:
-   * 1) app.backendAuthBaseURL
+   * 1) app.auth.backendAuthBaseURL
    * 2) root origin extracted from app.backendBaseURL
    */
   private resolveBackendAuthBaseURL(): string {
-    const backendAuthBaseURL = config?.app?.backendAuthBaseURL;
+    const backendAuthBaseURL = config?.app?.auth?.backendAuthBaseURL;
     if (backendAuthBaseURL) {
       return backendAuthBaseURL.endsWith('/') ? backendAuthBaseURL : `${backendAuthBaseURL}/`;
     }

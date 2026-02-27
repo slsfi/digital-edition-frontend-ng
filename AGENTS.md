@@ -1,5 +1,9 @@
 # Repository Guidelines
 
+This repository contains the base frontend for SLS digital editions: an Angular 20.3 web app with server-side rendering (SSR).  
+It is intended to be forked per edition/project, with most behavior controlled through configuration (primarily [`src/assets/config/config.ts`](src/assets/config/config.ts)).  
+When contributing, prefer reusable, config-driven changes over project-specific hardcoding.
+
 ## Project Structure & Module Organization
 - `src/app/` contains application code:
   - `components/` reusable UI components (standalone by default).

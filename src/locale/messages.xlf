@@ -16,6 +16,26 @@
         <source>Sidans innehåll kunde inte laddas.</source>
       </segment>
     </unit>
+    <unit id="Account.Description">
+      <segment>
+        <source>Du är inloggad.</source>
+      </segment>
+    </unit>
+    <unit id="Account.DescriptionWithEmail">
+      <segment>
+        <source>Du är inloggad med e-postadressen</source>
+      </segment>
+    </unit>
+    <unit id="Account.LogoutButton">
+      <segment>
+        <source>Logga ut</source>
+      </segment>
+    </unit>
+    <unit id="Account.Title">
+      <segment>
+        <source>Användarkonto</source>
+      </segment>
+    </unit>
     <unit id="Article.Contents">
       <segment>
         <source>Innehåll</source>
@@ -776,9 +796,79 @@
         <source>Inga teckenförklaringar tillgängliga.</source>
       </segment>
     </unit>
+    <unit id="Login.AccountNeededForAccess">
+      <segment>
+        <source>För att komma åt innehållet i den digitala utgåvan behöver du ett användarkonto.</source>
+      </segment>
+    </unit>
+    <unit id="Login.ConsentPrivacyOnly">
+      <segment>
+        <source> Genom att logga in godkänner du <pc id="0" equivStart="START_LINK" equivEnd="CLOSE_LINK" type="link" dispStart="&lt;a [routerLink]=&quot;[&apos;/privacy-policy&apos;]&quot;&gt;" dispEnd="&lt;/a&gt;">dataskyddsbeskrivningen</pc>. </source>
+      </segment>
+    </unit>
+    <unit id="Login.ConsentTermsAndPrivacy">
+      <segment>
+        <source> Genom att logga in godkänner du <pc id="0" equivStart="START_LINK" equivEnd="CLOSE_LINK" type="link" dispStart="&lt;a [routerLink]=&quot;[&apos;/terms&apos;]&quot;&gt;" dispEnd="&lt;/a&gt;">användarvillkoren</pc> och <pc id="1" equivStart="START_LINK_1" equivEnd="CLOSE_LINK" type="link" dispStart="&lt;a [routerLink]=&quot;[&apos;/privacy-policy&apos;]&quot;&gt;" dispEnd="&lt;/a&gt;">dataskyddsbeskrivningen</pc>. </source>
+      </segment>
+    </unit>
+    <unit id="Login.ConsentTermsOnly">
+      <segment>
+        <source> Genom att logga in godkänner du <pc id="0" equivStart="START_LINK" equivEnd="CLOSE_LINK" type="link" dispStart="&lt;a [routerLink]=&quot;[&apos;/terms&apos;]&quot;&gt;" dispEnd="&lt;/a&gt;">användarvillkoren</pc>. </source>
+      </segment>
+    </unit>
+    <unit id="Login.CreateAccount">
+      <segment>
+        <source>Skapa ett användarkonto</source>
+      </segment>
+    </unit>
+    <unit id="Login.EmailLabel">
+      <segment>
+        <source>E-postadress</source>
+      </segment>
+    </unit>
+    <unit id="Login.ForgotPassword">
+      <segment>
+        <source>Glömt lösenordet?</source>
+      </segment>
+    </unit>
+    <unit id="Login.InvalidCredentials">
+      <segment>
+        <source>Fel e-postadress eller lösenord.</source>
+      </segment>
+    </unit>
+    <unit id="Login.OrDivider">
+      <segment>
+        <source>eller</source>
+      </segment>
+    </unit>
+    <unit id="Login.PasswordLabel">
+      <segment>
+        <source>Lösenord</source>
+      </segment>
+    </unit>
+    <unit id="Login.RequestFailed">
+      <segment>
+        <source>Inloggningen misslyckades. Försök igen senare.</source>
+      </segment>
+    </unit>
+    <unit id="Login.SubmitButton">
+      <segment>
+        <source>Logga in</source>
+      </segment>
+    </unit>
+    <unit id="Login.Title">
+      <segment>
+        <source>Logga in</source>
+      </segment>
+    </unit>
     <unit id="MainSideMenu.AccessibilityStatement">
       <segment>
         <source>Tillgänglighetsutlåtande</source>
+      </segment>
+    </unit>
+    <unit id="MainSideMenu.Account">
+      <segment>
+        <source>Användarkonto</source>
       </segment>
     </unit>
     <unit id="MainSideMenu.AriaLabel">
@@ -844,6 +934,11 @@
     <unit id="MainSideMenu.IndexWorks">
       <segment>
         <source>Verkregister</source>
+      </segment>
+    </unit>
+    <unit id="MainSideMenu.Login">
+      <segment>
+        <source>Logga in</source>
       </segment>
     </unit>
     <unit id="MainSideMenu.MediaCollections">

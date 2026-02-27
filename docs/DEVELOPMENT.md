@@ -88,75 +88,6 @@ When updating which Node.js image is used for the build, remember to update both
 
 
 
-## Router preloading strategy
-
-The app uses a platform-specific router preloading strategy:
-
-- **Browser**: lazy routes are preloaded by default on good networks (when idle), unless route data overrides this behavior.
-- **Server (SSR)**: no route preloading (`NoPreloading`).
-
-Implementation files:
-
-- [`src/app/services/router-preloading-strategy.service.ts`](../src/app/services/router-preloading-strategy.service.ts)
-- [`src/app/app-routing.module.ts`](../src/app/app-routing.module.ts)
-- [`src/app/app.routes.ts`](../src/app/app.routes.ts)
-- [`src/app/app.routes.generated.ts`](../src/app/app.routes.generated.ts)
-- [`src/app/app.module.ts`](../src/app/app.module.ts)
-- [`src/app/app.server.module.ts`](../src/app/app.server.module.ts)
-
-Route-level preload behavior is set with route `data.preload` in `app.routes.ts`:
-
-- `'eager'`: preload as soon as router preloading runs.
-- `'idle'`: preload when browser is idle.
-- `'idle-if-fast'`: preload when browser is idle and network is considered good.
-- missing: defaults to `'idle-if-fast'`.
-- `'off'`: no preloading.
-
-`'idle-if-fast'` currently means:
-
-- do **not** preload if `navigator.connection.saveData === true`
-- do **not** preload if `navigator.connection.effectiveType` is `slow-2g`, `2g`, or `3g`
-- if `navigator.connection` is unavailable, preload is allowed
-
-Current route policy:
-
-- default for lazy routes: `idle-if-fast`
-- optional per-route overrides: `eager`, `idle`, or `off`
-
-
-
-## Feature-based route generation
-
-The app can generate routes at build time based on values in [`src/assets/config/config.ts`](../src/assets/config/config.ts).
-
-- Canonical routes source (edited by developers): [`src/app/app.routes.ts`](../src/app/app.routes.ts)
-- Generated file: [`src/app/app.routes.generated.ts`](../src/app/app.routes.generated.ts)
-- Generator script: [`prebuild-generate-routes.js`](../prebuild-generate-routes.js)
-- npm command: `npm run generate-routes`
-
-Feature toggle in config:
-
-- `app.prebuild.featureBasedRoutes` (default: `false`)
-- when `false`, the generated routes include all default lazy routes
-- when `true`, the generated routes include only feature-enabled lazy routes
-- filtering is path-based in `prebuild-generate-routes.js`; any new route not listed in the filter map remains included by default
-
-Build behavior:
-
-- development builds/serve use `src/app/app.routes.ts` directly (all routes enabled)
-- production builds replace `src/app/app.routes.ts` with `src/app/app.routes.generated.ts` using Angular `fileReplacements`
-- `build:ssr` runs `generate-routes` explicitly before the production build
-
-If you run production Angular CLI commands directly, run `npm run generate-routes` first.
-
-Parser smoke tests:
-
-- Test script: [`scripts/test-prebuild-generate-routes.js`](../scripts/test-prebuild-generate-routes.js)
-- npm command: `npm run test:routes-parser`
-- run these tests after changes to `prebuild-generate-routes.js` and after route syntax refactors in `src/app/app.routes.ts`
-
-
-
 ## Dependencies
 
 The app is built on Angular and uses many web components from Ionic. It also has a few other essential dependencies, which are briefly described below.
@@ -260,6 +191,165 @@ Library for extracting and merging i18n xliff translation files for Angular proj
 ### `jasmine` and `karma`
 
 Angular testing frameworks, not in use.
+
+
+
+## Router preloading strategy
+
+The app uses a platform-specific router preloading strategy:
+
+- **Browser**: lazy routes are preloaded by default on good networks (when idle), unless route data overrides this behavior.
+- **Server (SSR)**: no route preloading (`NoPreloading`).
+
+Implementation files:
+
+- [`src/app/services/router-preloading-strategy.service.ts`](../src/app/services/router-preloading-strategy.service.ts)
+- [`src/app/app-routing.module.ts`](../src/app/app-routing.module.ts)
+- [`src/app/app.routes.ts`](../src/app/app.routes.ts)
+- [`src/app/app.routes.generated.ts`](../src/app/app.routes.generated.ts)
+- [`src/app/app.module.ts`](../src/app/app.module.ts)
+- [`src/app/app.server.module.ts`](../src/app/app.server.module.ts)
+
+Route-level preload behavior is set with route `data.preload` in `app.routes.ts`:
+
+- `'eager'`: preload as soon as router preloading runs.
+- `'idle'`: preload when browser is idle.
+- `'idle-if-fast'`: preload when browser is idle and network is considered good.
+- missing: defaults to `'idle-if-fast'`.
+- `'off'`: no preloading.
+
+`'idle-if-fast'` currently means:
+
+- do **not** preload if `navigator.connection.saveData === true`
+- do **not** preload if `navigator.connection.effectiveType` is `slow-2g`, `2g`, or `3g`
+- if `navigator.connection` is unavailable, preload is allowed
+
+Current route policy:
+
+- default for lazy routes: `idle-if-fast`
+- optional per-route overrides: `eager`, `idle`, or `off`
+
+
+
+## Feature-based route generation
+
+The app can generate routes at build time based on values in [`src/assets/config/config.ts`](../src/assets/config/config.ts).
+
+- Canonical routes source (edited by developers): [`src/app/app.routes.ts`](../src/app/app.routes.ts)
+- Generated file: [`src/app/app.routes.generated.ts`](../src/app/app.routes.generated.ts)
+- Generator script: [`prebuild-generate-routes.js`](../prebuild-generate-routes.js)
+- npm command: `npm run generate-routes`
+
+Feature toggle in config:
+
+- `app.prebuild.featureBasedRoutes` (default: `false`)
+- when `false`, the generated routes include all default lazy routes
+- when `true`, the generated routes include only feature-enabled lazy routes
+- filtering is path-based in `prebuild-generate-routes.js`; any new route not listed in the filter map remains included by default
+
+Build behavior:
+
+- development builds/serve use `src/app/app.routes.ts` directly (all routes enabled)
+- production builds replace `src/app/app.routes.ts` with `src/app/app.routes.generated.ts` using Angular `fileReplacements`
+- `build:ssr` runs `generate-routes` explicitly before the production build
+
+If you run production Angular CLI commands directly, run `npm run generate-routes` first.
+
+Parser smoke tests:
+
+- Test script: [`scripts/test-prebuild-generate-routes.js`](../scripts/test-prebuild-generate-routes.js)
+- npm command: `npm run test:routes-parser`
+- run these tests after changes to `prebuild-generate-routes.js` and after route syntax refactors in `src/app/app.routes.ts`
+
+
+
+## Authentication-guarded routing and token-based authentication flow
+
+Authentication support is optional and controlled by config. This is intended so the base app can stay auth-disabled by default, while selected forks can enable auth.
+
+### Enable in a fork
+
+1. Set `app.auth.enabled` to `true` in [`src/assets/config/config.ts`](../src/assets/config/config.ts).
+2. Configure auth API base URL by setting `app.auth.backendAuthBaseURL`.
+3. If `app.auth.backendAuthBaseURL` is missing, auth service falls back to the origin of `app.backendBaseURL` (for example `https://api.example.org/digitaledition` becomes `https://api.example.org/`).
+4. Ensure backend exposes auth endpoints expected by frontend: `POST <backendAuthBaseURL>/auth/login` and `POST <backendAuthBaseURL>/auth/refresh`.
+5. Protect routes by adding `canActivate: [authGuard]` in [`src/app/app.routes.ts`](../src/app/app.routes.ts) for the pages that require authentication.
+6. Keep login route enabled with `canMatch: [authFeatureEnabledMatchGuard]` so `/login` is only matchable when auth feature is enabled.
+7. If using production build with feature-based routes, run `npm run generate-routes` after route/config changes (or use `npm run build:ssr`, which runs it automatically).
+In feature-based route mode, the `login` route is included only when `app.auth.enabled` is `true`.
+
+### Behavior when disabled
+
+- `AUTH_ENABLED` resolves to `false` from config.
+- Auth guard is effectively a no-op.
+- Auth interceptor is not registered in browser/server modules.
+- `/login` is not matchable because `authFeatureEnabledMatchGuard` returns `false`.
+
+### Redirect behavior and privacy hardening
+
+- Unauthenticated access to protected routes redirects to `/login?rt=1`.
+- Intended target URL is stored in session-scoped redirect storage (browser `sessionStorage`) and consumed once after successful login.
+- If marker storage is unavailable (for example SSR), fallback uses legacy `returnUrl` query param.
+- Redirect target validation requires all of the following: starts with `/`, does not start with `//`, does not target `/login`, is parseable by Angular router, and is at most 2000 characters.
+
+### Interceptor and refresh hardening
+
+- Bearer token is attached only to requests targeting configured backend URLs (`backendBaseURL` / `backendAuthBaseURL`).
+- Bearer token is never attached to `/auth/*` endpoints.
+- Refresh attempt is only made for backend 401 responses outside `/auth/*`.
+- `AuthService.refreshToken()` has defense-in-depth: if refresh token is missing, it fails fast, logs out, and skips network request.
+
+### SSR note
+
+With current token storage strategy (no auth cookies), SSR cannot identify authenticated browser users on initial request. This means hard refresh on protected routes can SSR-render login/redirect-first behavior, then client-side state can take over after bootstrap.
+
+### Sitemap behavior in auth mode
+
+- `/login` and `/account` are excluded from sitemap generation.
+- When `app.auth.enabled` is `true`, auth-protected routes are excluded from sitemap generation.
+- In current route setup this means collection routes and media-collection routes are excluded from `sitemap.txt` in auth mode.
+
+### Static collection menus in auth mode
+
+- When `app.auth.enabled` is `true`, `prebuild-generate-static-collection-menus.js` skips generating static collection TOC HTML fragments.
+- `StaticHtmlComponent` also forces prebuilt collection menus off in auth mode, even if `app.prebuild.staticCollectionMenus` is `true` or missing.
+
+
+## TODOs
+
+Use this section for cross-cutting TODOs that should stay visible outside local code comments.
+
+### Hydration migration
+
+Current status:
+
+- Client hydration is not enabled in this app right now (Ionic SSR limitation).
+- Facsimile image subtrees are explicitly marked with `ngSkipHydration` as a temporary safeguard.
+- Media-collection thumbnails are also resolved through `FacsimileImageService`; in auth-enabled mode, browser `src` can become a blob URL after bootstrap.
+
+Current temporary markers:
+
+- [`src/app/components/collection-text-types/facsimiles/facsimiles.component.html`](../src/app/components/collection-text-types/facsimiles/facsimiles.component.html)
+- [`src/app/dialogs/modals/fullscreen-image-viewer/fullscreen-image-viewer.modal.html`](../src/app/dialogs/modals/fullscreen-image-viewer/fullscreen-image-viewer.modal.html)
+- [`src/app/pages/media-collection/media-collection.page.html`](../src/app/pages/media-collection/media-collection.page.html)
+
+Related implementation notes:
+
+- [`src/app/components/collection-text-types/facsimiles/facsimiles.component.ts`](../src/app/components/collection-text-types/facsimiles/facsimiles.component.ts)
+- [`src/app/dialogs/modals/fullscreen-image-viewer/fullscreen-image-viewer.modal.ts`](../src/app/dialogs/modals/fullscreen-image-viewer/fullscreen-image-viewer.modal.ts)
+- [`src/app/pages/media-collection/media-collection.page.ts`](../src/app/pages/media-collection/media-collection.page.ts)
+
+Why:
+
+- In auth-enabled mode, browser rendering may replace URL-based image `src` values with blob URLs after bootstrap.
+- If hydration is enabled later, this can cause SSR/client DOM differences unless initial `src` is deterministic.
+- This also applies to media-collection thumbnail images resolved via `FacsimileImageService`.
+
+Exit criteria:
+
+1. Hydration is enabled in the app.
+2. Facsimile and media-collection image `src` initialization is made hydration-safe (deterministic SSR/client initial value).
+3. Remove `ngSkipHydration` markers and remove/update the local TODO comments above.
 
 
 

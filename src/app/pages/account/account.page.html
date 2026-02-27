@@ -1,0 +1,17 @@
+<ion-content>
+  <article class="account-page">
+    <h1 i18n="@@Account.Title">Användarkonto</h1>
+    @if (authenticatedEmail(); as email) {
+      <p><ng-container i18n="@@Account.DescriptionWithEmail">Du är inloggad med e-postadressen</ng-container><br> {{ email }}</p>
+    } @else {
+      <p i18n="@@Account.Description">Du är inloggad.</p>
+    }
+    <ion-button
+      type="button"
+      expand="block"
+      class="custom-button"
+      (click)="logout()"
+      i18n="@@Account.LogoutButton"
+    >Logga ut</ion-button>
+  </article>
+</ion-content>

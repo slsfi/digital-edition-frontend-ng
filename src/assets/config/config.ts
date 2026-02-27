@@ -18,6 +18,10 @@ export const config: Config = {
       multilingualNamedEntityData: false
     },
     enableRouterLoadingBar: true,
+    auth: {
+      enabled: false,
+      backendAuthBaseURL: "https://api.sls.fi/"
+    },
     openGraphMetaTags: {
       enabled: true,
       image: {

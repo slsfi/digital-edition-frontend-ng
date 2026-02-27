@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+### Added
+
+- Optional authentication-guarded routing and token-based authentication flow. Auth-guarded routing is disabled by default and can be enabled by setting `app.auth.enabled` to `true` in the config. Auth API base URL can be set with `app.auth.backendAuthBaseURL` – if missing, auth service falls back to the origin of `app.backendBaseURL`. For details about this feature, see the [development notes](docs/DEVELOPMENT.md).
+
 
 
 ## [2.5.1] – 2026-02-27

@@ -18,6 +18,30 @@
         <target>Sivun sisällön lataus epäonnistui.</target>
       </segment>
     </unit>
+    <unit id="Account.Description">
+      <segment state="initial">
+        <source>Du är inloggad.</source>
+        <target>Olet kirjautunut.</target>
+      </segment>
+    </unit>
+    <unit id="Account.DescriptionWithEmail">
+      <segment state="initial">
+        <source>Du är inloggad med e-postadressen</source>
+        <target>Olet kirjautuneena sähköpostiosoitteella</target>
+      </segment>
+    </unit>
+    <unit id="Account.LogoutButton">
+      <segment state="initial">
+        <source>Logga ut</source>
+        <target>Kirjaudu ulos</target>
+      </segment>
+    </unit>
+    <unit id="Account.Title">
+      <segment state="initial">
+        <source>Användarkonto</source>
+        <target>Käyttäjätili</target>
+      </segment>
+    </unit>
     <unit id="Article.Contents">
       <segment state="initial">
         <source>Innehåll</source>
@@ -930,10 +954,94 @@
         <target>Lukuohjetta ei ole saatavilla.</target>
       </segment>
     </unit>
+    <unit id="Login.AccountNeededForAccess">
+      <segment state="initial">
+        <source>För att komma åt innehållet i den digitala utgåvan behöver du ett användarkonto.</source>
+        <target>Digitaalisen edition sisällön käyttämiseen tarvitset käyttäjätilin.</target>
+      </segment>
+    </unit>
+    <unit id="Login.ConsentPrivacyOnly">
+      <segment state="initial">
+        <source> Genom att logga in godkänner du <pc id="0" equivStart="START_LINK" equivEnd="CLOSE_LINK" type="link" dispStart="&lt;a [routerLink]=&quot;[&apos;/privacy-policy&apos;]&quot;&gt;" dispEnd="&lt;/a&gt;">dataskyddsbeskrivningen</pc>. </source>
+        <target> Kirjautumalla hyväksyt <pc id="0" equivStart="START_LINK" equivEnd="CLOSE_LINK" type="link" dispStart="&lt;a [routerLink]=&quot;[&apos;/privacy-policy&apos;]&quot;&gt;" dispEnd="&lt;/a&gt;">tietosuojakäytännön</pc>. </target>
+      </segment>
+    </unit>
+    <unit id="Login.ConsentTermsAndPrivacy">
+      <segment state="initial">
+        <source> Genom att logga in godkänner du <pc id="0" equivStart="START_LINK" equivEnd="CLOSE_LINK" type="link" dispStart="&lt;a [routerLink]=&quot;[&apos;/terms&apos;]&quot;&gt;" dispEnd="&lt;/a&gt;">användarvillkoren</pc> och <pc id="1" equivStart="START_LINK_1" equivEnd="CLOSE_LINK" type="link" dispStart="&lt;a [routerLink]=&quot;[&apos;/privacy-policy&apos;]&quot;&gt;" dispEnd="&lt;/a&gt;">dataskyddsbeskrivningen</pc>. </source>
+        <target> Kirjautumalla hyväksyt <pc id="0" equivStart="START_LINK" equivEnd="CLOSE_LINK" type="link" dispStart="&lt;a [routerLink]=&quot;[&apos;/terms&apos;]&quot;&gt;" dispEnd="&lt;/a&gt;">käyttöehdot</pc> ja <pc id="1" equivStart="START_LINK_1" equivEnd="CLOSE_LINK" type="link" dispStart="&lt;a [routerLink]=&quot;[&apos;/privacy-policy&apos;]&quot;&gt;" dispEnd="&lt;/a&gt;">tietosuojakäytännön</pc>. </target>
+      </segment>
+    </unit>
+    <unit id="Login.ConsentTermsOnly">
+      <segment state="initial">
+        <source> Genom att logga in godkänner du <pc id="0" equivStart="START_LINK" equivEnd="CLOSE_LINK" type="link" dispStart="&lt;a [routerLink]=&quot;[&apos;/terms&apos;]&quot;&gt;" dispEnd="&lt;/a&gt;">användarvillkoren</pc>. </source>
+        <target> Kirjautumalla hyväksyt <pc id="0" equivStart="START_LINK" equivEnd="CLOSE_LINK" type="link" dispStart="&lt;a [routerLink]=&quot;[&apos;/terms&apos;]&quot;&gt;" dispEnd="&lt;/a&gt;">käyttöehdot</pc>. </target>
+      </segment>
+    </unit>
+    <unit id="Login.CreateAccount">
+      <segment state="initial">
+        <source>Skapa ett användarkonto</source>
+        <target>Luo käyttäjätili</target>
+      </segment>
+    </unit>
+    <unit id="Login.EmailLabel">
+      <segment state="initial">
+        <source>E-postadress</source>
+        <target>Sähköpostiosoite</target>
+      </segment>
+    </unit>
+    <unit id="Login.ForgotPassword">
+      <segment state="initial">
+        <source>Glömt lösenordet?</source>
+        <target>Unohditko salasanasi?</target>
+      </segment>
+    </unit>
+    <unit id="Login.InvalidCredentials">
+      <segment state="initial">
+        <source>Fel e-postadress eller lösenord.</source>
+        <target>Virheellinen sähköpostiosoite tai salasana.</target>
+      </segment>
+    </unit>
+    <unit id="Login.OrDivider">
+      <segment state="initial">
+        <source>eller</source>
+        <target>tai</target>
+      </segment>
+    </unit>
+    <unit id="Login.PasswordLabel">
+      <segment state="initial">
+        <source>Lösenord</source>
+        <target>Salasana</target>
+      </segment>
+    </unit>
+    <unit id="Login.RequestFailed">
+      <segment state="initial">
+        <source>Inloggningen misslyckades. Försök igen senare.</source>
+        <target>Kirjautuminen epäonnistui. Yritä myöhemmin uudelleen.</target>
+      </segment>
+    </unit>
+    <unit id="Login.SubmitButton">
+      <segment state="initial">
+        <source>Logga in</source>
+        <target>Kirjaudu sisään</target>
+      </segment>
+    </unit>
+    <unit id="Login.Title">
+      <segment state="initial">
+        <source>Logga in</source>
+        <target>Kirjaudu sisään</target>
+      </segment>
+    </unit>
     <unit id="MainSideMenu.AccessibilityStatement">
       <segment state="initial">
         <source>Tillgänglighetsutlåtande</source>
         <target>Saavutettavuusseloste</target>
+      </segment>
+    </unit>
+    <unit id="MainSideMenu.Account">
+      <segment state="initial">
+        <source>Användarkonto</source>
+        <target>Käyttäjätili</target>
       </segment>
     </unit>
     <unit id="MainSideMenu.AriaLabel">
@@ -1012,6 +1120,12 @@
       <segment state="initial">
         <source>Verkregister</source>
         <target>Teoshakemisto</target>
+      </segment>
+    </unit>
+    <unit id="MainSideMenu.Login">
+      <segment state="initial">
+        <source>Logga in</source>
+        <target>Kirjaudu sisään</target>
       </segment>
     </unit>
     <unit id="MainSideMenu.MediaCollections">

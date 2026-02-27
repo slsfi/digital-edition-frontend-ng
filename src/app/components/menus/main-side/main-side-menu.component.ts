@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, LOCALE_ID, computed, effect, inject, input, signal, untracked } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Injector, LOCALE_ID, computed, effect, inject, input, signal, untracked } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { NgTemplateOutlet } from '@angular/common';
 import { RouterLink, UrlSegment } from '@angular/router';
@@ -13,10 +13,12 @@ import { MediaCollection } from '@models/media-collection.models';
 import { fromCollectionToMainMenuNode, fromMdToMainMenuNode, fromMediaCollectionToMainMenuNode, MainMenuGroupNode, MainMenuNode, MdMenuNodeApiResponse } from '@models/menu.models';
 import { ArrayIncludesPipe } from '@pipes/array-includes.pipe';
 import { ParentChildPagePathPipe } from '@pipes/parent-child-page-path.pipe';
+import { AuthService } from '@services/auth.service';
 import { CollectionsService } from '@services/collections.service';
 import { DocumentHeadService } from '@services/document-head.service';
 import { MarkdownService } from '@services/markdown.service';
 import { MediaCollectionService } from '@services/media-collection.service';
+import { AUTH_ENABLED } from '@tokens/auth.tokens';
 import { addOrRemoveValueInNewArray, sortArrayOfObjectsAlphabetically, splitFilename } from '@utility-functions';
 
 
@@ -42,9 +44,14 @@ export class MainSideMenuComponent {
   // ─────────────────────────────────────────────────────────────────────────────
   private readonly collectionsService = inject(CollectionsService);
   private readonly headService = inject(DocumentHeadService);
+  private readonly injector = inject(Injector);
   private readonly mdcontentService = inject(MarkdownService);
   private readonly mediaCollectionService = inject(MediaCollectionService);
   private readonly activeLocale = inject(LOCALE_ID);
+  private readonly authEnabled = inject(AUTH_ENABLED);
+  private authService: AuthService | null = null;
+  private readonly authMenuLoginLabel = $localize`:@@MainSideMenu.Login:Logga in`;
+  private readonly authMenuAccountLabel = $localize`:@@MainSideMenu.Account:Användarkonto`;
 
   readonly urlSegments = input<UrlSegment[]>([]);
 
@@ -57,6 +64,15 @@ export class MainSideMenuComponent {
   readonly secondaryMenu = computed(() => this.mainMenu().filter(
     (item: MainMenuNode) => this.isSecondaryMenuItem(item)
   ));
+  readonly isAuthenticated = computed(() => this.authEnabled
+    ? this.getAuthService().isAuthenticated()
+    : false
+  );
+  readonly authMenuPath = computed(() => this.isAuthenticated() ? '/account' : '/login');
+  readonly authMenuTitle = computed(() => this.isAuthenticated()
+    ? this.authMenuAccountLabel
+    : this.authMenuLoginLabel
+  );
 
   // Config flag: expand root items on first load
   private readonly defaultExpanded = config.component?.mainSideMenu?.defaultExpanded ?? false;
@@ -89,24 +105,25 @@ export class MainSideMenuComponent {
 
   // Load/shape menu
   private readonly loadEffect = effect(() => {
-    const menu = this.menuDataSig();
-    if (!menu) {
+    const rawMenu = this.menuDataSig();
+    if (!rawMenu) {
       return;
     }
+    this.mainMenu.set(rawMenu);
 
-    // If configured, expand all root items that have children
-    const initialSelected = this.defaultExpanded
-        ? menu.reduce<string[]>((acc, item) => {
+    if (!this.menuReady()) {
+      // If configured, expand all root items that have children on first load.
+      const initialSelected = this.defaultExpanded
+        ? rawMenu.reduce<string[]>((acc, item) => {
             if (item?.children && item.nodeId) {
               acc.push(item.nodeId);
             }
             return acc;
           }, [])
         : [];
-
-    this.expandedMenuIds.set(initialSelected);
-    this.mainMenu.set(menu);
-    this.menuReady.set(true);  // signals first menu load is done
+      this.expandedMenuIds.set(initialSelected);
+      this.menuReady.set(true);  // signals first menu load is done
+    }
   });
 
   // Update highlighted menu item: run after menu is ready and when URL changes
@@ -164,16 +181,19 @@ export class MainSideMenuComponent {
    * config.
    */
   private getMenuItemsArray(): Observable<MainMenuGroupNode>[] {
-    // Get enabled menu items from config, and prepend with the home
-    // menu item, which is forced to always be shown.
+    // Get enabled menu items from config, and prepend with home and auth.
+    // Home is always shown; auth is shown only when auth feature is enabled.
     let enabledPages = {
       home: true,
+      auth: this.authEnabled,
       ...(config.component?.mainSideMenu?.items ?? {})
     };
     enabledPages.home = true;
+    enabledPages.auth = this.authEnabled;
 
     const menuItemGetters: Record<string, () => Observable<MainMenuGroupNode>> = {
       home: () => this.getHomePageMenuItem(),
+      auth: () => this.getAuthMenuItem(),
       about: () => this.getAboutPagesMenu(),
       articles: () => this.getArticlePagesMenu(),
       ebooks: () => this.getEbookPagesMenu(),
@@ -217,6 +237,26 @@ export class MainSideMenuComponent {
       parentPath: '/'
     }];
     return of({ menuType: 'home', menuData });
+  }
+
+  private getAuthMenuItem(): Observable<MainMenuGroupNode> {
+    const menuData: MainMenuNode[] = [{
+      id: '',
+      title: this.authMenuLoginLabel,
+      parentPath: '/login'
+    }];
+    return of({ menuType: 'auth', menuData });
+  }
+
+  /**
+   * Lazy auth service resolution so projects with disabled auth don't initialize
+   * AuthService from this component.
+   */
+  private getAuthService(): AuthService {
+    if (!this.authService) {
+      this.authService = this.injector.get(AuthService);
+    }
+    return this.authService;
   }
 
   private getAboutPagesMenu(): Observable<MainMenuGroupNode> {
@@ -464,6 +504,20 @@ export class MainSideMenuComponent {
     return item.menuType ? this.secondaryMenuTypes.includes(item.menuType) : false;
   }
 
+  private getMenuItemPath(item: MainMenuNode): string {
+    if (item.menuType === 'auth') {
+      return this.authMenuPath();
+    }
+    return item.parentPath ? `${item.parentPath}${item.id ? `/${item.id}` : ''}` : '';
+  }
+
+  private getMenuItemTitle(item: MainMenuNode): string | undefined {
+    if (item.menuType === 'auth') {
+      return this.authMenuTitle();
+    }
+    return item.title;
+  }
+
 
   // ─────────────────────────────────────────────────────────────────────────────
   // Highlighting
@@ -495,31 +549,31 @@ export class MainSideMenuComponent {
     targetPath: string
   ): MainMenuNode | undefined {
     return menu.find((item: MainMenuNode) => {
-      let itemPath = item.parentPath;
-      if (item.id) {
-        itemPath += '/' + item.id;
-      }
+      const isAuthItem = item.menuType === 'auth';
+      const isAuthPath = targetPath === '/login' || targetPath === '/account';
+      const itemPath = this.getMenuItemPath(item);
 
-      if (itemPath === targetPath) {
+      if (itemPath === targetPath || (isAuthItem && isAuthPath)) {
         // Update highlighted menu item
         if (item.nodeId) {
           this.highlightedNodeId.set(item.nodeId);
         }
 
         // Update HTML document title
+        const itemTitle = this.getMenuItemTitle(item);
         if (item.parentPath === '/media-collection') {
           this.headService.setTitle([
-            String(item.title),
+            String(itemTitle),
             $localize`:@@MainSideMenu.MediaCollections:Bildbank`
           ]);
         } else if (
-          item.parentPath &&
-          !this.topMenuItems.includes(item.parentPath) &&
+          itemPath &&
+          !this.topMenuItems.includes(itemPath) &&
           this.urlSegments()[0]?.path !== 'collection'
         ) {
           // For top menu items the title is set by app.component, and
           // for collections the title is set by the text-changer component
-          this.headService.setTitle([String(item.title)]);
+          this.headService.setTitle([String(itemTitle)]);
         }
         return item;
       } else if (item.children) {

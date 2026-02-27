@@ -1,0 +1,24 @@
+.account-page {
+  width: min(100%, 28rem);
+  margin: 3.5rem auto 0;
+  display: grid;
+  gap: 0.9rem;
+}
+
+h1 {
+  margin: 0 0 0.25rem;
+  text-align: center;
+}
+
+p {
+  line-height: 1.5;
+  text-align: center;
+}
+
+.account-page > :not(h1) {
+  font-size: 1.125rem;
+}
+
+ion-button.button.custom-button {
+  min-height: 42px;
+}

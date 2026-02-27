@@ -2,7 +2,7 @@
 
 This repository contains the base frontend for SLS digital editions: an Angular 20.3 web app with server-side rendering (SSR).  
 It is intended to be forked per edition/project, with most behavior controlled through configuration (primarily [`src/assets/config/config.ts`](src/assets/config/config.ts)).  
-When contributing, prefer reusable, config-driven changes over project-specific hardcoding.
+When contributing, changes must be reusable and config-driven; project-specific hardcoding is not allowed in this base repository.
 
 ## Project Structure & Module Organization
 - `src/app/` contains application code:
@@ -32,7 +32,7 @@ When contributing, prefer reusable, config-driven changes over project-specific 
 - Keep files and selectors in kebab-case; classes/interfaces in PascalCase.
 - Use established suffixes (`*.service.ts`, `*.guard.ts`, `*.interceptor.ts`).
 - Prefer existing path aliases (for example `@services`, `@components`, `@config`).
-- Keep behavior config-driven; avoid hardcoding fork-specific values.
+- Keep behavior config-driven; hardcoding fork-specific values is not allowed.
 
 ## Testing Guidelines
 - Primary automated checks are script-based smoke tests (`scripts/test-*.js`).

@@ -40,7 +40,7 @@ When contributing, changes must be reusable and config-driven; project-specific 
 - Run relevant checks before PRs (typically `test:routes-parser` and `build:ssr`; add `test:ssr:smoke` for SSR changes).
 
 ## Commit & Pull Request Guidelines
-- Follow Conventional Commits seen in history (for example `feat(ssr): ...`, `fix(auth): ...`, `docs: ...`).
+- Follow conventional commits seen in history (for example `feat(ssr): ...`, `fix(auth): ...`, `docs: ...`).
 - Keep commits focused to one logical change.
 - PRs should include:
   - summary of behavior change and rationale,

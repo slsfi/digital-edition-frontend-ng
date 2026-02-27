@@ -15,7 +15,7 @@ describe('authInterceptor', () => {
   let authService: jasmine.SpyObj<Pick<AuthService, 'getAccessToken' | 'getRefreshToken' | 'refreshToken' | 'logout'>>;
   let router: jasmine.SpyObj<Pick<Router, 'navigate'>>;
   const backendBaseURL = ensureTrailingSlash(config.app.backendBaseURL);
-  const backendAuthBaseURL = ensureTrailingSlash(config.app.backendAuthBaseURL);
+  const backendAuthBaseURL = ensureTrailingSlash(config.app.auth.backendAuthBaseURL);
   const backendProtectedURL = `${backendBaseURL}protected`;
   const backendAuthLoginURL = `${backendAuthBaseURL}auth/login`;
   const nonBackendURL = 'https://example.com/non-backend';

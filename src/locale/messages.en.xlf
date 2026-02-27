@@ -954,6 +954,12 @@
         <target>No legend available.</target>
       </segment>
     </unit>
+    <unit id="Login.AccountNeededForAccess">
+      <segment state="initial">
+        <source>För att komma åt innehållet i den digitala utgåvan behöver du ett användarkonto.</source>
+        <target>To access the content of the digital edition, you need a user account.</target>
+      </segment>
+    </unit>
     <unit id="Login.ConsentPrivacyOnly">
       <segment state="initial">
         <source> Genom att logga in godkänner du <pc id="0" equivStart="START_LINK" equivEnd="CLOSE_LINK" type="link" dispStart="&lt;a [routerLink]=&quot;[&apos;/privacy-policy&apos;]&quot;&gt;" dispEnd="&lt;/a&gt;">dataskyddsbeskrivningen</pc>. </source>

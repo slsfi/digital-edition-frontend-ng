@@ -264,15 +264,15 @@ Parser smoke tests:
 
 
 
-## Optional authentication feature
+## Authentication-guarded routing and token-based authentication flow
 
 Authentication support is optional and controlled by config. This is intended so the base app can stay auth-disabled by default, while selected forks can enable auth.
 
 ### Enable in a fork
 
 1. Set `app.auth.enabled` to `true` in [`src/assets/config/config.ts`](../src/assets/config/config.ts).
-2. Configure auth API base URL by setting `app.backendAuthBaseURL`.
-3. If `app.backendAuthBaseURL` is missing, auth service falls back to the origin of `app.backendBaseURL` (for example `https://api.example.org/digitaledition` becomes `https://api.example.org/`).
+2. Configure auth API base URL by setting `app.auth.backendAuthBaseURL`.
+3. If `app.auth.backendAuthBaseURL` is missing, auth service falls back to the origin of `app.backendBaseURL` (for example `https://api.example.org/digitaledition` becomes `https://api.example.org/`).
 4. Ensure backend exposes auth endpoints expected by frontend: `POST <backendAuthBaseURL>/auth/login` and `POST <backendAuthBaseURL>/auth/refresh`.
 5. Protect routes by adding `canActivate: [authGuard]` in [`src/app/app.routes.ts`](../src/app/app.routes.ts) for the pages that require authentication.
 6. Keep login route enabled with `canMatch: [authFeatureEnabledMatchGuard]` so `/login` is only matchable when auth feature is enabled.

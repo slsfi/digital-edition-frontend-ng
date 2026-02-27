@@ -27,19 +27,18 @@ h1 {
   text-align: center;
 }
 
+p {
+  line-height: 1.5;
+}
+
 .center {
   text-align: center;
 }
 
-.form-error {
-  margin: -0.35rem 0 0.2rem;
-  color: #a10606;
-  font-size: 0.9rem;
-}
-
 .auth-error {
   margin-top: 0;
-  text-align: center;
+  margin: 0 0 0.2rem 0;
+  color: #a10606;
 }
 
 .forgot-password {

@@ -73,7 +73,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
  * treated as an application-backend request.
  */
 function resolveBackendRequestPrefixes(): string[] {
-  const candidates = [config?.app?.backendBaseURL, config?.app?.backendAuthBaseURL];
+  const candidates = [config?.app?.backendBaseURL, config?.app?.auth?.backendAuthBaseURL];
   const normalized = candidates
     .filter((value): value is string => typeof value === 'string' && value.trim().length > 0)
     .map((value) => value.trim())

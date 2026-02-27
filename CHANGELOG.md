@@ -8,14 +8,23 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+### Added
+
+- Optional authentication-guarded routing and token-based authentication flow. Auth-guarded routing is disabled by default and can be enabled by setting `app.auth.enabled` to `true` in the config. Auth API base URL can be set with `app.auth.backendAuthBaseURL` – if missing, auth service falls back to the origin of `app.backendBaseURL`. For details about this feature, see the [development notes](docs/DEVELOPMENT.md).
+
+
+
+## [2.5.1] – 2026-02-27
+
 ### Changed
 
-- Deps: update `@angular/cli` to 20.3.17.
-- Deps: update transitive dependencies.
+- Deps: update `@angular/core` to 20.3.17 `@angular/cli` to 20.3.18. ([505241b](https://github.com/slsfi/digital-edition-frontend-ng/commit/505241bb2539cffeee8b63a3bcc7c34f6b86db29), [308e768](https://github.com/slsfi/digital-edition-frontend-ng/commit/308e76872bf62363ebbca45e17c4bda8f73c0455))
+- Deps (dev): update `@types/node` to 22.19.13. ([a46e892](https://github.com/slsfi/digital-edition-frontend-ng/commit/a46e8921225f14c2de242f45bfa97d96957a0539))
+- Deps: update transitive dependencies. ([ce6631c](https://github.com/slsfi/digital-edition-frontend-ng/commit/ce6631c0ab5c2249c4d2eeecd231268f0215b7aa), [084b573](https://github.com/slsfi/digital-edition-frontend-ng/commit/084b57330be2076817ce5071d46e33abed644e28))
 
 ### Fixed
 
-- Configure `CommonEngine` `allowedHosts` for Angular SSRF host validation.
+- Configure `CommonEngine` `allowedHosts` for Angular SSRF host validation. ([43fe018](https://github.com/slsfi/digital-edition-frontend-ng/commit/43fe018f2e79cc2a9c4bfedd8ba656f9fda6c555))
 
 
 
@@ -1234,7 +1243,8 @@ siteLogoDimensions: {
 
 
 
-[unreleased]: https://github.com/slsfi/digital-edition-frontend-ng/compare/2.5.0...HEAD
+[unreleased]: https://github.com/slsfi/digital-edition-frontend-ng/compare/2.5.1...HEAD
+[2.5.1]: https://github.com/slsfi/digital-edition-frontend-ng/compare/2.5.0...2.5.1
 [2.5.0]: https://github.com/slsfi/digital-edition-frontend-ng/compare/2.4.6...2.5.0
 [2.4.6]: https://github.com/slsfi/digital-edition-frontend-ng/compare/2.4.5...2.4.6
 [2.4.5]: https://github.com/slsfi/digital-edition-frontend-ng/compare/2.4.4...2.4.5

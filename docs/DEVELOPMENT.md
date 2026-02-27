@@ -132,6 +132,10 @@ npm install @ionic/angular @ionic/angular-server
 
 Framework for running a web server in Node.js. This library is required by Angular to enable server-side rendering.
 
+### [`express-rate-limit`][npm_express-rate-limit]
+
+Middleware used for app-level request limiting of dynamic SSR/CSR shell responses in the Node server.
+
 
 ### [`htmlparser2`][npm_htmlparser2]
 
@@ -334,6 +338,12 @@ When migrating to Angular's `application` builder (`@angular-devkit/build-angula
 - Investigate replacing the current middleware-based implementation with Angular server-routes configuration (`withRoutes` / `RenderMode.Client`) for auth-protected routes.
 - Validate compatibility with feature-based route generation before removing the current workaround.
 
+### nginx rate limiting for SSR backend
+
+- nginx rate limiting is currently not enabled; app-level limiting is handled in `server.ts` (`express-rate-limit`).
+- Consider re-enabling nginx edge rate limiting later for defense in depth.
+- Why postponed: correct per-user limiting in nginx depends on verified real client IP forwarding/trust configuration across proxy chain(s) (for example LB/HAProxy/nginx). A wrong config can collapse many users into one bucket or trust spoofable headers.
+
 ### Hydration migration
 
 Current status:
@@ -476,6 +486,7 @@ What the benchmark reports:
 [dockerfile]: ../Dockerfile
 [npm_epubjs]: https://www.npmjs.com/package/epubjs
 [npm_express]: https://www.npmjs.com/package/express
+[npm_express-rate-limit]: https://www.npmjs.com/package/express-rate-limit
 [npm_htmlparser2]: https://www.npmjs.com/package/htmlparser2
 [npm_ionicons]: https://www.npmjs.com/package/ionicons
 [npm_marked]: https://www.npmjs.com/package/marked

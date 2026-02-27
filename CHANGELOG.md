@@ -13,6 +13,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - Optional authentication-guarded routing and token-based authentication flow. Auth-guarded routing is disabled by default and can be enabled by setting `app.auth.enabled` to `true` in the config. Auth API base URL can be set with `app.auth.backendAuthBaseURL` – if missing, auth service falls back to the origin of `app.backendBaseURL`. For details about this feature, see the [development notes](docs/DEVELOPMENT.md).
 - App-level rate limiting for dynamic SSR render requests (`express-rate-limit`). Added config option `app.ssr.trustProxyHops` (default: `2`) to control how many proxy hops Express trusts when resolving `req.ip` for the limiter.
 - SSR auth-mismatch mitigation for auth-enabled mode: generate auth-guarded route path metadata and force client-rendered index HTML (CSR shell) for those protected requests in `server.ts`, while non-protected routes stay on SSR. Also add auth-enabled-only `ngSkipHydration` markers for `top-menu` and `main-side-menu` in `app.component.html` to avoid future hydration mismatches on public SSR pages.
+- [`AGENTS.md`](AGENTS.md) that serves as a contributor guide for this repository.
 
 
 

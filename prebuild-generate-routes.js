@@ -24,12 +24,13 @@ function generateRoutes() {
 
   const sourceContent = fs.readFileSync(path.join(__dirname, sourceRoutesFilepath), 'utf-8');
   const featureBasedRoutes = config.app?.prebuild?.featureBasedRoutes ?? false;
+  const authEnabled = config.app?.auth?.enabled === true;
   const sourceRouteBlocks = extractRouteBlocks(sourceContent);
   validateSourceRouteBlocks(sourceRouteBlocks);
 
   if (!featureBasedRoutes) {
     fs.writeFileSync(path.join(__dirname, outputFilepath), sourceContent);
-    writeAuthProtectedRoutesFile(sourceRouteBlocks, featureBasedRoutes);
+    writeAuthProtectedRoutesFile(sourceRouteBlocks, featureBasedRoutes, authEnabled);
     console.log('Copied app routes file (feature-based mode: false).');
     return;
   }
@@ -55,7 +56,7 @@ function generateRoutes() {
   const fileContent = renderRoutesFile(filteredRoutes, featureBasedRoutes);
 
   fs.writeFileSync(path.join(__dirname, outputFilepath), fileContent);
-  writeAuthProtectedRoutesFile(filteredRoutes, featureBasedRoutes);
+  writeAuthProtectedRoutesFile(filteredRoutes, featureBasedRoutes, authEnabled);
   console.log(
     `Generated app routes file (${filteredRoutes.length} routes, feature-based mode: ${featureBasedRoutes}).`
   );
@@ -261,13 +262,25 @@ ${routeEntries}
 `;
 }
 
-function writeAuthProtectedRoutesFile(routeBlocks, featureBasedRoutes) {
-  const authProtectedRoutePaths = extractAuthProtectedRoutePaths(routeBlocks);
-  const fileContent = renderAuthProtectedRoutesFile(authProtectedRoutePaths, featureBasedRoutes);
+function writeAuthProtectedRoutesFile(routeBlocks, featureBasedRoutes, authEnabled) {
+  const authProtectedRoutePaths = getAuthProtectedRoutePaths(routeBlocks, authEnabled);
+  const fileContent = renderAuthProtectedRoutesFile(
+    authProtectedRoutePaths,
+    featureBasedRoutes,
+    authEnabled
+  );
   fs.writeFileSync(path.join(__dirname, authProtectedOutputFilepath), fileContent);
   console.log(
-    `Generated auth-protected routes file (${authProtectedRoutePaths.length} route paths, feature-based mode: ${featureBasedRoutes}).`
+    `Generated auth-protected routes file (${authProtectedRoutePaths.length} route paths, auth enabled: ${authEnabled}, feature-based mode: ${featureBasedRoutes}).`
   );
+}
+
+function getAuthProtectedRoutePaths(routeBlocks, authEnabled) {
+  if (!authEnabled) {
+    return [];
+  }
+
+  return extractAuthProtectedRoutePaths(routeBlocks);
 }
 
 function extractAuthProtectedRoutePaths(routeBlocks) {
@@ -282,7 +295,7 @@ function isAuthProtectedRouteBlock(routeBlock) {
   return /canActivate\s*:\s*\[[^\]]*\bauthGuard\b[^\]]*\]/s.test(routeBlock);
 }
 
-function renderAuthProtectedRoutesFile(routePaths, featureBasedRoutes) {
+function renderAuthProtectedRoutesFile(routePaths, featureBasedRoutes, authEnabled) {
   const entries = routePaths.length
     ? routePaths.map((routePath) => `  ${JSON.stringify(routePath)}`).join(',\n')
     : '  // none';
@@ -292,8 +305,10 @@ function renderAuthProtectedRoutesFile(routePaths, featureBasedRoutes) {
  * Source: prebuild-generate-routes.js
  * Route definitions source: ${sourceRoutesFilepath}
  * Feature-based route filtering: ${featureBasedRoutes}
+ * Auth feature enabled: ${authEnabled}
  *
  * Route paths that are guarded by authGuard in the effective app routes.
+ * This list is intentionally empty when app.auth.enabled is false.
  */
 export const authProtectedRoutePaths: readonly string[] = [
 ${entries}
@@ -428,6 +443,7 @@ module.exports = {
   extractRoutesArrayBody,
   getRoutePath,
   stripCommentsPreserveLiterals,
+  getAuthProtectedRoutePaths,
   extractAuthProtectedRoutePaths,
   isAuthProtectedRouteBlock
 };

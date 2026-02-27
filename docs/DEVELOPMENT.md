@@ -357,6 +357,7 @@ Current temporary markers:
 - [`src/app/components/collection-text-types/facsimiles/facsimiles.component.html`](../src/app/components/collection-text-types/facsimiles/facsimiles.component.html)
 - [`src/app/dialogs/modals/fullscreen-image-viewer/fullscreen-image-viewer.modal.html`](../src/app/dialogs/modals/fullscreen-image-viewer/fullscreen-image-viewer.modal.html)
 - [`src/app/pages/media-collection/media-collection.page.html`](../src/app/pages/media-collection/media-collection.page.html)
+- [`src/app/app.component.html`](../src/app/app.component.html) (auth-enabled mode: `top-menu` and `main-side-menu` are marked with `ngSkipHydration`)
 
 Related implementation notes:
 

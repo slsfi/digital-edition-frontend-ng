@@ -4,6 +4,7 @@ const path = require('path');
 const {
   extractRouteBlocks,
   extractRoutesArrayBody,
+  getAuthProtectedRoutePaths,
   extractAuthProtectedRoutePaths,
   getRoutePath,
   isAuthProtectedRouteBlock,
@@ -124,6 +125,15 @@ test('extractAuthProtectedRoutePaths returns unique guarded paths', () => {
   assert.deepStrictEqual(paths, ['account', 'search']);
 });
 
+test('getAuthProtectedRoutePaths returns empty list when auth is disabled', () => {
+  const blocks = [
+    `{ path: 'account', canActivate: [authGuard] }`,
+    `{ path: 'search', canActivate: [authGuard, anotherGuard] }`
+  ];
+  const paths = getAuthProtectedRoutePaths(blocks, false);
+  assert.deepStrictEqual(paths, []);
+});
+
 test('stripCommentsPreserveLiterals keeps string literals and length stable', () => {
   const source = `const a = "/* not a comment */"; // remove this
 const b = '// also not a comment';
@@ -148,6 +158,15 @@ test('current app.routes.ts can be parsed into route blocks', () => {
   assert.ok(blocks.length > 0);
   assert.ok(paths.includes(''));
   assert.ok(paths.includes('**'));
+});
+
+test('current app.routes.ts yields no protected paths when auth is disabled', () => {
+  const routesPath = path.join(__dirname, '../src/app/app.routes.ts');
+  const source = fs.readFileSync(routesPath, 'utf-8');
+  const blocks = extractRouteBlocks(source);
+  const paths = getAuthProtectedRoutePaths(blocks, false);
+
+  assert.deepStrictEqual(paths, []);
 });
 
 let passed = 0;

@@ -27,6 +27,7 @@ export class AppComponent implements OnInit {
   readonly enableCollectionSideMenuSSR: boolean = config.app?.ssr?.collectionSideMenu ?? false;
   readonly prebuiltCollectionMenus: boolean = config.app?.prebuild?.staticCollectionMenus ?? true;
   readonly enableRouterLoadingBar: boolean = config.app?.enableRouterLoadingBar ?? false;
+  readonly authEnabled: boolean = config?.app?.auth?.enabled === true;
 
   appIsStarting: boolean = true;
   collectionID: string = '';

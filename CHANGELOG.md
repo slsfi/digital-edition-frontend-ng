@@ -10,7 +10,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ### Changed
 
-- Deps: update `@angular/cli` to 20.3.17.
+- Deps: update `@angular/core` to 20.3.17 `@angular/cli` to 20.3.18.
 - Deps: update transitive dependencies.
 
 ### Fixed

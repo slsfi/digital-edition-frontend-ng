@@ -263,7 +263,7 @@ Parser smoke tests:
 
 
 
-## Optional authentication feature
+## Authentication-guarded routing and token-based authentication flow
 
 Authentication support is optional and controlled by config. This is intended so the base app can stay auth-disabled by default, while selected forks can enable auth.
 

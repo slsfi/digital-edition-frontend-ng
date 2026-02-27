@@ -7,6 +7,7 @@ import { LOCALE_ID } from '@angular/core';
 import { APP_BASE_HREF } from '@angular/common';
 import { CommonEngine } from '@angular/ssr/node';
 import express from 'express';
+import rateLimit from 'express-rate-limit';
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 
@@ -16,6 +17,11 @@ import { REQUEST } from './src/express.tokens';
 import { config } from './src/assets/config/config';
 
 const LOOPBACK_ALLOWED_HOSTS = ['localhost', '127.0.0.1', '[::1]'] as const;
+// App-level limiter for dynamic SSR render requests.
+// Tunables and deployment guidance: docs/DEPLOYMENT.md
+const SSR_RATE_LIMIT_WINDOW_MS = getPositiveIntFromEnv('SSR_RATE_LIMIT_WINDOW_MS', 60_000);
+const SSR_RATE_LIMIT_LIMIT = getPositiveIntFromEnv('SSR_RATE_LIMIT_LIMIT', 1200);
+const SSR_TRUST_PROXY_HOPS = getNonNegativeInt(config?.app?.ssr?.trustProxyHops, 2);
 
 /**
  * Resolves a hostname from `config.app.siteURLOrigin` for SSR host validation.
@@ -47,6 +53,27 @@ function getAllowedHosts(): string[] {
   return [...allowedHosts];
 }
 
+function getPositiveIntFromEnv(name: string, fallback: number): number {
+  const value = process.env[name];
+  return getPositiveInt(value, fallback);
+}
+
+function getPositiveInt(value: unknown, fallback: number): number {
+  if (value === undefined || value === null || value === '') {
+    return fallback;
+  }
+  const parsed = Number(value);
+  return Number.isInteger(parsed) && parsed > 0 ? parsed : fallback;
+}
+
+function getNonNegativeInt(value: unknown, fallback: number): number {
+  if (value === undefined || value === null || value === '') {
+    return fallback;
+  }
+  const parsed = Number(value);
+  return Number.isInteger(parsed) && parsed >= 0 ? parsed : fallback;
+}
+
 // The Express app is exported so that it can be used by serverless Functions.
 export function app(lang: string): express.Express {
   const server = express();
@@ -63,6 +90,9 @@ export function app(lang: string): express.Express {
   });
   // console.log(`[SSR][${lang}] allowedHosts: ${allowedHosts.join(', ')}`);
 
+  // Trust configured proxy hops when resolving req.ip for app-level rate limiting.
+  // Default is 2 (HAProxy -> nginx -> app), configurable in config.app.ssr.trustProxyHops.
+  server.set('trust proxy', SSR_TRUST_PROXY_HOPS);
   server.set('view engine', 'html');
   server.set('views', browserDistFolder);
 
@@ -117,10 +147,29 @@ export function app(lang: string): express.Express {
     next();
   });
 
+  // Bypass Chrome DevTools probe so it does not consume SSR limiter capacity.
+  server.get('/.well-known/appspecific/com.chrome.devtools.json', (_req, res) => {
+    res.status(204).end();
+  });
+
+  const renderRequestRateLimiter = rateLimit({
+    windowMs: SSR_RATE_LIMIT_WINDOW_MS,
+    limit: SSR_RATE_LIMIT_LIMIT,
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: 'Too many requests, please try again later.'
+  });
+
   // Catch-all route: render Angular app for non-static paths (SSR or client-side routes, including 404 pages)
-  server.use((req, res, next) => {
+  server.use(renderRequestRateLimiter, (req, res, next) => {
     // console.log(`[SSR] Rendering URL: ${req.url}`);
     const { protocol, originalUrl, baseUrl, headers } = req;
+    // Temporary request debug snippet (keep commented unless troubleshooting):
+    // const forwardedForHeader = req.headers['x-forwarded-for'];
+    // const forwardedFor = Array.isArray(forwardedForHeader)
+    //   ? forwardedForHeader.join(', ')
+    //   : forwardedForHeader ?? '-';
+    // console.log(`[SSR rate-limit debug] ${req.method} ${originalUrl} ip=${req.ip} xff=${forwardedFor}`);
 
     // Set Vary: User-Agent header for dynamically rendered pages
     res.setHeader('Vary', 'User-Agent');

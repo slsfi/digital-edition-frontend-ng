@@ -11,6 +11,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 ### Added
 
 - Optional authentication-guarded routing and token-based authentication flow. Auth-guarded routing is disabled by default and can be enabled by setting `app.auth.enabled` to `true` in the config. Auth API base URL can be set with `app.auth.backendAuthBaseURL` – if missing, auth service falls back to the origin of `app.backendBaseURL`. For details about this feature, see the [development notes](docs/DEVELOPMENT.md).
+- App-level rate limiting for dynamic SSR render requests (`express-rate-limit`). Added config option `app.ssr.trustProxyHops` (default: `2`) to control how many proxy hops Express trusts when resolving `req.ip` for the limiter.
 
 
 

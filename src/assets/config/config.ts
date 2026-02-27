@@ -41,6 +41,7 @@ export const config: Config = {
       featureBasedRoutes: false
     },
     ssr: {
+      trustProxyHops: 2,
       collectionSideMenu: false
     }
   },

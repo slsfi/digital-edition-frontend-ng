@@ -2,6 +2,7 @@ import { Routes } from '@angular/router';
 
 import { authFeatureEnabledMatchGuard } from '@guards/auth-feature-enabled-match.guard';
 import { authGuard } from '@guards/auth.guard';
+import { resetPasswordJwtGuard } from '@guards/reset-password-jwt.guard';
 
 /**
  * Canonical app routes definition.
@@ -86,6 +87,12 @@ export const routes: Routes = [
     path: 'forgot-password',
     loadChildren: () => import('./pages/forgot-password/forgot-password.module').then(m => m.ForgotPasswordPageModule),
     canMatch: [authFeatureEnabledMatchGuard]
+  },
+  {
+    path: 'reset-password',
+    loadChildren: () => import('./pages/reset-password/reset-password.module').then(m => m.ResetPasswordPageModule),
+    canMatch: [authFeatureEnabledMatchGuard],
+    canActivate: [resetPasswordJwtGuard]
   },
   {
     path: 'account',

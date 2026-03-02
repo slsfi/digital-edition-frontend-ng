@@ -192,6 +192,7 @@ function getRouteIncludeByPath(config) {
     'ebook': !!mainSideMenuItems.ebooks && hasEbooks,
     'login': authEnabled,
     'forgot-password': authEnabled,
+    'reset-password': authEnabled,
     'account': authEnabled,
     'home': true,
     'index/:type': !!(

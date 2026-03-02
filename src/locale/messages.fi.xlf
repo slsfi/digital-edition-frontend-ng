@@ -1008,6 +1008,12 @@
         <target>Digitaalisen edition sisällön käyttämiseen tarvitset käyttäjätilin.</target>
       </segment>
     </unit>
+    <unit id="Login.PasswordResetSuccess">
+      <segment state="initial">
+        <source>Lösenordet har återställts. Du kan nu logga in med ditt nya lösenord.</source>
+        <target>Salasanasi on palautettu. Voit nyt kirjautua sisään uudella salasanallasi.</target>
+      </segment>
+    </unit>
     <unit id="Login.ConsentPrivacyOnly">
       <segment state="initial">
         <source> Genom att logga in godkänner du <pc id="0" equivStart="START_LINK" equivEnd="CLOSE_LINK" type="link" dispStart="&lt;a [routerLink]=&quot;[&apos;/privacy-policy&apos;]&quot;&gt;" dispEnd="&lt;/a&gt;">dataskyddsbeskrivningen</pc>. </source>
@@ -1744,6 +1750,84 @@
       <segment state="initial">
         <source>Hänvisa till denna sida</source>
         <target>Lähdevittaus</target>
+      </segment>
+    </unit>
+    <unit id="ResetPassword.BackToLogin">
+      <segment state="initial">
+        <source>Tillbaka till inloggning</source>
+        <target>Takaisin kirjautumiseen</target>
+      </segment>
+    </unit>
+    <unit id="ResetPassword.ConfirmPasswordLabel">
+      <segment state="initial">
+        <source>Bekräfta nytt lösenord</source>
+        <target>Vahvista uusi salasana</target>
+      </segment>
+    </unit>
+    <unit id="ResetPassword.Description">
+      <segment state="initial">
+        <source>Ange ett nytt lösenord för ditt konto.</source>
+        <target>Anna tilillesi uusi salasana.</target>
+      </segment>
+    </unit>
+    <unit id="ResetPassword.InvalidLink">
+      <segment state="initial">
+        <source>Återställningslänken är ogiltig eller har löpt ut.</source>
+        <target>Salasanan palautuslinkki on virheellinen tai vanhentunut.</target>
+      </segment>
+    </unit>
+    <unit id="ResetPassword.NoCredentials">
+      <segment state="initial">
+        <source>Ange ett nytt lösenord.</source>
+        <target>Anna uusi salasana.</target>
+      </segment>
+    </unit>
+    <unit id="ResetPassword.OrDivider">
+      <segment state="initial">
+        <source>eller</source>
+        <target>tai</target>
+      </segment>
+    </unit>
+    <unit id="ResetPassword.PasswordLabel">
+      <segment state="initial">
+        <source>Nytt lösenord</source>
+        <target>Uusi salasana</target>
+      </segment>
+    </unit>
+    <unit id="ResetPassword.PasswordsDoNotMatch">
+      <segment state="initial">
+        <source>Lösenorden matchar inte.</source>
+        <target>Salasanat eivät täsmää.</target>
+      </segment>
+    </unit>
+    <unit id="ResetPassword.PasswordTooShort">
+      <segment state="initial">
+        <source>Lösenordet måste vara minst 12 tecken långt.</source>
+        <target>Salasanan on oltava vähintään 12 merkkiä pitkä.</target>
+      </segment>
+    </unit>
+    <unit id="ResetPassword.RequestFailed">
+      <segment state="initial">
+        <source>Återställningen av lösenordet misslyckades. Försök igen senare.</source>
+        <target>Salasanan palautus epäonnistui. Yritä myöhemmin uudelleen.</target>
+      </segment>
+    </unit>
+    <unit id="ResetPassword.SubmitButton">
+      <segment state="initial">
+        <source>Spara nytt lösenord</source>
+        <target>Tallenna uusi salasana</target>
+      </segment>
+    </unit>
+    <unit id="ResetPassword.Success">
+      <segment state="initial">
+        <source>Lösenordet har återställts. Du kan nu logga in med ditt nya lösenord.</source>
+        <target>Salasanasi on palautettu. Voit nyt kirjautua sisään uudella salasanallasi.</target>
+      </segment>
+    </unit>
+    <unit id="ResetPassword.Title">
+      <segment state="initial">
+        <source>Återställ lösenord</source>
+        <target>Palauta salasana</target>
       </segment>
     </unit>
     <unit id="Site.MetaDescription.Home">

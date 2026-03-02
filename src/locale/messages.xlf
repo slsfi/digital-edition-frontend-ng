@@ -841,6 +841,11 @@
         <source>För att komma åt innehållet i den digitala utgåvan behöver du ett användarkonto.</source>
       </segment>
     </unit>
+    <unit id="Login.PasswordResetSuccess">
+      <segment>
+        <source>Lösenordet har återställts. Du kan nu logga in med ditt nya lösenord.</source>
+      </segment>
+    </unit>
     <unit id="Login.ConsentPrivacyOnly">
       <segment>
         <source> Genom att logga in godkänner du <pc id="0" equivStart="START_LINK" equivEnd="CLOSE_LINK" type="link" dispStart="&lt;a [routerLink]=&quot;[&apos;/privacy-policy&apos;]&quot;&gt;" dispEnd="&lt;/a&gt;">dataskyddsbeskrivningen</pc>. </source>
@@ -1454,6 +1459,71 @@
     <unit id="Reference.ReferToThisPage">
       <segment>
         <source>Hänvisa till denna sida</source>
+      </segment>
+    </unit>
+    <unit id="ResetPassword.BackToLogin">
+      <segment>
+        <source>Tillbaka till inloggning</source>
+      </segment>
+    </unit>
+    <unit id="ResetPassword.ConfirmPasswordLabel">
+      <segment>
+        <source>Bekräfta nytt lösenord</source>
+      </segment>
+    </unit>
+    <unit id="ResetPassword.Description">
+      <segment>
+        <source>Ange ett nytt lösenord för ditt konto.</source>
+      </segment>
+    </unit>
+    <unit id="ResetPassword.InvalidLink">
+      <segment>
+        <source>Återställningslänken är ogiltig eller har löpt ut.</source>
+      </segment>
+    </unit>
+    <unit id="ResetPassword.NoCredentials">
+      <segment>
+        <source>Ange ett nytt lösenord.</source>
+      </segment>
+    </unit>
+    <unit id="ResetPassword.OrDivider">
+      <segment>
+        <source>eller</source>
+      </segment>
+    </unit>
+    <unit id="ResetPassword.PasswordLabel">
+      <segment>
+        <source>Nytt lösenord</source>
+      </segment>
+    </unit>
+    <unit id="ResetPassword.PasswordsDoNotMatch">
+      <segment>
+        <source>Lösenorden matchar inte.</source>
+      </segment>
+    </unit>
+    <unit id="ResetPassword.PasswordTooShort">
+      <segment>
+        <source>Lösenordet måste vara minst 12 tecken långt.</source>
+      </segment>
+    </unit>
+    <unit id="ResetPassword.RequestFailed">
+      <segment>
+        <source>Återställningen av lösenordet misslyckades. Försök igen senare.</source>
+      </segment>
+    </unit>
+    <unit id="ResetPassword.SubmitButton">
+      <segment>
+        <source>Spara nytt lösenord</source>
+      </segment>
+    </unit>
+    <unit id="ResetPassword.Success">
+      <segment>
+        <source>Lösenordet har återställts. Du kan nu logga in med ditt nya lösenord.</source>
+      </segment>
+    </unit>
+    <unit id="ResetPassword.Title">
+      <segment>
+        <source>Återställ lösenord</source>
       </segment>
     </unit>
     <unit id="Site.MetaDescription.Home">

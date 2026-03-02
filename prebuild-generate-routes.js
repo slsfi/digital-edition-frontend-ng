@@ -249,6 +249,7 @@ function renderRoutesFile(routes, featureBasedRoutes) {
 
 import { authFeatureEnabledMatchGuard } from '@guards/auth-feature-enabled-match.guard';
 import { authGuard } from '@guards/auth.guard';
+import { resetPasswordJwtGuard } from '@guards/reset-password-jwt.guard';
 
 /**
  * AUTO-GENERATED FILE. DO NOT EDIT MANUALLY.

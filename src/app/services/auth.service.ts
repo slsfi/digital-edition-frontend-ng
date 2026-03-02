@@ -10,6 +10,8 @@ import {
   ForgotPasswordResponse,
   LoginRequest,
   LoginResponse,
+  ResetPasswordRequest,
+  ResetPasswordResponse,
   RefreshTokenResponse
 } from '@models/auth.models';
 import {
@@ -24,7 +26,8 @@ const AUTH_EMAIL_STORAGE_KEY = 'auth_email';
 
 export type LoginErrorCode = 'no_credentials' | 'email_not_verified' | 'invalid_credentials' | 'request_failed';
 export type ForgotPasswordErrorCode = 'no_credentials' | 'invalid_credentials' | 'request_failed';
-type ResolvedAuthErrorCode = LoginErrorCode | ForgotPasswordErrorCode;
+export type ResetPasswordErrorCode = 'no_credentials' | 'password_too_short' | 'invalid_link' | 'request_failed';
+type ResolvedAuthErrorCode = LoginErrorCode | ForgotPasswordErrorCode | ResetPasswordErrorCode;
 type AuthErrorResolverMap<TErrorCode extends ResolvedAuthErrorCode> = {
   backend: Partial<Record<BackendAuthErrorCode, TErrorCode>>;
   status: Partial<Record<number, TErrorCode>>;
@@ -61,6 +64,10 @@ export class AuthService {
   readonly forgotPasswordError = this._forgotPasswordError.asReadonly();
   private readonly _passwordResetRequested = signal<boolean>(false);
   readonly passwordResetRequested = this._passwordResetRequested.asReadonly();
+  private readonly _resetPasswordError = signal<ResetPasswordErrorCode | null>(null);
+  readonly resetPasswordError = this._resetPasswordError.asReadonly();
+  private readonly _passwordResetCompleted = signal<boolean>(false);
+  readonly passwordResetCompleted = this._passwordResetCompleted.asReadonly();
   private readonly _authenticatedEmail = signal<string | null>(null);
   readonly authenticatedEmail = this._authenticatedEmail.asReadonly();
   private readonly loginErrorResolverMap: AuthErrorResolverMap<LoginErrorCode> = {
@@ -81,6 +88,17 @@ export class AuthService {
     },
     status: {
       400: 'invalid_credentials'
+    },
+    fallback: 'request_failed'
+  };
+  private readonly resetPasswordErrorResolverMap: AuthErrorResolverMap<ResetPasswordErrorCode> = {
+    backend: {
+      NO_CREDENTIALS: 'no_credentials',
+      PASSWORD_TOO_SHORT: 'password_too_short'
+    },
+    status: {
+      401: 'invalid_link',
+      422: 'invalid_link'
     },
     fallback: 'request_failed'
   };
@@ -176,6 +194,42 @@ export class AuthService {
   clearForgotPasswordState(): void {
     this._forgotPasswordError.set(null);
     this._passwordResetRequested.set(false);
+  }
+
+  /**
+   * Submits a new password using a password reset JWT token.
+   */
+  resetPassword(jwtToken: string, password: string): void {
+    this._resetPasswordError.set(null);
+    this._passwordResetCompleted.set(false);
+
+    const normalizedToken = jwtToken.trim();
+    if (!normalizedToken) {
+      this._resetPasswordError.set('invalid_link');
+      return;
+    }
+
+    const encodedToken = encodeURIComponent(normalizedToken);
+    const url = `${this.backendAuthBaseURL}auth/reset_password?jwt=${encodedToken}`;
+    const body: ResetPasswordRequest = { password };
+    this.http.post<ResetPasswordResponse>(url, body).subscribe({
+      next: () => {
+        this._passwordResetCompleted.set(true);
+        this.logout();
+        this.router.navigateByUrl('/login?passwordReset=success');
+      },
+      error: (error) => {
+        this._resetPasswordError.set(this.resolveAuthErrorCode(error, this.resetPasswordErrorResolverMap));
+      }
+    });
+  }
+
+  /**
+   * Clears password reset completion and error state.
+   */
+  clearResetPasswordState(): void {
+    this._resetPasswordError.set(null);
+    this._passwordResetCompleted.set(false);
   }
 
   /**

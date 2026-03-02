@@ -7,7 +7,8 @@ const sitemapFilename = 'sitemap.txt';
 const SITEMAP_EXCLUDED_ROUTE_PATH_KEYS = Object.freeze([
   'login',
   'account',
-  'forgot-password'
+  'forgot-password',
+  'reset-password'
 ]);
 const AUTH_PROTECTED_ROUTE_PATH_KEYS = Object.freeze([
   'collection/:collectionID/cover',

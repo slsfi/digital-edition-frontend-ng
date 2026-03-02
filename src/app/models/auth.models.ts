@@ -8,6 +8,10 @@ export interface ForgotPasswordRequest {
   language: string;
 }
 
+export interface ResetPasswordRequest {
+  password: string;
+}
+
 export type BackendAuthErrorCode =
   | 'NO_CREDENTIALS'
   | 'EMAIL_NOT_VERIFIED'
@@ -29,6 +33,10 @@ export interface LoginResponse {
 }
 
 export interface ForgotPasswordResponse {
+  msg: string;
+}
+
+export interface ResetPasswordResponse {
   msg: string;
 }
 

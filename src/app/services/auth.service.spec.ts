@@ -406,6 +406,103 @@ describe('AuthService', () => {
     expect(service.passwordResetRequested()).toBeFalse();
   });
 
+  it('submits new password with jwt token, logs out, and redirects to login on success', () => {
+    tokenMap.set('access_token', 'existing-access-token');
+    tokenMap.set('refresh_token', 'existing-refresh-token');
+    tokenMap.set('auth_email', 'user@example.com');
+    const service = createService();
+
+    service.resetPassword(' reset-token ', 'new-password-1234');
+
+    const request = httpMock.expectOne((req) => req.url.endsWith('/auth/reset_password?jwt=reset-token'));
+    expect(request.request.body).toEqual({ password: 'new-password-1234' });
+    request.flush({ msg: 'New password set for user@example.com' });
+
+    expect(service.resetPasswordError()).toBeNull();
+    expect(service.passwordResetCompleted()).toBeTrue();
+    expect(service.isAuthenticated()).toBeFalse();
+    expect(tokenMap.has('access_token')).toBeFalse();
+    expect(tokenMap.has('refresh_token')).toBeFalse();
+    expect(tokenMap.has('auth_email')).toBeFalse();
+    expect(redirectStorage.clearReturnUrl).toHaveBeenCalledTimes(1);
+    expect(router.navigateByUrl).toHaveBeenCalledWith('/login?passwordReset=success');
+  });
+
+  it('does not call backend reset endpoint when jwt token is missing', () => {
+    const service = createService();
+
+    service.resetPassword('   ', 'new-password-1234');
+
+    httpMock.expectNone((req) => req.url.includes('/auth/reset_password'));
+    expect(service.resetPasswordError()).toBe('invalid_link');
+    expect(service.passwordResetCompleted()).toBeFalse();
+  });
+
+  it('maps NO_CREDENTIALS backend error code to no_credentials for reset password', () => {
+    const service = createService();
+
+    service.resetPassword('reset-token', 'new-password-1234');
+
+    const request = httpMock.expectOne((req) => req.url.endsWith('/auth/reset_password?jwt=reset-token'));
+    request.flush({ msg: 'missing password', err: 'NO_CREDENTIALS' }, { status: 400, statusText: 'Bad Request' });
+
+    expect(service.resetPasswordError()).toBe('no_credentials');
+    expect(service.passwordResetCompleted()).toBeFalse();
+  });
+
+  it('maps PASSWORD_TOO_SHORT backend error code to password_too_short for reset password', () => {
+    const service = createService();
+
+    service.resetPassword('reset-token', 'short');
+
+    const request = httpMock.expectOne((req) => req.url.endsWith('/auth/reset_password?jwt=reset-token'));
+    request.flush(
+      { msg: 'password too short', err: 'PASSWORD_TOO_SHORT' },
+      { status: 400, statusText: 'Bad Request' }
+    );
+
+    expect(service.resetPasswordError()).toBe('password_too_short');
+    expect(service.passwordResetCompleted()).toBeFalse();
+  });
+
+  it('maps 401 status to invalid_link for reset password', () => {
+    const service = createService();
+
+    service.resetPassword('reset-token', 'new-password-1234');
+
+    const request = httpMock.expectOne((req) => req.url.endsWith('/auth/reset_password?jwt=reset-token'));
+    request.flush({ msg: 'token expired' }, { status: 401, statusText: 'Unauthorized' });
+
+    expect(service.resetPasswordError()).toBe('invalid_link');
+    expect(service.passwordResetCompleted()).toBeFalse();
+  });
+
+  it('maps generic reset password failures to request_failed', () => {
+    const service = createService();
+
+    service.resetPassword('reset-token', 'new-password-1234');
+
+    const request = httpMock.expectOne((req) => req.url.endsWith('/auth/reset_password?jwt=reset-token'));
+    request.flush({ detail: 'server error' }, { status: 500, statusText: 'Server Error' });
+
+    expect(service.resetPasswordError()).toBe('request_failed');
+    expect(service.passwordResetCompleted()).toBeFalse();
+  });
+
+  it('clears reset password feedback state explicitly', () => {
+    const service = createService();
+
+    service.resetPassword('reset-token', 'new-password-1234');
+
+    const request = httpMock.expectOne((req) => req.url.endsWith('/auth/reset_password?jwt=reset-token'));
+    request.flush({ msg: 'New password set for user@example.com' });
+    expect(service.passwordResetCompleted()).toBeTrue();
+
+    service.clearResetPasswordState();
+    expect(service.resetPasswordError()).toBeNull();
+    expect(service.passwordResetCompleted()).toBeFalse();
+  });
+
   it('clears stored marker return URL on logout when authenticated', () => {
     tokenMap.set('access_token', 'access-token-1');
     tokenMap.set('auth_email', 'user@example.com');

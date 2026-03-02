@@ -4,7 +4,7 @@ import { Router } from '@angular/router';
 import { BehaviorSubject, catchError, filter, finalize, map, Observable, take, throwError } from 'rxjs';
 
 import { config } from '@config';
-import { LoginRequest, LoginResponse, RefreshTokenResponse } from '@models/auth.models';
+import { BackendAuthErrorCode, LoginRequest, LoginResponse, RefreshTokenResponse } from '@models/auth.models';
 import {
   AuthRedirectStorageService,
   AUTH_REDIRECT_MARKER_QUERY_PARAM,
@@ -15,7 +15,12 @@ import { AuthTokenStorageService } from '@services/auth-token-storage.service';
 const MAX_RETURN_URL_LENGTH = 2000;
 const AUTH_EMAIL_STORAGE_KEY = 'auth_email';
 
-export type LoginErrorCode = 'invalid_credentials' | 'request_failed';
+type BackendLoginErrorCode = Extract<
+  BackendAuthErrorCode,
+  'NO_CREDENTIALS' | 'EMAIL_NOT_VERIFIED' | 'INCORRECT_CREDENTIALS'
+>;
+
+export type LoginErrorCode = 'no_credentials' | 'email_not_verified' | 'invalid_credentials' | 'request_failed';
 
 /**
  * Authentication state + token lifecycle service.
@@ -87,7 +92,7 @@ export class AuthService {
       },
       error: (error) => {
         this.clearAuthState(false);
-        this._loginError.set(error?.status === 401 ? 'invalid_credentials' : 'request_failed');
+        this._loginError.set(this.resolveLoginErrorCode(error));
       }
     });
   }
@@ -333,6 +338,30 @@ export class AuthService {
    */
   private hasRedirectMarker(value: unknown): boolean {
     return value === AUTH_REDIRECT_MARKER_VALUE;
+  }
+
+  private resolveLoginErrorCode(error: unknown): LoginErrorCode {
+    const backendErrorCode = this.getBackendLoginErrorCode(error);
+    if (backendErrorCode === 'NO_CREDENTIALS') {
+      return 'no_credentials';
+    }
+    if (backendErrorCode === 'EMAIL_NOT_VERIFIED') {
+      return 'email_not_verified';
+    }
+    if (backendErrorCode === 'INCORRECT_CREDENTIALS') {
+      return 'invalid_credentials';
+    }
+
+    const status = (error as { status?: unknown } | null)?.status;
+    return status === 401 ? 'invalid_credentials' : 'request_failed';
+  }
+
+  private getBackendLoginErrorCode(error: unknown): BackendLoginErrorCode | null {
+    const err = (error as { error?: { err?: unknown } } | null)?.error?.err;
+    if (err === 'NO_CREDENTIALS' || err === 'EMAIL_NOT_VERIFIED' || err === 'INCORRECT_CREDENTIALS') {
+      return err;
+    }
+    return null;
   }
 
   private clearAuthState(clearRedirectTarget: boolean): void {

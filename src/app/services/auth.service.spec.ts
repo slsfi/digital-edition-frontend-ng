@@ -1,4 +1,4 @@
-import { HttpClient, provideHttpClient } from '@angular/common/http';
+import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { DefaultUrlSerializer, Router, UrlTree } from '@angular/router';
@@ -278,6 +278,45 @@ describe('AuthService', () => {
     expect(tokenMap.has('auth_email')).toBeFalse();
     expect(service.authenticatedEmail()).toBeNull();
     expect(redirectStorage.clearReturnUrl).not.toHaveBeenCalled();
+  });
+
+  it('maps NO_CREDENTIALS backend error code to no_credentials', () => {
+    const service = createService();
+
+    service.login('user@example.com', 'wrong-password');
+
+    const request = httpMock.expectOne((req) => req.url.endsWith('/auth/login'));
+    request.flush({ msg: 'missing credentials', err: 'NO_CREDENTIALS' }, { status: 400, statusText: 'Bad Request' });
+
+    expect(service.loginError()).toBe('no_credentials');
+  });
+
+  it('maps EMAIL_NOT_VERIFIED backend error code to email_not_verified', () => {
+    const service = createService();
+
+    service.login('user@example.com', 'wrong-password');
+
+    const request = httpMock.expectOne((req) => req.url.endsWith('/auth/login'));
+    request.flush(
+      { msg: 'email is not verified', err: 'EMAIL_NOT_VERIFIED' },
+      { status: 403, statusText: 'Forbidden' }
+    );
+
+    expect(service.loginError()).toBe('email_not_verified');
+  });
+
+  it('maps INCORRECT_CREDENTIALS backend error code to invalid_credentials', () => {
+    const service = createService();
+
+    service.login('user@example.com', 'wrong-password');
+
+    const request = httpMock.expectOne((req) => req.url.endsWith('/auth/login'));
+    request.flush(
+      { msg: 'incorrect credentials', err: 'INCORRECT_CREDENTIALS' },
+      { status: 401, statusText: 'Unauthorized' }
+    );
+
+    expect(service.loginError()).toBe('invalid_credentials');
   });
 
   it('sets generic login error code when login fails with non-401 status', () => {

@@ -15,6 +15,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - SSR auth-mismatch mitigation for auth-enabled mode: generate auth-guarded route path metadata and force client-rendered index HTML (CSR shell) for those protected requests in `server.ts`, while non-protected routes stay on SSR. Also add auth-enabled-only `ngSkipHydration` markers for `top-menu` and `main-side-menu` in `app.component.html` to avoid future hydration mismatches on public SSR pages.
 - [`AGENTS.md`](AGENTS.md) that serves as a contributor guide for this repository.
 
+### Changed
+
+- Map login errors from backend error codes.
+
 
 
 ## [2.5.1] – 2026-02-27

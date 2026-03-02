@@ -3,6 +3,18 @@ export interface LoginRequest {
   password: string;
 }
 
+export type BackendAuthErrorCode =
+  | 'NO_CREDENTIALS'
+  | 'EMAIL_NOT_VERIFIED'
+  | 'INCORRECT_CREDENTIALS'
+  | 'PASSWORD_TOO_SHORT'
+  | 'USER_ALREADY_EXISTS';
+
+export interface BackendAuthErrorResponse {
+  msg: string;
+  err?: BackendAuthErrorCode;
+}
+
 export interface LoginResponse {
   access_token: string;
   msg: string;

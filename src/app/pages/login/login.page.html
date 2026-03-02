@@ -1,6 +1,8 @@
+@let loginErrorValue = loginError();
+
 <ion-content>
   <article class="login-page">
-    <form class="login-form" [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+    <form class="login-form" [formGroup]="form" (ngSubmit)="attemptLogin()" novalidate>
       <h1 i18n="@@Login.Title">Logga in</h1>
 
       <p class="center" i18n="@@Login.AccountNeededForAccess">För att komma åt innehållet i den digitala utgåvan behöver du ett användarkonto.</p>
@@ -31,10 +33,16 @@
         <ion-input-password-toggle slot="end"></ion-input-password-toggle>
       </ion-input>
       <p class="forgot-password"><a href="/" i18n="@@Login.ForgotPassword">Glömt lösenordet?</a></p>
-      @if (loginError() === 'invalid_credentials') {
+      @if (loginErrorValue === 'invalid_credentials') {
         <p class="auth-error center" i18n="@@Login.InvalidCredentials">Fel e-postadress eller lösenord.</p>
       }
-      @if (loginError() === 'request_failed') {
+      @if (loginErrorValue === 'email_not_verified') {
+        <p class="auth-error" i18n="@@Login.EmailNotVerified">Du måste verifiera din e-postadress innan du kan logga in. Kontrollera din inkorg för ett e-postmeddelande med en verifieringslänk. Om länken har gått ut eller om du inte har fått något e-postmeddelande måste du registrera dig igen.</p>
+      }
+      @if (loginErrorValue === 'no_credentials') {
+        <p class="auth-error center" i18n="@@Login.NoCredentials">Ange e-postadress och lösenord.</p>
+      }
+      @if (loginErrorValue === 'request_failed') {
         <p class="auth-error center" i18n="@@Login.RequestFailed">Inloggningen misslyckades. Försök igen senare.</p>
       }
 

@@ -191,6 +191,7 @@ function getRouteIncludeByPath(config) {
     'collection/:collectionID/text': collectionsEnabled,
     'ebook': !!mainSideMenuItems.ebooks && hasEbooks,
     'login': authEnabled,
+    'forgot-password': authEnabled,
     'account': authEnabled,
     'home': true,
     'index/:type': !!(

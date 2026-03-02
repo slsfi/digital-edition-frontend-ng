@@ -798,6 +798,54 @@
         <target>Pienennä</target>
       </segment>
     </unit>
+    <unit id="ForgotPassword.BackToLogin">
+      <segment state="initial">
+        <source>Tillbaka till inloggning</source>
+        <target>Takaisin kirjautumiseen</target>
+      </segment>
+    </unit>
+    <unit id="ForgotPassword.Description">
+      <segment state="initial">
+        <source>Ange e-postadressen för ditt konto så skickar vi en länk för att återställa lösenordet.</source>
+        <target>Anna tilisi sähköpostiosoite, niin lähetämme sinulle linkin salasanan palauttamista varten.</target>
+      </segment>
+    </unit>
+    <unit id="ForgotPassword.EmailLabel">
+      <segment state="initial">
+        <source>E-postadress</source>
+        <target>Sähköpostiosoite</target>
+      </segment>
+    </unit>
+    <unit id="ForgotPassword.OrDivider">
+      <segment state="initial">
+        <source>eller</source>
+        <target>tai</target>
+      </segment>
+    </unit>
+    <unit id="ForgotPassword.RequestFailed">
+      <segment state="initial">
+        <source>Begäran om återställning misslyckades. Försök igen senare.</source>
+        <target>Salasanan palautuspyyntö epäonnistui. Yritä myöhemmin uudelleen.</target>
+      </segment>
+    </unit>
+    <unit id="ForgotPassword.SubmitButton">
+      <segment state="initial">
+        <source>Skicka återställningslänk</source>
+        <target>Lähetä palautuslinkki</target>
+      </segment>
+    </unit>
+    <unit id="ForgotPassword.Success">
+      <segment state="initial">
+        <source>Om det finns ett konto för den här e-postadressen har en återställningslänk skickats.</source>
+        <target>Jos tällä sähköpostiosoitteella on tili, salasanan palautuslinkki on lähetetty.</target>
+      </segment>
+    </unit>
+    <unit id="ForgotPassword.Title">
+      <segment state="initial">
+        <source>Glömt lösenordet?</source>
+        <target>Unohditko salasanasi?</target>
+      </segment>
+    </unit>
     <unit id="FullscreenImageViewer.ToggleDescription">
       <segment state="initial">
         <source>Visa/dölj beskrivning</source>

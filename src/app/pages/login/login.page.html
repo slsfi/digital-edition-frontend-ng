@@ -32,7 +32,7 @@
       >
         <ion-input-password-toggle slot="end"></ion-input-password-toggle>
       </ion-input>
-      <p class="forgot-password"><a href="/" i18n="@@Login.ForgotPassword">Glömt lösenordet?</a></p>
+      <p class="forgot-password"><a [routerLink]="['/forgot-password']" i18n="@@Login.ForgotPassword">Glömt lösenordet?</a></p>
       @if (loginErrorValue === 'invalid_credentials') {
         <p class="auth-error center" i18n="@@Login.InvalidCredentials">Fel e-postadress eller lösenord.</p>
       }

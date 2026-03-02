@@ -666,6 +666,46 @@
         <source>Zooma ut</source>
       </segment>
     </unit>
+    <unit id="ForgotPassword.BackToLogin">
+      <segment>
+        <source>Tillbaka till inloggning</source>
+      </segment>
+    </unit>
+    <unit id="ForgotPassword.Description">
+      <segment>
+        <source>Ange e-postadressen för ditt konto så skickar vi en länk för att återställa lösenordet.</source>
+      </segment>
+    </unit>
+    <unit id="ForgotPassword.EmailLabel">
+      <segment>
+        <source>E-postadress</source>
+      </segment>
+    </unit>
+    <unit id="ForgotPassword.OrDivider">
+      <segment>
+        <source>eller</source>
+      </segment>
+    </unit>
+    <unit id="ForgotPassword.RequestFailed">
+      <segment>
+        <source>Begäran om återställning misslyckades. Försök igen senare.</source>
+      </segment>
+    </unit>
+    <unit id="ForgotPassword.SubmitButton">
+      <segment>
+        <source>Skicka återställningslänk</source>
+      </segment>
+    </unit>
+    <unit id="ForgotPassword.Success">
+      <segment>
+        <source>Om det finns ett konto för den här e-postadressen har en återställningslänk skickats.</source>
+      </segment>
+    </unit>
+    <unit id="ForgotPassword.Title">
+      <segment>
+        <source>Glömt lösenordet?</source>
+      </segment>
+    </unit>
     <unit id="FullscreenImageViewer.ToggleDescription">
       <segment>
         <source>Visa/dölj beskrivning</source>

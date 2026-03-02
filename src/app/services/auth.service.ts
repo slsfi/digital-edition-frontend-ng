@@ -1,10 +1,17 @@
 import { HttpClient } from '@angular/common/http';
-import { inject, Injectable, signal } from '@angular/core';
+import { inject, Injectable, LOCALE_ID, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { BehaviorSubject, catchError, filter, finalize, map, Observable, take, throwError } from 'rxjs';
 
 import { config } from '@config';
-import { BackendAuthErrorCode, LoginRequest, LoginResponse, RefreshTokenResponse } from '@models/auth.models';
+import {
+  BackendAuthErrorCode,
+  ForgotPasswordRequest,
+  ForgotPasswordResponse,
+  LoginRequest,
+  LoginResponse,
+  RefreshTokenResponse
+} from '@models/auth.models';
 import {
   AuthRedirectStorageService,
   AUTH_REDIRECT_MARKER_QUERY_PARAM,
@@ -15,12 +22,14 @@ import { AuthTokenStorageService } from '@services/auth-token-storage.service';
 const MAX_RETURN_URL_LENGTH = 2000;
 const AUTH_EMAIL_STORAGE_KEY = 'auth_email';
 
-type BackendLoginErrorCode = Extract<
-  BackendAuthErrorCode,
-  'NO_CREDENTIALS' | 'EMAIL_NOT_VERIFIED' | 'INCORRECT_CREDENTIALS'
->;
-
 export type LoginErrorCode = 'no_credentials' | 'email_not_verified' | 'invalid_credentials' | 'request_failed';
+export type ForgotPasswordErrorCode = 'no_credentials' | 'invalid_credentials' | 'request_failed';
+type ResolvedAuthErrorCode = LoginErrorCode | ForgotPasswordErrorCode;
+type AuthErrorResolverMap<TErrorCode extends ResolvedAuthErrorCode> = {
+  backend: Partial<Record<BackendAuthErrorCode, TErrorCode>>;
+  status: Partial<Record<number, TErrorCode>>;
+  fallback: TErrorCode;
+};
 
 /**
  * Authentication state + token lifecycle service.
@@ -39,6 +48,7 @@ export type LoginErrorCode = 'no_credentials' | 'email_not_verified' | 'invalid_
 })
 export class AuthService {
   private readonly http = inject(HttpClient);
+  private readonly localeId = inject(LOCALE_ID);
   private readonly router = inject(Router);
   private readonly redirectStorage = inject(AuthRedirectStorageService);
   private readonly tokenStorage = inject(AuthTokenStorageService);
@@ -47,8 +57,33 @@ export class AuthService {
   readonly isAuthenticated = this._isAuthenticated.asReadonly();
   private readonly _loginError = signal<LoginErrorCode | null>(null);
   readonly loginError = this._loginError.asReadonly();
+  private readonly _forgotPasswordError = signal<ForgotPasswordErrorCode | null>(null);
+  readonly forgotPasswordError = this._forgotPasswordError.asReadonly();
+  private readonly _passwordResetRequested = signal<boolean>(false);
+  readonly passwordResetRequested = this._passwordResetRequested.asReadonly();
   private readonly _authenticatedEmail = signal<string | null>(null);
   readonly authenticatedEmail = this._authenticatedEmail.asReadonly();
+  private readonly loginErrorResolverMap: AuthErrorResolverMap<LoginErrorCode> = {
+    backend: {
+      NO_CREDENTIALS: 'no_credentials',
+      EMAIL_NOT_VERIFIED: 'email_not_verified',
+      INCORRECT_CREDENTIALS: 'invalid_credentials'
+    },
+    status: {
+      401: 'invalid_credentials'
+    },
+    fallback: 'request_failed'
+  };
+  private readonly forgotPasswordErrorResolverMap: AuthErrorResolverMap<ForgotPasswordErrorCode> = {
+    backend: {
+      NO_CREDENTIALS: 'no_credentials',
+      INVALID_CREDENTIALS: 'invalid_credentials'
+    },
+    status: {
+      400: 'invalid_credentials'
+    },
+    fallback: 'request_failed'
+  };
 
   private backendAuthBaseURL: string = this.resolveBackendAuthBaseURL();
   private refreshTokenInProgress = false;
@@ -92,7 +127,7 @@ export class AuthService {
       },
       error: (error) => {
         this.clearAuthState(false);
-        this._loginError.set(this.resolveLoginErrorCode(error));
+        this._loginError.set(this.resolveAuthErrorCode(error, this.loginErrorResolverMap));
       }
     });
   }
@@ -102,6 +137,45 @@ export class AuthService {
    */
   clearLoginError(): void {
     this._loginError.set(null);
+  }
+
+  /**
+   * Requests a password reset email for the provided user address.
+   */
+  requestPasswordReset(email: string): void {
+    this._forgotPasswordError.set(null);
+    this._passwordResetRequested.set(false);
+    const normalizedEmail = email.trim();
+    const url = `${this.backendAuthBaseURL}auth/forgot_password`;
+    const body: ForgotPasswordRequest = {
+      email: normalizedEmail,
+      language: this.resolveAuthRequestLanguage()
+    };
+    this.http.post<ForgotPasswordResponse>(url, body).subscribe({
+      next: () => {
+        this._passwordResetRequested.set(true);
+      },
+      error: (error) => {
+        const errorCode = this.resolveAuthErrorCode(error, this.forgotPasswordErrorResolverMap);
+        if (errorCode === 'request_failed') {
+          this._forgotPasswordError.set(errorCode);
+          return;
+        }
+
+        // Treat account-existence errors as successful request initiation to avoid
+        // exposing whether an email address is registered.
+        this._forgotPasswordError.set(null);
+        this._passwordResetRequested.set(true);
+      }
+    });
+  }
+
+  /**
+   * Clears password reset request feedback state.
+   */
+  clearForgotPasswordState(): void {
+    this._forgotPasswordError.set(null);
+    this._passwordResetRequested.set(false);
   }
 
   /**
@@ -340,28 +414,47 @@ export class AuthService {
     return value === AUTH_REDIRECT_MARKER_VALUE;
   }
 
-  private resolveLoginErrorCode(error: unknown): LoginErrorCode {
-    const backendErrorCode = this.getBackendLoginErrorCode(error);
-    if (backendErrorCode === 'NO_CREDENTIALS') {
-      return 'no_credentials';
-    }
-    if (backendErrorCode === 'EMAIL_NOT_VERIFIED') {
-      return 'email_not_verified';
-    }
-    if (backendErrorCode === 'INCORRECT_CREDENTIALS') {
-      return 'invalid_credentials';
+  private resolveAuthErrorCode<TErrorCode extends ResolvedAuthErrorCode>(
+    error: unknown,
+    resolverMap: AuthErrorResolverMap<TErrorCode>
+  ): TErrorCode {
+    const backendErrorCode = this.getBackendAuthErrorCode(error);
+    if (backendErrorCode !== null) {
+      const mappedBackendErrorCode = resolverMap.backend[backendErrorCode];
+      if (mappedBackendErrorCode !== undefined) {
+        return mappedBackendErrorCode;
+      }
     }
 
     const status = (error as { status?: unknown } | null)?.status;
-    return status === 401 ? 'invalid_credentials' : 'request_failed';
+    if (typeof status === 'number') {
+      const mappedStatusErrorCode = resolverMap.status[status];
+      if (mappedStatusErrorCode !== undefined) {
+        return mappedStatusErrorCode;
+      }
+    }
+
+    return resolverMap.fallback;
   }
 
-  private getBackendLoginErrorCode(error: unknown): BackendLoginErrorCode | null {
+  private getBackendAuthErrorCode(error: unknown): BackendAuthErrorCode | null {
     const err = (error as { error?: { err?: unknown } } | null)?.error?.err;
-    if (err === 'NO_CREDENTIALS' || err === 'EMAIL_NOT_VERIFIED' || err === 'INCORRECT_CREDENTIALS') {
-      return err;
-    }
-    return null;
+    return this.isBackendAuthErrorCode(err) ? err : null;
+  }
+
+  private isBackendAuthErrorCode(value: unknown): value is BackendAuthErrorCode {
+    return (
+      value === 'NO_CREDENTIALS' ||
+      value === 'EMAIL_NOT_VERIFIED' ||
+      value === 'INCORRECT_CREDENTIALS' ||
+      value === 'INVALID_CREDENTIALS' ||
+      value === 'PASSWORD_TOO_SHORT' ||
+      value === 'USER_ALREADY_EXISTS'
+    );
+  }
+
+  private resolveAuthRequestLanguage(): string {
+    return this.localeId.split('-')[0]?.toLowerCase();
   }
 
   private clearAuthState(clearRedirectTarget: boolean): void {

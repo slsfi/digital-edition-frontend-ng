@@ -83,6 +83,11 @@ export const routes: Routes = [
     canActivate: [authGuard]
   },
   {
+    path: 'forgot-password',
+    loadChildren: () => import('./pages/forgot-password/forgot-password.module').then(m => m.ForgotPasswordPageModule),
+    canMatch: [authFeatureEnabledMatchGuard]
+  },
+  {
     path: 'account',
     loadChildren: () => import('./pages/account/account.module').then(m => m.AccountPageModule),
     canMatch: [authFeatureEnabledMatchGuard],

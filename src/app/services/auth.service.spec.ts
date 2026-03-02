@@ -343,6 +343,69 @@ describe('AuthService', () => {
     expect(service.loginError()).toBeNull();
   });
 
+  it('sets success state when forgot password request succeeds', () => {
+    const service = createService();
+
+    service.requestPasswordReset(' user@example.com ');
+
+    const request = httpMock.expectOne((req) => req.url.endsWith('/auth/forgot_password'));
+    expect(request.request.body).toEqual({ email: 'user@example.com', language: 'en' });
+    request.flush({ msg: 'Password reset email sent' });
+
+    expect(service.forgotPasswordError()).toBeNull();
+    expect(service.passwordResetRequested()).toBeTrue();
+  });
+
+  it('treats NO_CREDENTIALS backend error code as successful forgot password initiation', () => {
+    const service = createService();
+
+    service.requestPasswordReset('user@example.com');
+
+    const request = httpMock.expectOne((req) => req.url.endsWith('/auth/forgot_password'));
+    request.flush({ msg: 'missing email', err: 'NO_CREDENTIALS' }, { status: 400, statusText: 'Bad Request' });
+
+    expect(service.forgotPasswordError()).toBeNull();
+    expect(service.passwordResetRequested()).toBeTrue();
+  });
+
+  it('treats INVALID_CREDENTIALS backend error code as successful forgot password initiation', () => {
+    const service = createService();
+
+    service.requestPasswordReset('user@example.com');
+
+    const request = httpMock.expectOne((req) => req.url.endsWith('/auth/forgot_password'));
+    request.flush({ msg: 'user not found', err: 'INVALID_CREDENTIALS' }, { status: 400, statusText: 'Bad Request' });
+
+    expect(service.forgotPasswordError()).toBeNull();
+    expect(service.passwordResetRequested()).toBeTrue();
+  });
+
+  it('sets generic forgot password error code when request fails with non-400 status', () => {
+    const service = createService();
+
+    service.requestPasswordReset('user@example.com');
+
+    const request = httpMock.expectOne((req) => req.url.endsWith('/auth/forgot_password'));
+    request.flush({ detail: 'server error' }, { status: 500, statusText: 'Server Error' });
+
+    expect(service.forgotPasswordError()).toBe('request_failed');
+    expect(service.passwordResetRequested()).toBeFalse();
+  });
+
+  it('clears forgot password feedback state explicitly', () => {
+    const service = createService();
+
+    service.requestPasswordReset('user@example.com');
+
+    const request = httpMock.expectOne((req) => req.url.endsWith('/auth/forgot_password'));
+    request.flush({ msg: 'Password reset email sent' });
+    expect(service.passwordResetRequested()).toBeTrue();
+
+    service.clearForgotPasswordState();
+    expect(service.forgotPasswordError()).toBeNull();
+    expect(service.passwordResetRequested()).toBeFalse();
+  });
+
   it('clears stored marker return URL on logout when authenticated', () => {
     tokenMap.set('access_token', 'access-token-1');
     tokenMap.set('auth_email', 'user@example.com');

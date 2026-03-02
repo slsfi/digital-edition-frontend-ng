@@ -990,6 +990,12 @@
         <target>Sähköpostiosoite</target>
       </segment>
     </unit>
+    <unit id="Login.EmailNotVerified">
+      <segment state="initial">
+        <source>Du måste verifiera din e-postadress innan du kan logga in. Kontrollera din inkorg för ett e-postmeddelande med en verifieringslänk. Om länken har gått ut eller om du inte har fått något e-postmeddelande måste du registrera dig igen.</source>
+        <target>Sinun on vahvistettava sähköpostiosoitteesi ennen kuin voit kirjautua sisään. Tarkista sähköpostisi vahvistuslinkin sisältävän viestin varalta. Jos linkki on vanhentunut tai et saanut viestiä, sinun täytyy rekisteröityä uudelleen.</target>
+      </segment>
+    </unit>
     <unit id="Login.ForgotPassword">
       <segment state="initial">
         <source>Glömt lösenordet?</source>
@@ -1000,6 +1006,12 @@
       <segment state="initial">
         <source>Fel e-postadress eller lösenord.</source>
         <target>Virheellinen sähköpostiosoite tai salasana.</target>
+      </segment>
+    </unit>
+    <unit id="Login.NoCredentials">
+      <segment state="initial">
+        <source>Ange e-postadress och lösenord.</source>
+        <target>Anna sähköpostiosoite ja salasana.</target>
       </segment>
     </unit>
     <unit id="Login.OrDivider">

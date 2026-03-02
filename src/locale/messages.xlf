@@ -826,6 +826,11 @@
         <source>E-postadress</source>
       </segment>
     </unit>
+    <unit id="Login.EmailNotVerified">
+      <segment>
+        <source>Du måste verifiera din e-postadress innan du kan logga in. Kontrollera din inkorg för ett e-postmeddelande med en verifieringslänk. Om länken har gått ut eller om du inte har fått något e-postmeddelande måste du registrera dig igen.</source>
+      </segment>
+    </unit>
     <unit id="Login.ForgotPassword">
       <segment>
         <source>Glömt lösenordet?</source>
@@ -834,6 +839,11 @@
     <unit id="Login.InvalidCredentials">
       <segment>
         <source>Fel e-postadress eller lösenord.</source>
+      </segment>
+    </unit>
+    <unit id="Login.NoCredentials">
+      <segment>
+        <source>Ange e-postadress och lösenord.</source>
       </segment>
     </unit>
     <unit id="Login.OrDivider">

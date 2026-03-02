@@ -22,7 +22,7 @@ export class LoginPage {
   readonly showTermsLink: boolean = config.component?.mainSideMenu?.items?.termsOfUse === true;
   readonly showPrivacyPolicyLink: boolean = config.component?.mainSideMenu?.items?.privacyPolicy === true;
 
-  onSubmit(): void {
+  attemptLogin(): void {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       return;

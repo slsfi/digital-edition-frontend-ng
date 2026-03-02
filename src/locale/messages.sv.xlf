@@ -990,6 +990,12 @@
         <target>E-postadress</target>
       </segment>
     </unit>
+    <unit id="Login.EmailNotVerified">
+      <segment state="initial">
+        <source>Du måste verifiera din e-postadress innan du kan logga in. Kontrollera din inkorg för ett e-postmeddelande med en verifieringslänk. Om länken har gått ut eller om du inte har fått något e-postmeddelande måste du registrera dig igen.</source>
+        <target>Du måste verifiera din e-postadress innan du kan logga in. Kontrollera din inkorg för ett e-postmeddelande med en verifieringslänk. Om länken har gått ut eller om du inte har fått något e-postmeddelande måste du registrera dig igen.</target>
+      </segment>
+    </unit>
     <unit id="Login.ForgotPassword">
       <segment state="initial">
         <source>Glömt lösenordet?</source>
@@ -1000,6 +1006,12 @@
       <segment state="initial">
         <source>Fel e-postadress eller lösenord.</source>
         <target>Fel e-postadress eller lösenord.</target>
+      </segment>
+    </unit>
+    <unit id="Login.NoCredentials">
+      <segment state="initial">
+        <source>Ange e-postadress och lösenord.</source>
+        <target>Ange e-postadress och lösenord.</target>
       </segment>
     </unit>
     <unit id="Login.OrDivider">

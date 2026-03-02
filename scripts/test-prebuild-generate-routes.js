@@ -114,15 +114,32 @@ test('isAuthProtectedRouteBlock detects authGuard in canActivate array', () => {
   );
 });
 
-test('extractAuthProtectedRoutePaths returns unique guarded paths', () => {
+test('isAuthProtectedRouteBlock detects authFeatureEnabledMatchGuard in canMatch array', () => {
+  assert.strictEqual(
+    isAuthProtectedRouteBlock(`{ path: 'forgot-password', canMatch: [authFeatureEnabledMatchGuard] }`),
+    true
+  );
+  assert.strictEqual(
+    isAuthProtectedRouteBlock(`{ path: 'reset-password', canMatch: [authFeatureEnabledMatchGuard, otherGuard] }`),
+    true
+  );
+  assert.strictEqual(
+    isAuthProtectedRouteBlock(`{ path: 'about', canMatch: [otherGuard] }`),
+    false
+  );
+});
+
+test('extractAuthProtectedRoutePaths returns unique client-rendered auth route paths', () => {
   const blocks = [
     `{ path: 'account', canActivate: [authGuard] }`,
     `{ path: 'search', canActivate: [authGuard, anotherGuard] }`,
+    `{ path: 'forgot-password', canMatch: [authFeatureEnabledMatchGuard] }`,
+    `{ path: 'reset-password', canMatch: [authFeatureEnabledMatchGuard] }`,
     `{ path: 'about' }`,
     `{ path: 'account', canActivate: [authGuard] }`
   ];
   const paths = extractAuthProtectedRoutePaths(blocks);
-  assert.deepStrictEqual(paths, ['account', 'search']);
+  assert.deepStrictEqual(paths, ['account', 'forgot-password', 'reset-password', 'search']);
 });
 
 test('getAuthProtectedRoutePaths returns empty list when auth is disabled', () => {

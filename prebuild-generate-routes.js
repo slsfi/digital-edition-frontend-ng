@@ -293,7 +293,11 @@ function extractAuthProtectedRoutePaths(routeBlocks) {
 }
 
 function isAuthProtectedRouteBlock(routeBlock) {
-  return /canActivate\s*:\s*\[[^\]]*\bauthGuard\b[^\]]*\]/s.test(routeBlock);
+  const usesAuthGuard = /canActivate\s*:\s*\[[^\]]*\bauthGuard\b[^\]]*\]/s.test(routeBlock);
+  const usesAuthFeatureEnabledMatchGuard =
+    /canMatch\s*:\s*\[[^\]]*\bauthFeatureEnabledMatchGuard\b[^\]]*\]/s.test(routeBlock);
+
+  return usesAuthGuard || usesAuthFeatureEnabledMatchGuard;
 }
 
 function renderAuthProtectedRoutesFile(routePaths, featureBasedRoutes, authEnabled) {
@@ -308,7 +312,8 @@ function renderAuthProtectedRoutesFile(routePaths, featureBasedRoutes, authEnabl
  * Feature-based route filtering: ${featureBasedRoutes}
  * Auth feature enabled: ${authEnabled}
  *
- * Route paths that are guarded by authGuard in the effective app routes.
+ * Route paths that should be client-rendered when auth is enabled.
+ * Includes paths that use authGuard and/or authFeatureEnabledMatchGuard.
  * This list is intentionally empty when app.auth.enabled is false.
  */
 export const authProtectedRoutePaths: readonly string[] = [

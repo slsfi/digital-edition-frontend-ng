@@ -22,3 +22,7 @@ p {
 ion-button.button.custom-button {
   min-height: 42px;
 }
+
+ion-button + ion-button {
+  margin-top: 1rem;
+}

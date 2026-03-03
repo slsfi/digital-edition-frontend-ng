@@ -698,7 +698,7 @@
     </unit>
     <unit id="ForgotPassword.Success">
       <segment>
-        <source>Om det finns ett konto för den här e-postadressen har en återställningslänk skickats.</source>
+        <source>Om det finns ett konto för den angivna e-postadressen har en återställningslänk skickats.</source>
       </segment>
     </unit>
     <unit id="ForgotPassword.Title">

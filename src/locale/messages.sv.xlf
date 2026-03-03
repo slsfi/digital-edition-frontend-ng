@@ -836,8 +836,8 @@
     </unit>
     <unit id="ForgotPassword.Success">
       <segment state="initial">
-        <source>Om det finns ett konto för den här e-postadressen har en återställningslänk skickats.</source>
-        <target>Om det finns ett konto för den här e-postadressen har en återställningslänk skickats.</target>
+        <source>Om det finns ett konto för den angivna e-postadressen har en återställningslänk skickats.</source>
+        <target>Om det finns ett konto för den angivna e-postadressen har en återställningslänk skickats.</target>
       </segment>
     </unit>
     <unit id="ForgotPassword.Title">

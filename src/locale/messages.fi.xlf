@@ -836,8 +836,8 @@
     </unit>
     <unit id="ForgotPassword.Success">
       <segment state="initial">
-        <source>Om det finns ett konto för den här e-postadressen har en återställningslänk skickats.</source>
-        <target>Jos tällä sähköpostiosoitteella on tili, salasanan palautuslinkki on lähetetty.</target>
+        <source>Om det finns ett konto för den angivna e-postadressen har en återställningslänk skickats.</source>
+        <target>Jos sähköpostiosoitteella on tili, salasanan palautuslinkki on lähetetty siihen.</target>
       </segment>
     </unit>
     <unit id="ForgotPassword.Title">

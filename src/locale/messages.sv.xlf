@@ -18,6 +18,18 @@
         <target>Sidans innehåll kunde inte laddas.</target>
       </segment>
     </unit>
+    <unit id="Account.ChangePasswordButton">
+      <segment state="initial">
+        <source>Ändra lösenord</source>
+        <target>Ändra lösenord</target>
+      </segment>
+    </unit>
+    <unit id="Account.DeleteAccountInstruction">
+      <segment state="initial">
+        <source>Om du vill radera ditt konto, skicka ett meddelande från din kontoadress till <pc id="0" equivStart="START_LINK" equivEnd="CLOSE_LINK" type="link" dispStart="&lt;a href=&quot;mailto:info@sls.fi&quot;&gt;" dispEnd="&lt;/a&gt;">info@sls.fi</pc> med rubriken ”SLS digitala utgåvor, radera konto”.</source>
+        <target>Om du vill radera ditt konto, skicka ett meddelande från din kontoadress till <pc id="0" equivStart="START_LINK" equivEnd="CLOSE_LINK" type="link" dispStart="&lt;a href=&quot;mailto:info@sls.fi&quot;&gt;" dispEnd="&lt;/a&gt;">info@sls.fi</pc> med rubriken ”SLS digitala utgåvor, radera konto”.</target>
+      </segment>
+    </unit>
     <unit id="Account.Description">
       <segment state="initial">
         <source>Du är inloggad.</source>
@@ -28,12 +40,6 @@
       <segment state="initial">
         <source>Du är inloggad med e-postadressen</source>
         <target>Du är inloggad med e-postadressen</target>
-      </segment>
-    </unit>
-    <unit id="Account.ChangePasswordButton">
-      <segment state="initial">
-        <source>Ändra lösenord</source>
-        <target>Ändra lösenord</target>
       </segment>
     </unit>
     <unit id="Account.LogoutButton">
@@ -804,16 +810,16 @@
         <target>Zooma ut</target>
       </segment>
     </unit>
-    <unit id="ForgotPassword.BackToLogin">
-      <segment state="initial">
-        <source>Tillbaka till inloggning</source>
-        <target>Tillbaka till inloggning</target>
-      </segment>
-    </unit>
     <unit id="ForgotPassword.BackToAccount">
       <segment state="initial">
         <source>Tillbaka till användarkonto</source>
         <target>Tillbaka till användarkonto</target>
+      </segment>
+    </unit>
+    <unit id="ForgotPassword.BackToLogin">
+      <segment state="initial">
+        <source>Tillbaka till inloggning</source>
+        <target>Tillbaka till inloggning</target>
       </segment>
     </unit>
     <unit id="ForgotPassword.ChangeDescription">
@@ -1050,12 +1056,6 @@
         <target>För att komma åt innehållet i den digitala utgåvan behöver du ett användarkonto.</target>
       </segment>
     </unit>
-    <unit id="Login.PasswordResetSuccess">
-      <segment state="initial">
-        <source>Lösenordet har återställts. Du kan nu logga in med ditt nya lösenord.</source>
-        <target>Lösenordet har återställts. Du kan nu logga in med ditt nya lösenord.</target>
-      </segment>
-    </unit>
     <unit id="Login.ConsentPrivacyOnly">
       <segment state="initial">
         <source> Genom att logga in godkänner du <pc id="0" equivStart="START_LINK" equivEnd="CLOSE_LINK" type="link" dispStart="&lt;a [routerLink]=&quot;[&apos;/privacy-policy&apos;]&quot;&gt;" dispEnd="&lt;/a&gt;">dataskyddsbeskrivningen</pc>. </source>
@@ -1120,6 +1120,12 @@
       <segment state="initial">
         <source>Lösenord</source>
         <target>Lösenord</target>
+      </segment>
+    </unit>
+    <unit id="Login.PasswordResetSuccess">
+      <segment state="initial">
+        <source>Lösenordet har återställts. Du kan nu logga in med ditt nya lösenord.</source>
+        <target>Lösenordet har återställts. Du kan nu logga in med ditt nya lösenord.</target>
       </segment>
     </unit>
     <unit id="Login.RequestFailed">

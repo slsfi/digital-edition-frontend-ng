@@ -18,6 +18,18 @@
         <target>Sivun sisällön lataus epäonnistui.</target>
       </segment>
     </unit>
+    <unit id="Account.ChangePasswordButton">
+      <segment state="initial">
+        <source>Ändra lösenord</source>
+        <target>Vaihda salasana</target>
+      </segment>
+    </unit>
+    <unit id="Account.DeleteAccountInstruction">
+      <segment state="initial">
+        <source>Om du vill radera ditt konto, skicka ett meddelande från din kontoadress till <pc id="0" equivStart="START_LINK" equivEnd="CLOSE_LINK" type="link" dispStart="&lt;a href=&quot;mailto:info@sls.fi&quot;&gt;" dispEnd="&lt;/a&gt;">info@sls.fi</pc> med rubriken ”SLS digitala utgåvor, radera konto”.</source>
+        <target>Jos haluat poistaa tilisi, lähetä viesti tilisi sähköpostiosoitteesta osoitteeseen <pc id="0" equivStart="START_LINK" equivEnd="CLOSE_LINK" type="link" dispStart="&lt;a href=&quot;mailto:info@sls.fi&quot;&gt;" dispEnd="&lt;/a&gt;">info@sls.fi</pc> otsikolla ”SLS digitaaliset editiot, tilin poistaminen”.</target>
+      </segment>
+    </unit>
     <unit id="Account.Description">
       <segment state="initial">
         <source>Du är inloggad.</source>
@@ -28,12 +40,6 @@
       <segment state="initial">
         <source>Du är inloggad med e-postadressen</source>
         <target>Olet kirjautuneena sähköpostiosoitteella</target>
-      </segment>
-    </unit>
-    <unit id="Account.ChangePasswordButton">
-      <segment state="initial">
-        <source>Ändra lösenord</source>
-        <target>Vaihda salasana</target>
       </segment>
     </unit>
     <unit id="Account.LogoutButton">
@@ -804,16 +810,16 @@
         <target>Pienennä</target>
       </segment>
     </unit>
-    <unit id="ForgotPassword.BackToLogin">
-      <segment state="initial">
-        <source>Tillbaka till inloggning</source>
-        <target>Takaisin kirjautumiseen</target>
-      </segment>
-    </unit>
     <unit id="ForgotPassword.BackToAccount">
       <segment state="initial">
         <source>Tillbaka till användarkonto</source>
         <target>Takaisin käyttäjätilille</target>
+      </segment>
+    </unit>
+    <unit id="ForgotPassword.BackToLogin">
+      <segment state="initial">
+        <source>Tillbaka till inloggning</source>
+        <target>Takaisin kirjautumiseen</target>
       </segment>
     </unit>
     <unit id="ForgotPassword.ChangeDescription">
@@ -1050,12 +1056,6 @@
         <target>Digitaalisen edition sisällön käyttämiseen tarvitset käyttäjätilin.</target>
       </segment>
     </unit>
-    <unit id="Login.PasswordResetSuccess">
-      <segment state="initial">
-        <source>Lösenordet har återställts. Du kan nu logga in med ditt nya lösenord.</source>
-        <target>Salasanasi on palautettu. Voit nyt kirjautua sisään uudella salasanallasi.</target>
-      </segment>
-    </unit>
     <unit id="Login.ConsentPrivacyOnly">
       <segment state="initial">
         <source> Genom att logga in godkänner du <pc id="0" equivStart="START_LINK" equivEnd="CLOSE_LINK" type="link" dispStart="&lt;a [routerLink]=&quot;[&apos;/privacy-policy&apos;]&quot;&gt;" dispEnd="&lt;/a&gt;">dataskyddsbeskrivningen</pc>. </source>
@@ -1120,6 +1120,12 @@
       <segment state="initial">
         <source>Lösenord</source>
         <target>Salasana</target>
+      </segment>
+    </unit>
+    <unit id="Login.PasswordResetSuccess">
+      <segment state="initial">
+        <source>Lösenordet har återställts. Du kan nu logga in med ditt nya lösenord.</source>
+        <target>Salasanasi on palautettu. Voit nyt kirjautua sisään uudella salasanallasi.</target>
       </segment>
     </unit>
     <unit id="Login.RequestFailed">
@@ -2186,4 +2192,3 @@
     </unit>
   </file>
 </xliff>
-

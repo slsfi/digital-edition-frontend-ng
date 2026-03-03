@@ -16,6 +16,16 @@
         <source>Sidans innehåll kunde inte laddas.</source>
       </segment>
     </unit>
+    <unit id="Account.ChangePasswordButton">
+      <segment>
+        <source>Ändra lösenord</source>
+      </segment>
+    </unit>
+    <unit id="Account.DeleteAccountInstruction">
+      <segment>
+        <source>Om du vill radera ditt konto, skicka ett meddelande från din kontoadress till <pc id="0" equivStart="START_LINK" equivEnd="CLOSE_LINK" type="link" dispStart="&lt;a href=&quot;mailto:info@sls.fi&quot;&gt;" dispEnd="&lt;/a&gt;">info@sls.fi</pc> med rubriken ”SLS digitala utgåvor, radera konto”.</source>
+      </segment>
+    </unit>
     <unit id="Account.Description">
       <segment>
         <source>Du är inloggad.</source>
@@ -24,11 +34,6 @@
     <unit id="Account.DescriptionWithEmail">
       <segment>
         <source>Du är inloggad med e-postadressen</source>
-      </segment>
-    </unit>
-    <unit id="Account.ChangePasswordButton">
-      <segment>
-        <source>Ändra lösenord</source>
       </segment>
     </unit>
     <unit id="Account.LogoutButton">
@@ -671,14 +676,14 @@
         <source>Zooma ut</source>
       </segment>
     </unit>
-    <unit id="ForgotPassword.BackToLogin">
-      <segment>
-        <source>Tillbaka till inloggning</source>
-      </segment>
-    </unit>
     <unit id="ForgotPassword.BackToAccount">
       <segment>
         <source>Tillbaka till användarkonto</source>
+      </segment>
+    </unit>
+    <unit id="ForgotPassword.BackToLogin">
+      <segment>
+        <source>Tillbaka till inloggning</source>
       </segment>
     </unit>
     <unit id="ForgotPassword.ChangeDescription">
@@ -876,11 +881,6 @@
         <source>För att komma åt innehållet i den digitala utgåvan behöver du ett användarkonto.</source>
       </segment>
     </unit>
-    <unit id="Login.PasswordResetSuccess">
-      <segment>
-        <source>Lösenordet har återställts. Du kan nu logga in med ditt nya lösenord.</source>
-      </segment>
-    </unit>
     <unit id="Login.ConsentPrivacyOnly">
       <segment>
         <source> Genom att logga in godkänner du <pc id="0" equivStart="START_LINK" equivEnd="CLOSE_LINK" type="link" dispStart="&lt;a [routerLink]=&quot;[&apos;/privacy-policy&apos;]&quot;&gt;" dispEnd="&lt;/a&gt;">dataskyddsbeskrivningen</pc>. </source>
@@ -934,6 +934,11 @@
     <unit id="Login.PasswordLabel">
       <segment>
         <source>Lösenord</source>
+      </segment>
+    </unit>
+    <unit id="Login.PasswordResetSuccess">
+      <segment>
+        <source>Lösenordet har återställts. Du kan nu logga in med ditt nya lösenord.</source>
       </segment>
     </unit>
     <unit id="Login.RequestFailed">
@@ -1823,4 +1828,3 @@
     </unit>
   </file>
 </xliff>
-

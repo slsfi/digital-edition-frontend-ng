@@ -26,6 +26,11 @@
         <source>Du är inloggad med e-postadressen</source>
       </segment>
     </unit>
+    <unit id="Account.ChangePasswordButton">
+      <segment>
+        <source>Ändra lösenord</source>
+      </segment>
+    </unit>
     <unit id="Account.LogoutButton">
       <segment>
         <source>Logga ut</source>
@@ -669,6 +674,36 @@
     <unit id="ForgotPassword.BackToLogin">
       <segment>
         <source>Tillbaka till inloggning</source>
+      </segment>
+    </unit>
+    <unit id="ForgotPassword.BackToAccount">
+      <segment>
+        <source>Tillbaka till användarkonto</source>
+      </segment>
+    </unit>
+    <unit id="ForgotPassword.ChangeDescription">
+      <segment>
+        <source>Ange e-postadressen för ditt konto så skickar vi en länk för att ändra ditt lösenord.</source>
+      </segment>
+    </unit>
+    <unit id="ForgotPassword.ChangeRequestFailed">
+      <segment>
+        <source>Begäran om lösenordsändring misslyckades. Försök igen senare.</source>
+      </segment>
+    </unit>
+    <unit id="ForgotPassword.ChangeSubmitButton">
+      <segment>
+        <source>Skicka ändringslänk</source>
+      </segment>
+    </unit>
+    <unit id="ForgotPassword.ChangeSuccess">
+      <segment>
+        <source>Om det finns ett konto för den angivna e-postadressen har en länk för att ändra lösenord skickats.</source>
+      </segment>
+    </unit>
+    <unit id="ForgotPassword.ChangeTitle">
+      <segment>
+        <source>Ändra lösenord</source>
       </segment>
     </unit>
     <unit id="ForgotPassword.Description">
@@ -1788,3 +1823,4 @@
     </unit>
   </file>
 </xliff>
+

@@ -30,6 +30,12 @@
         <target>You are logged in with the email address</target>
       </segment>
     </unit>
+    <unit id="Account.ChangePasswordButton">
+      <segment state="initial">
+        <source>Ändra lösenord</source>
+        <target>Change password</target>
+      </segment>
+    </unit>
     <unit id="Account.LogoutButton">
       <segment state="initial">
         <source>Logga ut</source>
@@ -802,6 +808,42 @@
       <segment state="initial">
         <source>Tillbaka till inloggning</source>
         <target>Back to login</target>
+      </segment>
+    </unit>
+    <unit id="ForgotPassword.BackToAccount">
+      <segment state="initial">
+        <source>Tillbaka till användarkonto</source>
+        <target>Back to account</target>
+      </segment>
+    </unit>
+    <unit id="ForgotPassword.ChangeDescription">
+      <segment state="initial">
+        <source>Ange e-postadressen för ditt konto så skickar vi en länk för att ändra ditt lösenord.</source>
+        <target>Enter your account email address and we will send you a link to change your password.</target>
+      </segment>
+    </unit>
+    <unit id="ForgotPassword.ChangeRequestFailed">
+      <segment state="initial">
+        <source>Begäran om lösenordsändring misslyckades. Försök igen senare.</source>
+        <target>Password change request failed. Please try again later.</target>
+      </segment>
+    </unit>
+    <unit id="ForgotPassword.ChangeSubmitButton">
+      <segment state="initial">
+        <source>Skicka ändringslänk</source>
+        <target>Send change link</target>
+      </segment>
+    </unit>
+    <unit id="ForgotPassword.ChangeSuccess">
+      <segment state="initial">
+        <source>Om det finns ett konto för den angivna e-postadressen har en länk för att ändra lösenord skickats.</source>
+        <target>If an account exists for the email address, a password change link has been sent.</target>
+      </segment>
+    </unit>
+    <unit id="ForgotPassword.ChangeTitle">
+      <segment state="initial">
+        <source>Ändra lösenord</source>
+        <target>Change password</target>
       </segment>
     </unit>
     <unit id="ForgotPassword.Description">
@@ -2144,3 +2186,4 @@
     </unit>
   </file>
 </xliff>
+

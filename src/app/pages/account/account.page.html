@@ -1,4 +1,4 @@
-<ion-content>
+﻿<ion-content>
   <article class="account-page">
     <h1 i18n="@@Account.Title">Användarkonto</h1>
     @if (authenticatedEmail(); as email) {
@@ -6,6 +6,13 @@
     } @else {
       <p i18n="@@Account.Description">Du är inloggad.</p>
     }
+    <ion-button
+      type="button"
+      expand="block"
+      class="custom-button"
+      [routerLink]="['/change-password']"
+      i18n="@@Account.ChangePasswordButton"
+    >Ändra lösenord</ion-button>
     <ion-button
       type="button"
       expand="block"

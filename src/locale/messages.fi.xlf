@@ -30,6 +30,12 @@
         <target>Olet kirjautuneena sähköpostiosoitteella</target>
       </segment>
     </unit>
+    <unit id="Account.ChangePasswordButton">
+      <segment state="initial">
+        <source>Ändra lösenord</source>
+        <target>Vaihda salasana</target>
+      </segment>
+    </unit>
     <unit id="Account.LogoutButton">
       <segment state="initial">
         <source>Logga ut</source>
@@ -802,6 +808,42 @@
       <segment state="initial">
         <source>Tillbaka till inloggning</source>
         <target>Takaisin kirjautumiseen</target>
+      </segment>
+    </unit>
+    <unit id="ForgotPassword.BackToAccount">
+      <segment state="initial">
+        <source>Tillbaka till användarkonto</source>
+        <target>Takaisin käyttäjätilille</target>
+      </segment>
+    </unit>
+    <unit id="ForgotPassword.ChangeDescription">
+      <segment state="initial">
+        <source>Ange e-postadressen för ditt konto så skickar vi en länk för att ändra ditt lösenord.</source>
+        <target>Anna tilisi sähköpostiosoite, niin lähetämme sinulle linkin salasanan vaihtamista varten.</target>
+      </segment>
+    </unit>
+    <unit id="ForgotPassword.ChangeRequestFailed">
+      <segment state="initial">
+        <source>Begäran om lösenordsändring misslyckades. Försök igen senare.</source>
+        <target>Salasanan vaihtopyyntö epäonnistui. Yritä myöhemmin uudelleen.</target>
+      </segment>
+    </unit>
+    <unit id="ForgotPassword.ChangeSubmitButton">
+      <segment state="initial">
+        <source>Skicka ändringslänk</source>
+        <target>Lähetä vaihtolinkki</target>
+      </segment>
+    </unit>
+    <unit id="ForgotPassword.ChangeSuccess">
+      <segment state="initial">
+        <source>Om det finns ett konto för den angivna e-postadressen har en länk för att ändra lösenord skickats.</source>
+        <target>Jos sähköpostiosoitteella on tili, salasanan vaihtolinkki on lähetetty siihen.</target>
+      </segment>
+    </unit>
+    <unit id="ForgotPassword.ChangeTitle">
+      <segment state="initial">
+        <source>Ändra lösenord</source>
+        <target>Vaihda salasana</target>
       </segment>
     </unit>
     <unit id="ForgotPassword.Description">
@@ -2144,3 +2186,4 @@
     </unit>
   </file>
 </xliff>
+

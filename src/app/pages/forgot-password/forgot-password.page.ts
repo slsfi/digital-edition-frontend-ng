@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnDestroy } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
 
 import { AuthService } from '@services/auth.service';
@@ -9,7 +9,7 @@ import { AuthService } from '@services/auth.service';
   styleUrls: ['./forgot-password.page.scss'],
   standalone: false
 })
-export class ForgotPasswordPage {
+export class ForgotPasswordPage implements OnDestroy {
   private readonly formBuilder = inject(FormBuilder);
   private readonly authService = inject(AuthService);
 
@@ -30,6 +30,14 @@ export class ForgotPasswordPage {
   }
 
   clearFeedbackState(): void {
+    this.authService.clearForgotPasswordState();
+  }
+
+  ionViewWillLeave(): void {
+    this.authService.clearForgotPasswordState();
+  }
+
+  ngOnDestroy(): void {
     this.authService.clearForgotPasswordState();
   }
 }

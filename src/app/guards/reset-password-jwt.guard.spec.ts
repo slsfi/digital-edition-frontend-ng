@@ -19,27 +19,36 @@ describe('resetPasswordJwtGuard', () => {
     });
   });
 
-  it('allows route when jwt query parameter exists', () => {
+  it('allows route when jwt fragment parameter exists', () => {
     const result = executeGuard(
-      { queryParamMap: { get: () => 'valid-token' } } as any,
+      { fragment: 'jwt=valid-token' } as any,
       {} as any
     );
 
     expect(result).toBe(true);
   });
 
-  it('redirects to forgot-password when jwt query parameter is missing', () => {
+  it('allows route when fragment includes a leading #', () => {
     const result = executeGuard(
-      { queryParamMap: { get: () => null } } as any,
+      { fragment: '#jwt=valid-token' } as any,
+      {} as any
+    );
+
+    expect(result).toBe(true);
+  });
+
+  it('redirects to forgot-password when jwt fragment parameter is missing', () => {
+    const result = executeGuard(
+      { fragment: null } as any,
       {} as any
     );
 
     expect(asUrl(result)).toBe('/forgot-password');
   });
 
-  it('redirects to forgot-password when jwt query parameter is empty', () => {
+  it('redirects to forgot-password when jwt fragment parameter is empty', () => {
     const result = executeGuard(
-      { queryParamMap: { get: () => '   ' } } as any,
+      { fragment: 'jwt=   ' } as any,
       {} as any
     );
 

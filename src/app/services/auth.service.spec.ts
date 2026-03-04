@@ -414,8 +414,9 @@ describe('AuthService', () => {
 
     service.resetPassword(' reset-token ', 'new-password-1234');
 
-    const request = httpMock.expectOne((req) => req.url.endsWith('/auth/reset_password?jwt=reset-token'));
+    const request = httpMock.expectOne((req) => req.url.endsWith('/auth/reset_password'));
     expect(request.request.body).toEqual({ password: 'new-password-1234' });
+    expect(request.request.headers.get('Authorization')).toBe('Bearer reset-token');
     request.flush({ msg: 'New password set for user@example.com' });
 
     expect(service.resetPasswordError()).toBeNull();
@@ -443,7 +444,8 @@ describe('AuthService', () => {
 
     service.resetPassword('reset-token', 'new-password-1234');
 
-    const request = httpMock.expectOne((req) => req.url.endsWith('/auth/reset_password?jwt=reset-token'));
+    const request = httpMock.expectOne((req) => req.url.endsWith('/auth/reset_password'));
+    expect(request.request.headers.get('Authorization')).toBe('Bearer reset-token');
     request.flush({ msg: 'missing password', err: 'NO_CREDENTIALS' }, { status: 400, statusText: 'Bad Request' });
 
     expect(service.resetPasswordError()).toBe('no_credentials');
@@ -455,7 +457,8 @@ describe('AuthService', () => {
 
     service.resetPassword('reset-token', 'short');
 
-    const request = httpMock.expectOne((req) => req.url.endsWith('/auth/reset_password?jwt=reset-token'));
+    const request = httpMock.expectOne((req) => req.url.endsWith('/auth/reset_password'));
+    expect(request.request.headers.get('Authorization')).toBe('Bearer reset-token');
     request.flush(
       { msg: 'password too short', err: 'PASSWORD_TOO_SHORT' },
       { status: 400, statusText: 'Bad Request' }
@@ -470,7 +473,8 @@ describe('AuthService', () => {
 
     service.resetPassword('reset-token', 'new-password-1234');
 
-    const request = httpMock.expectOne((req) => req.url.endsWith('/auth/reset_password?jwt=reset-token'));
+    const request = httpMock.expectOne((req) => req.url.endsWith('/auth/reset_password'));
+    expect(request.request.headers.get('Authorization')).toBe('Bearer reset-token');
     request.flush({ msg: 'token expired' }, { status: 401, statusText: 'Unauthorized' });
 
     expect(service.resetPasswordError()).toBe('invalid_link');
@@ -482,7 +486,8 @@ describe('AuthService', () => {
 
     service.resetPassword('reset-token', 'new-password-1234');
 
-    const request = httpMock.expectOne((req) => req.url.endsWith('/auth/reset_password?jwt=reset-token'));
+    const request = httpMock.expectOne((req) => req.url.endsWith('/auth/reset_password'));
+    expect(request.request.headers.get('Authorization')).toBe('Bearer reset-token');
     request.flush({ detail: 'server error' }, { status: 500, statusText: 'Server Error' });
 
     expect(service.resetPasswordError()).toBe('request_failed');
@@ -494,7 +499,8 @@ describe('AuthService', () => {
 
     service.resetPassword('reset-token', 'new-password-1234');
 
-    const request = httpMock.expectOne((req) => req.url.endsWith('/auth/reset_password?jwt=reset-token'));
+    const request = httpMock.expectOne((req) => req.url.endsWith('/auth/reset_password'));
+    expect(request.request.headers.get('Authorization')).toBe('Bearer reset-token');
     request.flush({ msg: 'New password set for user@example.com' });
     expect(service.passwordResetCompleted()).toBeTrue();
 

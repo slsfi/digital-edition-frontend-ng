@@ -209,10 +209,10 @@ export class AuthService {
       return;
     }
 
-    const encodedToken = encodeURIComponent(normalizedToken);
-    const url = `${this.backendAuthBaseURL}auth/reset_password?jwt=${encodedToken}`;
+    const url = `${this.backendAuthBaseURL}auth/reset_password`;
+    const headers = { Authorization: `Bearer ${normalizedToken}` };
     const body: ResetPasswordRequest = { password };
-    this.http.post<ResetPasswordResponse>(url, body).subscribe({
+    this.http.post<ResetPasswordResponse>(url, body, { headers }).subscribe({
       next: () => {
         this._passwordResetCompleted.set(true);
         this.logout();

@@ -23,6 +23,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 ### Fixed
 
 - Auth: clear partial token state and logout on 401 without refresh token.
+- Auth: resolve password change flow by route segment.
 
 
 

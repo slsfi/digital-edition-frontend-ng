@@ -1,5 +1,5 @@
-import { Component, inject, OnDestroy } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { Component, computed, inject, OnDestroy, signal } from '@angular/core';
+import { PRIMARY_OUTLET, Router } from '@angular/router';
 import { FormBuilder, Validators } from '@angular/forms';
 
 import { AuthService } from '@services/auth.service';
@@ -15,10 +15,10 @@ type PasswordFlowMode = 'forgot' | 'change';
 export class ForgotPasswordPage implements OnDestroy {
   private readonly formBuilder = inject(FormBuilder);
   private readonly authService = inject(AuthService);
-  private readonly route = inject(ActivatedRoute);
-  readonly flowMode: PasswordFlowMode = this.resolveFlowMode();
-  readonly isChangePasswordMode = this.flowMode === 'change';
-  readonly backRoute = this.isChangePasswordMode ? '/account' : '/login';
+  private readonly router = inject(Router);
+  private readonly flowMode = signal<PasswordFlowMode>('forgot');
+  readonly isChangePasswordMode = computed(() => this.flowMode() === 'change');
+  readonly backRoute = computed(() => this.isChangePasswordMode() ? '/account' : '/login');
 
   readonly form = this.formBuilder.nonNullable.group({
     email: ['', [Validators.required, Validators.email]]
@@ -27,12 +27,8 @@ export class ForgotPasswordPage implements OnDestroy {
   readonly passwordResetRequested = this.authService.passwordResetRequested;
 
   constructor() {
-    if (this.isChangePasswordMode) {
-      const authenticatedEmail = this.authService.authenticatedEmail();
-      if (authenticatedEmail) {
-        this.form.controls.email.setValue(authenticatedEmail);
-      }
-    }
+    this.syncFlowModeFromRoute();
+    this.prefillAuthenticatedEmailForChangeMode();
   }
 
   attemptPasswordRecovery(): void {
@@ -53,12 +49,40 @@ export class ForgotPasswordPage implements OnDestroy {
     this.authService.clearForgotPasswordState();
   }
 
+  ionViewWillEnter(): void {
+    this.syncFlowModeFromRoute();
+    this.prefillAuthenticatedEmailForChangeMode();
+  }
+
   ngOnDestroy(): void {
     this.authService.clearForgotPasswordState();
   }
 
-  private resolveFlowMode(): PasswordFlowMode {
-    const routeMode = this.route.parent?.snapshot.data?.['passwordFlowMode'];
-    return routeMode === 'change' ? 'change' : 'forgot';
+  private syncFlowModeFromRoute(): void {
+    this.flowMode.set(this.resolveFlowModeFromUrlSegments());
+  }
+
+  private prefillAuthenticatedEmailForChangeMode(): void {
+    if (!this.isChangePasswordMode()) {
+      return;
+    }
+
+    const authenticatedEmail = this.authService.authenticatedEmail();
+    if (authenticatedEmail) {
+      this.form.controls.email.setValue(authenticatedEmail);
+    }
+  }
+
+  private resolveFlowModeFromUrlSegments(): PasswordFlowMode {
+    try {
+      const urlTree = this.router.parseUrl(this.router.url);
+      const urlSegments = urlTree.root.children[PRIMARY_OUTLET]?.segments?.map((segment) => segment.path) ?? [];
+      if (urlSegments.includes('change-password')) {
+        return 'change';
+      }
+      return 'forgot';
+    } catch {
+      return 'forgot';
+    }
   }
 }

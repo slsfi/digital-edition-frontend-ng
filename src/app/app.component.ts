@@ -169,6 +169,15 @@ export class AppComponent implements OnInit {
       case 'search':
         this.headService.setTitle([$localize`:@@TopMenu.Search:Sök`]);
         return;
+      case 'forgot-password':
+        this.headService.setTitle([$localize`:@@ForgotPassword.Title:Glömt lösenordet?`]);
+        return;
+      case 'change-password':
+        this.headService.setTitle([$localize`:@@ForgotPassword.ChangeTitle:Ändra lösenord`]);
+        return;
+      case 'reset-password':
+        this.headService.setTitle([$localize`:@@ResetPassword.Title:Återställ lösenord`]);
+        return;
       default:
         !routeBasePath && this.headService.setTitle();
         return;

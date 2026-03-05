@@ -20,6 +20,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 - Auth: Map login errors from backend error codes.
 - Deps: update `@angular/cli` to 20.3.19.
+- Deps: update `marked` to 17.0.4.
 
 ### Fixed
 

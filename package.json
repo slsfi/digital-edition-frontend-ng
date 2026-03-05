@@ -32,7 +32,7 @@
     "@angular/platform-browser": "^20.3.17",
     "@angular/platform-server": "^20.3.17",
     "@angular/router": "^20.3.17",
-    "@angular/ssr": "^20.3.18",
+    "@angular/ssr": "^20.3.19",
     "@ionic/angular": "8.2.2",
     "@ionic/angular-server": "8.2.2",
     "express": "^5.2.1",
@@ -47,8 +47,8 @@
     "zone.js": "~0.15.1"
   },
   "devDependencies": {
-    "@angular-devkit/build-angular": "^20.3.18",
-    "@angular/cli": "^20.3.18",
+    "@angular-devkit/build-angular": "^20.3.19",
+    "@angular/cli": "^20.3.19",
     "@angular/compiler-cli": "^20.3.17",
     "@angular/language-service": "^20.3.17",
     "@angular/localize": "^20.3.17",

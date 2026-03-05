@@ -1,5 +1,5 @@
-import { Component, inject, OnDestroy } from '@angular/core';
-import { ActivatedRoute, PRIMARY_OUTLET, Router } from '@angular/router';
+import { Component, computed, inject, OnDestroy, signal } from '@angular/core';
+import { PRIMARY_OUTLET, Router } from '@angular/router';
 import { FormBuilder, Validators } from '@angular/forms';
 
 import { AuthService } from '@services/auth.service';
@@ -15,17 +15,10 @@ type PasswordFlowMode = 'forgot' | 'change';
 export class ForgotPasswordPage implements OnDestroy {
   private readonly formBuilder = inject(FormBuilder);
   private readonly authService = inject(AuthService);
-  private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
-  private flowMode: PasswordFlowMode = 'forgot';
-
-  get isChangePasswordMode(): boolean {
-    return this.flowMode === 'change';
-  }
-
-  get backRoute(): string {
-    return this.isChangePasswordMode ? '/account' : '/login';
-  }
+  private readonly flowMode = signal<PasswordFlowMode>('forgot');
+  readonly isChangePasswordMode = computed(() => this.flowMode() === 'change');
+  readonly backRoute = computed(() => this.isChangePasswordMode() ? '/account' : '/login');
 
   readonly form = this.formBuilder.nonNullable.group({
     email: ['', [Validators.required, Validators.email]]
@@ -66,11 +59,11 @@ export class ForgotPasswordPage implements OnDestroy {
   }
 
   private syncFlowModeFromRoute(): void {
-    this.flowMode = this.resolveFlowModeFromRoute();
+    this.flowMode.set(this.resolveFlowModeFromUrlSegments());
   }
 
   private prefillAuthenticatedEmailForChangeMode(): void {
-    if (!this.isChangePasswordMode) {
+    if (!this.isChangePasswordMode()) {
       return;
     }
 
@@ -80,47 +73,16 @@ export class ForgotPasswordPage implements OnDestroy {
     }
   }
 
-  private resolveFlowModeFromRoute(): PasswordFlowMode {
-    const modeFromUrlSegments = this.resolveFlowModeFromUrlSegments();
-    if (modeFromUrlSegments !== null) {
-      return modeFromUrlSegments;
-    }
-
-    for (const activatedRoute of [...this.route.pathFromRoot].reverse()) {
-      const routeMode = activatedRoute.snapshot.data?.['passwordFlowMode'];
-      if (routeMode === 'change' || routeMode === 'forgot') {
-        return routeMode;
-      }
-    }
-
-    // Fallback: infer mode from the matched route path when route data is not
-    // available on the current activated route chain.
-    for (const activatedRoute of [...this.route.pathFromRoot].reverse()) {
-      const routePath = activatedRoute.snapshot.routeConfig?.path;
-      if (routePath === 'change-password') {
-        return 'change';
-      }
-      if (routePath === 'forgot-password') {
-        return 'forgot';
-      }
-    }
-
-    return 'forgot';
-  }
-
-  private resolveFlowModeFromUrlSegments(): PasswordFlowMode | null {
+  private resolveFlowModeFromUrlSegments(): PasswordFlowMode {
     try {
       const urlTree = this.router.parseUrl(this.router.url);
       const urlSegments = urlTree.root.children[PRIMARY_OUTLET]?.segments?.map((segment) => segment.path) ?? [];
       if (urlSegments.includes('change-password')) {
         return 'change';
       }
-      if (urlSegments.includes('forgot-password')) {
-        return 'forgot';
-      }
-      return null;
+      return 'forgot';
     } catch {
-      return null;
+      return 'forgot';
     }
   }
 }

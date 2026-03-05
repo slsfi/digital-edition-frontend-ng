@@ -86,13 +86,11 @@ export const routes: Routes = [
   {
     path: 'forgot-password',
     loadChildren: () => import('./pages/forgot-password/forgot-password.module').then(m => m.ForgotPasswordPageModule),
-    data: { passwordFlowMode: 'forgot' },
     canMatch: [authFeatureEnabledMatchGuard]
   },
   {
     path: 'change-password',
     loadChildren: () => import('./pages/forgot-password/forgot-password.module').then(m => m.ForgotPasswordPageModule),
-    data: { passwordFlowMode: 'change' },
     canMatch: [authFeatureEnabledMatchGuard],
     canActivate: [authGuard]
   },

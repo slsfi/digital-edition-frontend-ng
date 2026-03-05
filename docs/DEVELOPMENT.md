@@ -302,7 +302,23 @@ In feature-based route mode, the `login` route is included only when `app.auth.e
 - Bearer token is attached only to requests targeting configured backend URLs (`backendBaseURL` / `backendAuthBaseURL`).
 - Bearer token is never attached to `/auth/*` endpoints.
 - Refresh attempt is only made for backend 401 responses outside `/auth/*`.
+- When a backend 401 occurs for a request that used a stored access token but no refresh token is available, the user is logged out and redirected to `/login`.
 - `AuthService.refreshToken()` has defense-in-depth: if refresh token is missing, it fails fast, logs out, and skips network request.
+- On app startup, `AuthService` treats a stored session as authenticated only when both `access_token` and `refresh_token` exist; partial token state is cleared.
+
+### Manual auth regression checklist (JWT expiry/invalidation)
+
+Use this checklist after auth/interceptor/guard changes.
+
+- Preconditions: `app.auth.enabled = true`, backend auth endpoints enabled, and at least one protected content route available (for example `/collection/:collectionID/text`).
+- Use browser DevTools to inspect/edit local storage keys: `access_token`, `refresh_token`, `auth_email`.
+
+1. Logged-out baseline: clear all three keys and open `/account`. Expected result: redirect to `/login`.
+2. Happy-path login: log in and open `/account`. Expected result: account page is accessible and protected content routes load normally.
+3. Partial stale state: keep only `access_token` in local storage (remove `refresh_token` and `auth_email`), then reload and open `/account`. Expected result: app clears stale state and redirects to `/login`.
+4. Backend-invalidated session with both tokens present: keep both tokens in local storage, invalidate them in backend, then open a protected route that performs backend requests (for example `/collection/:collectionID/text`). Expected result: first backend 401 triggers logout and redirect to `/login`.
+5. Expired access token but valid refresh token: force backend to return 401 for access token while refresh still works, then open protected content. Expected result: one refresh attempt is made, request is retried, and user remains logged in.
+6. Invalid refresh token: force backend to return 401 for refresh, then open protected content. Expected result: user is logged out and redirected to `/login`.
 
 ### SSR note
 
@@ -314,7 +330,7 @@ To avoid SSR/client mismatches on auth-guarded routes, the Express SSR server se
 
 - `/login` and `/account` are excluded from sitemap generation.
 - When `app.auth.enabled` is `true`, auth-protected routes are excluded from sitemap generation.
-- In current route setup this means collection routes and media-collection routes are excluded from `sitemap.txt` in auth mode.
+- In current generator rules this includes collection routes, `index/:type`, `media-collection`, and `search` (in addition to always-excluded auth routes above).
 
 ### Static collection menus in auth mode
 

@@ -112,11 +112,14 @@ export class AuthService {
    */
   constructor() {
     const accessToken = this.getAccessToken();
-    this._isAuthenticated.set(accessToken !== null);
-    if (accessToken !== null) {
+    const refreshToken = this.getRefreshToken();
+    const hasCompleteStoredSession = accessToken !== null && refreshToken !== null;
+
+    this._isAuthenticated.set(hasCompleteStoredSession);
+    if (hasCompleteStoredSession) {
       this._authenticatedEmail.set(this.getStorageItem(AUTH_EMAIL_STORAGE_KEY));
     } else {
-      this.removeStorageItem(AUTH_EMAIL_STORAGE_KEY);
+      this.clearAuthState(false);
     }
   }
 

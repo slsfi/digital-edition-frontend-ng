@@ -33,9 +33,10 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const isBackendRequest = isRequestToConfiguredBackend(req.url);
   const isAuthEndpoint = isBackendRequest && req.url.includes('/auth/');
   const hasAuthorizationHeader = req.headers.has('Authorization');
+  const shouldAttachAccessToken = !!authToken && isBackendRequest && !isAuthEndpoint && !hasAuthorizationHeader;
   let authReq = req;
 
-  if (authToken && isBackendRequest && !isAuthEndpoint && !hasAuthorizationHeader) {
+  if (shouldAttachAccessToken) {
     authReq = req.clone({
       setHeaders: {
         Authorization: `Bearer ${authToken}`
@@ -46,7 +47,8 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   return next(authReq).pipe(
     catchError((err) => {
       const hasRefreshToken = !!authService.getRefreshToken();
-      if (err.status === 401 && isBackendRequest && !isAuthEndpoint && hasRefreshToken) {
+      const isBackendUnauthorized = err.status === 401 && isBackendRequest && !isAuthEndpoint;
+      if (isBackendUnauthorized && hasRefreshToken) {
         return authService.refreshToken().pipe(
           switchMap((access_token) => {
             const newAuthReq = req.clone({
@@ -64,6 +66,10 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
             return throwError(() => refreshError);
           })
         );
+      }
+      if (isBackendUnauthorized && !hasRefreshToken && shouldAttachAccessToken) {
+        authService.logout();
+        router.navigate(['/login'], { replaceUrl: true });
       }
       return throwError(() => err);
     })

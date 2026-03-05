@@ -6,6 +6,9 @@
       <h1 i18n="@@Login.Title">Logga in</h1>
 
       <p class="center" i18n="@@Login.AccountNeededForAccess">För att komma åt innehållet i den digitala utgåvan behöver du ett användarkonto.</p>
+      @if (passwordResetSuccess) {
+        <p class="auth-success center" i18n="@@Login.PasswordResetSuccess">Lösenordet har återställts. Du kan nu logga in med ditt nya lösenord.</p>
+      }
 
       <ion-input
         formControlName="email"
@@ -32,7 +35,7 @@
       >
         <ion-input-password-toggle slot="end"></ion-input-password-toggle>
       </ion-input>
-      <p class="forgot-password"><a href="/" i18n="@@Login.ForgotPassword">Glömt lösenordet?</a></p>
+      <p class="forgot-password"><a [routerLink]="['/forgot-password']" i18n="@@Login.ForgotPassword">Glömt lösenordet?</a></p>
       @if (loginErrorValue === 'invalid_credentials') {
         <p class="auth-error center" i18n="@@Login.InvalidCredentials">Fel e-postadress eller lösenord.</p>
       }

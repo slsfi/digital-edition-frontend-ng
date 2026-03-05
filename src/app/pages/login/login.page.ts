@@ -1,4 +1,5 @@
 import { Component, inject } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { FormBuilder, Validators } from '@angular/forms';
 
 import { config } from '@config';
@@ -12,6 +13,7 @@ import { AuthService } from '@services/auth.service';
 })
 export class LoginPage {
   private readonly formBuilder = inject(FormBuilder);
+  private readonly route = inject(ActivatedRoute);
   private readonly authService = inject(AuthService);
 
   readonly form = this.formBuilder.nonNullable.group({
@@ -19,6 +21,7 @@ export class LoginPage {
     password: ['', [Validators.required]]
   });
   readonly loginError = this.authService.loginError;
+  readonly passwordResetSuccess: boolean = this.route.snapshot.queryParamMap.get('passwordReset') === 'success';
   readonly showTermsLink: boolean = config.component?.mainSideMenu?.items?.termsOfUse === true;
   readonly showPrivacyPolicyLink: boolean = config.component?.mainSideMenu?.items?.privacyPolicy === true;
 

@@ -18,6 +18,18 @@
         <target>Sidans innehåll kunde inte laddas.</target>
       </segment>
     </unit>
+    <unit id="Account.ChangePasswordButton">
+      <segment state="initial">
+        <source>Ändra lösenord</source>
+        <target>Ändra lösenord</target>
+      </segment>
+    </unit>
+    <unit id="Account.DeleteAccountInstruction">
+      <segment state="initial">
+        <source>Om du vill radera ditt konto, skicka ett meddelande från din kontoadress till <pc id="0" equivStart="START_LINK" equivEnd="CLOSE_LINK" type="link" dispStart="&lt;a href=&quot;mailto:info@sls.fi&quot;&gt;" dispEnd="&lt;/a&gt;">info@sls.fi</pc> med rubriken ”SLS digitala utgåvor, radera konto”.</source>
+        <target>Om du vill radera ditt konto, skicka ett meddelande från din kontoadress till <pc id="0" equivStart="START_LINK" equivEnd="CLOSE_LINK" type="link" dispStart="&lt;a href=&quot;mailto:info@sls.fi&quot;&gt;" dispEnd="&lt;/a&gt;">info@sls.fi</pc> med rubriken ”SLS digitala utgåvor, radera konto”.</target>
+      </segment>
+    </unit>
     <unit id="Account.Description">
       <segment state="initial">
         <source>Du är inloggad.</source>
@@ -798,6 +810,90 @@
         <target>Zooma ut</target>
       </segment>
     </unit>
+    <unit id="ForgotPassword.BackToAccount">
+      <segment state="initial">
+        <source>Tillbaka till användarkonto</source>
+        <target>Tillbaka till användarkonto</target>
+      </segment>
+    </unit>
+    <unit id="ForgotPassword.BackToLogin">
+      <segment state="initial">
+        <source>Tillbaka till inloggning</source>
+        <target>Tillbaka till inloggning</target>
+      </segment>
+    </unit>
+    <unit id="ForgotPassword.ChangeDescription">
+      <segment state="initial">
+        <source>Ange e-postadressen för ditt konto så skickar vi en länk för att ändra ditt lösenord.</source>
+        <target>Ange e-postadressen för ditt konto så skickar vi en länk för att ändra ditt lösenord.</target>
+      </segment>
+    </unit>
+    <unit id="ForgotPassword.ChangeRequestFailed">
+      <segment state="initial">
+        <source>Begäran om lösenordsändring misslyckades. Försök igen senare.</source>
+        <target>Begäran om lösenordsändring misslyckades. Försök igen senare.</target>
+      </segment>
+    </unit>
+    <unit id="ForgotPassword.ChangeSubmitButton">
+      <segment state="initial">
+        <source>Skicka ändringslänk</source>
+        <target>Skicka ändringslänk</target>
+      </segment>
+    </unit>
+    <unit id="ForgotPassword.ChangeSuccess">
+      <segment state="initial">
+        <source>Om det finns ett konto för den angivna e-postadressen har en länk för att ändra lösenord skickats.</source>
+        <target>Om det finns ett konto för den angivna e-postadressen har en länk för att ändra lösenord skickats.</target>
+      </segment>
+    </unit>
+    <unit id="ForgotPassword.ChangeTitle">
+      <segment state="initial">
+        <source>Ändra lösenord</source>
+        <target>Ändra lösenord</target>
+      </segment>
+    </unit>
+    <unit id="ForgotPassword.Description">
+      <segment state="initial">
+        <source>Ange e-postadressen för ditt konto så skickar vi en länk för att återställa lösenordet.</source>
+        <target>Ange e-postadressen för ditt konto så skickar vi en länk för att återställa lösenordet.</target>
+      </segment>
+    </unit>
+    <unit id="ForgotPassword.EmailLabel">
+      <segment state="initial">
+        <source>E-postadress</source>
+        <target>E-postadress</target>
+      </segment>
+    </unit>
+    <unit id="ForgotPassword.OrDivider">
+      <segment state="initial">
+        <source>eller</source>
+        <target>eller</target>
+      </segment>
+    </unit>
+    <unit id="ForgotPassword.RequestFailed">
+      <segment state="initial">
+        <source>Begäran om återställning misslyckades. Försök igen senare.</source>
+        <target>Begäran om återställning misslyckades. Försök igen senare.</target>
+      </segment>
+    </unit>
+    <unit id="ForgotPassword.SubmitButton">
+      <segment state="initial">
+        <source>Skicka återställningslänk</source>
+        <target>Skicka återställningslänk</target>
+      </segment>
+    </unit>
+    <unit id="ForgotPassword.Success">
+      <segment state="initial">
+        <source>Om det finns ett konto för den angivna e-postadressen har en återställningslänk skickats.</source>
+        <target>Om det finns ett konto för den angivna e-postadressen har en återställningslänk skickats.</target>
+      </segment>
+    </unit>
+    <unit id="ForgotPassword.Title">
+      <segment state="initial">
+        <source>Glömt lösenordet?</source>
+        <target>Glömt lösenordet?</target>
+      </segment>
+    </unit>
     <unit id="FullscreenImageViewer.ToggleDescription">
       <segment state="initial">
         <source>Visa/dölj beskrivning</source>
@@ -1024,6 +1120,12 @@
       <segment state="initial">
         <source>Lösenord</source>
         <target>Lösenord</target>
+      </segment>
+    </unit>
+    <unit id="Login.PasswordResetSuccess">
+      <segment state="initial">
+        <source>Lösenordet har återställts. Du kan nu logga in med ditt nya lösenord.</source>
+        <target>Lösenordet har återställts. Du kan nu logga in med ditt nya lösenord.</target>
       </segment>
     </unit>
     <unit id="Login.RequestFailed">
@@ -1698,6 +1800,84 @@
         <target>Hänvisa till denna sida</target>
       </segment>
     </unit>
+    <unit id="ResetPassword.BackToLogin">
+      <segment state="initial">
+        <source>Tillbaka till inloggning</source>
+        <target>Tillbaka till inloggning</target>
+      </segment>
+    </unit>
+    <unit id="ResetPassword.ConfirmPasswordLabel">
+      <segment state="initial">
+        <source>Bekräfta nytt lösenord</source>
+        <target>Bekräfta nytt lösenord</target>
+      </segment>
+    </unit>
+    <unit id="ResetPassword.Description">
+      <segment state="initial">
+        <source>Ange ett nytt lösenord för ditt konto.</source>
+        <target>Ange ett nytt lösenord för ditt konto.</target>
+      </segment>
+    </unit>
+    <unit id="ResetPassword.InvalidLink">
+      <segment state="initial">
+        <source>Återställningslänken är ogiltig eller har löpt ut.</source>
+        <target>Återställningslänken är ogiltig eller har löpt ut.</target>
+      </segment>
+    </unit>
+    <unit id="ResetPassword.NoCredentials">
+      <segment state="initial">
+        <source>Ange ett nytt lösenord.</source>
+        <target>Ange ett nytt lösenord.</target>
+      </segment>
+    </unit>
+    <unit id="ResetPassword.OrDivider">
+      <segment state="initial">
+        <source>eller</source>
+        <target>eller</target>
+      </segment>
+    </unit>
+    <unit id="ResetPassword.PasswordLabel">
+      <segment state="initial">
+        <source>Nytt lösenord</source>
+        <target>Nytt lösenord</target>
+      </segment>
+    </unit>
+    <unit id="ResetPassword.PasswordsDoNotMatch">
+      <segment state="initial">
+        <source>Lösenorden matchar inte.</source>
+        <target>Lösenorden matchar inte.</target>
+      </segment>
+    </unit>
+    <unit id="ResetPassword.PasswordTooShort">
+      <segment state="initial">
+        <source>Lösenordet måste vara minst 12 tecken långt.</source>
+        <target>Lösenordet måste vara minst 12 tecken långt.</target>
+      </segment>
+    </unit>
+    <unit id="ResetPassword.RequestFailed">
+      <segment state="initial">
+        <source>Återställningen av lösenordet misslyckades. Försök igen senare.</source>
+        <target>Återställningen av lösenordet misslyckades. Försök igen senare.</target>
+      </segment>
+    </unit>
+    <unit id="ResetPassword.SubmitButton">
+      <segment state="initial">
+        <source>Spara nytt lösenord</source>
+        <target>Spara nytt lösenord</target>
+      </segment>
+    </unit>
+    <unit id="ResetPassword.Success">
+      <segment state="initial">
+        <source>Lösenordet har återställts. Du kan nu logga in med ditt nya lösenord.</source>
+        <target>Lösenordet har återställts. Du kan nu logga in med ditt nya lösenord.</target>
+      </segment>
+    </unit>
+    <unit id="ResetPassword.Title">
+      <segment state="initial">
+        <source>Återställ lösenord</source>
+        <target>Återställ lösenord</target>
+      </segment>
+    </unit>
     <unit id="Site.MetaDescription.Home">
       <segment state="initial">
         <source>En generell beskrivning av webbplatsen för sökmotorer.</source>
@@ -2012,3 +2192,4 @@
     </unit>
   </file>
 </xliff>
+

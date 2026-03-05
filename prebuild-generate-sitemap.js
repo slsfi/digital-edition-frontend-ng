@@ -6,7 +6,10 @@ const configFilepath = 'src/assets/config/config.ts';
 const sitemapFilename = 'sitemap.txt';
 const SITEMAP_EXCLUDED_ROUTE_PATH_KEYS = Object.freeze([
   'login',
-  'account'
+  'account',
+  'forgot-password',
+  'reset-password',
+  'change-password'
 ]);
 const AUTH_PROTECTED_ROUTE_PATH_KEYS = Object.freeze([
   'collection/:collectionID/cover',

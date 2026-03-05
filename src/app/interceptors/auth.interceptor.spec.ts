@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { HttpClient, provideHttpClient, withInterceptors } from '@angular/common/http';
+import { HttpClient, HttpHeaders, provideHttpClient, withInterceptors } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { Router } from '@angular/router';
 import { of, throwError } from 'rxjs';
@@ -18,6 +18,7 @@ describe('authInterceptor', () => {
   const backendAuthBaseURL = ensureTrailingSlash(config.app.auth.backendAuthBaseURL);
   const backendProtectedURL = `${backendBaseURL}protected`;
   const backendAuthLoginURL = `${backendAuthBaseURL}auth/login`;
+  const backendAuthResetPasswordURL = `${backendAuthBaseURL}auth/reset_password`;
   const nonBackendURL = 'https://example.com/non-backend';
 
   beforeEach(() => {
@@ -64,6 +65,18 @@ describe('authInterceptor', () => {
 
     const req = httpMock.expectOne(backendAuthLoginURL);
     expect(req.request.headers.has('Authorization')).toBeFalse();
+    req.flush({ ok: true });
+  });
+
+  it('preserves existing authorization header for reset-password auth endpoint requests', () => {
+    authService.getAccessToken.and.returnValue('abc-token');
+
+    http.post(backendAuthResetPasswordURL, {}, {
+      headers: new HttpHeaders({ Authorization: 'Bearer reset-token' })
+    }).subscribe();
+
+    const req = httpMock.expectOne(backendAuthResetPasswordURL);
+    expect(req.request.headers.get('Authorization')).toBe('Bearer reset-token');
     req.flush({ ok: true });
   });
 

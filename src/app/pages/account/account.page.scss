@@ -12,7 +12,14 @@ h1 {
 
 p {
   line-height: 1.5;
-  text-align: center;
+
+  + p {
+    margin-top: 0;
+  }
+
+  &.center {
+    text-align: center;
+  }
 }
 
 .account-page > :not(h1) {
@@ -21,4 +28,8 @@ p {
 
 ion-button.button.custom-button {
   min-height: 42px;
+}
+
+ion-button + ion-button {
+  margin-top: 1rem;
 }

@@ -15,7 +15,8 @@ const BACKEND_REQUEST_PREFIXES: string[] = resolveBackendRequestPrefixes();
  * Behavior summary:
  * - No-op when auth feature is disabled.
  * - Adds `Authorization: Bearer <access_token>` only for requests targeting
- *   configured backend URLs.
+ *   configured backend URLs, and only when request does not already provide
+ *   an Authorization header.
  * - Never adds bearer token for `/auth/*` endpoints.
  * - On backend 401 (excluding `/auth/*`), attempts one refresh flow and retries
  *   the original request with the new access token.
@@ -31,9 +32,10 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const authToken = authService.getAccessToken();
   const isBackendRequest = isRequestToConfiguredBackend(req.url);
   const isAuthEndpoint = isBackendRequest && req.url.includes('/auth/');
+  const hasAuthorizationHeader = req.headers.has('Authorization');
   let authReq = req;
 
-  if (authToken && isBackendRequest && !isAuthEndpoint) {
+  if (authToken && isBackendRequest && !isAuthEndpoint && !hasAuthorizationHeader) {
     authReq = req.clone({
       setHeaders: {
         Authorization: `Bearer ${authToken}`

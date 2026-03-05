@@ -3,10 +3,20 @@ export interface LoginRequest {
   password: string;
 }
 
+export interface ForgotPasswordRequest {
+  email: string;
+  language: string;
+}
+
+export interface ResetPasswordRequest {
+  password: string;
+}
+
 export type BackendAuthErrorCode =
   | 'NO_CREDENTIALS'
   | 'EMAIL_NOT_VERIFIED'
   | 'INCORRECT_CREDENTIALS'
+  | 'INVALID_CREDENTIALS'
   | 'PASSWORD_TOO_SHORT'
   | 'USER_ALREADY_EXISTS';
 
@@ -20,6 +30,14 @@ export interface LoginResponse {
   msg: string;
   refresh_token: string;
   user_projects: string[];
+}
+
+export interface ForgotPasswordResponse {
+  msg: string;
+}
+
+export interface ResetPasswordResponse {
+  msg: string;
 }
 
 export interface RefreshTokenResponse {

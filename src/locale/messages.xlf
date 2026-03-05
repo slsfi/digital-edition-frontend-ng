@@ -16,6 +16,16 @@
         <source>Sidans innehåll kunde inte laddas.</source>
       </segment>
     </unit>
+    <unit id="Account.ChangePasswordButton">
+      <segment>
+        <source>Ändra lösenord</source>
+      </segment>
+    </unit>
+    <unit id="Account.DeleteAccountInstruction">
+      <segment>
+        <source>Om du vill radera ditt konto, skicka ett meddelande från din kontoadress till <pc id="0" equivStart="START_LINK" equivEnd="CLOSE_LINK" type="link" dispStart="&lt;a href=&quot;mailto:info@sls.fi&quot;&gt;" dispEnd="&lt;/a&gt;">info@sls.fi</pc> med rubriken ”SLS digitala utgåvor, radera konto”.</source>
+      </segment>
+    </unit>
     <unit id="Account.Description">
       <segment>
         <source>Du är inloggad.</source>
@@ -666,6 +676,76 @@
         <source>Zooma ut</source>
       </segment>
     </unit>
+    <unit id="ForgotPassword.BackToAccount">
+      <segment>
+        <source>Tillbaka till användarkonto</source>
+      </segment>
+    </unit>
+    <unit id="ForgotPassword.BackToLogin">
+      <segment>
+        <source>Tillbaka till inloggning</source>
+      </segment>
+    </unit>
+    <unit id="ForgotPassword.ChangeDescription">
+      <segment>
+        <source>Ange e-postadressen för ditt konto så skickar vi en länk för att ändra ditt lösenord.</source>
+      </segment>
+    </unit>
+    <unit id="ForgotPassword.ChangeRequestFailed">
+      <segment>
+        <source>Begäran om lösenordsändring misslyckades. Försök igen senare.</source>
+      </segment>
+    </unit>
+    <unit id="ForgotPassword.ChangeSubmitButton">
+      <segment>
+        <source>Skicka ändringslänk</source>
+      </segment>
+    </unit>
+    <unit id="ForgotPassword.ChangeSuccess">
+      <segment>
+        <source>Om det finns ett konto för den angivna e-postadressen har en länk för att ändra lösenord skickats.</source>
+      </segment>
+    </unit>
+    <unit id="ForgotPassword.ChangeTitle">
+      <segment>
+        <source>Ändra lösenord</source>
+      </segment>
+    </unit>
+    <unit id="ForgotPassword.Description">
+      <segment>
+        <source>Ange e-postadressen för ditt konto så skickar vi en länk för att återställa lösenordet.</source>
+      </segment>
+    </unit>
+    <unit id="ForgotPassword.EmailLabel">
+      <segment>
+        <source>E-postadress</source>
+      </segment>
+    </unit>
+    <unit id="ForgotPassword.OrDivider">
+      <segment>
+        <source>eller</source>
+      </segment>
+    </unit>
+    <unit id="ForgotPassword.RequestFailed">
+      <segment>
+        <source>Begäran om återställning misslyckades. Försök igen senare.</source>
+      </segment>
+    </unit>
+    <unit id="ForgotPassword.SubmitButton">
+      <segment>
+        <source>Skicka återställningslänk</source>
+      </segment>
+    </unit>
+    <unit id="ForgotPassword.Success">
+      <segment>
+        <source>Om det finns ett konto för den angivna e-postadressen har en återställningslänk skickats.</source>
+      </segment>
+    </unit>
+    <unit id="ForgotPassword.Title">
+      <segment>
+        <source>Glömt lösenordet?</source>
+      </segment>
+    </unit>
     <unit id="FullscreenImageViewer.ToggleDescription">
       <segment>
         <source>Visa/dölj beskrivning</source>
@@ -854,6 +934,11 @@
     <unit id="Login.PasswordLabel">
       <segment>
         <source>Lösenord</source>
+      </segment>
+    </unit>
+    <unit id="Login.PasswordResetSuccess">
+      <segment>
+        <source>Lösenordet har återställts. Du kan nu logga in med ditt nya lösenord.</source>
       </segment>
     </unit>
     <unit id="Login.RequestFailed">
@@ -1414,6 +1499,71 @@
     <unit id="Reference.ReferToThisPage">
       <segment>
         <source>Hänvisa till denna sida</source>
+      </segment>
+    </unit>
+    <unit id="ResetPassword.BackToLogin">
+      <segment>
+        <source>Tillbaka till inloggning</source>
+      </segment>
+    </unit>
+    <unit id="ResetPassword.ConfirmPasswordLabel">
+      <segment>
+        <source>Bekräfta nytt lösenord</source>
+      </segment>
+    </unit>
+    <unit id="ResetPassword.Description">
+      <segment>
+        <source>Ange ett nytt lösenord för ditt konto.</source>
+      </segment>
+    </unit>
+    <unit id="ResetPassword.InvalidLink">
+      <segment>
+        <source>Återställningslänken är ogiltig eller har löpt ut.</source>
+      </segment>
+    </unit>
+    <unit id="ResetPassword.NoCredentials">
+      <segment>
+        <source>Ange ett nytt lösenord.</source>
+      </segment>
+    </unit>
+    <unit id="ResetPassword.OrDivider">
+      <segment>
+        <source>eller</source>
+      </segment>
+    </unit>
+    <unit id="ResetPassword.PasswordLabel">
+      <segment>
+        <source>Nytt lösenord</source>
+      </segment>
+    </unit>
+    <unit id="ResetPassword.PasswordsDoNotMatch">
+      <segment>
+        <source>Lösenorden matchar inte.</source>
+      </segment>
+    </unit>
+    <unit id="ResetPassword.PasswordTooShort">
+      <segment>
+        <source>Lösenordet måste vara minst 12 tecken långt.</source>
+      </segment>
+    </unit>
+    <unit id="ResetPassword.RequestFailed">
+      <segment>
+        <source>Återställningen av lösenordet misslyckades. Försök igen senare.</source>
+      </segment>
+    </unit>
+    <unit id="ResetPassword.SubmitButton">
+      <segment>
+        <source>Spara nytt lösenord</source>
+      </segment>
+    </unit>
+    <unit id="ResetPassword.Success">
+      <segment>
+        <source>Lösenordet har återställts. Du kan nu logga in med ditt nya lösenord.</source>
+      </segment>
+    </unit>
+    <unit id="ResetPassword.Title">
+      <segment>
+        <source>Återställ lösenord</source>
       </segment>
     </unit>
     <unit id="Site.MetaDescription.Home">

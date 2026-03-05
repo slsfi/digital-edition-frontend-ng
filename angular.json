@@ -141,34 +141,16 @@
         "extract-i18n": {
           "builder": "ng-extract-i18n-merge:ng-extract-i18n-merge",
           "options": {
+            "builderI18n": "@angular-devkit/build-angular:extract-i18n",
             "buildTarget": "app:build",
             "format": "xlf2",
             "outputPath": "src/locale",
+            "sort": "idAsc",
             "targetFiles": [
               "messages.fi.xlf",
               "messages.sv.xlf",
               "messages.en.xlf"
             ]
-          },
-          "configurations": {
-            "fi": {
-              "outputPath": "src/locale/",
-              "outFile": "messages.fi.xlf",
-              "i18nFormat": "xlf2",
-              "i18nLocale": "fi"
-            },
-            "sv": {
-              "outputPath": "src/locale/",
-              "outFile": "messages.sv.xlf",
-              "i18nFormat": "xlf2",
-              "i18nLocale": "sv"
-            },
-            "en": {
-              "outputPath": "src/locale/",
-              "outFile": "messages.en.xlf",
-              "i18nFormat": "xlf2",
-              "i18nLocale": "en"
-            }
           }
         },
         "test": {

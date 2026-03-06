@@ -104,7 +104,8 @@ export class AuthService {
     fallback: 'request_failed'
   };
 
-  private backendAuthBaseURL: string = this.resolveBackendAuthBaseURL();
+  private readonly backendAuthBaseURL: string = this.resolveBackendAuthBaseURL();
+  private readonly backendRequestPrefixes: readonly string[] = this.resolveBackendRequestPrefixes();
   private sessionValidationTTLms: number = this.resolveSessionValidationTTLms();
   private lastSessionValidationAt: number | null = null;
   private sessionValidationInFlight$: Observable<boolean> | null = null;
@@ -369,6 +370,13 @@ export class AuthService {
   }
 
   /**
+   * Returns true when URL targets one of the configured backend base URLs.
+   */
+  isRequestToConfiguredBackend(url: string): boolean {
+    return this.backendRequestPrefixes.some((prefix) => url.startsWith(prefix));
+  }
+
+  /**
    * Persists one token key/value through platform-specific storage.
    */
   private setStorageItem(key: string, value: string): void {
@@ -399,6 +407,16 @@ export class AuthService {
     } catch {
       return '';
     }
+  }
+
+  private resolveBackendRequestPrefixes(): readonly string[] {
+    const candidates = [config?.app?.backendBaseURL, this.backendAuthBaseURL];
+    const normalized = candidates
+      .filter((value): value is string => typeof value === 'string' && value.trim().length > 0)
+      .map((value) => value.trim())
+      .map((value) => (value.endsWith('/') ? value : `${value}/`));
+
+    return Array.from(new Set(normalized));
   }
 
   /**

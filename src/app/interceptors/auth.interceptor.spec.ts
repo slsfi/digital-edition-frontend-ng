@@ -12,23 +12,30 @@ import { AUTH_ENABLED } from '@tokens/auth.tokens';
 describe('authInterceptor', () => {
   let http: HttpClient;
   let httpMock: HttpTestingController;
-  let authService: jasmine.SpyObj<Pick<AuthService, 'getAccessToken' | 'getRefreshToken' | 'refreshToken' | 'logout'>>;
+  let authService: jasmine.SpyObj<
+    Pick<AuthService, 'getAccessToken' | 'getRefreshToken' | 'refreshToken' | 'logout' | 'isRequestToConfiguredBackend'>
+  >;
   let router: jasmine.SpyObj<Pick<Router, 'navigate'>>;
   const backendBaseURL = ensureTrailingSlash(config.app.backendBaseURL);
-  const backendAuthBaseURL = ensureTrailingSlash(config.app.auth.backendAuthBaseURL);
+  const backendAuthBaseURL = ensureTrailingSlash(resolveBackendAuthBaseURLForTests());
   const backendProtectedURL = `${backendBaseURL}protected`;
   const backendAuthLoginURL = `${backendAuthBaseURL}auth/login`;
   const backendAuthResetPasswordURL = `${backendAuthBaseURL}auth/reset_password`;
   const nonBackendURL = 'https://example.com/non-backend';
 
   beforeEach(() => {
-    authService = jasmine.createSpyObj<Pick<AuthService, 'getAccessToken' | 'getRefreshToken' | 'refreshToken' | 'logout'>>(
+    authService = jasmine.createSpyObj<
+      Pick<AuthService, 'getAccessToken' | 'getRefreshToken' | 'refreshToken' | 'logout' | 'isRequestToConfiguredBackend'>
+    >(
       'AuthService',
-      ['getAccessToken', 'getRefreshToken', 'refreshToken', 'logout']
+      ['getAccessToken', 'getRefreshToken', 'refreshToken', 'logout', 'isRequestToConfiguredBackend']
     );
     router = jasmine.createSpyObj<Pick<Router, 'navigate'>>('Router', ['navigate']);
     router.navigate.and.resolveTo(true);
     authService.getRefreshToken.and.returnValue('refresh-token');
+    authService.isRequestToConfiguredBackend.and.callFake((url: string) =>
+      url.startsWith(backendBaseURL) || url.startsWith(backendAuthBaseURL)
+    );
 
     TestBed.configureTestingModule({
       providers: [
@@ -190,4 +197,23 @@ describe('authInterceptor', () => {
 
 function ensureTrailingSlash(url: string): string {
   return url.endsWith('/') ? url : `${url}/`;
+}
+
+function resolveBackendAuthBaseURLForTests(): string {
+  const backendAuthBaseURL = config?.app?.auth?.backendAuthBaseURL;
+  if (typeof backendAuthBaseURL === 'string' && backendAuthBaseURL.trim().length > 0) {
+    return backendAuthBaseURL;
+  }
+
+  const backendBaseURL = config?.app?.backendBaseURL;
+  if (typeof backendBaseURL !== 'string' || backendBaseURL.trim().length === 0) {
+    return '';
+  }
+
+  try {
+    const parsed = new URL(backendBaseURL);
+    return `${parsed.protocol}//${parsed.host}/`;
+  } catch {
+    return '';
+  }
 }

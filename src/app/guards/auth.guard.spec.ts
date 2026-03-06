@@ -1,6 +1,7 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { CanActivateFn, UrlTree, provideRouter } from '@angular/router';
+import { firstValueFrom, isObservable, of, throwError } from 'rxjs';
 
 import {
   AuthRedirectStorageService,
@@ -15,19 +16,33 @@ describe('authGuard', () => {
   const executeGuard: CanActivateFn = (...guardParameters) =>
     TestBed.runInInjectionContext(() => authGuard(...guardParameters));
   const isAuthenticated = signal<boolean>(false);
+  let validateSessionIfStale: jasmine.Spy<() => any>;
   let authRedirectStorage: jasmine.SpyObj<Pick<AuthRedirectStorageService, 'storeReturnUrl' | 'consumeReturnUrl'>>;
 
   function asUrl(value: unknown): string | null {
     return value instanceof UrlTree ? value.toString() : null;
   }
 
-  function runGuard(url: string): unknown {
-    return executeGuard({} as any, { url } as any);
+  async function resolveGuardResult(result: unknown): Promise<unknown> {
+    if (result instanceof Promise) {
+      return result;
+    }
+
+    if (isObservable(result)) {
+      return firstValueFrom(result);
+    }
+
+    return result;
+  }
+
+  function runGuard(url: string, routeData: Record<string, unknown> = {}): unknown {
+    return executeGuard({ data: routeData } as any, { url } as any);
   }
 
   describe('when auth feature is disabled', () => {
     beforeEach(() => {
       isAuthenticated.set(false);
+      validateSessionIfStale = jasmine.createSpy('validateSessionIfStale').and.returnValue(of(true));
       authRedirectStorage = jasmine.createSpyObj<
         Pick<AuthRedirectStorageService, 'storeReturnUrl' | 'consumeReturnUrl'>
       >('AuthRedirectStorageService', ['storeReturnUrl', 'consumeReturnUrl']);
@@ -37,7 +52,7 @@ describe('authGuard', () => {
         providers: [
           provideRouter([]),
           { provide: AUTH_ENABLED, useValue: false },
-          { provide: AuthService, useValue: { isAuthenticated } },
+          { provide: AuthService, useValue: { isAuthenticated, validateSessionIfStale } },
           { provide: AuthRedirectStorageService, useValue: authRedirectStorage }
         ]
       });
@@ -49,12 +64,14 @@ describe('authGuard', () => {
 
       expect(protectedResult).toBe(true);
       expect(loginResult).toBe(true);
+      expect(validateSessionIfStale).not.toHaveBeenCalled();
     });
   });
 
   describe('when auth feature is enabled', () => {
     beforeEach(() => {
       isAuthenticated.set(false);
+      validateSessionIfStale = jasmine.createSpy('validateSessionIfStale').and.returnValue(of(true));
       authRedirectStorage = jasmine.createSpyObj<
         Pick<AuthRedirectStorageService, 'storeReturnUrl' | 'consumeReturnUrl'>
       >('AuthRedirectStorageService', ['storeReturnUrl', 'consumeReturnUrl']);
@@ -64,7 +81,7 @@ describe('authGuard', () => {
         providers: [
           provideRouter([]),
           { provide: AUTH_ENABLED, useValue: true },
-          { provide: AuthService, useValue: { isAuthenticated } },
+          { provide: AuthService, useValue: { isAuthenticated, validateSessionIfStale } },
           { provide: AuthRedirectStorageService, useValue: authRedirectStorage }
         ]
       });
@@ -76,6 +93,41 @@ describe('authGuard', () => {
       const result = runGuard('/collection/123/text');
 
       expect(result).toBe(true);
+      expect(validateSessionIfStale).not.toHaveBeenCalled();
+    });
+
+    it('validates session for routes requiring session validation when authenticated', async () => {
+      isAuthenticated.set(true);
+      validateSessionIfStale.and.returnValue(of(true));
+
+      const result = runGuard('/account', { requiresSessionValidation: true });
+
+      expect(await resolveGuardResult(result)).toBe(true);
+      expect(validateSessionIfStale).toHaveBeenCalledTimes(1);
+    });
+
+    it('redirects to /login when session validation fails with 401', async () => {
+      isAuthenticated.set(true);
+      validateSessionIfStale.and.returnValue(throwError(() => ({ status: 401 })));
+
+      const result = runGuard('/account', { requiresSessionValidation: true });
+      const resolvedResult = await resolveGuardResult(result);
+
+      expect(resolvedResult).toEqual(jasmine.any(UrlTree));
+      expect(authRedirectStorage.storeReturnUrl).toHaveBeenCalledWith('/account');
+      expect(asUrl(resolvedResult)).toBe(
+        `/login?${AUTH_REDIRECT_MARKER_QUERY_PARAM}=${AUTH_REDIRECT_MARKER_VALUE}`
+      );
+    });
+
+    it('fails open when session validation fails with non-401 error', async () => {
+      isAuthenticated.set(true);
+      validateSessionIfStale.and.returnValue(throwError(() => ({ status: 503 })));
+
+      const result = runGuard('/account', { requiresSessionValidation: true });
+
+      expect(await resolveGuardResult(result)).toBe(true);
+      expect(authRedirectStorage.storeReturnUrl).not.toHaveBeenCalled();
     });
 
     it('redirects protected route to /login when unauthenticated', () => {

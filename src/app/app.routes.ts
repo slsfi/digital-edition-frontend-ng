@@ -102,6 +102,7 @@ export const routes: Routes = [
   },
   {
     path: 'account',
+    data: { requiresSessionValidation: true },
     loadChildren: () => import('./pages/account/account.module').then(m => m.AccountPageModule),
     canMatch: [authFeatureEnabledMatchGuard],
     canActivate: [authGuard]

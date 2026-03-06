@@ -1,5 +1,6 @@
 import { inject } from '@angular/core';
-import { CanActivateFn, Router } from '@angular/router';
+import { ActivatedRouteSnapshot, CanActivateFn, Router, UrlTree } from '@angular/router';
+import { catchError, map, of } from 'rxjs';
 
 import {
   AuthRedirectStorageService,
@@ -16,20 +17,25 @@ const MAX_RETURN_URL_LENGTH = 2000;
  *
  * Behavior:
  * - Authenticated users can access protected routes.
+ * - For protected routes with `data.requiresSessionValidation === true`, the guard
+ *   validates server-side session state before allowing navigation.
  * - Unauthenticated users are redirected to `/login` with a short marker query
  *   param, and intended target URL is stored in session-scoped storage.
  * - If marker storage is unavailable (for example SSR), guard falls back to
  *   legacy `returnUrl` query parameter.
  * - Authenticated users trying to open `/login` are redirected to stored target
  *   URL (when marker is present) or legacy `returnUrl`, otherwise to `/`.
+ * - Session validation 401 errors are treated as unauthenticated and redirect to
+ *   `/login`; non-401 probe errors are fail-open (navigation is allowed).
  * - If `AUTH_ENABLED` is false, guard is a no-op and always allows.
  *
- * Auth state is read synchronously from AuthService's signal.
+ * Auth state is read synchronously from AuthService's signal, with optional
+ * async server validation on routes that opt in.
  *
  * Redirects are returned as UrlTrees (instead of imperative navigation),
  * which is the recommended Angular guard pattern.
  */
-export const authGuard: CanActivateFn = (_route, state) => {
+export const authGuard: CanActivateFn = (route, state) => {
   const authEnabled = inject(AUTH_ENABLED);
   if (!authEnabled) {
     return true;
@@ -53,10 +59,36 @@ export const authGuard: CanActivateFn = (_route, state) => {
   }
 
   if (isAuthenticated) {
-    return true; // User is authenticated, allow access
+    if (!requiresSessionValidation(route)) {
+      return true; // User is authenticated, allow access
+    }
+
+    return authService.validateSessionIfStale().pipe(
+      map(() => true),
+      catchError((error) => {
+        if ((error as { status?: unknown } | null)?.status === 401) {
+          return of(createLoginRedirectUrlTree(router, authRedirectStorage, state.url));
+        }
+
+        // Fail-open for transient probe failures (network/backend errors).
+        return of(true);
+      })
+    );
   }
 
-  const safeTargetURL = getSafeInternalURL(router, state.url);
+  return createLoginRedirectUrlTree(router, authRedirectStorage, state.url);
+};
+
+function requiresSessionValidation(route: ActivatedRouteSnapshot): boolean {
+  return route.data?.['requiresSessionValidation'] === true;
+}
+
+function createLoginRedirectUrlTree(
+  router: Router,
+  authRedirectStorage: AuthRedirectStorageService,
+  targetUrl: string
+): UrlTree {
+  const safeTargetURL = getSafeInternalURL(router, targetUrl);
   if (safeTargetURL && authRedirectStorage.storeReturnUrl(safeTargetURL)) {
     return router.createUrlTree(['/login'], {
       queryParams: {
@@ -66,8 +98,8 @@ export const authGuard: CanActivateFn = (_route, state) => {
   }
 
   // Fallback for unsupported/unavailable storage contexts.
-  return router.createUrlTree(['/login'], { queryParams: { returnUrl: state.url } });
-};
+  return router.createUrlTree(['/login'], { queryParams: { returnUrl: targetUrl } });
+}
 
 /**
  * Resolves a safe redirect target when the current route is `/login`.

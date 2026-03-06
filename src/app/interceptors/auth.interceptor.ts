@@ -3,11 +3,8 @@ import { HttpInterceptorFn } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { catchError, switchMap, throwError } from 'rxjs';
 
-import { config } from '@config';
 import { AuthService } from '@services/auth.service';
 import { AUTH_ENABLED } from '@tokens/auth.tokens';
-
-const BACKEND_REQUEST_PREFIXES: string[] = resolveBackendRequestPrefixes();
 
 /**
  * Authentication interceptor.
@@ -18,8 +15,14 @@ const BACKEND_REQUEST_PREFIXES: string[] = resolveBackendRequestPrefixes();
  *   configured backend URLs, and only when request does not already provide
  *   an Authorization header.
  * - Never adds bearer token for `/auth/*` endpoints.
- * - On backend 401 (excluding `/auth/*`), attempts one refresh flow and retries
- *   the original request with the new access token.
+ * - On backend 401 (excluding `/auth/*`), attempts one refresh flow only when
+ *   a refresh token is present.
+ * - Refresh retry always sets `Authorization: Bearer <new_access_token>` on the
+ *   retried request, overriding any previous Authorization header value.
+ * - If refresh fails with 401, logs out and redirects to `/login`.
+ * - If backend 401 occurs with no refresh token and this interceptor had
+ *   attached an access token to the original request, logs out and redirects to
+ *   `/login`.
  */
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const authEnabled = inject(AUTH_ENABLED);
@@ -30,7 +33,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const router = inject(Router);
   const authService = inject(AuthService);
   const authToken = authService.getAccessToken();
-  const isBackendRequest = isRequestToConfiguredBackend(req.url);
+  const isBackendRequest = authService.isRequestToConfiguredBackend(req.url);
   const isAuthEndpoint = isBackendRequest && req.url.includes('/auth/');
   const hasAuthorizationHeader = req.headers.has('Authorization');
   const shouldAttachAccessToken = !!authToken && isBackendRequest && !isAuthEndpoint && !hasAuthorizationHeader;
@@ -75,25 +78,3 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
     })
   );
 };
-
-/**
- * Normalized backend URL prefixes used to decide whether a request should be
- * treated as an application-backend request.
- */
-function resolveBackendRequestPrefixes(): string[] {
-  const candidates = [config?.app?.backendBaseURL, config?.app?.auth?.backendAuthBaseURL];
-  const normalized = candidates
-    .filter((value): value is string => typeof value === 'string' && value.trim().length > 0)
-    .map((value) => value.trim())
-    .map((value) => (value.endsWith('/') ? value : `${value}/`));
-
-  return Array.from(new Set(normalized));
-}
-
-/**
- * Returns true only when a request URL starts with one of the configured
- * backend URL prefixes.
- */
-function isRequestToConfiguredBackend(url: string): boolean {
-  return BACKEND_REQUEST_PREFIXES.some((prefix) => url.startsWith(prefix));
-}

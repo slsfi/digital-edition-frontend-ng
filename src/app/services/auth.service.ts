@@ -23,7 +23,7 @@ import { AuthTokenStorageService } from '@services/auth-token-storage.service';
 
 const MAX_RETURN_URL_LENGTH = 2000;
 const AUTH_EMAIL_STORAGE_KEY = 'auth_email';
-const DEFAULT_SESSION_VALIDATION_TTL_MS = 2 * 60 * 1000;
+const DEFAULT_SESSION_VALIDATION_TTL_MS = 2 * 60 * 1000;  // = 2 minutes
 
 export type LoginErrorCode = 'no_credentials' | 'email_not_verified' | 'invalid_credentials' | 'request_failed';
 export type ForgotPasswordErrorCode = 'no_credentials' | 'invalid_credentials' | 'request_failed';
@@ -104,7 +104,6 @@ export class AuthService {
     fallback: 'request_failed'
   };
 
-  private backendBaseURL: string = this.resolveBackendBaseURL();
   private backendAuthBaseURL: string = this.resolveBackendAuthBaseURL();
   private sessionValidationTTLms: number = this.resolveSessionValidationTTLms();
   private lastSessionValidationAt: number | null = null;
@@ -260,7 +259,7 @@ export class AuthService {
       return this.sessionValidationInFlight$;
     }
 
-    const url = `${this.backendBaseURL}session/validate`;
+    const url = `${this.backendAuthBaseURL}session/validate`;
     const validationRequest$ = this.http.get<{ authenticated?: boolean }>(url).pipe(
       map(() => {
         this.markSessionValidatedNow();
@@ -374,18 +373,6 @@ export class AuthService {
    */
   private setStorageItem(key: string, value: string): void {
     this.tokenStorage.setItem(key, value);
-  }
-
-  /**
-   * Resolves API backend base URL from config.
-   */
-  private resolveBackendBaseURL(): string {
-    const backendBaseURL = config?.app?.backendBaseURL;
-    if (!backendBaseURL) {
-      return '';
-    }
-
-    return backendBaseURL.endsWith('/') ? backendBaseURL : `${backendBaseURL}/`;
   }
 
   /**

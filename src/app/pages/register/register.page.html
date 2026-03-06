@@ -6,62 +6,94 @@
     <form class="register-form" [formGroup]="form" (ngSubmit)="attemptRegistration()" novalidate>
       <h1 i18n="@@Register.Title">Skapa användarkonto</h1>
 
-      <p class="center" i18n="@@Register.Description">Ange e-postadress och lösenord för att skapa ett nytt konto.</p>
-
-      <ion-input
-        formControlName="email"
-        type="email"
-        fill="outline"
-        labelPlacement="stacked"
-        autocomplete="email"
-        inputmode="email"
-        (ionInput)="clearFeedbackState()"
-        i18n-label="@@Register.EmailLabel"
-        label="E-postadress"
-      >
-      </ion-input>
-
-      <ion-input
-        formControlName="password"
-        type="password"
-        fill="outline"
-        labelPlacement="stacked"
-        autocomplete="new-password"
-        (ionInput)="clearFeedbackState()"
-        i18n-label="@@Register.PasswordLabel"
-        label="Lösenord"
-      >
-        <ion-input-password-toggle slot="end"></ion-input-password-toggle>
-      </ion-input>
-
-      @if (registerErrorValue === 'no_credentials') {
-        <p class="auth-error center" i18n="@@Register.NoCredentials">Ange e-postadress och lösenord.</p>
-      }
-      @if (registerErrorValue === 'password_too_short') {
-        <p class="auth-error center" i18n="@@Register.PasswordTooShort">Lösenordet är för kort.</p>
-      }
-      @if (registerErrorValue === 'user_already_exists') {
-        <p class="auth-error center" i18n="@@Register.UserAlreadyExists">Det finns redan ett verifierat konto med den här e-postadressen.</p>
-      }
-      @if (registerErrorValue === 'request_failed') {
-        <p class="auth-error center" i18n="@@Register.RequestFailed">Registreringen misslyckades. Försök igen senare.</p>
-      }
       @if (registrationCompletedValue) {
         <p class="auth-success center" i18n="@@Register.Success">Kontot har skapats. Kontrollera din inkorg och verifiera e-postadressen innan du loggar in.</p>
+      } @else {
+        <p class="center" i18n="@@Register.Description">Ange e-postadress och lösenord för att skapa <br>ett nytt konto.</p>
+
+        <ion-input
+          formControlName="email"
+          type="email"
+          fill="outline"
+          labelPlacement="stacked"
+          autocomplete="email"
+          inputmode="email"
+          (ionInput)="clearFeedbackState()"
+          i18n-label="@@Register.EmailLabel"
+          label="E-postadress"
+        >
+        </ion-input>
+
+        @if (form.controls.email.touched && form.controls.email.hasError('required')) {
+          <p class="auth-error center" i18n="@@Register.EmailRequired">Ange e-postadress.</p>
+        }
+        @if (form.controls.email.touched && form.controls.email.hasError('email')) {
+          <p class="auth-error center" i18n="@@Register.EmailInvalid">Ange en giltig e-postadress.</p>
+        }
+
+        <ion-input
+          formControlName="password"
+          type="password"
+          fill="outline"
+          labelPlacement="stacked"
+          autocomplete="new-password"
+          (ionInput)="clearFeedbackState()"
+          i18n-label="@@Register.PasswordLabel"
+          label="Lösenord"
+        >
+          <ion-input-password-toggle slot="end"></ion-input-password-toggle>
+        </ion-input>
+
+        <ion-input
+          formControlName="confirmPassword"
+          type="password"
+          fill="outline"
+          labelPlacement="stacked"
+          autocomplete="new-password"
+          (ionInput)="clearFeedbackState()"
+          i18n-label="@@Register.ConfirmPasswordLabel"
+          label="Bekräfta lösenord"
+        >
+          <ion-input-password-toggle slot="end"></ion-input-password-toggle>
+        </ion-input>
+
+        @if (
+          form.controls.password.touched
+          && (form.controls.password.hasError('minlength') || form.controls.password.hasError(passwordComplexityErrorKey))
+        ) {
+          <p class="auth-error center" i18n="@@Register.PasswordRequirements">Lösenordet måste vara minst 12 tecken långt och innehålla både små och stora bokstäver samt minst en siffra eller ett specialtecken.</p>
+        }
+
+        @if (form.hasError('password_mismatch')) {
+          <p class="auth-error center" i18n="@@Register.PasswordsDoNotMatch">Lösenorden matchar inte.</p>
+        }
+
+        @if (registerErrorValue === 'no_credentials') {
+          <p class="auth-error center" i18n="@@Register.NoCredentials">Ange e-postadress och lösenord.</p>
+        }
+        @if (registerErrorValue === 'password_too_short') {
+          <p class="auth-error center" i18n="@@Register.PasswordTooShort">Lösenordet är för kort.</p>
+        }
+        @if (registerErrorValue === 'user_already_exists') {
+          <p class="auth-error center" i18n="@@Register.UserAlreadyExists">Det finns redan ett verifierat konto med den här e-postadressen.</p>
+        }
+        @if (registerErrorValue === 'request_failed') {
+          <p class="auth-error center" i18n="@@Register.RequestFailed">Registreringen misslyckades. Försök igen senare.</p>
+        }
+
+        <ion-button
+          class="custom-button"
+          type="submit"
+          expand="block"
+          [disabled]="form.invalid"
+          i18n="@@Register.SubmitButton"
+        >Skapa konto</ion-button>
+
+        <div class="authentication-divider">
+          <span i18n="@@Register.OrDivider">eller</span>
+        </div>
       }
-
-      <ion-button
-        class="custom-button"
-        type="submit"
-        expand="block"
-        [disabled]="form.invalid || registrationCompletedValue"
-        i18n="@@Register.SubmitButton"
-      >Skapa konto</ion-button>
-
-      <div class="authentication-divider">
-        <span i18n="@@Register.OrDivider">eller</span>
-      </div>
-      <p class="center no-margins">
+      <p class="center" [class.no-margins]="!registrationCompletedValue">
         <a
           [routerLink]="['/login']"
           [queryParams]="authRedirectNavigationQueryParams"
@@ -71,3 +103,4 @@
     </form>
   </article>
 </ion-content>
+

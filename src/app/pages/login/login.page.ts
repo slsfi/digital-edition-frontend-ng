@@ -26,7 +26,10 @@ export class LoginPage {
   readonly passwordResetSuccess: boolean = this.route.snapshot.queryParamMap.get('passwordReset') === 'success';
   readonly showTermsLink: boolean = config.component?.mainSideMenu?.items?.termsOfUse === true;
   readonly showPrivacyPolicyLink: boolean = config.component?.mainSideMenu?.items?.privacyPolicy === true;
-  readonly authRedirectNavigationQueryParams = getAuthRedirectNavigationQueryParams(this.router, this.router.url);
+
+  get authRedirectNavigationQueryParams(): Record<string, unknown> {
+    return getAuthRedirectNavigationQueryParams(this.router, this.router.url);
+  }
 
   attemptLogin(): void {
     if (this.form.invalid) {

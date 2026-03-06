@@ -3,6 +3,11 @@ import { Router } from '@angular/router';
 import { FormBuilder, Validators } from '@angular/forms';
 
 import { getAuthRedirectNavigationQueryParams } from '@services/auth-redirect-url.utils';
+import {
+  getPasswordFieldValidators,
+  PASSWORD_COMPLEXITY_ERROR_KEY,
+  passwordMatchValidator
+} from '@services/auth-password.utils';
 import { AuthService } from '@services/auth.service';
 
 @Component({
@@ -18,11 +23,16 @@ export class RegisterPage implements OnDestroy {
 
   readonly form = this.formBuilder.nonNullable.group({
     email: ['', [Validators.required, Validators.email]],
-    password: ['', [Validators.required]]
-  });
+    password: ['', getPasswordFieldValidators()],
+    confirmPassword: ['', [Validators.required]]
+  }, { validators: passwordMatchValidator() });
+  readonly passwordComplexityErrorKey = PASSWORD_COMPLEXITY_ERROR_KEY;
   readonly registerError = this.authService.registerError;
   readonly registrationCompleted = this.authService.registrationCompleted;
-  readonly authRedirectNavigationQueryParams = getAuthRedirectNavigationQueryParams(this.router, this.router.url);
+
+  get authRedirectNavigationQueryParams(): Record<string, unknown> {
+    return getAuthRedirectNavigationQueryParams(this.router, this.router.url);
+  }
 
   ionViewWillLeave(): void {
     this.authService.clearRegisterState();

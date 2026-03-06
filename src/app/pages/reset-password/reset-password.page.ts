@@ -1,26 +1,14 @@
 import { Component, inject } from '@angular/core';
 import { DOCUMENT } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
-import { AbstractControl, FormBuilder, ValidationErrors, Validators } from '@angular/forms';
+import { FormBuilder, Validators } from '@angular/forms';
 
+import {
+  getPasswordFieldValidators,
+  PASSWORD_COMPLEXITY_ERROR_KEY,
+  passwordMatchValidator
+} from '@services/auth-password.utils';
 import { AuthService } from '@services/auth.service';
-
-const MINIMUM_PASSWORD_LENGTH = 12;
-
-function passwordMatchValidator(control: AbstractControl): ValidationErrors | null {
-  const password = control.get('password')?.value;
-  const confirmPassword = control.get('confirmPassword')?.value;
-
-  if (typeof password !== 'string' || typeof confirmPassword !== 'string') {
-    return null;
-  }
-
-  if (!password || !confirmPassword) {
-    return null;
-  }
-
-  return password === confirmPassword ? null : { password_mismatch: true };
-}
 
 @Component({
   selector: 'page-reset-password',
@@ -36,9 +24,10 @@ export class ResetPasswordPage {
   private readonly jwtToken: string = this.resolveJwtTokenFromFragment(this.route.snapshot.fragment);
 
   readonly form = this.formBuilder.nonNullable.group({
-    password: ['', [Validators.required, Validators.minLength(MINIMUM_PASSWORD_LENGTH)]],
+    password: ['', getPasswordFieldValidators()],
     confirmPassword: ['', [Validators.required]]
-  }, { validators: passwordMatchValidator });
+  }, { validators: passwordMatchValidator() });
+  readonly passwordComplexityErrorKey = PASSWORD_COMPLEXITY_ERROR_KEY;
   readonly resetPasswordError = this.authService.resetPasswordError;
   readonly passwordResetCompleted = this.authService.passwordResetCompleted;
 

@@ -23,6 +23,13 @@
       >
       </ion-input>
 
+      @if (form.controls.email.touched && form.controls.email.hasError('required')) {
+        <p class="auth-error center" i18n="@@Login.EmailRequired">Ange e-postadress.</p>
+      }
+      @if (form.controls.email.touched && form.controls.email.hasError('email')) {
+        <p class="auth-error center" i18n="@@Login.EmailInvalid">Ange en giltig e-postadress.</p>
+      }
+
       <ion-input
         formControlName="password"
         type="password"

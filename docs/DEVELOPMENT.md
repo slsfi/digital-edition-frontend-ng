@@ -279,8 +279,10 @@ Authentication support is optional and controlled by config. This is intended so
 3. If `app.auth.backendAuthBaseURL` is missing, auth service falls back to the origin of `app.backendBaseURL` (for example `https://api.example.org/digitaledition` becomes `https://api.example.org/`).
 4. Ensure backend exposes auth endpoints expected by frontend: `POST <backendAuthBaseURL>/auth/login` and `POST <backendAuthBaseURL>/auth/refresh`.
 5. Protect routes by adding `canActivate: [authGuard]` in [`src/app/app.routes.ts`](../src/app/app.routes.ts) for the pages that require authentication.
-6. Keep login route enabled with `canMatch: [authFeatureEnabledMatchGuard]` so `/login` is only matchable when auth feature is enabled.
-7. If using production build with feature-based routes, run `npm run generate-routes` after route/config changes (or use `npm run build:ssr`, which runs it automatically).
+6. For protected routes that do not normally fetch backend data (for example `/account`), add `data: { requiresSessionValidation: true }` so the guard can validate current session state through `GET <backendBaseURL>/session/validate`.
+7. Optional: configure `app.auth.sessionValidationTTLms` in [`src/assets/config/config.ts`](../src/assets/config/config.ts) to control how long a successful session validation is cached in the browser (default: `120000` ms).
+8. Keep login route enabled with `canMatch: [authFeatureEnabledMatchGuard]` so `/login` is only matchable when auth feature is enabled.
+9. If using production build with feature-based routes, run `npm run generate-routes` after route/config changes (or use `npm run build:ssr`, which runs it automatically).
 In feature-based route mode, the `login` route is included only when `app.auth.enabled` is `true`.
 
 ### Behavior when disabled
@@ -304,6 +306,11 @@ In feature-based route mode, the `login` route is included only when `app.auth.e
 - Refresh attempt is only made for backend 401 responses outside `/auth/*`.
 - When a backend 401 occurs for a request that used a stored access token but no refresh token is available, the user is logged out and redirected to `/login`.
 - `AuthService.refreshToken()` has defense-in-depth: if refresh token is missing, it fails fast, logs out, and skips network request.
+- Routes with `data.requiresSessionValidation: true` trigger a guard-level call to `GET <backendBaseURL>/session/validate`.
+- Session validation is throttled and deduplicated in `AuthService.validateSessionIfStale()`:
+  - successful validations are cached for `app.auth.sessionValidationTTLms` (default `120000` ms)
+  - concurrent validations share one in-flight request
+- Session validation `401` is treated as unauthenticated and redirects to `/login`; non-401 validation failures are fail-open.
 - On app startup, `AuthService` treats a stored session as authenticated only when both `access_token` and `refresh_token` exist; partial token state is cleared.
 
 ### Manual auth regression checklist (JWT expiry/invalidation)
@@ -319,6 +326,7 @@ Use this checklist after auth/interceptor/guard changes.
 4. Backend-invalidated session with both tokens present: keep both tokens in local storage, invalidate them in backend, then open a protected route that performs backend requests (for example `/collection/:collectionID/text`). Expected result: first backend 401 triggers logout and redirect to `/login`.
 5. Expired access token but valid refresh token: force backend to return 401 for access token while refresh still works, then open protected content. Expected result: one refresh attempt is made, request is retried, and user remains logged in.
 6. Invalid refresh token: force backend to return 401 for refresh, then open protected content. Expected result: user is logged out and redirected to `/login`.
+7. Backend-invalidated session on a protected route that does not fetch backend data: keep both tokens in local storage, invalidate session in backend, then open a route with `data.requiresSessionValidation: true` (for example `/account`). Expected result: guard session validation returns 401 and redirects to `/login`.
 
 ### SSR note
 

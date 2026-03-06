@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable, LOCALE_ID, signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { BehaviorSubject, catchError, filter, finalize, map, Observable, take, throwError } from 'rxjs';
+import { BehaviorSubject, catchError, filter, finalize, map, Observable, of, shareReplay, take, throwError } from 'rxjs';
 
 import { config } from '@config';
 import {
@@ -23,6 +23,7 @@ import { AuthTokenStorageService } from '@services/auth-token-storage.service';
 
 const MAX_RETURN_URL_LENGTH = 2000;
 const AUTH_EMAIL_STORAGE_KEY = 'auth_email';
+const DEFAULT_SESSION_VALIDATION_TTL_MS = 2 * 60 * 1000;
 
 export type LoginErrorCode = 'no_credentials' | 'email_not_verified' | 'invalid_credentials' | 'request_failed';
 export type ForgotPasswordErrorCode = 'no_credentials' | 'invalid_credentials' | 'request_failed';
@@ -103,7 +104,11 @@ export class AuthService {
     fallback: 'request_failed'
   };
 
+  private backendBaseURL: string = this.resolveBackendBaseURL();
   private backendAuthBaseURL: string = this.resolveBackendAuthBaseURL();
+  private sessionValidationTTLms: number = this.resolveSessionValidationTTLms();
+  private lastSessionValidationAt: number | null = null;
+  private sessionValidationInFlight$: Observable<boolean> | null = null;
   private refreshTokenInProgress = false;
   private refreshTokenSubject: BehaviorSubject<string | null> = new BehaviorSubject<string | null>(null);
 
@@ -143,6 +148,7 @@ export class AuthService {
         this.setStorageItem('refresh_token', refresh_token);
         this.setStorageItem(AUTH_EMAIL_STORAGE_KEY, normalizedEmail);
         this._authenticatedEmail.set(normalizedEmail);
+        this.markSessionValidatedNow();
         this.router.navigateByUrl(this.resolvePostLoginRedirectURL(redirectURL));
         this._isAuthenticated.set(true);
       },
@@ -236,6 +242,48 @@ export class AuthService {
   }
 
   /**
+   * Validates current backend session with throttling and request deduplication.
+   *
+   * Behavior:
+   * - Returns cached success when the previous validation is still fresh.
+   * - Reuses one in-flight validation request for concurrent callers.
+   * - On backend 401, clears auth state and propagates the error.
+   */
+  validateSessionIfStale(ttlMs: number = this.sessionValidationTTLms): Observable<boolean> {
+    const normalizedTtlMs = Number.isFinite(ttlMs) && ttlMs > 0 ? ttlMs : 0;
+    const now = Date.now();
+    if (normalizedTtlMs > 0 && this.lastSessionValidationAt !== null && now - this.lastSessionValidationAt < normalizedTtlMs) {
+      return of(true);
+    }
+
+    if (this.sessionValidationInFlight$) {
+      return this.sessionValidationInFlight$;
+    }
+
+    const url = `${this.backendBaseURL}session/validate`;
+    const validationRequest$ = this.http.get<{ authenticated?: boolean }>(url).pipe(
+      map(() => {
+        this.markSessionValidatedNow();
+        this._isAuthenticated.set(true);
+        return true;
+      }),
+      catchError((error) => {
+        if ((error as { status?: unknown } | null)?.status === 401) {
+          this.clearAuthState(true);
+        }
+        return throwError(() => error);
+      }),
+      finalize(() => {
+        this.sessionValidationInFlight$ = null;
+      }),
+      shareReplay({ bufferSize: 1, refCount: false })
+    );
+
+    this.sessionValidationInFlight$ = validationRequest$;
+    return validationRequest$;
+  }
+
+  /**
    * Requests a new access token using the refresh token.
    *
    * Concurrency behavior:
@@ -271,6 +319,7 @@ export class AuthService {
           refreshCompleted = true;
           const { access_token } = response;
           this.setStorageItem('access_token', access_token);
+          this.markSessionValidatedNow();
           this.refreshTokenSubject.next(access_token);
           this._isAuthenticated.set(true);
           return access_token;
@@ -328,7 +377,19 @@ export class AuthService {
   }
 
   /**
-   * Resolves auth base URL from config.
+   * Resolves API backend base URL from config.
+   */
+  private resolveBackendBaseURL(): string {
+    const backendBaseURL = config?.app?.backendBaseURL;
+    if (!backendBaseURL) {
+      return '';
+    }
+
+    return backendBaseURL.endsWith('/') ? backendBaseURL : `${backendBaseURL}/`;
+  }
+
+  /**
+   * Resolves auth-specific backend base URL from config.
    *
    * Priority:
    * 1) app.auth.backendAuthBaseURL
@@ -514,7 +575,28 @@ export class AuthService {
     return this.localeId.split('-')[0]?.toLowerCase();
   }
 
+  private resolveSessionValidationTTLms(): number {
+    const configuredTTLms = config?.app?.auth?.sessionValidationTTLms;
+    return (
+      typeof configuredTTLms === 'number' &&
+      Number.isFinite(configuredTTLms) &&
+      configuredTTLms >= 0
+    )
+      ? configuredTTLms
+      : DEFAULT_SESSION_VALIDATION_TTL_MS;
+  }
+
+  private markSessionValidatedNow(): void {
+    this.lastSessionValidationAt = Date.now();
+  }
+
+  private resetSessionValidationState(): void {
+    this.lastSessionValidationAt = null;
+    this.sessionValidationInFlight$ = null;
+  }
+
   private clearAuthState(clearRedirectTarget: boolean): void {
+    this.resetSessionValidationState();
     this.removeStorageItem('access_token');
     this.removeStorageItem('refresh_token');
     this.removeStorageItem(AUTH_EMAIL_STORAGE_KEY);

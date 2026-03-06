@@ -18,8 +18,14 @@ const BACKEND_REQUEST_PREFIXES: string[] = resolveBackendRequestPrefixes();
  *   configured backend URLs, and only when request does not already provide
  *   an Authorization header.
  * - Never adds bearer token for `/auth/*` endpoints.
- * - On backend 401 (excluding `/auth/*`), attempts one refresh flow and retries
- *   the original request with the new access token.
+ * - On backend 401 (excluding `/auth/*`), attempts one refresh flow only when
+ *   a refresh token is present.
+ * - Refresh retry always sets `Authorization: Bearer <new_access_token>` on the
+ *   retried request, overriding any previous Authorization header value.
+ * - If refresh fails with 401, logs out and redirects to `/login`.
+ * - If backend 401 occurs with no refresh token and this interceptor had
+ *   attached an access token to the original request, logs out and redirects to
+ *   `/login`.
  */
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const authEnabled = inject(AUTH_ENABLED);

@@ -49,30 +49,33 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
 
   return next(authReq).pipe(
     catchError((err) => {
-      const hasRefreshToken = !!authService.getRefreshToken();
       const isBackendUnauthorized = err.status === 401 && isBackendRequest && !isAuthEndpoint;
-      if (isBackendUnauthorized && hasRefreshToken) {
-        return authService.refreshToken().pipe(
-          switchMap((access_token) => {
-            const newAuthReq = req.clone({
-              setHeaders: {
-                Authorization: `Bearer ${access_token}`
+      if (isBackendUnauthorized) {
+        const hasRefreshToken = !!authService.getRefreshToken();
+        if (hasRefreshToken) {
+          return authService.refreshToken().pipe(
+            switchMap((access_token) => {
+              const newAuthReq = req.clone({
+                setHeaders: {
+                  Authorization: `Bearer ${access_token}`
+                }
+              });
+              return next(newAuthReq);
+            }),
+            catchError((refreshError) => {
+              if (refreshError.status === 401) {
+                authService.logout();
+                router.navigate(['/login'], { replaceUrl: true });
               }
-            });
-            return next(newAuthReq);
-          }),
-          catchError((refreshError) => {
-            if (refreshError.status === 401) {
-              authService.logout();
-              router.navigate(['/login'], { replaceUrl: true });
-            }
-            return throwError(() => refreshError);
-          })
-        );
-      }
-      if (isBackendUnauthorized && !hasRefreshToken && shouldAttachAccessToken) {
-        authService.logout();
-        router.navigate(['/login'], { replaceUrl: true });
+              return throwError(() => refreshError);
+            })
+          );
+        }
+
+        if (shouldAttachAccessToken) {
+          authService.logout();
+          router.navigate(['/login'], { replaceUrl: true });
+        }
       }
       return throwError(() => err);
     })

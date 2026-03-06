@@ -343,6 +343,91 @@ describe('AuthService', () => {
     expect(service.loginError()).toBeNull();
   });
 
+  it('sets success state when register request succeeds', () => {
+    const service = createService();
+
+    service.register(' user@example.com ', 'new-password-1234');
+
+    const request = httpMock.expectOne((req) => req.url.endsWith('/auth/register'));
+    expect(request.request.body).toEqual({
+      email: 'user@example.com',
+      password: 'new-password-1234',
+      language: 'en'
+    });
+    request.flush({ msg: 'User was created' }, { status: 201, statusText: 'Created' });
+
+    expect(service.registerError()).toBeNull();
+    expect(service.registrationCompleted()).toBeTrue();
+  });
+
+  it('maps NO_CREDENTIALS backend error code for register flow', () => {
+    const service = createService();
+
+    service.register('user@example.com', 'new-password-1234');
+
+    const request = httpMock.expectOne((req) => req.url.endsWith('/auth/register'));
+    request.flush({ msg: 'missing credentials', err: 'NO_CREDENTIALS' }, { status: 400, statusText: 'Bad Request' });
+
+    expect(service.registerError()).toBe('no_credentials');
+    expect(service.registrationCompleted()).toBeFalse();
+  });
+
+  it('maps PASSWORD_TOO_SHORT backend error code for register flow', () => {
+    const service = createService();
+
+    service.register('user@example.com', 'short');
+
+    const request = httpMock.expectOne((req) => req.url.endsWith('/auth/register'));
+    request.flush(
+      { msg: 'password too short', err: 'PASSWORD_TOO_SHORT' },
+      { status: 400, statusText: 'Bad Request' }
+    );
+
+    expect(service.registerError()).toBe('password_too_short');
+    expect(service.registrationCompleted()).toBeFalse();
+  });
+
+  it('maps USER_ALREADY_EXISTS backend error code for register flow', () => {
+    const service = createService();
+
+    service.register('user@example.com', 'new-password-1234');
+
+    const request = httpMock.expectOne((req) => req.url.endsWith('/auth/register'));
+    request.flush(
+      { msg: 'user already exists', err: 'USER_ALREADY_EXISTS' },
+      { status: 400, statusText: 'Bad Request' }
+    );
+
+    expect(service.registerError()).toBe('user_already_exists');
+    expect(service.registrationCompleted()).toBeFalse();
+  });
+
+  it('maps generic register request failures to request_failed', () => {
+    const service = createService();
+
+    service.register('user@example.com', 'new-password-1234');
+
+    const request = httpMock.expectOne((req) => req.url.endsWith('/auth/register'));
+    request.flush({ detail: 'server error' }, { status: 500, statusText: 'Server Error' });
+
+    expect(service.registerError()).toBe('request_failed');
+    expect(service.registrationCompleted()).toBeFalse();
+  });
+
+  it('clears register feedback state explicitly', () => {
+    const service = createService();
+
+    service.register('user@example.com', 'new-password-1234');
+
+    const request = httpMock.expectOne((req) => req.url.endsWith('/auth/register'));
+    request.flush({ msg: 'User was created' }, { status: 201, statusText: 'Created' });
+    expect(service.registrationCompleted()).toBeTrue();
+
+    service.clearRegisterState();
+    expect(service.registerError()).toBeNull();
+    expect(service.registrationCompleted()).toBeFalse();
+  });
+
   it('sets success state when forgot password request succeeds', () => {
     const service = createService();
 

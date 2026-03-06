@@ -60,7 +60,13 @@
       <div class="authentication-divider">
         <span i18n="@@Login.OrDivider">eller</span>
       </div>
-      <p class="center no-margins"><a href="/" i18n="@@Login.CreateAccount">Skapa ett användarkonto</a></p>
+      <p class="center no-margins">
+        <a
+          [routerLink]="['/register']"
+          [queryParams]="authRedirectNavigationQueryParams"
+          i18n="@@Login.CreateAccount"
+        >Skapa ett användarkonto</a>
+      </p>
     </form>
   </article>
   @if (showTermsLink || showPrivacyPolicyLink) {

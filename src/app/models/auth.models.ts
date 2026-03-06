@@ -3,6 +3,12 @@ export interface LoginRequest {
   password: string;
 }
 
+export interface RegisterRequest {
+  email: string;
+  password: string;
+  language: string;
+}
+
 export interface ForgotPasswordRequest {
   email: string;
   language: string;
@@ -30,6 +36,10 @@ export interface LoginResponse {
   msg: string;
   refresh_token: string;
   user_projects: string[];
+}
+
+export interface RegisterResponse {
+  msg: string;
 }
 
 export interface ForgotPasswordResponse {

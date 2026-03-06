@@ -34,7 +34,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const authService = inject(AuthService);
   const authToken = authService.getAccessToken();
   const isBackendRequest = authService.isRequestToConfiguredBackend(req.url);
-  const isAuthEndpoint = isBackendRequest && req.url.includes('/auth/');
+  const isAuthEndpoint = isBackendRequest && authService.isRequestToAuthEndpoint(req.url);
   const hasAuthorizationHeader = req.headers.has('Authorization');
   const shouldAttachAccessToken = !!authToken && isBackendRequest && !isAuthEndpoint && !hasAuthorizationHeader;
   let authReq = req;

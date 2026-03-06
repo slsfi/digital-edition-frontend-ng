@@ -106,6 +106,7 @@ export class AuthService {
 
   private readonly backendAuthBaseURL: string = this.resolveBackendAuthBaseURL();
   private readonly backendRequestPrefixes: readonly string[] = this.resolveBackendRequestPrefixes();
+  private readonly backendAuthEndpointPrefix: string = `${this.backendAuthBaseURL}auth`;
   private sessionValidationTTLms: number = this.resolveSessionValidationTTLms();
   private lastSessionValidationAt: number | null = null;
   private sessionValidationInFlight$: Observable<boolean> | null = null;
@@ -374,6 +375,19 @@ export class AuthService {
    */
   isRequestToConfiguredBackend(url: string): boolean {
     return this.backendRequestPrefixes.some((prefix) => url.startsWith(prefix));
+  }
+
+  /**
+   * Returns true when URL targets the auth endpoint path (`/auth/...`)
+   * under backendAuthBaseURL.
+   */
+  isRequestToAuthEndpoint(url: string): boolean {
+    if (!url.startsWith(this.backendAuthEndpointPrefix)) {
+      return false;
+    }
+
+    const boundary = url.charAt(this.backendAuthEndpointPrefix.length);
+    return boundary === '' || boundary === '/' || boundary === '?' || boundary === '#';
   }
 
   /**

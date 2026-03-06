@@ -15,13 +15,15 @@ import {
   RefreshTokenResponse
 } from '@models/auth.models';
 import {
-  AuthRedirectStorageService,
-  AUTH_REDIRECT_MARKER_QUERY_PARAM,
-  AUTH_REDIRECT_MARKER_VALUE
+  AuthRedirectStorageService
 } from '@services/auth-redirect-storage.service';
+import {
+  getSafeInternalRedirectURL,
+  resolveRedirectFromMarker,
+  resolveReturnUrlFromQuery
+} from '@services/auth-redirect-url.utils';
 import { AuthTokenStorageService } from '@services/auth-token-storage.service';
 
-const MAX_RETURN_URL_LENGTH = 2000;
 const AUTH_EMAIL_STORAGE_KEY = 'auth_email';
 const DEFAULT_SESSION_VALIDATION_TTL_MS = 2 * 60 * 1000;  // = 2 minutes
 
@@ -106,6 +108,7 @@ export class AuthService {
 
   private readonly backendAuthBaseURL: string = this.resolveBackendAuthBaseURL();
   private readonly backendRequestPrefixes: readonly string[] = this.resolveBackendRequestPrefixes();
+  private readonly backendAuthEndpointPrefix: string = `${this.backendAuthBaseURL}auth`;
   private sessionValidationTTLms: number = this.resolveSessionValidationTTLms();
   private lastSessionValidationAt: number | null = null;
   private sessionValidationInFlight$: Observable<boolean> | null = null;
@@ -138,7 +141,7 @@ export class AuthService {
    */
   login(email: string, password: string, redirectURL?: string): void {
     this._loginError.set(null);
-    const url = `${this.backendAuthBaseURL}auth/login`;
+    const url = this.buildBackendAuthURL('auth/login');
     const body: LoginRequest = { email, password };
     this.http.post<LoginResponse>(url, body).subscribe({
       next: (response) => {
@@ -173,7 +176,7 @@ export class AuthService {
     this._forgotPasswordError.set(null);
     this._passwordResetRequested.set(false);
     const normalizedEmail = email.trim();
-    const url = `${this.backendAuthBaseURL}auth/forgot_password`;
+    const url = this.buildBackendAuthURL('auth/forgot_password');
     const body: ForgotPasswordRequest = {
       email: normalizedEmail,
       language: this.resolveAuthRequestLanguage()
@@ -218,7 +221,7 @@ export class AuthService {
       return;
     }
 
-    const url = `${this.backendAuthBaseURL}auth/reset_password`;
+    const url = this.buildBackendAuthURL('auth/reset_password');
     const headers = { Authorization: `Bearer ${normalizedToken}` };
     const body: ResetPasswordRequest = { password };
     this.http.post<ResetPasswordResponse>(url, body, { headers }).subscribe({
@@ -260,7 +263,7 @@ export class AuthService {
       return this.sessionValidationInFlight$;
     }
 
-    const url = `${this.backendAuthBaseURL}session/validate`;
+    const url = this.buildBackendAuthURL('session/validate');
     const validationRequest$ = this.http.get<{ authenticated?: boolean }>(url).pipe(
       map(() => {
         this.markSessionValidatedNow();
@@ -312,7 +315,7 @@ export class AuthService {
       // Start a fresh refresh cycle so waiters cannot receive a stale token.
       this.refreshTokenSubject.next(null);
       let refreshCompleted = false;
-      const url = `${this.backendAuthBaseURL}auth/refresh`;
+      const url = this.buildBackendAuthURL('auth/refresh');
       const headers = { Authorization: `Bearer ${refreshToken}` };
       return this.http.post<RefreshTokenResponse>(url, null, { headers }).pipe(
         map((response) => {
@@ -377,10 +380,27 @@ export class AuthService {
   }
 
   /**
+   * Returns true when URL targets the auth endpoint path (`/auth/...`)
+   * under backendAuthBaseURL.
+   */
+  isRequestToAuthEndpoint(url: string): boolean {
+    if (!url.startsWith(this.backendAuthEndpointPrefix)) {
+      return false;
+    }
+
+    const boundary = url.charAt(this.backendAuthEndpointPrefix.length);
+    return boundary === '' || boundary === '/' || boundary === '?' || boundary === '#';
+  }
+
+  /**
    * Persists one token key/value through platform-specific storage.
    */
   private setStorageItem(key: string, value: string): void {
     this.tokenStorage.setItem(key, value);
+  }
+
+  private buildBackendAuthURL(path: string): string {
+    return `${this.backendAuthBaseURL}${path}`;
   }
 
   /**
@@ -429,112 +449,23 @@ export class AuthService {
    * 4) account route (`/account`)
    */
   private resolvePostLoginRedirectURL(redirectURL?: string): string {
-    const returnURLFromMarker = this.getReturnURLFromRedirectMarker();
+    const currentRouteURL = this.router.url;
+    const returnURLFromMarker = resolveRedirectFromMarker(this.router, this.redirectStorage, currentRouteURL);
     if (returnURLFromMarker) {
       return returnURLFromMarker;
     }
 
-    const safeRedirectURL = this.getSafeInternalRedirectURL(redirectURL);
+    const safeRedirectURL = getSafeInternalRedirectURL(this.router, redirectURL);
     if (safeRedirectURL) {
       return safeRedirectURL;
     }
 
-    const returnURLFromRoute = this.getReturnURLFromCurrentRoute();
+    const returnURLFromRoute = resolveReturnUrlFromQuery(this.router, currentRouteURL);
     if (returnURLFromRoute) {
       return returnURLFromRoute;
     }
 
     return '/account';
-  }
-
-  /**
-   * Resolves post-login target from marker-based redirect flow.
-   *
-   * Behavior:
-   * - Reads current URL query params and checks for expected redirect marker
-   *   value (`rt=1`).
-   * - If marker exists, consumes one-time stored redirect target from
-   *   AuthRedirectStorageService.
-   * - Validates consumed target using getSafeInternalRedirectURL.
-   *
-   * Returns null when marker is missing, storage has no value, parsing fails,
-   * or the consumed target is unsafe/invalid.
-   */
-  private getReturnURLFromRedirectMarker(): string | null {
-    try {
-      const urlTree = this.router.parseUrl(this.router.url);
-      const marker = urlTree.queryParams?.[AUTH_REDIRECT_MARKER_QUERY_PARAM];
-      if (!this.hasRedirectMarker(marker)) {
-        return null;
-      }
-
-      const returnUrl = this.redirectStorage.consumeReturnUrl();
-      return this.getSafeInternalRedirectURL(returnUrl);
-    } catch {
-      return null;
-    }
-  }
-
-  /**
-   * Resolves post-login target from legacy `returnUrl` query parameter.
-   *
-   * This keeps backward compatibility for old links/bookmarks and for contexts
-   * where marker storage is unavailable.
-   */
-  private getReturnURLFromCurrentRoute(): string | null {
-    try {
-      const urlTree = this.router.parseUrl(this.router.url);
-      const returnUrl = urlTree.queryParams?.['returnUrl'];
-      return this.getSafeInternalRedirectURL(returnUrl);
-    } catch {
-      return null;
-    }
-  }
-
-  /**
-   * Returns valid app-internal redirect path or null.
-   *
-   * Rules:
-   * - Must start with `/`
-   * - Must not start with `//` (protocol-relative external target)
-   * - Must be <= MAX_RETURN_URL_LENGTH
-   * - Must be parseable by Angular router
-   */
-  private getSafeInternalRedirectURL(value: unknown): string | null {
-    if (typeof value !== 'string') {
-      return null;
-    }
-
-    if (!value.startsWith('/') || value.startsWith('//')) {
-      return null;
-    }
-
-    if (value === '/login' || value.startsWith('/login?') || value.startsWith('/login/')) {
-      return null;
-    }
-
-    if (value.length > MAX_RETURN_URL_LENGTH) {
-      return null;
-    }
-
-    try {
-      this.router.parseUrl(value);
-    } catch {
-      return null;
-    }
-
-    return value;
-  }
-
-  /**
-   * Returns true only when a redirect marker query parameter has the expected
-   * marker value.
-   *
-   * Marker value is treated as a presence flag only; redirect target safety is
-   * validated separately.
-   */
-  private hasRedirectMarker(value: unknown): boolean {
-    return value === AUTH_REDIRECT_MARKER_VALUE;
   }
 
   private resolveAuthErrorCode<TErrorCode extends ResolvedAuthErrorCode>(

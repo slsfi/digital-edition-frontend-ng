@@ -1,6 +1,8 @@
-import { Component, inject, OnDestroy } from '@angular/core';
+import { computed, Component, inject, OnDestroy } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
 import { FormBuilder, Validators } from '@angular/forms';
+import { startWith } from 'rxjs';
 
 import { config } from '@config';
 import { getAuthRedirectNavigationQueryParams } from '@services/auth-redirect-url.utils';
@@ -31,7 +33,23 @@ export class RegisterPage implements OnDestroy {
     acceptTermsOfUse: [false, this.showTermsOfUse ? [Validators.requiredTrue] : []],
     acceptPrivacyPolicy: [false, this.showPrivacyPolicy ? [Validators.requiredTrue] : []]
   }, { validators: passwordMatchValidator() });
+  private readonly formState = toSignal(this.form.events.pipe(startWith(null)), { initialValue: null });
   readonly passwordComplexityErrorKey = PASSWORD_COMPLEXITY_ERROR_KEY;
+  readonly emailRequiredError = computed(() => this.hasControlError('email', 'required'));
+  readonly emailInvalidError = computed(() => this.hasControlError('email', 'email'));
+  readonly passwordRequirementsError = computed(() => {
+    this.formState();
+    const passwordControl = this.form.controls.password;
+
+    return passwordControl.touched
+      && (passwordControl.hasError('minlength') || passwordControl.hasError(this.passwordComplexityErrorKey));
+  });
+  readonly passwordMismatchError = computed(() => {
+    this.formState();
+    return this.form.hasError('password_mismatch');
+  });
+  readonly acceptTermsOfUseRequiredError = computed(() => this.hasControlError('acceptTermsOfUse', 'required'));
+  readonly acceptPrivacyPolicyRequiredError = computed(() => this.hasControlError('acceptPrivacyPolicy', 'required'));
   readonly registerError = this.authService.registerError;
   readonly registrationCompleted = this.authService.registrationCompleted;
 
@@ -59,5 +77,12 @@ export class RegisterPage implements OnDestroy {
 
   clearFeedbackState(): void {
     this.authService.clearRegisterState();
+  }
+
+  private hasControlError(controlName: 'email' | 'acceptTermsOfUse' | 'acceptPrivacyPolicy', errorKey: string): boolean {
+    this.formState();
+    const control = this.form.controls[controlName];
+
+    return control.touched && control.hasError(errorKey);
   }
 }

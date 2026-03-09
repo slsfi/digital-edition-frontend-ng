@@ -24,10 +24,10 @@
         >
         </ion-input>
 
-        @if (form.controls.email.touched && form.controls.email.hasError('required')) {
+        @if (emailRequiredError()) {
           <p class="auth-error center" i18n="@@Register.EmailRequired">Ange e-postadress.</p>
         }
-        @if (form.controls.email.touched && form.controls.email.hasError('email')) {
+        @if (emailInvalidError()) {
           <p class="auth-error center" i18n="@@Register.EmailInvalid">Ange en giltig e-postadress.</p>
         }
 
@@ -57,19 +57,16 @@
           <ion-input-password-toggle slot="end"></ion-input-password-toggle>
         </ion-input>
 
-        @if (
-          form.controls.password.touched
-          && (form.controls.password.hasError('minlength') || form.controls.password.hasError(passwordComplexityErrorKey))
-        ) {
+        @if (passwordRequirementsError()) {
           <p class="auth-error center" i18n="@@Register.PasswordRequirements">Lösenordet måste vara minst 12 tecken långt och innehålla både små och stora bokstäver samt minst en siffra eller ett specialtecken.</p>
         }
 
-        @if (form.hasError('password_mismatch')) {
+        @if (passwordMismatchError()) {
           <p class="auth-error center" i18n="@@Register.PasswordsDoNotMatch">Lösenorden matchar inte.</p>
         }
 
         @if (showTermsOfUse) {
-          <section class="legal-summary">
+          <section class="legal-summary" [class.legal-error]="acceptTermsOfUseRequiredError()">
             <ion-checkbox formControlName="acceptTermsOfUse" labelPlacement="end" justify="start" (ionChange)="clearFeedbackState()">
               <span i18n="@@Register.AcceptTermsCheckbox">Jag accepterar användarvillkoren.</span>
             </ion-checkbox>
@@ -88,13 +85,13 @@
             <p i18n="@@Register.TermsLink">Fullständiga villkor finns i <a [routerLink]="['/terms']" target="_blank">Användarvillkoren</a>.</p>
           </section>
 
-          @if (form.controls.acceptTermsOfUse.touched && form.controls.acceptTermsOfUse.hasError('required')) {
+          @if (acceptTermsOfUseRequiredError()) {
             <p class="auth-error center" i18n="@@Register.AcceptTermsRequired">Du måste acceptera användarvillkoren.</p>
           }
         }
 
         @if (showPrivacyPolicy) {
-          <section class="legal-summary">
+          <section class="legal-summary" [class.legal-error]="acceptPrivacyPolicyRequiredError()">
             <ion-checkbox formControlName="acceptPrivacyPolicy" labelPlacement="end" justify="start" (ionChange)="clearFeedbackState()">
               <span i18n="@@Register.AcceptPrivacyCheckbox">Jag accepterar dataskyddsbeskrivningen.</span>
             </ion-checkbox>
@@ -111,7 +108,7 @@
             <p i18n="@@Register.PrivacyLink">Mer information finns i <a [routerLink]="['/privacy-policy']" target="_blank">Dataskyddsbeskrivningen</a>.</p>
           </section>
 
-          @if (form.controls.acceptPrivacyPolicy.touched && form.controls.acceptPrivacyPolicy.hasError('required')) {
+          @if (acceptPrivacyPolicyRequiredError()) {
             <p class="auth-error center" i18n="@@Register.AcceptPrivacyRequired">Du måste acceptera dataskyddsbeskrivningen.</p>
           }
         }

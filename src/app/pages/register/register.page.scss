@@ -45,6 +45,35 @@ p {
   color: #166a2f;
 }
 
+.legal-summary {
+  margin-top: 0.4rem;
+  padding: 0.9rem 1rem;
+  border: 1px solid #b5b5b5;
+  border-radius: 4px;
+
+  &:hover {
+    border-color: #404040;
+  }
+
+  h2 {
+    margin: 0 0 0.35rem;
+    font-size: 1.25rem;
+  }
+
+  p {
+    margin: 0.5em 0;
+    font-size: 1rem;
+  }
+
+  p:last-of-type {
+    margin-bottom: 0;
+  }
+}
+
+.legal-link-row {
+  margin-top: 0.5rem;
+}
+
 ion-input.input-fill-outline {
   --highlight-color-focused: var(--outline-button-color);
   --highlight-color-valid: var(--outline-button-color);
@@ -81,4 +110,45 @@ ion-input.input-fill-outline {
 
 ion-button.button.custom-button {
   min-height: 42px;
+}
+
+details {
+  padding: .5em .5em 0 .5em;
+
+  ul li {
+    line-height: 1.5;
+  }
+
+  ul li + li {
+    padding-top: 0.75em;
+  }
+}
+
+summary {
+  cursor: pointer;
+  font-size: 1rem;
+  margin: -.5em -.5em 0;
+  padding: .5em .5em .5em 0;
+
+  &:hover {
+    opacity: 0.7;
+  }
+}
+
+details[open] {
+  border-bottom: 1px solid #aaa;
+  padding: .5em;
+
+  summary {
+    border-bottom: 1px solid #aaa;
+    margin-bottom: .5em;
+  }
+}
+
+.summary-body {
+  padding: 0 0 0 0.5em;
+
+  p:last-of-type {
+    margin-bottom: 0;
+  }
 }

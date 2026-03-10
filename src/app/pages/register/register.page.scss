@@ -1,8 +1,27 @@
 // Import general styles for authentication-related pages
 @use "../../../theme/common/auth.scss";
 
+.form-section {
+  display: grid;
+  gap: 0.9rem;
+}
+
+.form-section + .form-section {
+  margin-top: 1.5rem;
+}
+
+.form-section h2 {
+  margin: 0 0 0.75rem;
+  font-size: 1.25rem;
+}
+
+.form-section ion-input,
+.form-section ion-select {
+  display: block;
+}
+
 form .password-requirements {
-  margin: -0.3rem 0 0;
+  margin: -0.3rem 0 0 1rem;
   font-size: 1rem;
 
   p {
@@ -20,10 +39,14 @@ form .password-requirements {
 }
 
 .legal-summary {
-  margin-top: 0.4rem;
+  margin-top: -0.5rem;
   padding: 0.9rem 1rem;
   border: 1px solid #b5b5b5;
   border-radius: 4px;
+
+  + .legal-summary {
+    margin-top: 0.4rem;
+  }
 
   &:hover {
     border-color: #404040;

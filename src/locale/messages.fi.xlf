@@ -1866,28 +1866,34 @@
         <target>Sinun on hyväksyttävä käyttöehdot.</target>
       </segment>
     </unit>
+    <unit id="Register.AccountSectionHeading">
+      <segment state="initial">
+        <source>Kontouppgifter</source>
+        <target>Tilitiedot</target>
+      </segment>
+    </unit>
     <unit id="Register.BackToLogin">
       <segment state="initial">
         <source>Tillbaka till inloggning</source>
         <target>Takaisin kirjautumiseen</target>
       </segment>
     </unit>
+    <unit id="Register.CountryLabel">
+      <segment state="initial">
+        <source>Bosättningsland</source>
+        <target>Asuinmaa</target>
+      </segment>
+    </unit>
+    <unit id="Register.CountryPlaceholder">
+      <segment state="initial">
+        <source>Välj land</source>
+        <target>Valitse maa</target>
+      </segment>
+    </unit>
     <unit id="Register.Description">
       <segment state="initial">
         <source>Ange namn, e-postadress och lösenord samt <ph id="0" equiv="LINE_BREAK" type="fmt" disp="&lt;br&gt;"/>godkänn villkoren för att skapa ett konto.</source>
         <target>Syötä nimi, sähköpostiosoite ja salasana sekä <ph id="0" equiv="LINE_BREAK" type="fmt" disp="&lt;br&gt;"/>hyväksy ehdot luodaksesi käyttäjätilin.</target>
-      </segment>
-    </unit>
-    <unit id="Register.NameLabel">
-      <segment state="initial">
-        <source>Förnamn och efternamn</source>
-        <target>Etunimi ja sukunimi</target>
-      </segment>
-    </unit>
-    <unit id="Register.NameRequired">
-      <segment state="initial">
-        <source>Ange förnamn och efternamn.</source>
-        <target>Syötä etunimi ja sukunimi.</target>
       </segment>
     </unit>
     <unit id="Register.EmailInvalid">
@@ -1908,10 +1914,64 @@
         <target>Syötä sähköpostiosoite.</target>
       </segment>
     </unit>
+    <unit id="Register.IntendedUsageEducational">
+      <segment state="initial">
+        <source>Pedagogiskt</source>
+        <target>Opetuksellinen</target>
+      </segment>
+    </unit>
+    <unit id="Register.IntendedUsageLabel">
+      <segment state="initial">
+        <source>Syftet med användningen</source>
+        <target>Tarkoitus</target>
+      </segment>
+    </unit>
+    <unit id="Register.IntendedUsagePersonal">
+      <segment state="initial">
+        <source>Personligt</source>
+        <target>Henkilökohtainen</target>
+      </segment>
+    </unit>
+    <unit id="Register.IntendedUsagePlaceholder">
+      <segment state="initial">
+        <source>Välj ett eller flera syften</source>
+        <target>Valitse yksi tai useampi tarkoitus</target>
+      </segment>
+    </unit>
+    <unit id="Register.IntendedUsageScholarly">
+      <segment state="initial">
+        <source>Vetenskapligt</source>
+        <target>Tieteellinen</target>
+      </segment>
+    </unit>
+    <unit id="Register.LegalSectionHeading">
+      <segment state="initial">
+        <source>Samtycke och villkor</source>
+        <target>Suostumus ja ehdot</target>
+      </segment>
+    </unit>
+    <unit id="Register.NameLabel">
+      <segment state="initial">
+        <source>Förnamn och efternamn</source>
+        <target>Etunimi ja sukunimi</target>
+      </segment>
+    </unit>
+    <unit id="Register.NameRequired">
+      <segment state="initial">
+        <source>Ange förnamn och efternamn.</source>
+        <target>Syötä etunimi ja sukunimi.</target>
+      </segment>
+    </unit>
     <unit id="Register.NoCredentials">
       <segment state="initial">
-        <source>Ange e-postadress och lösenord.</source>
-        <target>Syötä sähköpostiosoite ja salasana.</target>
+        <source>Ange förnamn och efternamn, e-postadress och lösenord.</source>
+        <target>Syötä etunimi ja sukunimi, sähköpostiosoite ja salasana.</target>
+      </segment>
+    </unit>
+    <unit id="Register.OptionalSectionHeading">
+      <segment state="initial">
+        <source>Ytterligare information (valfritt)</source>
+        <target>Lisätiedot (valinnainen)</target>
       </segment>
     </unit>
     <unit id="Register.PasswordLabel">

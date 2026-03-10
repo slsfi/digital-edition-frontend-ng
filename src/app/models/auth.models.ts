@@ -3,11 +3,15 @@ export interface LoginRequest {
   password: string;
 }
 
+export type RegisterIntendedUsage = 'personal' | 'educational' | 'scholarly';
+
 export interface RegisterRequest {
   name: string;
   email: string;
   password: string;
   language: string;
+  country?: string;
+  intended_usage?: string;
 }
 
 export interface ForgotPasswordRequest {

@@ -346,7 +346,27 @@ describe('AuthService', () => {
   it('sets success state when register request succeeds', () => {
     const service = createService();
 
-    service.register(' Test User ', ' user@example.com ', 'new-password-1234');
+    service.register(' Test User ', ' user@example.com ', 'new-password-1234', ' FI ', ['personal', 'scholarly']);
+
+    const request = httpMock.expectOne((req) => req.url.endsWith('/auth/register'));
+    expect(request.request.body).toEqual({
+      name: 'Test User',
+      email: 'user@example.com',
+      password: 'new-password-1234',
+      language: 'en',
+      country: 'FI',
+      intended_usage: 'personal;scholarly'
+    });
+    request.flush({ msg: 'User was created' }, { status: 201, statusText: 'Created' });
+
+    expect(service.registerError()).toBeNull();
+    expect(service.registrationCompleted()).toBeTrue();
+  });
+
+  it('omits optional register metadata when not provided', () => {
+    const service = createService();
+
+    service.register('Test User', 'user@example.com', 'new-password-1234');
 
     const request = httpMock.expectOne((req) => req.url.endsWith('/auth/register'));
     expect(request.request.body).toEqual({
@@ -356,9 +376,6 @@ describe('AuthService', () => {
       language: 'en'
     });
     request.flush({ msg: 'User was created' }, { status: 201, statusText: 'Created' });
-
-    expect(service.registerError()).toBeNull();
-    expect(service.registrationCompleted()).toBeTrue();
   });
 
   it('maps NO_CREDENTIALS backend error code for register flow', () => {

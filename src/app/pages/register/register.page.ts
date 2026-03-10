@@ -1,13 +1,17 @@
-import { Component, inject, OnDestroy } from '@angular/core';
+import { Component, inject, LOCALE_ID, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
 import { AbstractControl, FormBuilder, ValidationErrors, Validators } from '@angular/forms';
 
 import { config } from '@config';
+import { RegisterIntendedUsage } from '@models/auth.models';
 import { getAuthRedirectNavigationQueryParams } from '@services/auth-redirect-url.utils';
-import { getPasswordFieldValidators, PASSWORD_COMPLEXITY_ERROR_KEY,
-         passwordMatchValidator
-        } from '@services/auth-password.utils';
+import {
+  getPasswordFieldValidators,
+  PASSWORD_COMPLEXITY_ERROR_KEY,
+  passwordMatchValidator
+} from '@services/auth-password.utils';
 import { AuthService } from '@services/auth.service';
+import { REGISTER_COUNTRY_CODES } from './register-country-codes';
 
 const REGISTER_NAME_MAX_LENGTH = 255;
 
@@ -19,6 +23,34 @@ function requiredTrimmedTextValidator(control: AbstractControl<string | null>): 
     : { required: true };
 }
 
+interface SelectOption<TValue extends string = string> {
+  value: TValue;
+  label: string;
+}
+
+function createCountryOptions(localeId: string): ReadonlyArray<SelectOption> {
+  const localeCandidates = [localeId, localeId.split('-')[0], 'en']
+    .filter((candidate, index, candidates) => candidate && candidates.indexOf(candidate) === index);
+
+  let displayNames: Intl.DisplayNames | null = null;
+  try {
+    displayNames = new Intl.DisplayNames(localeCandidates, { type: 'region' });
+  } catch {
+    try {
+      displayNames = new Intl.DisplayNames(['en'], { type: 'region' });
+    } catch {
+      displayNames = null;
+    }
+  }
+
+  return REGISTER_COUNTRY_CODES
+    .map((countryCode) => ({
+      value: countryCode,
+      label: displayNames?.of(countryCode) ?? countryCode
+    }))
+    .sort((a, b) => a.label.localeCompare(b.label, localeCandidates[0] ?? 'en'));
+}
+
 @Component({
   selector: 'page-register',
   templateUrl: './register.page.html',
@@ -27,17 +59,21 @@ function requiredTrimmedTextValidator(control: AbstractControl<string | null>): 
 })
 export class RegisterPage implements OnDestroy {
   private readonly formBuilder = inject(FormBuilder);
+  private readonly localeId = inject(LOCALE_ID);
   private readonly router = inject(Router);
   private readonly authService = inject(AuthService);
   readonly showTermsOfUse: boolean = config.component?.mainSideMenu?.items?.termsOfUse === true;
   readonly showPrivacyPolicy: boolean = config.component?.mainSideMenu?.items?.privacyPolicy === true;
   readonly registerNameMaxLength = REGISTER_NAME_MAX_LENGTH;
+  readonly countryOptions = createCountryOptions(this.localeId);
 
   readonly form = this.formBuilder.nonNullable.group({
     name: ['', [requiredTrimmedTextValidator, Validators.maxLength(REGISTER_NAME_MAX_LENGTH)]],
     email: ['', [Validators.required, Validators.email]],
     password: ['', getPasswordFieldValidators()],
     confirmPassword: ['', [Validators.required]],
+    country: [''],
+    intendedUsage: this.formBuilder.nonNullable.control<RegisterIntendedUsage[]>([]),
     acceptTermsOfUse: [false, this.showTermsOfUse ? [Validators.requiredTrue] : []],
     acceptPrivacyPolicy: [false, this.showPrivacyPolicy ? [Validators.requiredTrue] : []]
   }, { validators: passwordMatchValidator() });
@@ -63,8 +99,14 @@ export class RegisterPage implements OnDestroy {
       return;
     }
 
-    const { name, email, password } = this.form.getRawValue();
-    this.authService.register(name.trim(), email.trim(), password);
+    const { name, email, password, country, intendedUsage } = this.form.getRawValue();
+    this.authService.register(
+      name.trim(),
+      email.trim(),
+      password,
+      country.trim() || undefined,
+      intendedUsage.length > 0 ? intendedUsage : undefined
+    );
   }
 
   clearFeedbackState(): void {

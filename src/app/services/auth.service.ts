@@ -10,6 +10,7 @@ import {
   ForgotPasswordResponse,
   LoginRequest,
   LoginResponse,
+  RegisterIntendedUsage,
   RegisterRequest,
   RegisterResponse,
   ResetPasswordRequest,
@@ -188,11 +189,18 @@ export class AuthService {
   /**
    * Executes account registration request for the provided credentials.
    */
-  register(name: string, email: string, password: string): void {
+  register(
+    name: string,
+    email: string,
+    password: string,
+    country?: string,
+    intendedUsage?: readonly RegisterIntendedUsage[]
+  ): void {
     this._registerError.set(null);
     this._registrationCompleted.set(false);
     const normalizedName = name.trim();
     const normalizedEmail = email.trim();
+    const normalizedCountry = country?.trim();
     const url = this.buildBackendAuthURL('auth/register');
     const body: RegisterRequest = {
       name: normalizedName,
@@ -200,6 +208,12 @@ export class AuthService {
       password,
       language: this.resolveAuthRequestLanguage()
     };
+    if (normalizedCountry) {
+      body.country = normalizedCountry;
+    }
+    if (intendedUsage && intendedUsage.length > 0) {
+      body.intended_usage = intendedUsage.join(';');
+    }
     this.http.post<RegisterResponse>(url, body).subscribe({
       next: () => {
         this._registrationCompleted.set(true);

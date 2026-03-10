@@ -1866,28 +1866,34 @@
         <target>Du måste acceptera användarvillkoren.</target>
       </segment>
     </unit>
+    <unit id="Register.AccountSectionHeading">
+      <segment state="initial">
+        <source>Kontouppgifter</source>
+        <target>Kontouppgifter</target>
+      </segment>
+    </unit>
     <unit id="Register.BackToLogin">
       <segment state="initial">
         <source>Tillbaka till inloggning</source>
         <target>Tillbaka till inloggning</target>
       </segment>
     </unit>
+    <unit id="Register.CountryLabel">
+      <segment state="initial">
+        <source>Bosättningsland</source>
+        <target>Bosättningsland</target>
+      </segment>
+    </unit>
+    <unit id="Register.CountryPlaceholder">
+      <segment state="initial">
+        <source>Välj land</source>
+        <target>Välj land</target>
+      </segment>
+    </unit>
     <unit id="Register.Description">
       <segment state="initial">
         <source>Ange namn, e-postadress och lösenord samt <ph id="0" equiv="LINE_BREAK" type="fmt" disp="&lt;br&gt;"/>godkänn villkoren för att skapa ett konto.</source>
         <target>Ange namn, e-postadress och lösenord samt <ph id="0" equiv="LINE_BREAK" type="fmt" disp="&lt;br&gt;"/>godkänn villkoren för att skapa ett konto.</target>
-      </segment>
-    </unit>
-    <unit id="Register.NameLabel">
-      <segment state="initial">
-        <source>Förnamn och efternamn</source>
-        <target>Förnamn och efternamn</target>
-      </segment>
-    </unit>
-    <unit id="Register.NameRequired">
-      <segment state="initial">
-        <source>Ange förnamn och efternamn.</source>
-        <target>Ange förnamn och efternamn.</target>
       </segment>
     </unit>
     <unit id="Register.EmailInvalid">
@@ -1908,10 +1914,64 @@
         <target>Ange e-postadress.</target>
       </segment>
     </unit>
+    <unit id="Register.IntendedUsageEducational">
+      <segment state="initial">
+        <source>Pedagogiskt</source>
+        <target>Pedagogiskt</target>
+      </segment>
+    </unit>
+    <unit id="Register.IntendedUsageLabel">
+      <segment state="initial">
+        <source>Syftet med användningen</source>
+        <target>Syftet med användningen</target>
+      </segment>
+    </unit>
+    <unit id="Register.IntendedUsagePersonal">
+      <segment state="initial">
+        <source>Personligt</source>
+        <target>Personligt</target>
+      </segment>
+    </unit>
+    <unit id="Register.IntendedUsagePlaceholder">
+      <segment state="initial">
+        <source>Välj ett eller flera syften</source>
+        <target>Välj ett eller flera syften</target>
+      </segment>
+    </unit>
+    <unit id="Register.IntendedUsageScholarly">
+      <segment state="initial">
+        <source>Vetenskapligt</source>
+        <target>Vetenskapligt</target>
+      </segment>
+    </unit>
+    <unit id="Register.LegalSectionHeading">
+      <segment state="initial">
+        <source>Samtycke och villkor</source>
+        <target>Samtycke och villkor</target>
+      </segment>
+    </unit>
+    <unit id="Register.NameLabel">
+      <segment state="initial">
+        <source>Förnamn och efternamn</source>
+        <target>Förnamn och efternamn</target>
+      </segment>
+    </unit>
+    <unit id="Register.NameRequired">
+      <segment state="initial">
+        <source>Ange förnamn och efternamn.</source>
+        <target>Ange förnamn och efternamn.</target>
+      </segment>
+    </unit>
     <unit id="Register.NoCredentials">
       <segment state="initial">
-        <source>Ange e-postadress och lösenord.</source>
-        <target>Ange e-postadress och lösenord.</target>
+        <source>Ange förnamn och efternamn, e-postadress och lösenord.</source>
+        <target>Ange förnamn och efternamn, e-postadress och lösenord.</target>
+      </segment>
+    </unit>
+    <unit id="Register.OptionalSectionHeading">
+      <segment state="initial">
+        <source>Ytterligare information (valfritt)</source>
+        <target>Ytterligare information (valfritt)</target>
       </segment>
     </unit>
     <unit id="Register.PasswordLabel">

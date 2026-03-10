@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <xliff version="2.0" xmlns="urn:oasis:names:tc:xliff:document:2.0" srcLang="undefined">
   <file id="ngi18n" original="ng.template">
     <unit id="About.FootnotesBackToReference">
@@ -1916,32 +1917,32 @@
     </unit>
     <unit id="Register.IntendedUsageEducational">
       <segment state="initial">
-        <source>Pedagogiskt</source>
-        <target>Pedagogiskt</target>
+        <source>Pedagogiska</source>
+        <target>Pedagogiska</target>
       </segment>
     </unit>
     <unit id="Register.IntendedUsageLabel">
       <segment state="initial">
-        <source>Syftet med användningen</source>
-        <target>Syftet med användningen</target>
+        <source>Ändamål</source>
+        <target>Ändamål</target>
       </segment>
     </unit>
     <unit id="Register.IntendedUsagePersonal">
       <segment state="initial">
-        <source>Personligt</source>
-        <target>Personligt</target>
+        <source>Personliga</source>
+        <target>Personliga</target>
       </segment>
     </unit>
     <unit id="Register.IntendedUsagePlaceholder">
       <segment state="initial">
-        <source>Välj ett eller flera syften</source>
-        <target>Välj ett eller flera syften</target>
+        <source>Välj ett eller flera ändamål</source>
+        <target>Välj ett eller flera ändamål</target>
       </segment>
     </unit>
     <unit id="Register.IntendedUsageScholarly">
       <segment state="initial">
-        <source>Vetenskapligt</source>
-        <target>Vetenskapligt</target>
+        <source>Vetenskapliga</source>
+        <target>Vetenskapliga</target>
       </segment>
     </unit>
     <unit id="Register.LegalSectionHeading">

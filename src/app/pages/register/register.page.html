@@ -1,4 +1,4 @@
-﻿@let registerErrorValue = registerError();
+@let registerErrorValue = registerError();
 @let registrationCompletedValue = registrationCompleted();
 
 <ion-content>
@@ -173,15 +173,15 @@
             labelPlacement="stacked"
             interface="popover"
             [multiple]="true"
-            placeholder="Välj ett eller flera syften"
+            placeholder="Välj ett eller flera ändamål"
             i18n-label="@@Register.IntendedUsageLabel"
             i18n-placeholder="@@Register.IntendedUsagePlaceholder"
-            label="Syftet med användningen"
+            label="Ändamål"
             (ionChange)="clearFeedbackState()"
           >
-            <ion-select-option value="personal" i18n="@@Register.IntendedUsagePersonal">Personligt</ion-select-option>
-            <ion-select-option value="educational" i18n="@@Register.IntendedUsageEducational">Pedagogiskt</ion-select-option>
-            <ion-select-option value="scholarly" i18n="@@Register.IntendedUsageScholarly">Vetenskapligt</ion-select-option>
+            <ion-select-option value="personal" i18n="@@Register.IntendedUsagePersonal">Personliga</ion-select-option>
+            <ion-select-option value="educational" i18n="@@Register.IntendedUsageEducational">Pedagogiska</ion-select-option>
+            <ion-select-option value="scholarly" i18n="@@Register.IntendedUsageScholarly">Vetenskapliga</ion-select-option>
           </ion-select>
         </section>
 

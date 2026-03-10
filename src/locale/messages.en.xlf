@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <xliff version="2.0" xmlns="urn:oasis:names:tc:xliff:document:2.0" srcLang="undefined">
   <file id="ngi18n" original="ng.template">
     <unit id="About.FootnotesBackToReference">
@@ -1916,31 +1917,31 @@
     </unit>
     <unit id="Register.IntendedUsageEducational">
       <segment state="initial">
-        <source>Pedagogiskt</source>
+        <source>Pedagogiska</source>
         <target>Educational</target>
       </segment>
     </unit>
     <unit id="Register.IntendedUsageLabel">
       <segment state="initial">
-        <source>Syftet med användningen</source>
+        <source>Ändamål</source>
         <target>Purpose</target>
       </segment>
     </unit>
     <unit id="Register.IntendedUsagePersonal">
       <segment state="initial">
-        <source>Personligt</source>
+        <source>Personliga</source>
         <target>Personal</target>
       </segment>
     </unit>
     <unit id="Register.IntendedUsagePlaceholder">
       <segment state="initial">
-        <source>Välj ett eller flera syften</source>
+        <source>Välj ett eller flera ändamål</source>
         <target>Select one or more purposes</target>
       </segment>
     </unit>
     <unit id="Register.IntendedUsageScholarly">
       <segment state="initial">
-        <source>Vetenskapligt</source>
+        <source>Vetenskapliga</source>
         <target>Scholarly</target>
       </segment>
     </unit>

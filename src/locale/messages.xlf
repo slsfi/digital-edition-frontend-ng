@@ -1598,27 +1598,27 @@
     </unit>
     <unit id="Register.IntendedUsageEducational">
       <segment>
-        <source>Pedagogiskt</source>
+        <source>Pedagogiska</source>
       </segment>
     </unit>
     <unit id="Register.IntendedUsageLabel">
       <segment>
-        <source>Syftet med användningen</source>
+        <source>Ändamål</source>
       </segment>
     </unit>
     <unit id="Register.IntendedUsagePersonal">
       <segment>
-        <source>Personligt</source>
+        <source>Personliga</source>
       </segment>
     </unit>
     <unit id="Register.IntendedUsagePlaceholder">
       <segment>
-        <source>Välj ett eller flera syften</source>
+        <source>Välj ett eller flera ändamål</source>
       </segment>
     </unit>
     <unit id="Register.IntendedUsageScholarly">
       <segment>
-        <source>Vetenskapligt</source>
+        <source>Vetenskapliga</source>
       </segment>
     </unit>
     <unit id="Register.LegalSectionHeading">

@@ -1561,14 +1561,9 @@
         <source>Tillbaka till inloggning</source>
       </segment>
     </unit>
-    <unit id="Register.RepeatPasswordLabel">
-      <segment>
-        <source>Upprepa lösenordet</source>
-      </segment>
-    </unit>
     <unit id="Register.Description">
       <segment>
-        <source>Ange e-postadress och lösenord för att skapa <ph id="0" equiv="LINE_BREAK" type="fmt" disp="&lt;br&gt;"/>ett nytt konto.</source>
+        <source>Ange namn, e-postadress och lösenord samt <ph id="0" equiv="LINE_BREAK" type="fmt" disp="&lt;br&gt;"/>godkänn villkoren för att skapa ett konto.</source>
       </segment>
     </unit>
     <unit id="Register.EmailInvalid">
@@ -1614,6 +1609,11 @@
     <unit id="Register.PrivacySummaryHeading">
       <segment>
         <source>Sammanfattning av dataskyddsbeskrivningen</source>
+      </segment>
+    </unit>
+    <unit id="Register.RepeatPasswordLabel">
+      <segment>
+        <source>Upprepa lösenordet</source>
       </segment>
     </unit>
     <unit id="Register.RequestFailed">
@@ -1666,11 +1666,6 @@
         <source>Tillbaka till inloggning</source>
       </segment>
     </unit>
-    <unit id="ResetPassword.RepeatPasswordLabel">
-      <segment>
-        <source>Upprepa nytt lösenord</source>
-      </segment>
-    </unit>
     <unit id="ResetPassword.Description">
       <segment>
         <source>Ange ett nytt lösenord för ditt konto.</source>
@@ -1689,6 +1684,11 @@
     <unit id="ResetPassword.PasswordLabel">
       <segment>
         <source>Nytt lösenord</source>
+      </segment>
+    </unit>
+    <unit id="ResetPassword.RepeatPasswordLabel">
+      <segment>
+        <source>Upprepa nytt lösenord</source>
       </segment>
     </unit>
     <unit id="ResetPassword.RequestFailed">

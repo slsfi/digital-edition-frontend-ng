@@ -1872,16 +1872,10 @@
         <target>Back to login</target>
       </segment>
     </unit>
-    <unit id="Register.RepeatPasswordLabel">
-      <segment state="initial">
-        <source>Upprepa lösenordet</source>
-        <target>Confirm email address</target>
-      </segment>
-    </unit>
     <unit id="Register.Description">
       <segment state="initial">
-        <source>Ange e-postadress och lösenord samt godkänn villkoren <ph id="0" equiv="LINE_BREAK" type="fmt" disp="&lt;br&gt;"/>för att skapa ett konto.</source>
-        <target>Enter your email address and a password and accept <ph id="0" equiv="LINE_BREAK" type="fmt" disp="&lt;br&gt;"/>the terms to create an account.</target>
+        <source>Ange namn, e-postadress och lösenord samt <ph id="0" equiv="LINE_BREAK" type="fmt" disp="&lt;br&gt;"/>godkänn villkoren för att skapa ett konto.</source>
+        <target>Enter your name, email address and a password and <ph id="0" equiv="LINE_BREAK" type="fmt" disp="&lt;br&gt;"/>accept the terms to create an account.</target>
       </segment>
     </unit>
     <unit id="Register.EmailInvalid">
@@ -1936,6 +1930,12 @@
       <segment state="initial">
         <source>Sammanfattning av dataskyddsbeskrivningen</source>
         <target>Summary of privacy policy</target>
+      </segment>
+    </unit>
+    <unit id="Register.RepeatPasswordLabel">
+      <segment state="initial">
+        <source>Upprepa lösenordet</source>
+        <target>Confirm email address</target>
       </segment>
     </unit>
     <unit id="Register.RequestFailed">
@@ -1998,12 +1998,6 @@
         <target>Back to login</target>
       </segment>
     </unit>
-    <unit id="ResetPassword.RepeatPasswordLabel">
-      <segment state="initial">
-        <source>Upprepa nytt lösenord</source>
-        <target>Repeat new password</target>
-      </segment>
-    </unit>
     <unit id="ResetPassword.Description">
       <segment state="initial">
         <source>Ange ett nytt lösenord för ditt konto.</source>
@@ -2026,6 +2020,12 @@
       <segment state="initial">
         <source>Nytt lösenord</source>
         <target>New password</target>
+      </segment>
+    </unit>
+    <unit id="ResetPassword.RepeatPasswordLabel">
+      <segment state="initial">
+        <source>Upprepa nytt lösenord</source>
+        <target>Repeat new password</target>
       </segment>
     </unit>
     <unit id="ResetPassword.RequestFailed">

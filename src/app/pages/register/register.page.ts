@@ -55,6 +55,7 @@ function createCountryOptions(localeId: string): ReadonlyArray<SelectOption> {
   selector: 'page-register',
   templateUrl: './register.page.html',
   styleUrls: ['./register.page.scss'],
+  host: { ngSkipHydration: 'true' },
   standalone: false
 })
 export class RegisterPage implements OnDestroy {

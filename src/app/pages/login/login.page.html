@@ -1,8 +1,8 @@
 @let loginErrorValue = loginError();
 
 <ion-content>
-  <article class="login-page">
-    <form class="login-form" [formGroup]="form" (ngSubmit)="attemptLogin()" novalidate>
+  <article>
+    <form [formGroup]="form" (ngSubmit)="attemptLogin()" novalidate>
       <h1 i18n="@@Login.Title">Logga in</h1>
 
       <p class="center" i18n="@@Login.AccountNeededForAccess">För att komma åt innehållet i den digitala utgåvan behöver du ett användarkonto.</p>
@@ -65,7 +65,7 @@
       >Logga in</ion-button>
 
       <div class="authentication-divider">
-        <span i18n="@@Login.OrDivider">eller</span>
+        <span i18n="@@Auth.OrDivider">eller</span>
       </div>
       <p class="center no-margins">
         <a

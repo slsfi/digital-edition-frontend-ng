@@ -188,12 +188,14 @@ export class AuthService {
   /**
    * Executes account registration request for the provided credentials.
    */
-  register(email: string, password: string): void {
+  register(name: string, email: string, password: string): void {
     this._registerError.set(null);
     this._registrationCompleted.set(false);
+    const normalizedName = name.trim();
     const normalizedEmail = email.trim();
     const url = this.buildBackendAuthURL('auth/register');
     const body: RegisterRequest = {
+      name: normalizedName,
       email: normalizedEmail,
       password,
       language: this.resolveAuthRequestLanguage()

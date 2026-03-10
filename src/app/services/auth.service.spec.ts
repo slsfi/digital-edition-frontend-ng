@@ -346,10 +346,11 @@ describe('AuthService', () => {
   it('sets success state when register request succeeds', () => {
     const service = createService();
 
-    service.register(' user@example.com ', 'new-password-1234');
+    service.register(' Test User ', ' user@example.com ', 'new-password-1234');
 
     const request = httpMock.expectOne((req) => req.url.endsWith('/auth/register'));
     expect(request.request.body).toEqual({
+      name: 'Test User',
       email: 'user@example.com',
       password: 'new-password-1234',
       language: 'en'
@@ -363,7 +364,7 @@ describe('AuthService', () => {
   it('maps NO_CREDENTIALS backend error code for register flow', () => {
     const service = createService();
 
-    service.register('user@example.com', 'new-password-1234');
+    service.register('Test User', 'user@example.com', 'new-password-1234');
 
     const request = httpMock.expectOne((req) => req.url.endsWith('/auth/register'));
     request.flush({ msg: 'missing credentials', err: 'NO_CREDENTIALS' }, { status: 400, statusText: 'Bad Request' });
@@ -375,7 +376,7 @@ describe('AuthService', () => {
   it('maps PASSWORD_TOO_SHORT backend error code for register flow', () => {
     const service = createService();
 
-    service.register('user@example.com', 'short');
+    service.register('Test User', 'user@example.com', 'short');
 
     const request = httpMock.expectOne((req) => req.url.endsWith('/auth/register'));
     request.flush(
@@ -390,7 +391,7 @@ describe('AuthService', () => {
   it('maps USER_ALREADY_EXISTS backend error code for register flow', () => {
     const service = createService();
 
-    service.register('user@example.com', 'new-password-1234');
+    service.register('Test User', 'user@example.com', 'new-password-1234');
 
     const request = httpMock.expectOne((req) => req.url.endsWith('/auth/register'));
     request.flush(
@@ -405,7 +406,7 @@ describe('AuthService', () => {
   it('maps generic register request failures to request_failed', () => {
     const service = createService();
 
-    service.register('user@example.com', 'new-password-1234');
+    service.register('Test User', 'user@example.com', 'new-password-1234');
 
     const request = httpMock.expectOne((req) => req.url.endsWith('/auth/register'));
     request.flush({ detail: 'server error' }, { status: 500, statusText: 'Server Error' });
@@ -417,7 +418,7 @@ describe('AuthService', () => {
   it('clears register feedback state explicitly', () => {
     const service = createService();
 
-    service.register('user@example.com', 'new-password-1234');
+    service.register('Test User', 'user@example.com', 'new-password-1234');
 
     const request = httpMock.expectOne((req) => req.url.endsWith('/auth/register'));
     request.flush({ msg: 'User was created' }, { status: 201, statusText: 'Created' });

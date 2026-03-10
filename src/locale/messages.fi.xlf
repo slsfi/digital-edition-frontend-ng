@@ -1878,6 +1878,18 @@
         <target>Syötä nimi, sähköpostiosoite ja salasana sekä <ph id="0" equiv="LINE_BREAK" type="fmt" disp="&lt;br&gt;"/>hyväksy ehdot luodaksesi käyttäjätilin.</target>
       </segment>
     </unit>
+    <unit id="Register.NameLabel">
+      <segment state="initial">
+        <source>Förnamn och efternamn</source>
+        <target>Etunimi ja sukunimi</target>
+      </segment>
+    </unit>
+    <unit id="Register.NameRequired">
+      <segment state="initial">
+        <source>Ange förnamn och efternamn.</source>
+        <target>Syötä etunimi ja sukunimi.</target>
+      </segment>
+    </unit>
     <unit id="Register.EmailInvalid">
       <segment state="initial">
         <source>Ange en giltig e-postadress.</source>

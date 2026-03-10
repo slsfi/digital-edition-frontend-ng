@@ -1878,6 +1878,18 @@
         <target>Ange namn, e-postadress och lösenord samt <ph id="0" equiv="LINE_BREAK" type="fmt" disp="&lt;br&gt;"/>godkänn villkoren för att skapa ett konto.</target>
       </segment>
     </unit>
+    <unit id="Register.NameLabel">
+      <segment state="initial">
+        <source>Förnamn och efternamn</source>
+        <target>Förnamn och efternamn</target>
+      </segment>
+    </unit>
+    <unit id="Register.NameRequired">
+      <segment state="initial">
+        <source>Ange förnamn och efternamn.</source>
+        <target>Ange förnamn och efternamn.</target>
+      </segment>
+    </unit>
     <unit id="Register.EmailInvalid">
       <segment state="initial">
         <source>Ange en giltig e-postadress.</source>

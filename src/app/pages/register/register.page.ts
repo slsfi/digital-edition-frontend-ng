@@ -1,15 +1,23 @@
 import { Component, inject, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
-import { FormBuilder, Validators } from '@angular/forms';
+import { AbstractControl, FormBuilder, ValidationErrors, Validators } from '@angular/forms';
 
 import { config } from '@config';
 import { getAuthRedirectNavigationQueryParams } from '@services/auth-redirect-url.utils';
-import {
-  getPasswordFieldValidators,
-  PASSWORD_COMPLEXITY_ERROR_KEY,
-  passwordMatchValidator
-} from '@services/auth-password.utils';
+import { getPasswordFieldValidators, PASSWORD_COMPLEXITY_ERROR_KEY,
+         passwordMatchValidator
+        } from '@services/auth-password.utils';
 import { AuthService } from '@services/auth.service';
+
+const REGISTER_NAME_MAX_LENGTH = 255;
+
+function requiredTrimmedTextValidator(control: AbstractControl<string | null>): ValidationErrors | null {
+  const value = control.value;
+
+  return typeof value === 'string' && value.trim().length > 0
+    ? null
+    : { required: true };
+}
 
 @Component({
   selector: 'page-register',
@@ -23,8 +31,10 @@ export class RegisterPage implements OnDestroy {
   private readonly authService = inject(AuthService);
   readonly showTermsOfUse: boolean = config.component?.mainSideMenu?.items?.termsOfUse === true;
   readonly showPrivacyPolicy: boolean = config.component?.mainSideMenu?.items?.privacyPolicy === true;
+  readonly registerNameMaxLength = REGISTER_NAME_MAX_LENGTH;
 
   readonly form = this.formBuilder.nonNullable.group({
+    name: ['', [requiredTrimmedTextValidator, Validators.maxLength(REGISTER_NAME_MAX_LENGTH)]],
     email: ['', [Validators.required, Validators.email]],
     password: ['', getPasswordFieldValidators()],
     confirmPassword: ['', [Validators.required]],
@@ -53,15 +63,15 @@ export class RegisterPage implements OnDestroy {
       return;
     }
 
-    const { email, password } = this.form.getRawValue();
-    this.authService.register(email.trim(), password);
+    const { name, email, password } = this.form.getRawValue();
+    this.authService.register(name.trim(), email.trim(), password);
   }
 
   clearFeedbackState(): void {
     this.authService.clearRegisterState();
   }
 
-  showControlError(controlName: 'email' | 'acceptTermsOfUse' | 'acceptPrivacyPolicy', errorKey: string): boolean {
+  showControlError(controlName: 'name' | 'email' | 'acceptTermsOfUse' | 'acceptPrivacyPolicy', errorKey: string): boolean {
     const control = this.form.controls[controlName];
 
     return control.touched && control.hasError(errorKey);

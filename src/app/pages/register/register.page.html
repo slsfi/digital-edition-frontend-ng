@@ -12,6 +12,23 @@
         <p class="center" i18n="@@Register.Description">Ange namn, e-postadress och lösenord samt <br>godkänn villkoren för att skapa ett konto.</p>
 
         <ion-input
+          formControlName="name"
+          type="text"
+          fill="outline"
+          labelPlacement="stacked"
+          autocomplete="name"
+          [maxlength]="registerNameMaxLength"
+          (ionInput)="clearFeedbackState()"
+          i18n-label="@@Register.NameLabel"
+          label="Förnamn och efternamn"
+        >
+        </ion-input>
+
+        @if (showControlError('name', 'required')) {
+          <p class="auth-error center" i18n="@@Register.NameRequired">Ange förnamn och efternamn.</p>
+        }
+
+        <ion-input
           formControlName="email"
           type="email"
           fill="outline"

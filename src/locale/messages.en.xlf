@@ -1878,6 +1878,18 @@
         <target>Enter your name, email address and a password and <ph id="0" equiv="LINE_BREAK" type="fmt" disp="&lt;br&gt;"/>accept the terms to create an account.</target>
       </segment>
     </unit>
+    <unit id="Register.NameLabel">
+      <segment state="initial">
+        <source>Förnamn och efternamn</source>
+        <target>First and last name</target>
+      </segment>
+    </unit>
+    <unit id="Register.NameRequired">
+      <segment state="initial">
+        <source>Ange förnamn och efternamn.</source>
+        <target>Enter first and last name.</target>
+      </segment>
+    </unit>
     <unit id="Register.EmailInvalid">
       <segment state="initial">
         <source>Ange en giltig e-postadress.</source>

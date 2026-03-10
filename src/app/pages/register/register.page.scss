@@ -15,7 +15,7 @@ form {
 }
 
 .form-section + .form-section {
-  margin-top: 1.75rem;
+  margin-top: 1rem;
 }
 
 .form-section h2 {
@@ -35,8 +35,8 @@ form {
 }
 
 form .password-requirements {
-  margin: -0.3rem 0 0 1rem;
   font-size: 1rem;
+  margin: -0.3rem 0 0 1rem;
 
   p {
     margin: 0;
@@ -47,8 +47,8 @@ form .password-requirements {
   }
 
   + .auth-error {
-    margin-top: -0.5em;
     margin-bottom: 0.5em;
+    margin-top: -0.5em;
   }
 }
 
@@ -123,7 +123,7 @@ details[open] {
 }
 
 .summary-body {
-  padding: 0 0 0 0.5em;
+  padding: 0;
 
   p:last-of-type {
     margin-bottom: 0;

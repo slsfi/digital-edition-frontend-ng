@@ -15,6 +15,7 @@ import {
   RegisterResponse,
   ResetPasswordRequest,
   ResetPasswordResponse,
+  VerifyEmailResponse,
   RefreshTokenResponse
 } from '@models/auth.models';
 import {
@@ -34,7 +35,13 @@ export type LoginErrorCode = 'no_credentials' | 'email_not_verified' | 'invalid_
 export type RegisterErrorCode = 'no_credentials' | 'password_too_short' | 'user_already_exists' | 'request_failed';
 export type ForgotPasswordErrorCode = 'no_credentials' | 'invalid_credentials' | 'request_failed';
 export type ResetPasswordErrorCode = 'no_credentials' | 'password_too_short' | 'invalid_link' | 'request_failed';
-type ResolvedAuthErrorCode = LoginErrorCode | RegisterErrorCode | ForgotPasswordErrorCode | ResetPasswordErrorCode;
+export type VerifyEmailErrorCode = 'invalid_link' | 'request_failed';
+type ResolvedAuthErrorCode =
+  | LoginErrorCode
+  | RegisterErrorCode
+  | ForgotPasswordErrorCode
+  | ResetPasswordErrorCode
+  | VerifyEmailErrorCode;
 type AuthErrorResolverMap<TErrorCode extends ResolvedAuthErrorCode> = {
   backend: Partial<Record<BackendAuthErrorCode, TErrorCode>>;
   status: Partial<Record<number, TErrorCode>>;
@@ -79,6 +86,12 @@ export class AuthService {
   readonly resetPasswordError = this._resetPasswordError.asReadonly();
   private readonly _passwordResetCompleted = signal<boolean>(false);
   readonly passwordResetCompleted = this._passwordResetCompleted.asReadonly();
+  private readonly _verifyEmailError = signal<VerifyEmailErrorCode | null>(null);
+  readonly verifyEmailError = this._verifyEmailError.asReadonly();
+  private readonly _emailVerificationCompleted = signal<boolean>(false);
+  readonly emailVerificationCompleted = this._emailVerificationCompleted.asReadonly();
+  private readonly _emailVerificationInProgress = signal<boolean>(false);
+  readonly emailVerificationInProgress = this._emailVerificationInProgress.asReadonly();
   private readonly _authenticatedEmail = signal<string | null>(null);
   readonly authenticatedEmail = this._authenticatedEmail.asReadonly();
   private readonly loginErrorResolverMap: AuthErrorResolverMap<LoginErrorCode> = {
@@ -117,6 +130,18 @@ export class AuthService {
       PASSWORD_TOO_SHORT: 'password_too_short'
     },
     status: {
+      401: 'invalid_link',
+      422: 'invalid_link'
+    },
+    fallback: 'request_failed'
+  };
+  private readonly verifyEmailErrorResolverMap: AuthErrorResolverMap<VerifyEmailErrorCode> = {
+    backend: {
+      NO_CREDENTIALS: 'invalid_link',
+      INVALID_CREDENTIALS: 'invalid_link'
+    },
+    status: {
+      400: 'invalid_link',
       401: 'invalid_link',
       422: 'invalid_link'
     },
@@ -305,6 +330,45 @@ export class AuthService {
   clearResetPasswordState(): void {
     this._resetPasswordError.set(null);
     this._passwordResetCompleted.set(false);
+  }
+
+  /**
+   * Verifies a user's email address using a verification JWT token.
+   */
+  verifyEmail(jwtToken: string): void {
+    this._verifyEmailError.set(null);
+    this._emailVerificationCompleted.set(false);
+
+    const normalizedToken = jwtToken.trim();
+    if (!normalizedToken) {
+      this._emailVerificationInProgress.set(false);
+      this._verifyEmailError.set('invalid_link');
+      return;
+    }
+
+    this._emailVerificationInProgress.set(true);
+
+    const url = this.buildBackendAuthURL('auth/verify_email');
+    const headers = { Authorization: `Bearer ${normalizedToken}` };
+    this.http.post<VerifyEmailResponse>(url, null, { headers }).subscribe({
+      next: () => {
+        this._emailVerificationInProgress.set(false);
+        this._emailVerificationCompleted.set(true);
+      },
+      error: (error) => {
+        this._emailVerificationInProgress.set(false);
+        this._verifyEmailError.set(this.resolveAuthErrorCode(error, this.verifyEmailErrorResolverMap));
+      }
+    });
+  }
+
+  /**
+   * Clears email verification completion, loading, and error state.
+   */
+  clearVerifyEmailState(): void {
+    this._verifyEmailError.set(null);
+    this._emailVerificationCompleted.set(false);
+    this._emailVerificationInProgress.set(false);
   }
 
   /**

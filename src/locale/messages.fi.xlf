@@ -2251,6 +2251,42 @@
         <target>Varianttikategoria</target>
       </segment>
     </unit>
+    <unit id="VerifyEmail.BackToLogin">
+      <segment state="initial">
+        <source>Till inloggning</source>
+        <target>Siirry kirjautumiseen</target>
+      </segment>
+    </unit>
+    <unit id="VerifyEmail.InvalidLink">
+      <segment state="initial">
+        <source>Verifieringslänken är ogiltig eller har löpt ut.</source>
+        <target>Vahvistuslinkki on virheellinen tai vanhentunut.</target>
+      </segment>
+    </unit>
+    <unit id="VerifyEmail.RequestFailed">
+      <segment state="initial">
+        <source>Verifieringen misslyckades. Försök igen senare.</source>
+        <target>Sähköpostiosoitteen vahvistus epäonnistui. Yritä myöhemmin uudelleen.</target>
+      </segment>
+    </unit>
+    <unit id="VerifyEmail.Success">
+      <segment state="initial">
+        <source>Din e-postadress har verifierats. Du kan nu logga in på ditt konto.</source>
+        <target>Sähköpostiosoitteesi on vahvistettu. Voit nyt kirjautua tilillesi.</target>
+      </segment>
+    </unit>
+    <unit id="VerifyEmail.Title">
+      <segment state="initial">
+        <source>Verifiera e-postadress</source>
+        <target>Vahvista sähköpostiosoite</target>
+      </segment>
+    </unit>
+    <unit id="VerifyEmail.Verifying">
+      <segment state="initial">
+        <source>Verifierar din e-postadress ...</source>
+        <target>Sähköpostiosoitettasi vahvistetaan ...</target>
+      </segment>
+    </unit>
     <unit id="ViewOptions.Abbreviation">
       <segment state="initial">
         <source>Förkortning</source>

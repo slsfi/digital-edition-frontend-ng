@@ -1876,6 +1876,36 @@
         <source>Variantkategori</source>
       </segment>
     </unit>
+    <unit id="VerifyEmail.BackToLogin">
+      <segment>
+        <source>Till inloggning</source>
+      </segment>
+    </unit>
+    <unit id="VerifyEmail.InvalidLink">
+      <segment>
+        <source>Verifieringslänken är ogiltig eller har löpt ut.</source>
+      </segment>
+    </unit>
+    <unit id="VerifyEmail.RequestFailed">
+      <segment>
+        <source>Verifieringen misslyckades. Försök igen senare.</source>
+      </segment>
+    </unit>
+    <unit id="VerifyEmail.Success">
+      <segment>
+        <source>Din e-postadress har verifierats. Du kan nu logga in på ditt konto.</source>
+      </segment>
+    </unit>
+    <unit id="VerifyEmail.Title">
+      <segment>
+        <source>Verifiera e-postadress</source>
+      </segment>
+    </unit>
+    <unit id="VerifyEmail.Verifying">
+      <segment>
+        <source>Verifierar din e-postadress ...</source>
+      </segment>
+    </unit>
     <unit id="ViewOptions.Abbreviation">
       <segment>
         <source>Förkortning</source>

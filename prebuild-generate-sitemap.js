@@ -10,7 +10,8 @@ const SITEMAP_EXCLUDED_ROUTE_PATH_KEYS = Object.freeze([
   'forgot-password',
   'reset-password',
   'change-password',
-  'register'
+  'register',
+  'verify-email'
 ]);
 const AUTH_PROTECTED_ROUTE_PATH_KEYS = Object.freeze([
   'collection/:collectionID/cover',

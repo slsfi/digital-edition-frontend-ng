@@ -612,6 +612,79 @@ describe('AuthService', () => {
     expect(service.passwordResetCompleted()).toBeFalse();
   });
 
+  it('verifies email with jwt token and marks verification as completed on success', () => {
+    const service = createService();
+
+    service.verifyEmail(' verify-token ');
+
+    const request = httpMock.expectOne((req) => req.url.endsWith('/auth/verify_email'));
+    expect(request.request.body).toBeNull();
+    expect(request.request.headers.get('Authorization')).toBe('Bearer verify-token');
+    expect(service.emailVerificationInProgress()).toBeTrue();
+    request.flush({ msg: 'Email verified' });
+
+    expect(service.verifyEmailError()).toBeNull();
+    expect(service.emailVerificationInProgress()).toBeFalse();
+    expect(service.emailVerificationCompleted()).toBeTrue();
+  });
+
+  it('does not call backend verify email endpoint when jwt token is missing', () => {
+    const service = createService();
+
+    service.verifyEmail('   ');
+
+    httpMock.expectNone((req) => req.url.includes('/auth/verify_email'));
+    expect(service.verifyEmailError()).toBe('invalid_link');
+    expect(service.emailVerificationInProgress()).toBeFalse();
+    expect(service.emailVerificationCompleted()).toBeFalse();
+  });
+
+  it('maps INVALID_CREDENTIALS backend error code to invalid_link for verify email', () => {
+    const service = createService();
+
+    service.verifyEmail('verify-token');
+
+    const request = httpMock.expectOne((req) => req.url.endsWith('/auth/verify_email'));
+    expect(request.request.headers.get('Authorization')).toBe('Bearer verify-token');
+    request.flush(
+      { msg: 'invalid token', err: 'INVALID_CREDENTIALS' },
+      { status: 400, statusText: 'Bad Request' }
+    );
+
+    expect(service.verifyEmailError()).toBe('invalid_link');
+    expect(service.emailVerificationInProgress()).toBeFalse();
+    expect(service.emailVerificationCompleted()).toBeFalse();
+  });
+
+  it('maps generic verify email failures to request_failed', () => {
+    const service = createService();
+
+    service.verifyEmail('verify-token');
+
+    const request = httpMock.expectOne((req) => req.url.endsWith('/auth/verify_email'));
+    expect(request.request.headers.get('Authorization')).toBe('Bearer verify-token');
+    request.flush({ detail: 'server error' }, { status: 500, statusText: 'Server Error' });
+
+    expect(service.verifyEmailError()).toBe('request_failed');
+    expect(service.emailVerificationInProgress()).toBeFalse();
+    expect(service.emailVerificationCompleted()).toBeFalse();
+  });
+
+  it('clears verify email feedback state explicitly', () => {
+    const service = createService();
+
+    service.verifyEmail('verify-token');
+
+    const request = httpMock.expectOne((req) => req.url.endsWith('/auth/verify_email'));
+    request.flush({ msg: 'Email verified' });
+    expect(service.emailVerificationCompleted()).toBeTrue();
+
+    service.clearVerifyEmailState();
+    expect(service.verifyEmailError()).toBeNull();
+    expect(service.emailVerificationInProgress()).toBeFalse();
+    expect(service.emailVerificationCompleted()).toBeFalse();
+  });
+
   it('clears stored marker return URL on logout when authenticated', () => {
     tokenMap.set('access_token', 'access-token-1');
     tokenMap.set('auth_email', 'user@example.com');

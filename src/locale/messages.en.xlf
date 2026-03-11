@@ -2251,6 +2251,42 @@
         <target>Variant category</target>
       </segment>
     </unit>
+    <unit id="VerifyEmail.BackToLogin">
+      <segment state="initial">
+        <source>Till inloggning</source>
+        <target>Go to login</target>
+      </segment>
+    </unit>
+    <unit id="VerifyEmail.InvalidLink">
+      <segment state="initial">
+        <source>Verifieringslänken är ogiltig eller har löpt ut.</source>
+        <target>The verification link is invalid or has expired.</target>
+      </segment>
+    </unit>
+    <unit id="VerifyEmail.RequestFailed">
+      <segment state="initial">
+        <source>Verifieringen misslyckades. Försök igen senare.</source>
+        <target>Email verification failed. Please try again later.</target>
+      </segment>
+    </unit>
+    <unit id="VerifyEmail.Success">
+      <segment state="initial">
+        <source>Din e-postadress har verifierats. Du kan nu logga in på ditt konto.</source>
+        <target>Your email address has been verified. You can now log in to your account.</target>
+      </segment>
+    </unit>
+    <unit id="VerifyEmail.Title">
+      <segment state="initial">
+        <source>Verifiera e-postadress</source>
+        <target>Verify email address</target>
+      </segment>
+    </unit>
+    <unit id="VerifyEmail.Verifying">
+      <segment state="initial">
+        <source>Verifierar din e-postadress ...</source>
+        <target>Verifying your email address...</target>
+      </segment>
+    </unit>
     <unit id="ViewOptions.Abbreviation">
       <segment state="initial">
         <source>Förkortning</source>

@@ -55,6 +55,10 @@ export interface ResetPasswordResponse {
   msg: string;
 }
 
+export interface VerifyEmailResponse {
+  msg: string;
+}
+
 export interface RefreshTokenResponse {
   msg: string;
   access_token: string;

@@ -2,15 +2,15 @@ type Config = { [key: string]: any }
 
 export const config: Config = {
   app: {
-    siteURLOrigin: "https://topelius.sls.fi",
-    projectNameDB: "topelius",
-    projectId: 10,
-    backendBaseURL: "https://api.sls.fi/digitaledition",
+    siteURLOrigin: "https://testa-jansson.sls.fi",
+    projectNameDB: "jansson",
+    projectId: 1,
+    backendBaseURL: "https://testa-jansson-auth-api.sls.fi/digitaledition",
     alternateFacsimileBaseURL: "",
     i18n: {
       languages: [
         { code: "sv", label: "Svenska", region: "FI" },
-        { code: "fi", label: "Suomi", region: "FI" }
+        { code: "en", label: "English", region: "GB" }
       ],
       defaultLanguage: "sv",
       multilingualCollectionTableOfContents: false,
@@ -19,53 +19,43 @@ export const config: Config = {
     },
     enableRouterLoadingBar: true,
     auth: {
-      enabled: false,
-      backendAuthBaseURL: "https://api.sls.fi/"
+      enabled: true
     },
     openGraphMetaTags: {
       enabled: true,
       image: {
         sv: {
-          altText: "alt-text",
+          altText: "Svartvitt foto av en kvinna med kort hår och stickad tröja som sitter vid ett skrivbord, omgiven av papper och teckningar, och skriver under en bordslampa.",
           URL: "assets/images/home-page-banner.jpg"
         },
-        fi: {
-          altText: "alt-teksti",
+        en: {
+          altText: "Black and white photo of a woman with short hair and a knitted sweater sitting at a desk, surrounded by papers and drawings, writing under a desk lamp.",
           URL: "assets/images/home-page-banner.jpg"
         }
       }
     },
     prebuild: {
-      sitemap: true,
-      staticCollectionMenus: true,
-      featureBasedRoutes: false
+      featureBasedRoutes: true,
+      sitemap: false,
+      staticCollectionMenus: false
     },
     ssr: {
-      trustProxyHops: 2,
+	  trustProxyHops: 2,
       collectionSideMenu: false
     }
   },
   articles: [],
   collections: {
-    addTEIClassNames: true,
-    replaceImageAssetsPaths: true,
-    enableLegacyIDs: true,
+    addTEIClassNames: false,
+    replaceImageAssetsPaths: false,
+    enableLegacyIDs: false,
     enableMathJax: false,
-    firstTextItem: {
-      216: "216_20280", 219: "219_19443", 220: "220_20122",
-      218: "218_20230_ch2", 210: "210_20548_ch1", 208: "208_18466_ch4",
-      207: "207_18464_ch1", 214: "214_20240_ch1", 203: "203_20217_ch1",
-      213: "213_18465_ch1", 202: "202_18467_ch1", 199: "199_18284",
-      221: "221_21422", 206: "206_20212_ch1", 201: "201_18471",
-      211: "211_20128", 200: "200_19870", 205: "205_20227_ch1",
-      215: "215_20568", 217: "217_20559_ch1", 204: "204_20322",
-      212: "212_20323", 209: "209_20479"
-    },
+    firstTextItem: { 1: "1_1" },
     frontMatterPages: {
-      cover: true,
-      title: true,
-      foreword: true,
-      introduction: true
+      cover: false,
+      title: false,
+      foreword: false,
+      introduction: false
     },
     frontMatterPageDisabled: {
       cover: [],
@@ -74,35 +64,16 @@ export const config: Config = {
       introduction: []
     },
     highlightSearchMatches: true,
-    inlineIllustrations: [206],
-    mediaCollectionMappings: { 214: 44, 206: 19, 218: 19 },
+    inlineIllustrations: [],
+    mediaCollectionMappings: {},
     order: [
-      [216, 219, 220, 218, 210, 208, 207, 214, 203, 213,
-        202, 199, 221, 206, 201, 211, 200, 205, 215, 217,
-        204, 212, 209]
+      [1]
     ]
   },
-  ebooks: [
-    {
-      title: "Marriage Conditions in a Palestinian Village I (pdf)",
-      filename: "marriage-conditions-1.pdf",
-      externalFileURL: "https://api.sls.fi/digitaledition/granqvist/files/30/pdf/30_11672_Marriage_Conditions_1.pdf/",
-      coverURL: "",
-      downloadOptions: [
-        {
-          url: "https://api.sls.fi/digitaledition/granqvist/files/30/epub/30_11672_Marriage_Conditions_1.epub/",
-          label: "EPUB"
-        },
-        {
-          url: "https://api.sls.fi/digitaledition/granqvist/files/30/pdf/30_11672_Marriage_Conditions_1.pdf/",
-          label: "PDF"
-        }
-      ]
-    }
-  ],
+  ebooks: [],
   page: {
     about: {
-      initialPageNode: "01-01"
+      initialPageNode: "01"
     },
     article: {
       showTextDownloadButton: false,
@@ -113,7 +84,7 @@ export const config: Config = {
       enableSortOptions: true,
       filterGroupsOpenByDefault: ["Years", "Type", "Genre", "Collection"],
       hitsPerPage: 15,
-      indices: ["topelius"],
+      indices: ["jansson"],
       openReadingTextWithComments: false,
       textHighlightFragmentSize: 150,
       textHighlightType: "fvh",
@@ -194,16 +165,65 @@ export const config: Config = {
     home: {
       bannerImage: {
         altTexts: {
-          sv: "Porträtt av Zacharias Topelius",
-          fi: "Zacharias Topeliuksen muotokuva"
+          sv: "",
+          en: ""
         },
         intrinsicSize: {
-          height: null,
-          width: null
+          height: 1930,
+          width: 3840
         },
-        orientationPortrait: true,
-        alternateSources: [],
-        URL: "assets/images/home-page-banner-portrait.jpg"
+        orientationPortrait: false,
+        alternateSources: [
+          {
+            media: "(orientation: portrait) and (min-resolution: 2x)",
+            srcset: "assets/images/tove-jansson-2574x2574.avif 2574w",
+            type: "image/avif"
+          },
+          {
+            media: "(orientation: portrait) and (min-resolution: 2x)",
+            srcset: "assets/images/tove-jansson-2574x2574.jpg 2574w",
+            type: "image/jpeg"
+          },
+          {
+            media: "(orientation: portrait) and (max-height: 860px)",
+            srcset: "assets/images/tove-jansson-1287x1287.avif 1287w",
+            type: "image/avif"
+          },
+          {
+            media: "(orientation: portrait) and (max-height: 860px)",
+            srcset: "assets/images/tove-jansson-1287x1287.jpg 1287w",
+            type: "image/jpeg"
+          },
+          {
+            media: "(max-height: 965px) and (max-resolution: 1x)",
+            srcset: "assets/images/tove-jansson-1920x965.avif 1920w",
+            type: "image/avif"
+          },
+          {
+            media: "(max-height: 965px) and (max-resolution: 1x)",
+            srcset: "assets/images/tove-jansson-1920x965.jpg 1920w",
+            type: "image/jpeg"
+          },
+          {
+            media: "((max-height: 1287px) and (max-resolution: 1x)) or (max-height: 910px)",
+            srcset: "assets/images/tove-jansson-2560x1287.avif 2560w",
+            type: "image/avif"
+          },
+          {
+            media: "((max-height: 1287px) and (max-resolution: 1x)) or (max-height: 910px)",
+            srcset: "assets/images/tove-jansson-2560x1287.jpg 2560w",
+            type: "image/jpeg"
+          },
+          {
+            srcset: "assets/images/tove-jansson-3840x1930.avif 3840w",
+            type: "image/avif"
+          },
+          {
+            srcset: "assets/images/tove-jansson-3840x1930.jpg 3840w",
+            type: "image/jpeg"
+          }
+        ],
+        URL: "assets/images/tove-jansson-3840x1930.jpg"
       },
       portraitOrientationSettings: {
         imagePlacement: {
@@ -254,22 +274,22 @@ export const config: Config = {
       showURNButton: true
     },
     text: {
-      defaultViews: ["readingtext", "comments", "facsimiles"],
-      defaultViewOptions: ["comments"],
-      showTextDownloadButton: true,
-      showURNButton: true,
+      defaultViews: ["readingtext", "facsimiles", "manuscripts"],
+      defaultViewOptions: [],
+      showTextDownloadButton: false,
+      showURNButton: false,
       showViewOptionsButton: true,
       viewOptions: {
-        comments: true,
-        personInfo: true,
-        placeInfo: true,
+        comments: false,
+        personInfo: false,
+        placeInfo: false,
         emendations: true,
         normalisations: true,
-        workInfo: true,
+        workInfo: false,
         abbreviations: true,
         paragraphNumbering: true,
         pageBreakOriginal: true,
-        pageBreakEdition: true
+        pageBreakEdition: false
       },
       variantViewOptions: {
         showVariationTypeOption: false,
@@ -278,11 +298,11 @@ export const config: Config = {
       viewTypes: {
         showAll: true,
         readingtext: true,
-        comments: true,
+        comments: false,
         facsimiles: true,
         manuscripts: true,
-        variants: true,
-        illustrations: true,
+        variants: false,
+        illustrations: false,
         legend: true,
         metadata: false
       },
@@ -305,8 +325,8 @@ export const config: Config = {
   },
   component: {
     collectionSideMenu: {
-      sortableCollectionsAlphabetical: ["211", "215", "219", "220"],
-      sortableCollectionsChronological: ["215", "219", "220"],
+      sortableCollectionsAlphabetical: [],
+      sortableCollectionsChronological: [],
       sortableCollectionsCategorical: [],
       categoricalSortingPrimaryKey: "",
       categoricalSortingSecondaryKey: ""
@@ -318,7 +338,7 @@ export const config: Config = {
       mediaCollectionCoverURL: "",
       mediaCollectionCoverAltTexts: {
         sv: "Alt-text",
-        fi: "Alt-teksti"
+        en: "Alt-teksti"
       },
       showTitles: true
     },
@@ -329,18 +349,18 @@ export const config: Config = {
     mainSideMenu: {
       items: {
         about: true,
-        articles: true,
-        ebooks: true,
+        articles: false,
+        ebooks: false,
         collections: true,
-        mediaCollections: true,
+        mediaCollections: false,
         indexKeywords: false,
-        indexPersons: true,
-        indexPlaces: true,
+        indexPersons: false,
+        indexPlaces: false,
         indexWorks: false,
         search: true,
-        cookiePolicy: false,
-        privacyPolicy: false,
-        termsOfUse: false,
+        cookiePolicy: true,
+        privacyPolicy: true,
+        termsOfUse: true,
         accessibilityStatement: false,
       },
       defaultExpanded: false,
@@ -352,7 +372,7 @@ export const config: Config = {
       showOpenLegendButton: true
     },
     topMenu: {
-      showAboutButton: true,
+      showAboutButton: false,
       showContentButton: true,
       showElasticSearchButton: true,
       showLanguageButton: true
@@ -408,7 +428,7 @@ export const config: Config = {
       showOccupation: false,
       showOccurrences: true,
       showType: false,
-      useSimpleWorkMetadata: true
+      useSimpleWorkMetadata: false
     }
   }
 }

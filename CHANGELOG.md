@@ -35,6 +35,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - Auth: resolve password change flow by route segment.
 - Set document titles for forgot/change/reset password routes.
 - Move terms page before privacy policy page in main side menu.
+- Hydration: move invalid `ngSkipHydration` usage off plain `<div>` elements onto valid component hosts in facsimile viewers, and wrap media-collection thumbnails in a dedicated hydration-skipped component.
 
 
 

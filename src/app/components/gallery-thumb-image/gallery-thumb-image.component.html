@@ -1,0 +1,9 @@
+@let srcValue = src();
+
+@if (srcValue) {
+  <img
+        [attr.src]="srcValue"
+        [alt]="alt()"
+        loading="lazy"
+  >
+}

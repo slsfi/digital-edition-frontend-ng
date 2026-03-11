@@ -2077,6 +2077,12 @@
         <target>Anna tilillesi uusi salasana.</target>
       </segment>
     </unit>
+    <unit id="ResetPassword.InProgress">
+      <segment state="initial">
+        <source>Sparar ditt nya lösenord ...</source>
+        <target>Uutta salasanaasi tallennetaan ...</target>
+      </segment>
+    </unit>
     <unit id="ResetPassword.InvalidLink">
       <segment state="initial">
         <source>Återställningslänken är ogiltig eller har löpt ut.</source>
@@ -2121,8 +2127,8 @@
     </unit>
     <unit id="ResetPassword.Title">
       <segment state="initial">
-        <source>Återställ lösenord</source>
-        <target>Palauta salasana</target>
+        <source>Nytt lösenord</source>
+        <target>Uusi salasana</target>
       </segment>
     </unit>
     <unit id="Site.MetaDescription.Home">

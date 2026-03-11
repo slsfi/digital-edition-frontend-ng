@@ -30,6 +30,7 @@ export class ResetPasswordPage {
   readonly passwordComplexityErrorKey = PASSWORD_COMPLEXITY_ERROR_KEY;
   readonly resetPasswordError = this.authService.resetPasswordError;
   readonly passwordResetCompleted = this.authService.passwordResetCompleted;
+  readonly passwordResetInProgress = this.authService.passwordResetInProgress;
 
   constructor() {
     this.scrubJwtFromAddressBar();

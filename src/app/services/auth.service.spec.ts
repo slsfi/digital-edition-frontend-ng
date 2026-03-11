@@ -520,9 +520,11 @@ describe('AuthService', () => {
     const request = httpMock.expectOne((req) => req.url.endsWith('/auth/reset_password'));
     expect(request.request.body).toEqual({ password: 'new-password-1234' });
     expect(request.request.headers.get('Authorization')).toBe('Bearer reset-token');
+    expect(service.passwordResetInProgress()).toBeTrue();
     request.flush({ msg: 'New password set for user@example.com' });
 
     expect(service.resetPasswordError()).toBeNull();
+    expect(service.passwordResetInProgress()).toBeFalse();
     expect(service.passwordResetCompleted()).toBeTrue();
     expect(service.isAuthenticated()).toBeFalse();
     expect(tokenMap.has('access_token')).toBeFalse();
@@ -539,6 +541,7 @@ describe('AuthService', () => {
 
     httpMock.expectNone((req) => req.url.includes('/auth/reset_password'));
     expect(service.resetPasswordError()).toBe('invalid_link');
+    expect(service.passwordResetInProgress()).toBeFalse();
     expect(service.passwordResetCompleted()).toBeFalse();
   });
 
@@ -552,6 +555,7 @@ describe('AuthService', () => {
     request.flush({ msg: 'missing password', err: 'NO_CREDENTIALS' }, { status: 400, statusText: 'Bad Request' });
 
     expect(service.resetPasswordError()).toBe('no_credentials');
+    expect(service.passwordResetInProgress()).toBeFalse();
     expect(service.passwordResetCompleted()).toBeFalse();
   });
 
@@ -568,6 +572,7 @@ describe('AuthService', () => {
     );
 
     expect(service.resetPasswordError()).toBe('password_too_short');
+    expect(service.passwordResetInProgress()).toBeFalse();
     expect(service.passwordResetCompleted()).toBeFalse();
   });
 
@@ -581,6 +586,7 @@ describe('AuthService', () => {
     request.flush({ msg: 'token expired' }, { status: 401, statusText: 'Unauthorized' });
 
     expect(service.resetPasswordError()).toBe('invalid_link');
+    expect(service.passwordResetInProgress()).toBeFalse();
     expect(service.passwordResetCompleted()).toBeFalse();
   });
 
@@ -594,6 +600,7 @@ describe('AuthService', () => {
     request.flush({ detail: 'server error' }, { status: 500, statusText: 'Server Error' });
 
     expect(service.resetPasswordError()).toBe('request_failed');
+    expect(service.passwordResetInProgress()).toBeFalse();
     expect(service.passwordResetCompleted()).toBeFalse();
   });
 
@@ -609,6 +616,7 @@ describe('AuthService', () => {
 
     service.clearResetPasswordState();
     expect(service.resetPasswordError()).toBeNull();
+    expect(service.passwordResetInProgress()).toBeFalse();
     expect(service.passwordResetCompleted()).toBeFalse();
   });
 

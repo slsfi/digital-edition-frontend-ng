@@ -86,6 +86,8 @@ export class AuthService {
   readonly resetPasswordError = this._resetPasswordError.asReadonly();
   private readonly _passwordResetCompleted = signal<boolean>(false);
   readonly passwordResetCompleted = this._passwordResetCompleted.asReadonly();
+  private readonly _passwordResetInProgress = signal<boolean>(false);
+  readonly passwordResetInProgress = this._passwordResetInProgress.asReadonly();
   private readonly _verifyEmailError = signal<VerifyEmailErrorCode | null>(null);
   readonly verifyEmailError = this._verifyEmailError.asReadonly();
   private readonly _emailVerificationCompleted = signal<boolean>(false);
@@ -302,6 +304,7 @@ export class AuthService {
   resetPassword(jwtToken: string, password: string): void {
     this._resetPasswordError.set(null);
     this._passwordResetCompleted.set(false);
+    this._passwordResetInProgress.set(false);
 
     const normalizedToken = jwtToken.trim();
     if (!normalizedToken) {
@@ -309,16 +312,20 @@ export class AuthService {
       return;
     }
 
+    this._passwordResetInProgress.set(true);
+
     const url = this.buildBackendAuthURL('auth/reset_password');
     const headers = { Authorization: `Bearer ${normalizedToken}` };
     const body: ResetPasswordRequest = { password };
     this.http.post<ResetPasswordResponse>(url, body, { headers }).subscribe({
       next: () => {
+        this._passwordResetInProgress.set(false);
         this._passwordResetCompleted.set(true);
         this.logout();
         this.router.navigateByUrl('/login?passwordReset=success');
       },
       error: (error) => {
+        this._passwordResetInProgress.set(false);
         this._resetPasswordError.set(this.resolveAuthErrorCode(error, this.resetPasswordErrorResolverMap));
       }
     });
@@ -330,6 +337,7 @@ export class AuthService {
   clearResetPasswordState(): void {
     this._resetPasswordError.set(null);
     this._passwordResetCompleted.set(false);
+    this._passwordResetInProgress.set(false);
   }
 
   /**

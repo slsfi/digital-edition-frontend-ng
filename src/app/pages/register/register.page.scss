@@ -3,19 +3,17 @@
 
 form {
   padding-bottom: 5rem;
+  width: min(100%, 33rem);
 }
 
 .form-section {
   display: grid;
-  gap: 0.95rem;
-  padding: 1.15rem 1rem 1rem;
-  border: 1px solid #d3d3d3;
-  border-radius: 6px;
-  background: #f3f3f3;
+  gap: 1.25rem;
+  margin-top: 1rem;
 }
 
 .form-section + .form-section {
-  margin-top: 1rem;
+  margin-top: 3rem;
 }
 
 .form-section h2 {
@@ -123,7 +121,7 @@ details[open] {
 }
 
 .summary-body {
-  padding: 0;
+  padding: 0 0 0 0.5em;
 
   p:last-of-type {
     margin-bottom: 0;
@@ -134,4 +132,8 @@ ion-select.select-fill-outline {
   --highlight-color-focused: var(--outline-button-color);
   --highlight-color-valid: var(--outline-button-color);
   --highlight-color-invalid: #a10606;
+}
+
+ion-button.button.custom-button {
+  margin-top: 2.5rem;
 }

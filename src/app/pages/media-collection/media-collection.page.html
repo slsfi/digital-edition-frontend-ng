@@ -151,10 +151,14 @@
 
 <ng-template #innerGridItem let-item>
   <figure>
-    <gallery-thumb-image
-          [src]="galleryThumbResolvedURLsByID[item.id]"
-          [alt]="item.imageAltText"
-    ></gallery-thumb-image>
+    @let thumbSrc = galleryThumbResolvedURLsByID[item.id];
+    @if (thumbSrc) {
+      <img
+            gallery-thumb-image
+            [src]="thumbSrc"
+            [alt]="item.imageAltText"
+      >
+    }
     @if ((item.title || item.subTitle) && !namedEntityID || item.description) {
       <figcaption>
         @if ((item.title || item.subTitle) && !namedEntityID) {

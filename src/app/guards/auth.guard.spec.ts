@@ -151,6 +151,12 @@ describe('authGuard', () => {
       expect(result).toBe(true);
     });
 
+    it('allows /register when unauthenticated', () => {
+      const result = runGuard('/register');
+
+      expect(result).toBe(true);
+    });
+
     it('allows /login marker flow when unauthenticated without consuming stored return URL', () => {
       const result = runGuard(`/login?${AUTH_REDIRECT_MARKER_QUERY_PARAM}=${AUTH_REDIRECT_MARKER_VALUE}`);
 
@@ -162,6 +168,14 @@ describe('authGuard', () => {
       isAuthenticated.set(true);
 
       const result = runGuard('/login');
+
+      expect(asUrl(result)).toBe('/');
+    });
+
+    it('redirects /register to / when authenticated', () => {
+      isAuthenticated.set(true);
+
+      const result = runGuard('/register');
 
       expect(asUrl(result)).toBe('/');
     });

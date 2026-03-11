@@ -7,11 +7,16 @@ import {
 } from '@services/auth-redirect-storage.service';
 
 const MAX_RETURN_URL_LENGTH = 2000;
+const GUEST_AUTH_ROUTE_PREFIXES = ['/login', '/register'];
 
 type QueryParams = Record<string, unknown>;
 
 export function isLoginRouteURL(url: string): boolean {
-  return url === '/login' || url.startsWith('/login?') || url.startsWith('/login/');
+  return GUEST_AUTH_ROUTE_PREFIXES.some((prefix) =>
+    url === prefix ||
+    url.startsWith(`${prefix}?`) ||
+    url.startsWith(`${prefix}/`)
+  );
 }
 
 export function getSafeInternalRedirectURL(router: Router, value: unknown): string | null {
@@ -88,6 +93,26 @@ export function resolveLoginRouteRedirectURL(
   }
 
   return getSafeInternalRedirectURL(router, queryParams['returnUrl']);
+}
+
+export function getAuthRedirectNavigationQueryParams(router: Router, currentUrl: string): QueryParams {
+  const queryParams = getQueryParams(router, currentUrl);
+  if (!queryParams) {
+    return {};
+  }
+
+  const navigationQueryParams: QueryParams = {};
+  const markerValue = queryParams[AUTH_REDIRECT_MARKER_QUERY_PARAM];
+  if (hasRedirectMarker(markerValue)) {
+    navigationQueryParams[AUTH_REDIRECT_MARKER_QUERY_PARAM] = AUTH_REDIRECT_MARKER_VALUE;
+  }
+
+  const safeReturnUrl = getSafeInternalRedirectURL(router, queryParams['returnUrl']);
+  if (safeReturnUrl) {
+    navigationQueryParams['returnUrl'] = safeReturnUrl;
+  }
+
+  return navigationQueryParams;
 }
 
 function hasRedirectMarker(value: unknown): boolean {

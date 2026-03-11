@@ -56,6 +56,11 @@
         <source>Artikeln kunde inte laddas.</source>
       </segment>
     </unit>
+    <unit id="Auth.OrDivider">
+      <segment>
+        <source>eller</source>
+      </segment>
+    </unit>
     <unit id="BasicActions.Cancel">
       <segment>
         <source>Avbryt</source>
@@ -716,14 +721,19 @@
         <source>Ange e-postadressen för ditt konto så skickar vi en länk för att återställa lösenordet.</source>
       </segment>
     </unit>
+    <unit id="ForgotPassword.EmailInvalid">
+      <segment>
+        <source>Ange en giltig e-postadress.</source>
+      </segment>
+    </unit>
     <unit id="ForgotPassword.EmailLabel">
       <segment>
         <source>E-postadress</source>
       </segment>
     </unit>
-    <unit id="ForgotPassword.OrDivider">
+    <unit id="ForgotPassword.EmailRequired">
       <segment>
-        <source>eller</source>
+        <source>Ange e-postadress.</source>
       </segment>
     </unit>
     <unit id="ForgotPassword.RequestFailed">
@@ -901,6 +911,11 @@
         <source>Skapa ett användarkonto</source>
       </segment>
     </unit>
+    <unit id="Login.EmailInvalid">
+      <segment>
+        <source>Ange en giltig e-postadress.</source>
+      </segment>
+    </unit>
     <unit id="Login.EmailLabel">
       <segment>
         <source>E-postadress</source>
@@ -909,6 +924,11 @@
     <unit id="Login.EmailNotVerified">
       <segment>
         <source>Du måste verifiera din e-postadress innan du kan logga in. Kontrollera din inkorg för ett e-postmeddelande med en verifieringslänk. Om länken har gått ut eller om du inte har fått något e-postmeddelande måste du registrera dig igen.</source>
+      </segment>
+    </unit>
+    <unit id="Login.EmailRequired">
+      <segment>
+        <source>Ange e-postadress.</source>
       </segment>
     </unit>
     <unit id="Login.ForgotPassword">
@@ -924,11 +944,6 @@
     <unit id="Login.NoCredentials">
       <segment>
         <source>Ange e-postadress och lösenord.</source>
-      </segment>
-    </unit>
-    <unit id="Login.OrDivider">
-      <segment>
-        <source>eller</source>
       </segment>
     </unit>
     <unit id="Login.PasswordLabel">
@@ -1401,6 +1416,26 @@
         <source>Något gick fel. Vi kan inte hitta sidan du försökte nå. Du kan gå tillbaka till föregående sida med hjälp av webbläsarens tillbaka-knapp, eller försöka rätta adressen i webbläsarens adressfält.</source>
       </segment>
     </unit>
+    <unit id="Password.DoesNotMatch">
+      <segment>
+        <source>Lösenorden matchar inte.</source>
+      </segment>
+    </unit>
+    <unit id="Password.RequirementsError">
+      <segment>
+        <source>Lösenordet uppfyller inte kraven ovan.</source>
+      </segment>
+    </unit>
+    <unit id="Password.RequirementsHint">
+      <segment>
+        <source><pc id="0" equivStart="START_PARAGRAPH" equivEnd="CLOSE_PARAGRAPH" type="other" dispStart="&lt;p&gt;" dispEnd="&lt;/p&gt;">Lösenordet måste:</pc><pc id="1" equivStart="START_UNORDERED_LIST" equivEnd="CLOSE_UNORDERED_LIST" type="other" dispStart="&lt;ul&gt;" dispEnd="&lt;/ul&gt;"><pc id="2" equivStart="START_LIST_ITEM" equivEnd="CLOSE_LIST_ITEM" type="other" dispStart="&lt;li&gt;" dispEnd="&lt;/li&gt;">vara minst 12 tecken långt</pc><pc id="3" equivStart="START_LIST_ITEM" equivEnd="CLOSE_LIST_ITEM" type="other" dispStart="&lt;li&gt;" dispEnd="&lt;/li&gt;">innehålla både små och stora bokstäver</pc><pc id="4" equivStart="START_LIST_ITEM" equivEnd="CLOSE_LIST_ITEM" type="other" dispStart="&lt;li&gt;" dispEnd="&lt;/li&gt;">innehålla minst en siffra eller ett specialtecken</pc></pc></source>
+      </segment>
+    </unit>
+    <unit id="Password.TooShort">
+      <segment>
+        <source>Lösenordet är för kort.</source>
+      </segment>
+    </unit>
     <unit id="PdfViewer.DownloadPdf">
       <segment>
         <source>ladda ner PDF</source>
@@ -1501,14 +1536,194 @@
         <source>Hänvisa till denna sida</source>
       </segment>
     </unit>
-    <unit id="ResetPassword.BackToLogin">
+    <unit id="Register.AcceptPrivacyCheckbox">
+      <segment>
+        <source>Jag accepterar dataskyddsbeskrivningen.</source>
+      </segment>
+    </unit>
+    <unit id="Register.AcceptPrivacyRequired">
+      <segment>
+        <source>Du måste acceptera dataskyddsbeskrivningen.</source>
+      </segment>
+    </unit>
+    <unit id="Register.AcceptTermsCheckbox">
+      <segment>
+        <source>Jag accepterar användarvillkoren.</source>
+      </segment>
+    </unit>
+    <unit id="Register.AcceptTermsRequired">
+      <segment>
+        <source>Du måste acceptera användarvillkoren.</source>
+      </segment>
+    </unit>
+    <unit id="Register.AccountSectionHeading">
+      <segment>
+        <source>Kontouppgifter</source>
+      </segment>
+    </unit>
+    <unit id="Register.BackToLogin">
       <segment>
         <source>Tillbaka till inloggning</source>
       </segment>
     </unit>
-    <unit id="ResetPassword.ConfirmPasswordLabel">
+    <unit id="Register.CountryLabel">
       <segment>
-        <source>Bekräfta nytt lösenord</source>
+        <source>Bosättningsland</source>
+      </segment>
+    </unit>
+    <unit id="Register.CountryPlaceholder">
+      <segment>
+        <source>Välj land</source>
+      </segment>
+    </unit>
+    <unit id="Register.Description">
+      <segment>
+        <source>Ange namn, e-postadress och lösenord samt <ph id="0" equiv="LINE_BREAK" type="fmt" disp="&lt;br&gt;"/>godkänn villkoren för att skapa ett konto.</source>
+      </segment>
+    </unit>
+    <unit id="Register.EmailInvalid">
+      <segment>
+        <source>Ange en giltig e-postadress.</source>
+      </segment>
+    </unit>
+    <unit id="Register.EmailLabel">
+      <segment>
+        <source>E-postadress</source>
+      </segment>
+    </unit>
+    <unit id="Register.EmailRequired">
+      <segment>
+        <source>Ange e-postadress.</source>
+      </segment>
+    </unit>
+    <unit id="Register.IntendedUsageEducational">
+      <segment>
+        <source>Pedagogiska</source>
+      </segment>
+    </unit>
+    <unit id="Register.IntendedUsageLabel">
+      <segment>
+        <source>Ändamål</source>
+      </segment>
+    </unit>
+    <unit id="Register.IntendedUsagePersonal">
+      <segment>
+        <source>Personliga</source>
+      </segment>
+    </unit>
+    <unit id="Register.IntendedUsagePlaceholder">
+      <segment>
+        <source>Välj ett eller flera ändamål</source>
+      </segment>
+    </unit>
+    <unit id="Register.IntendedUsageScholarly">
+      <segment>
+        <source>Vetenskapliga</source>
+      </segment>
+    </unit>
+    <unit id="Register.LegalSectionHeading">
+      <segment>
+        <source>Samtycke och villkor</source>
+      </segment>
+    </unit>
+    <unit id="Register.NameLabel">
+      <segment>
+        <source>Förnamn och efternamn</source>
+      </segment>
+    </unit>
+    <unit id="Register.NameRequired">
+      <segment>
+        <source>Ange förnamn och efternamn.</source>
+      </segment>
+    </unit>
+    <unit id="Register.NoCredentials">
+      <segment>
+        <source>Ange förnamn och efternamn, e-postadress och lösenord.</source>
+      </segment>
+    </unit>
+    <unit id="Register.OptionalSectionHeading">
+      <segment>
+        <source>Ytterligare information (valfritt)</source>
+      </segment>
+    </unit>
+    <unit id="Register.PasswordLabel">
+      <segment>
+        <source>Lösenord</source>
+      </segment>
+    </unit>
+    <unit id="Register.PrivacyIntro">
+      <segment>
+        <source>Vi behandlar dina personuppgifter för att skapa och administrera ditt användarkonto.</source>
+      </segment>
+    </unit>
+    <unit id="Register.PrivacyLink">
+      <segment>
+        <source>Mer information finns i <pc id="0" equivStart="START_LINK" equivEnd="CLOSE_LINK" type="link" dispStart="&lt;a [routerLink]=&quot;[&apos;/privacy-policy&apos;]&quot; target=&quot;_blank&quot;&gt;" dispEnd="&lt;/a&gt;">dataskyddsbeskrivningen</pc>.</source>
+      </segment>
+    </unit>
+    <unit id="Register.PrivacySummary">
+      <segment>
+        <source><pc id="0" equivStart="START_PARAGRAPH" equivEnd="CLOSE_PARAGRAPH" type="other" dispStart="&lt;p&gt;" dispEnd="&lt;/p&gt;">Vi behandlar ditt namn och din e-postadress för att skapa och administrera ditt användar­konto samt för att ge dig tillgång till den digitala utgåvan. Dina person­uppgifter lagras på servrar i Finland och sparas endast så länge det är nödvändigt för dessa ändamål.</pc></source>
+      </segment>
+    </unit>
+    <unit id="Register.PrivacySummaryHeading">
+      <segment>
+        <source>Sammanfattning av dataskyddsbeskrivningen</source>
+      </segment>
+    </unit>
+    <unit id="Register.RepeatPasswordLabel">
+      <segment>
+        <source>Upprepa lösenordet</source>
+      </segment>
+    </unit>
+    <unit id="Register.RequestFailed">
+      <segment>
+        <source>Kontot kunde inte skapas. Försök igen senare.</source>
+      </segment>
+    </unit>
+    <unit id="Register.SubmitButton">
+      <segment>
+        <source>Skapa konto</source>
+      </segment>
+    </unit>
+    <unit id="Register.Success">
+      <segment>
+        <source>Kontot har skapats. Kontrollera din inkorg och verifiera e-postadressen innan du loggar in.</source>
+      </segment>
+    </unit>
+    <unit id="Register.TermsIntro">
+      <segment>
+        <source>Användarkontot ger dig tillgång till upphovsrättsligt skyddat material som får användas endast för privata, pedagogiska och vetenskapliga ändamål.</source>
+      </segment>
+    </unit>
+    <unit id="Register.TermsLink">
+      <segment>
+        <source>Fullständiga villkor finns i <pc id="0" equivStart="START_LINK" equivEnd="CLOSE_LINK" type="link" dispStart="&lt;a [routerLink]=&quot;[&apos;/terms&apos;]&quot; target=&quot;_blank&quot;&gt;" dispEnd="&lt;/a&gt;">användarvillkoren</pc>.</source>
+      </segment>
+    </unit>
+    <unit id="Register.TermsSummary">
+      <segment>
+        <source><pc id="0" equivStart="START_PARAGRAPH" equivEnd="CLOSE_PARAGRAPH" type="other" dispStart="&lt;p&gt;" dispEnd="&lt;/p&gt;">Denna digitala utgåva tillgängliggör upphovs­rättsligt skyddat material. Materialet publiceras online med tillstånd av rätts­innehavarna.</pc><pc id="1" equivStart="START_PARAGRAPH" equivEnd="CLOSE_PARAGRAPH" type="other" dispStart="&lt;p&gt;" dispEnd="&lt;/p&gt;">Utgåvan får användas för <pc id="2" equivStart="START_BOLD_TEXT" equivEnd="CLOSE_BOLD_TEXT" type="fmt" dispStart="&lt;b&gt;" dispEnd="&lt;/b&gt;">privata, pedagogiska och veten­skapliga ändamål</pc>. Du får läsa, studera och utforska innehållet samt citera kortare utdrag i den omfattning som är tillåten enligt lag, under förut­sättning att du anger källan. Text- och data­utvinning på materialet är tillåtet endast för vetenskaplig forskning.</pc><pc id="3" equivStart="START_PARAGRAPH" equivEnd="CLOSE_PARAGRAPH" type="other" dispStart="&lt;p&gt;" dispEnd="&lt;/p&gt;">Det är inte tillåtet att kopiera, dela, återpublicera eller göra texterna eller bilderna tillgängliga på andra plattformar eller tjänster – inte ens för icke-kommersiella ändamål. Materialet får inte heller användas i kommersiellt syfte.</pc></source>
+      </segment>
+    </unit>
+    <unit id="Register.TermsSummaryHeading">
+      <segment>
+        <source>Sammanfattning av användarvillkoren</source>
+      </segment>
+    </unit>
+    <unit id="Register.Title">
+      <segment>
+        <source>Skapa användarkonto</source>
+      </segment>
+    </unit>
+    <unit id="Register.UserAlreadyExists">
+      <segment>
+        <source>Det finns redan ett verifierat konto med den här e-postadressen.</source>
+      </segment>
+    </unit>
+    <unit id="ResetPassword.BackToLogin">
+      <segment>
+        <source>Tillbaka till inloggning</source>
       </segment>
     </unit>
     <unit id="ResetPassword.Description">
@@ -1526,24 +1741,14 @@
         <source>Ange ett nytt lösenord.</source>
       </segment>
     </unit>
-    <unit id="ResetPassword.OrDivider">
-      <segment>
-        <source>eller</source>
-      </segment>
-    </unit>
     <unit id="ResetPassword.PasswordLabel">
       <segment>
         <source>Nytt lösenord</source>
       </segment>
     </unit>
-    <unit id="ResetPassword.PasswordsDoNotMatch">
+    <unit id="ResetPassword.RepeatPasswordLabel">
       <segment>
-        <source>Lösenorden matchar inte.</source>
-      </segment>
-    </unit>
-    <unit id="ResetPassword.PasswordTooShort">
-      <segment>
-        <source>Lösenordet måste vara minst 12 tecken långt.</source>
+        <source>Upprepa nytt lösenord</source>
       </segment>
     </unit>
     <unit id="ResetPassword.RequestFailed">

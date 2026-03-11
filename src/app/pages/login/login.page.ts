@@ -1,8 +1,9 @@
 import { Component, inject } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { FormBuilder, Validators } from '@angular/forms';
 
 import { config } from '@config';
+import { getAuthRedirectNavigationQueryParams } from '@services/auth-redirect-url.utils';
 import { AuthService } from '@services/auth.service';
 
 @Component({
@@ -14,6 +15,7 @@ import { AuthService } from '@services/auth.service';
 export class LoginPage {
   private readonly formBuilder = inject(FormBuilder);
   private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
   private readonly authService = inject(AuthService);
 
   readonly form = this.formBuilder.nonNullable.group({
@@ -24,6 +26,10 @@ export class LoginPage {
   readonly passwordResetSuccess: boolean = this.route.snapshot.queryParamMap.get('passwordReset') === 'success';
   readonly showTermsLink: boolean = config.component?.mainSideMenu?.items?.termsOfUse === true;
   readonly showPrivacyPolicyLink: boolean = config.component?.mainSideMenu?.items?.privacyPolicy === true;
+
+  get authRedirectNavigationQueryParams(): Record<string, unknown> {
+    return getAuthRedirectNavigationQueryParams(this.router, this.router.url);
+  }
 
   attemptLogin(): void {
     if (this.form.invalid) {

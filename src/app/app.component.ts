@@ -169,6 +169,9 @@ export class AppComponent implements OnInit {
       case 'search':
         this.headService.setTitle([$localize`:@@TopMenu.Search:Sök`]);
         return;
+      case 'register':
+        this.headService.setTitle([$localize`:@@Register.Title:Skapa användarkonto`]);
+        return;
       case 'forgot-password':
         this.headService.setTitle([$localize`:@@ForgotPassword.Title:Glömt lösenordet?`]);
         return;

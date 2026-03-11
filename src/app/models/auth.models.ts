@@ -3,6 +3,17 @@ export interface LoginRequest {
   password: string;
 }
 
+export type RegisterIntendedUsage = 'personal' | 'educational' | 'scholarly';
+
+export interface RegisterRequest {
+  name: string;
+  email: string;
+  password: string;
+  language: string;
+  country?: string;
+  intended_usage?: string;
+}
+
 export interface ForgotPasswordRequest {
   email: string;
   language: string;
@@ -30,6 +41,10 @@ export interface LoginResponse {
   msg: string;
   refresh_token: string;
   user_projects: string[];
+}
+
+export interface RegisterResponse {
+  msg: string;
 }
 
 export interface ForgotPasswordResponse {

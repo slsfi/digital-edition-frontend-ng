@@ -1,8 +1,8 @@
 @let loginErrorValue = loginError();
 
 <ion-content>
-  <article class="login-page">
-    <form class="login-form" [formGroup]="form" (ngSubmit)="attemptLogin()" novalidate>
+  <article>
+    <form [formGroup]="form" (ngSubmit)="attemptLogin()" novalidate>
       <h1 i18n="@@Login.Title">Logga in</h1>
 
       <p class="center" i18n="@@Login.AccountNeededForAccess">För att komma åt innehållet i den digitala utgåvan behöver du ett användarkonto.</p>
@@ -22,6 +22,13 @@
         label="E-postadress"
       >
       </ion-input>
+
+      @if (form.controls.email.touched && form.controls.email.hasError('required')) {
+        <p class="auth-error center" i18n="@@Login.EmailRequired">Ange e-postadress.</p>
+      }
+      @if (form.controls.email.touched && form.controls.email.hasError('email')) {
+        <p class="auth-error center" i18n="@@Login.EmailInvalid">Ange en giltig e-postadress.</p>
+      }
 
       <ion-input
         formControlName="password"
@@ -58,9 +65,15 @@
       >Logga in</ion-button>
 
       <div class="authentication-divider">
-        <span i18n="@@Login.OrDivider">eller</span>
+        <span i18n="@@Auth.OrDivider">eller</span>
       </div>
-      <p class="center no-margins"><a href="/" i18n="@@Login.CreateAccount">Skapa ett användarkonto</a></p>
+      <p class="center no-margins">
+        <a
+          [routerLink]="['/register']"
+          [queryParams]="authRedirectNavigationQueryParams"
+          i18n="@@Login.CreateAccount"
+        >Skapa ett användarkonto</a>
+      </p>
     </form>
   </article>
   @if (showTermsLink || showPrivacyPolicyLink) {

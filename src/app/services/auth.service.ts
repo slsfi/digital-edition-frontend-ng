@@ -10,6 +10,9 @@ import {
   ForgotPasswordResponse,
   LoginRequest,
   LoginResponse,
+  RegisterIntendedUsage,
+  RegisterRequest,
+  RegisterResponse,
   ResetPasswordRequest,
   ResetPasswordResponse,
   RefreshTokenResponse
@@ -28,9 +31,10 @@ const AUTH_EMAIL_STORAGE_KEY = 'auth_email';
 const DEFAULT_SESSION_VALIDATION_TTL_MS = 2 * 60 * 1000;  // = 2 minutes
 
 export type LoginErrorCode = 'no_credentials' | 'email_not_verified' | 'invalid_credentials' | 'request_failed';
+export type RegisterErrorCode = 'no_credentials' | 'password_too_short' | 'user_already_exists' | 'request_failed';
 export type ForgotPasswordErrorCode = 'no_credentials' | 'invalid_credentials' | 'request_failed';
 export type ResetPasswordErrorCode = 'no_credentials' | 'password_too_short' | 'invalid_link' | 'request_failed';
-type ResolvedAuthErrorCode = LoginErrorCode | ForgotPasswordErrorCode | ResetPasswordErrorCode;
+type ResolvedAuthErrorCode = LoginErrorCode | RegisterErrorCode | ForgotPasswordErrorCode | ResetPasswordErrorCode;
 type AuthErrorResolverMap<TErrorCode extends ResolvedAuthErrorCode> = {
   backend: Partial<Record<BackendAuthErrorCode, TErrorCode>>;
   status: Partial<Record<number, TErrorCode>>;
@@ -42,7 +46,7 @@ type AuthErrorResolverMap<TErrorCode extends ResolvedAuthErrorCode> = {
  *
  * Responsibilities:
  * - Keep in-memory auth state (`isAuthenticated` signal).
- * - Perform login and refresh-token requests.
+ * - Perform register/login and refresh-token requests.
  * - Persist/remove tokens through a platform-specific storage abstraction.
  *
  * SSR note:
@@ -63,6 +67,10 @@ export class AuthService {
   readonly isAuthenticated = this._isAuthenticated.asReadonly();
   private readonly _loginError = signal<LoginErrorCode | null>(null);
   readonly loginError = this._loginError.asReadonly();
+  private readonly _registerError = signal<RegisterErrorCode | null>(null);
+  readonly registerError = this._registerError.asReadonly();
+  private readonly _registrationCompleted = signal<boolean>(false);
+  readonly registrationCompleted = this._registrationCompleted.asReadonly();
   private readonly _forgotPasswordError = signal<ForgotPasswordErrorCode | null>(null);
   readonly forgotPasswordError = this._forgotPasswordError.asReadonly();
   private readonly _passwordResetRequested = signal<boolean>(false);
@@ -82,6 +90,15 @@ export class AuthService {
     status: {
       401: 'invalid_credentials'
     },
+    fallback: 'request_failed'
+  };
+  private readonly registerErrorResolverMap: AuthErrorResolverMap<RegisterErrorCode> = {
+    backend: {
+      NO_CREDENTIALS: 'no_credentials',
+      PASSWORD_TOO_SHORT: 'password_too_short',
+      USER_ALREADY_EXISTS: 'user_already_exists'
+    },
+    status: {},
     fallback: 'request_failed'
   };
   private readonly forgotPasswordErrorResolverMap: AuthErrorResolverMap<ForgotPasswordErrorCode> = {
@@ -167,6 +184,52 @@ export class AuthService {
    */
   clearLoginError(): void {
     this._loginError.set(null);
+  }
+
+  /**
+   * Executes account registration request for the provided credentials.
+   */
+  register(
+    name: string,
+    email: string,
+    password: string,
+    country?: string,
+    intendedUsage?: readonly RegisterIntendedUsage[]
+  ): void {
+    this._registerError.set(null);
+    this._registrationCompleted.set(false);
+    const normalizedName = name.trim();
+    const normalizedEmail = email.trim();
+    const normalizedCountry = country?.trim();
+    const url = this.buildBackendAuthURL('auth/register');
+    const body: RegisterRequest = {
+      name: normalizedName,
+      email: normalizedEmail,
+      password,
+      language: this.resolveAuthRequestLanguage()
+    };
+    if (normalizedCountry) {
+      body.country = normalizedCountry;
+    }
+    if (intendedUsage && intendedUsage.length > 0) {
+      body.intended_usage = intendedUsage.join(';');
+    }
+    this.http.post<RegisterResponse>(url, body).subscribe({
+      next: () => {
+        this._registrationCompleted.set(true);
+      },
+      error: (error) => {
+        this._registerError.set(this.resolveAuthErrorCode(error, this.registerErrorResolverMap));
+      }
+    });
+  }
+
+  /**
+   * Clears registration completion and error state.
+   */
+  clearRegisterState(): void {
+    this._registerError.set(null);
+    this._registrationCompleted.set(false);
   }
 
   /**

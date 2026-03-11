@@ -14,6 +14,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - App-level rate limiting for dynamic SSR render requests (`express-rate-limit`). Added config option `app.ssr.trustProxyHops` (default: `2`) to control how many proxy hops Express trusts when resolving `req.ip` for the limiter.
 - SSR auth-mismatch mitigation for auth-enabled mode: generate auth-guarded route path metadata and force client-rendered index HTML (CSR shell) for those protected requests in `server.ts`, while non-protected routes stay on SSR. Also add auth-enabled-only `ngSkipHydration` markers for `top-menu` and `main-side-menu` in `app.component.html` to avoid future hydration mismatches on public SSR pages.
 - Auth: change password functionality.
+- Auth: register/create account page.
 - [`AGENTS.md`](AGENTS.md) that serves as a contributor guide for this repository.
 - Test script for verifying UTF-8 encoding of locale files.
 - Route-level session validation for auth-guarded pages that do not fetch backend data: routes can opt in with `data.requiresSessionValidation`, and `AuthService` now validates `/session/validate` with throttling/deduplication before allowing navigation.

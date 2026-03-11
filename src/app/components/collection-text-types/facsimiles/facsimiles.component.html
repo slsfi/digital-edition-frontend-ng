@@ -68,7 +68,7 @@
     }
 
     @if (facsNumber && !selectedIsExt && selectedFacs) {
-      <div class="facsimile-image-wrapper" ngSkipHydration>
+      <div class="facsimile-image-wrapper">
         @if (facsimileImageLoading()) {
           <ion-spinner class="facsimile-image-loading" name="crescent"></ion-spinner>
         }

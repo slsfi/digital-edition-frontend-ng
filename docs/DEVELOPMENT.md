@@ -373,20 +373,22 @@ When migrating to Angular's `application` builder (`@angular-devkit/build-angula
 Current status:
 
 - Client hydration is not enabled in this app right now (Ionic SSR limitation).
-- Facsimile image subtrees are explicitly marked with `ngSkipHydration` as a temporary safeguard.
+- `ngSkipHydration` is used only on Angular component hosts, never on plain HTML elements.
+- Facsimile image viewers are explicitly marked with `ngSkipHydration` as a temporary safeguard.
 - Media-collection thumbnails are also resolved through `FacsimileImageService`; in auth-enabled mode, browser `src` can become a blob URL after bootstrap.
 
 Current temporary markers:
 
-- [`src/app/components/collection-text-types/facsimiles/facsimiles.component.html`](../src/app/components/collection-text-types/facsimiles/facsimiles.component.html)
-- [`src/app/dialogs/modals/fullscreen-image-viewer/fullscreen-image-viewer.modal.html`](../src/app/dialogs/modals/fullscreen-image-viewer/fullscreen-image-viewer.modal.html)
-- [`src/app/pages/media-collection/media-collection.page.html`](../src/app/pages/media-collection/media-collection.page.html)
+- [`src/app/components/collection-text-types/facsimiles/facsimiles.component.ts`](../src/app/components/collection-text-types/facsimiles/facsimiles.component.ts)
+- [`src/app/dialogs/modals/fullscreen-image-viewer/fullscreen-image-viewer.modal.ts`](../src/app/dialogs/modals/fullscreen-image-viewer/fullscreen-image-viewer.modal.ts)
+- [`src/app/components/gallery-thumb-image/gallery-thumb-image.component.ts`](../src/app/components/gallery-thumb-image/gallery-thumb-image.component.ts)
 - [`src/app/app.component.html`](../src/app/app.component.html) (auth-enabled mode: `top-menu` and `main-side-menu` are marked with `ngSkipHydration`)
 
 Related implementation notes:
 
 - [`src/app/components/collection-text-types/facsimiles/facsimiles.component.ts`](../src/app/components/collection-text-types/facsimiles/facsimiles.component.ts)
 - [`src/app/dialogs/modals/fullscreen-image-viewer/fullscreen-image-viewer.modal.ts`](../src/app/dialogs/modals/fullscreen-image-viewer/fullscreen-image-viewer.modal.ts)
+- [`src/app/components/gallery-thumb-image/gallery-thumb-image.component.ts`](../src/app/components/gallery-thumb-image/gallery-thumb-image.component.ts)
 - [`src/app/pages/media-collection/media-collection.page.ts`](../src/app/pages/media-collection/media-collection.page.ts)
 
 Why:

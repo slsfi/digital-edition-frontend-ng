@@ -280,8 +280,8 @@ export class MediaCollectionPage implements OnDestroy, OnInit {
   }
 
   private resolveGalleryThumbURLs() {
-    // TODO(hydration): Thumbnail image wrappers use `ngSkipHydration` in the
-    // template as a temporary safeguard. In auth-enabled mode, browser rendering
+    // TODO(hydration): Gallery thumbnail components use `ngSkipHydration` on
+    // their hosts as a temporary safeguard. In auth-enabled mode, browser rendering
     // may replace URL src with a blob URL after bootstrap. When client hydration
     // is enabled in this app, make initial SSR/client src deterministic and then
     // remove the skip marker.

@@ -25,7 +25,8 @@ import { sortArrayOfObjectsNumerically } from '@utility-functions';
   templateUrl: './facsimiles.component.html',
   styleUrls: ['./facsimiles.component.scss'],
   imports: [NgStyle, FormsModule, IonicModule, DraggableImageDirective, TrustHtmlPipe],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  host: { ngSkipHydration: 'true' }
 })
 export class FacsimilesComponent {
   // ─────────────────────────────────────────────────────────────────────────────
@@ -208,8 +209,8 @@ export class FacsimilesComponent {
   }
 
   private registerImageLoading() {
-    // TODO(hydration): The image wrapper subtree uses `ngSkipHydration` in the
-    // template as a temporary safeguard. In auth-enabled mode, browser rendering
+    // TODO(hydration): This component host uses `ngSkipHydration` as a temporary
+    // safeguard. In auth-enabled mode, browser rendering
     // may replace URL src with a blob URL after bootstrap. When client hydration
     // is enabled in this app, make initial SSR/client src deterministic and then
     // remove the skip marker.

@@ -15,6 +15,9 @@ import { REGISTER_COUNTRY_CODES } from './register-country-codes';
 
 const REGISTER_NAME_MAX_LENGTH = 255;
 
+/**
+ * Rejects null, empty, and whitespace-only input values.
+ */
 function requiredTrimmedTextValidator(control: AbstractControl<string | null>): ValidationErrors | null {
   const value = control.value;
 
@@ -28,6 +31,9 @@ interface SelectOption<TValue extends string = string> {
   label: string;
 }
 
+/**
+ * Builds a localized, alphabetized list of country options for the register form.
+ */
 function createCountryOptions(localeId: string): ReadonlyArray<SelectOption> {
   const localeCandidates = [localeId, localeId.split('-')[0], 'en']
     .filter((candidate, index, candidates) => candidate && candidates.indexOf(candidate) === index);
@@ -82,18 +88,30 @@ export class RegisterPage implements OnDestroy {
   readonly registerError = this.authService.registerError;
   readonly registrationCompleted = this.authService.registrationCompleted;
 
+  /**
+   * Preserves any auth redirect target when navigating back to login.
+   */
   get authRedirectNavigationQueryParams(): Record<string, unknown> {
     return getAuthRedirectNavigationQueryParams(this.router, this.router.url);
   }
 
+  /**
+   * Clears transient register state when leaving the Ionic view.
+   */
   ionViewWillLeave(): void {
     this.authService.clearRegisterState();
   }
 
+  /**
+   * Clears transient register state when the component is destroyed.
+   */
   ngOnDestroy(): void {
     this.authService.clearRegisterState();
   }
 
+  /**
+   * Submits the normalized form values once validation has passed.
+   */
   attemptRegistration(): void {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
@@ -110,16 +128,25 @@ export class RegisterPage implements OnDestroy {
     );
   }
 
+  /**
+   * Resets backend-driven success and error feedback after user input changes.
+   */
   clearFeedbackState(): void {
     this.authService.clearRegisterState();
   }
 
+  /**
+   * Returns whether a touched control currently exposes the requested validation error.
+   */
   showControlError(controlName: 'name' | 'email' | 'acceptTermsOfUse' | 'acceptPrivacyPolicy', errorKey: string): boolean {
     const control = this.form.controls[controlName];
 
     return control.touched && control.hasError(errorKey);
   }
 
+  /**
+   * Shows the password requirements error after the password field has been touched.
+   */
   showPasswordRequirementsError(): boolean {
     const passwordControl = this.form.controls.password;
 
@@ -127,6 +154,9 @@ export class RegisterPage implements OnDestroy {
       && (passwordControl.hasError('minlength') || passwordControl.hasError(this.passwordComplexityErrorKey));
   }
 
+  /**
+   * Indicates whether the form-level password confirmation validator has failed.
+   */
   showPasswordMismatchError(): boolean {
     return this.form.hasError('password_mismatch');
   }

@@ -1731,6 +1731,11 @@
         <source>Ange ett nytt lösenord för ditt konto.</source>
       </segment>
     </unit>
+    <unit id="ResetPassword.InProgress">
+      <segment>
+        <source>Sparar ditt nya lösenord ...</source>
+      </segment>
+    </unit>
     <unit id="ResetPassword.InvalidLink">
       <segment>
         <source>Återställningslänken är ogiltig eller har löpt ut.</source>
@@ -1768,7 +1773,7 @@
     </unit>
     <unit id="ResetPassword.Title">
       <segment>
-        <source>Återställ lösenord</source>
+        <source>Nytt lösenord</source>
       </segment>
     </unit>
     <unit id="Site.MetaDescription.Home">

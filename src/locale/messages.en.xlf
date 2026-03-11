@@ -2077,6 +2077,12 @@
         <target>Enter a new password for your account.</target>
       </segment>
     </unit>
+    <unit id="ResetPassword.InProgress">
+      <segment state="initial">
+        <source>Sparar ditt nya lösenord ...</source>
+        <target>Saving your new password...</target>
+      </segment>
+    </unit>
     <unit id="ResetPassword.InvalidLink">
       <segment state="initial">
         <source>Återställningslänken är ogiltig eller har löpt ut.</source>
@@ -2121,8 +2127,8 @@
     </unit>
     <unit id="ResetPassword.Title">
       <segment state="initial">
-        <source>Återställ lösenord</source>
-        <target>Reset password</target>
+        <source>Nytt lösenord</source>
+        <target>New password</target>
       </segment>
     </unit>
     <unit id="Site.MetaDescription.Home">

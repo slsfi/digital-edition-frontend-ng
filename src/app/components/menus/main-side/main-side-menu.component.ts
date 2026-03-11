@@ -84,8 +84,8 @@ export class MainSideMenuComponent {
   // list.
   private readonly secondaryMenuTypes: readonly string[] = [
     'cookie-policy',
-    'privacy-policy',
     'terms',
+    'privacy-policy',
     'accessibility-statement'
   ];
 
@@ -211,13 +211,13 @@ export class MainSideMenuComponent {
         'cookie-policy',
         $localize`:@@MainSideMenu.CookiePolicy:Kakor och besöksstatistik`
       ),
-      privacyPolicy: () => this.getRootPageMenuItem(
-        'privacy-policy',
-        $localize`:@@MainSideMenu.PrivacyPolicy:Dataskyddsbeskrivning`
-      ),
       termsOfUse: () => this.getRootPageMenuItem(
         'terms',
         $localize`:@@MainSideMenu.TermsOfUse:Användarvillkor`
+      ),
+      privacyPolicy: () => this.getRootPageMenuItem(
+        'privacy-policy',
+        $localize`:@@MainSideMenu.PrivacyPolicy:Dataskyddsbeskrivning`
       ),
       accessibilityStatement: () => this.getRootPageMenuItem(
         'accessibility-statement',

@@ -34,6 +34,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - Auth: clear partial token state and logout on 401 without refresh token.
 - Auth: resolve password change flow by route segment.
 - Set document titles for forgot/change/reset password routes.
+- Move terms page before privacy policy page in main side menu.
 
 
 

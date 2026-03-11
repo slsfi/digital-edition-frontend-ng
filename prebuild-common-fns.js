@@ -195,6 +195,7 @@ function getRouteIncludeByPath(config) {
     'forgot-password': authEnabled,
     'change-password': authEnabled,
     'reset-password': authEnabled,
+    'verify-email': authEnabled,
     'account': authEnabled,
     'home': true,
     'index/:type': !!(

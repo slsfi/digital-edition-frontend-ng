@@ -36,6 +36,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - Set document titles for forgot/change/reset password routes.
 - Move terms page before privacy policy page in main side menu.
 - Hydration: move invalid `ngSkipHydration` usage off plain `<div>` elements onto valid component hosts in facsimile viewers, and wrap media-collection thumbnails in a dedicated hydration-skipped component.
+- Conditionally add `verify-email` route to generated app routes.
 
 
 

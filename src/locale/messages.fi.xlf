@@ -2197,6 +2197,18 @@
         <target>Hae</target>
       </segment>
     </unit>
+    <unit id="TopMenu.Login">
+      <segment state="initial">
+        <source>Logga in</source>
+        <target>Kirjaudu</target>
+      </segment>
+    </unit>
+    <unit id="TopMenu.Logout">
+      <segment state="initial">
+        <source>Logga ut</source>
+        <target>Kirjaudu ulos</target>
+      </segment>
+    </unit>
     <unit id="Variants.ChangeVariant">
       <segment state="initial">
         <source>Byt variant</source>

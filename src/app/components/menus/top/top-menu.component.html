@@ -37,6 +37,21 @@
       </a>
     </li>
   }
+  @if (showTopAuthButton) {
+    <li class="auth-button" role="menuitem">
+      @if (isAuthenticated()) {
+        <button (click)="logout($event)" type="button">
+          <ion-icon name="log-out-sharp"></ion-icon>
+          <span class="side-title">{{authMenuTitle()}}</span>
+        </button>
+      } @else {
+        <a [routerLink]="['/login']">
+          <ion-icon name="log-in-sharp"></ion-icon>
+          <span class="side-title">{{authMenuTitle()}}</span>
+        </a>
+      }
+    </li>
+  }
   @if (showLanguageButton && currentLanguageLabel && languages.length > 1) {
     <li class="language-menu-button" role="menuitem">
       <button #languageMenuToggleBtn

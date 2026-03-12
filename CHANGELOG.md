@@ -25,7 +25,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 - Auth: Map login errors from backend error codes.
 - Auth: refactor redirect URL resolution into a shared utility for guard/service flows, centralize auth endpoint URL construction in `AuthService`, and avoid unnecessary refresh-token reads in the interceptor error path.
-- Deps: update `@angular/cli` to 20.3.19.
+- Deps: update `@angular/cli` to 20.3.20.
 - Deps: update `marked` to 17.0.4.
 - Deps (dev): update `ng-extract-i18n-merge` to 3.3.0. In `angular.json`, remove `projects.app.architect.extract-i18n.configurations`.
 - Deps: update transitive dependencies.

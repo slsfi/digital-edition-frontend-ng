@@ -52,6 +52,7 @@ export class TopMenuComponent {
   protected readonly showTopContentButton = config.component?.topMenu?.showContentButton ?? true;
   protected readonly showTopSearchButton = config.component?.topMenu?.showElasticSearchButton ?? true;
   protected readonly showTopAuthButton = this.authEnabled;
+  protected readonly hideTopSearchButtonOnMobile = this.authEnabled && this.showLanguageButton;
   protected readonly isAuthenticated = computed(() => this.authEnabled
     ? this.getAuthService().isAuthenticated()
     : false

@@ -19,6 +19,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - [`AGENTS.md`](AGENTS.md) that serves as a contributor guide for this repository.
 - Test script for verifying UTF-8 encoding of all files under `/src`.
 - Route-level session validation for auth-guarded pages that do not fetch backend data: routes can opt in with `data.requiresSessionValidation`, and `AuthService` now validates `/session/validate` with throttling/deduplication before allowing navigation.
+- Login/logout button to top menu.
 
 ### Changed
 

@@ -30,7 +30,11 @@
     </li>
   }
   @if (showTopSearchButton) {
-    <li class="search-button" role="menuitem">
+    <li
+      class="search-button"
+      [class.mobile-hidden]="hideTopSearchButtonOnMobile"
+      role="menuitem"
+    >
       <a [routerLink]="['/search']">
         <ion-icon name="search-sharp"></ion-icon>
         <span class="side-title" i18n="@@TopMenu.Search">Sök</span>

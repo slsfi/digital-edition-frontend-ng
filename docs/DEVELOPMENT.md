@@ -336,9 +336,10 @@ To avoid SSR/client mismatches on auth-guarded routes, the Express SSR server se
 
 ### Sitemap behavior in auth mode
 
-- `/login` and `/account` are excluded from sitemap generation.
-- When `app.auth.enabled` is `true`, auth-protected routes are excluded from sitemap generation.
-- In current generator rules this includes collection routes, `index/:type`, `media-collection`, and `search` (in addition to always-excluded auth routes above).
+- Auth-related routes are always excluded from sitemap generation.
+  - In current generator rules this includes `/login`, `/account`, `/forgot-password`, `/reset-password`, `/change-password`, `/register`, and `/verify-email`.
+- When `app.auth.enabled` is `true`, auth-protected routes are also excluded from sitemap generation.
+  - In current generator rules this includes collection routes, `index/:type`, `media-collection`, and `search`.
 
 ### Static collection menus in auth mode
 

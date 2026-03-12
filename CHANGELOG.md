@@ -31,6 +31,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - Deps (dev): update `@types/node` to 22.19.15.
 - Deps (dev): update `ng-extract-i18n-merge` to 3.3.0. In `angular.json`, remove `projects.app.architect.extract-i18n.configurations`.
 - Deps: update transitive dependencies.
+- Update Docker Actions in the Docker build-and-push workflow.
 
 ### Fixed
 

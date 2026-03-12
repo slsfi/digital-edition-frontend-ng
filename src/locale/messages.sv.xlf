@@ -2197,6 +2197,18 @@
         <target>Sök</target>
       </segment>
     </unit>
+    <unit id="TopMenu.Login">
+      <segment state="initial">
+        <source>Logga in</source>
+        <target>Logga in</target>
+      </segment>
+    </unit>
+    <unit id="TopMenu.Logout">
+      <segment state="initial">
+        <source>Logga ut</source>
+        <target>Logga ut</target>
+      </segment>
+    </unit>
     <unit id="Variants.ChangeVariant">
       <segment state="initial">
         <source>Byt variant</source>

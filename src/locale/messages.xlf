@@ -1831,6 +1831,16 @@
         <source>Sök</source>
       </segment>
     </unit>
+    <unit id="TopMenu.Login">
+      <segment>
+        <source>Logga in</source>
+      </segment>
+    </unit>
+    <unit id="TopMenu.Logout">
+      <segment>
+        <source>Logga ut</source>
+      </segment>
+    </unit>
     <unit id="Variants.ChangeVariant">
       <segment>
         <source>Byt variant</source>

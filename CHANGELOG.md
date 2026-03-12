@@ -28,6 +28,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - Deps: update `@angular/cli` to 20.3.20.
 - Deps: update `express-rate-limit` to 8.3.1.
 - Deps: update `marked` to 17.0.4.
+- Deps (dev): update `@types/node` to 22.19.15.
 - Deps (dev): update `ng-extract-i18n-merge` to 3.3.0. In `angular.json`, remove `projects.app.architect.extract-i18n.configurations`.
 - Deps: update transitive dependencies.
 

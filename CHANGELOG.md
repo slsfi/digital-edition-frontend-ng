@@ -8,39 +8,42 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+
+
+## [2.6.0] – 2026-03-12
+
 ### Added
 
-- Optional authentication-guarded routing and token-based authentication flow. Auth-guarded routing is disabled by default and can be enabled by setting `app.auth.enabled` to `true` in the config. Auth API base URL can be set with `app.auth.backendAuthBaseURL` – if missing, auth service falls back to the origin of `app.backendBaseURL`. For details about this feature, see the [development notes](docs/DEVELOPMENT.md).
-- App-level rate limiting for dynamic SSR render requests (`express-rate-limit`). Added config option `app.ssr.trustProxyHops` (default: `2`) to control how many proxy hops Express trusts when resolving `req.ip` for the limiter.
-- SSR auth-mismatch mitigation for auth-enabled mode: generate auth-guarded route path metadata and force client-rendered index HTML (CSR shell) for those protected requests in `server.ts`, while non-protected routes stay on SSR. Also add auth-enabled-only `ngSkipHydration` markers for `top-menu` and `main-side-menu` in `app.component.html` to avoid future hydration mismatches on public SSR pages.
-- Auth: change password flow.
-- Auth: `verify-email` page for email-verification links.
-- Auth: `register` page for creating an account.
-- [`AGENTS.md`](AGENTS.md) that serves as a contributor guide for this repository.
-- Test script for verifying UTF-8 encoding of all files under `/src`.
-- Route-level session validation for auth-guarded pages that do not fetch backend data: routes can opt in with `data.requiresSessionValidation`, and `AuthService` now validates `/session/validate` with throttling/deduplication before allowing navigation.
-- Login/logout button to the top menu.
+- Optional authentication-guarded routing and token-based authentication flow. Auth-guarded routing is disabled by default and can be enabled by setting `app.auth.enabled` to `true` in the config. Auth API base URL can be set with `app.auth.backendAuthBaseURL` – if missing, auth service falls back to the origin of `app.backendBaseURL`. For details about this feature, see the [development notes](docs/DEVELOPMENT.md). ([e6934d4](https://github.com/slsfi/digital-edition-frontend-ng/commit/e6934d490642beacc5f9dacbe5451b65e52eed42))
+- App-level rate limiting for dynamic SSR render requests (`express-rate-limit`). Added config option `app.ssr.trustProxyHops` (default: `2`) to control how many proxy hops Express trusts when resolving `req.ip` for the limiter. ([aecc962](https://github.com/slsfi/digital-edition-frontend-ng/commit/aecc9624b5e01a3daa3ba2d6ff75edc313559d29))
+- SSR auth-mismatch mitigation for auth-enabled mode: generate auth-guarded route path metadata and force client-rendered index HTML (CSR shell) for those protected requests in `server.ts`, while non-protected routes stay on SSR. Also add auth-enabled-only `ngSkipHydration` markers for `top-menu` and `main-side-menu` in `app.component.html` to avoid future hydration mismatches on public SSR pages. ([67f5d93](https://github.com/slsfi/digital-edition-frontend-ng/commit/67f5d93cc10716c5d5bddd3439958c0a329d6161))
+- Auth: change password flow. ([1fc38c0](https://github.com/slsfi/digital-edition-frontend-ng/commit/1fc38c01346be78b29c2826e2cf3b09e015026db), [c44f4d4](https://github.com/slsfi/digital-edition-frontend-ng/commit/c44f4d4b013e831ccd4ce826c0c464b8b4dafcd9))
+- Auth: `register` page for creating an account. ([398abef](https://github.com/slsfi/digital-edition-frontend-ng/commit/398abef2fb7189b8edf3fd855864acaf4abeaccb))
+- Auth: `verify-email` page for email-verification links. ([4591dec](https://github.com/slsfi/digital-edition-frontend-ng/commit/4591dec1288b91e07387b804471b14f33742127c), [ef24a5e](https://github.com/slsfi/digital-edition-frontend-ng/commit/ef24a5efccf18d6451c5c95a909aac68c8c04083), [47bad48](https://github.com/slsfi/digital-edition-frontend-ng/commit/47bad48ec8c4073e0180d45aeff6674f1ad0b13d))
+- [`AGENTS.md`](AGENTS.md) that serves as a contributor guide for this repository. ([42e593b](https://github.com/slsfi/digital-edition-frontend-ng/commit/42e593b8d74a44b2527cd30a4cfb25a766e5a402))
+- Test script for verifying UTF-8 encoding of all files under `/src`. ([594df55](https://github.com/slsfi/digital-edition-frontend-ng/commit/594df55a6c8e66e8af71806e04fb14f40cf45308), [d0667eb](https://github.com/slsfi/digital-edition-frontend-ng/commit/d0667eb7047d6b45d101a99a2d2f104fa09e80e1))
+- Route-level session validation for auth-guarded pages that do not fetch backend data: routes can opt in with `data.requiresSessionValidation`, and `AuthService` now validates `/session/validate` with throttling/deduplication before allowing navigation. ([a2c0ec6](https://github.com/slsfi/digital-edition-frontend-ng/commit/a2c0ec6361edcbfbab3899e6c1abdc1ce5106f97))
+- Login/logout button to the top menu. ([e658aa9](https://github.com/slsfi/digital-edition-frontend-ng/commit/e658aa9a11b0a3d849046f7be6521a9e3b54798e))
 
 ### Changed
 
-- Auth: Map login errors from backend error codes.
-- Auth: refactor redirect URL resolution into a shared utility for guard/service flows, centralize auth endpoint URL construction in `AuthService`, and avoid unnecessary refresh-token reads in the interceptor error path.
-- Deps: update `@angular/cli` to 20.3.20.
-- Deps: update `express-rate-limit` to 8.3.1.
-- Deps: update `marked` to 17.0.4.
-- Deps (dev): update `@types/node` to 22.19.15.
-- Deps (dev): update `ng-extract-i18n-merge` to 3.3.0. In `angular.json`, remove `projects.app.architect.extract-i18n.configurations`.
-- Deps: update transitive dependencies.
-- Update Docker Actions in the Docker build-and-push workflow.
+- Auth: Map login errors from backend error codes. ([15d75e1](https://github.com/slsfi/digital-edition-frontend-ng/commit/15d75e11ea517e9c20a49c8fb12653e980de9801))
+- Auth: refactor redirect URL resolution into a shared utility for guard/service flows, centralize auth endpoint URL construction in `AuthService`, and avoid unnecessary refresh-token reads in the interceptor error path. ([7807b4d](https://github.com/slsfi/digital-edition-frontend-ng/commit/7807b4d60b362f43be31cd2967f4fce385cb2f43))
+- Deps: update `@angular/cli` to 20.3.20. ([31bcc2b](https://github.com/slsfi/digital-edition-frontend-ng/commit/31bcc2b991c9c29d9b1b3cc02e7209955143d63f), [501d707](https://github.com/slsfi/digital-edition-frontend-ng/commit/501d7077aa93d1fce9f107b2fbd9d9fea97bed6e))
+- Deps: update `express-rate-limit` to 8.3.1. ([abc647b](https://github.com/slsfi/digital-edition-frontend-ng/commit/abc647b677b47e67296b2f2388a4526c79f79d22))
+- Deps: update `marked` to 17.0.4. ([c22116f](https://github.com/slsfi/digital-edition-frontend-ng/commit/c22116fb8fbdd2a05e0542e83ae73907a95df678))
+- Deps (dev): update `@types/node` to 22.19.15. ([8e36b96](https://github.com/slsfi/digital-edition-frontend-ng/commit/8e36b96c817f3edffa415dff885d74a025fcd302))
+- Deps (dev): update `ng-extract-i18n-merge` to 3.3.0. In `angular.json`, remove `projects.app.architect.extract-i18n.configurations`. ([76389f2](https://github.com/slsfi/digital-edition-frontend-ng/commit/76389f29063c967bea96ffbad1e42cb8d556564f))
+- Deps: update transitive dependencies. ([83b5bfd](https://github.com/slsfi/digital-edition-frontend-ng/commit/83b5bfddce69f85afda28639d7361cbcac9c26d3), [a14786a](https://github.com/slsfi/digital-edition-frontend-ng/commit/a14786a5c664ec1f35ff8882dbfe9f0562574072))
+- Update Docker Actions in the Docker build-and-push workflow. ([78b7593](https://github.com/slsfi/digital-edition-frontend-ng/commit/78b7593c97b705eaba36bdd123a5466d4a049fd1))
 
 ### Fixed
 
-- Auth: clear partial token state and logout on 401 without refresh token.
-- Auth: resolve password change flow by route segment.
-- Set document titles for forgot/change/reset password routes.
-- Move terms page before privacy policy page in main side menu.
-- Hydration: move invalid `ngSkipHydration` usage off plain `<div>` elements onto valid component hosts in facsimile viewers, and wrap media-collection thumbnails in a dedicated hydration-skipped component.
-- Conditionally add `verify-email` route to generated app routes.
+- Auth: clear partial token state and logout on 401 without refresh token. ([3af6a7c](https://github.com/slsfi/digital-edition-frontend-ng/commit/3af6a7c4d028ac2daf5ff6ae62b1b18c0fb5946c))
+- Auth: resolve password change flow by route segment. ([2f2ab14](https://github.com/slsfi/digital-edition-frontend-ng/commit/2f2ab142b2dfea4ffa110846cb5fc41dc790c89c))
+- Set document titles for forgot/change/reset password routes. ([85af789](https://github.com/slsfi/digital-edition-frontend-ng/commit/85af7893300c18884ccce23aac615bafdda8b0ac))
+- Move terms page before privacy policy page in main side menu. ([77ee5d0](https://github.com/slsfi/digital-edition-frontend-ng/commit/77ee5d0e817d7365aaf7d3ceecfd62047c7d0544))
+- Hydration: move invalid `ngSkipHydration` usage off plain `<div>` elements onto valid component hosts in facsimile viewers, and wrap media-collection thumbnails in a dedicated hydration-skipped component. ([47d17e4](https://github.com/slsfi/digital-edition-frontend-ng/commit/47d17e44f98d125690aa08a912f0a74d81ae5951))
 
 
 
@@ -1273,7 +1276,8 @@ siteLogoDimensions: {
 
 
 
-[unreleased]: https://github.com/slsfi/digital-edition-frontend-ng/compare/2.5.1...HEAD
+[unreleased]: https://github.com/slsfi/digital-edition-frontend-ng/compare/2.6.0...HEAD
+[2.6.0]: https://github.com/slsfi/digital-edition-frontend-ng/compare/2.5.1...2.6.0
 [2.5.1]: https://github.com/slsfi/digital-edition-frontend-ng/compare/2.5.0...2.5.1
 [2.5.0]: https://github.com/slsfi/digital-edition-frontend-ng/compare/2.4.6...2.5.0
 [2.4.6]: https://github.com/slsfi/digital-edition-frontend-ng/compare/2.4.5...2.4.6

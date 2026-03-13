@@ -8,10 +8,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+
+
+## [2.6.1] – 2026-03-13
+
 ### Changed
 
-- Deps: update `@angular/core` to 20.3.18.
-- Deps: update transitive dependencies.
+- Deps: update `@angular/core` to 20.3.18. ([7330ec2](https://github.com/slsfi/digital-edition-frontend-ng/commit/7330ec2ae217ba6da5dcd699e560f258486e9515))
+- Deps: update transitive dependencies. ([15d3be4](https://github.com/slsfi/digital-edition-frontend-ng/commit/15d3be4b1dfff40f313a9daf28561b8d1ff4bb7b))
 
 
 
@@ -1281,7 +1285,8 @@ siteLogoDimensions: {
 
 
 
-[unreleased]: https://github.com/slsfi/digital-edition-frontend-ng/compare/2.6.0...HEAD
+[unreleased]: https://github.com/slsfi/digital-edition-frontend-ng/compare/2.6.1...HEAD
+[2.6.1]: https://github.com/slsfi/digital-edition-frontend-ng/compare/2.6.0...2.6.1
 [2.6.0]: https://github.com/slsfi/digital-edition-frontend-ng/compare/2.5.1...2.6.0
 [2.5.1]: https://github.com/slsfi/digital-edition-frontend-ng/compare/2.5.0...2.5.1
 [2.5.0]: https://github.com/slsfi/digital-edition-frontend-ng/compare/2.4.6...2.5.0

@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnDestroy } from '@angular/core';
 import { DOCUMENT } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { FormBuilder, Validators } from '@angular/forms';
@@ -16,12 +16,12 @@ import { AuthService } from '@services/auth.service';
   styleUrls: ['./reset-password.page.scss'],
   standalone: false
 })
-export class ResetPasswordPage {
+export class ResetPasswordPage implements OnDestroy {
   private readonly document = inject(DOCUMENT);
   private readonly route = inject(ActivatedRoute);
   private readonly formBuilder = inject(FormBuilder);
   private readonly authService = inject(AuthService);
-  private readonly jwtToken: string = this.resolveJwtTokenFromFragment(this.route.snapshot.fragment);
+  private jwtToken = '';
 
   readonly form = this.formBuilder.nonNullable.group({
     password: ['', getPasswordFieldValidators()],
@@ -32,8 +32,16 @@ export class ResetPasswordPage {
   readonly passwordResetCompleted = this.authService.passwordResetCompleted;
   readonly passwordResetInProgress = this.authService.passwordResetInProgress;
 
-  constructor() {
-    this.scrubJwtFromAddressBar();
+  ionViewWillEnter(): void {
+    this.initializeResetState();
+  }
+
+  ionViewWillLeave(): void {
+    this.authService.clearResetPasswordState();
+  }
+
+  ngOnDestroy(): void {
+    this.authService.clearResetPasswordState();
   }
 
   attemptPasswordReset(): void {
@@ -48,6 +56,17 @@ export class ResetPasswordPage {
 
   clearFeedbackState(): void {
     this.authService.clearResetPasswordState();
+  }
+
+  private initializeResetState(): void {
+    this.authService.clearResetPasswordState();
+    const jwtTokenFromFragment = this.resolveJwtTokenFromFragment(this.route.snapshot.fragment);
+    if (!jwtTokenFromFragment) {
+      return;
+    }
+
+    this.jwtToken = jwtTokenFromFragment;
+    this.scrubJwtFromAddressBar();
   }
 
   private scrubJwtFromAddressBar(): void {

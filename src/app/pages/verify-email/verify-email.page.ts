@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnDestroy } from '@angular/core';
 import { DOCUMENT } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 
@@ -10,20 +10,44 @@ import { AuthService } from '@services/auth.service';
   styleUrls: ['./verify-email.page.scss'],
   standalone: false
 })
-export class VerifyEmailPage {
+export class VerifyEmailPage implements OnDestroy {
   private readonly document = inject(DOCUMENT);
   private readonly route = inject(ActivatedRoute);
   private readonly authService = inject(AuthService);
-  private readonly jwtToken: string = this.resolveJwtTokenFromFragment(this.route.snapshot.fragment);
+  private hasConsumedJwtToken = false;
 
   readonly verifyEmailError = this.authService.verifyEmailError;
   readonly emailVerificationCompleted = this.authService.emailVerificationCompleted;
   readonly emailVerificationInProgress = this.authService.emailVerificationInProgress;
 
-  constructor() {
+  ionViewWillEnter(): void {
+    const jwtToken = this.resolveJwtTokenFromFragment(this.route.snapshot.fragment);
+    if (jwtToken) {
+      this.hasConsumedJwtToken = true;
+      this.startVerificationFlow(jwtToken);
+      return;
+    }
+
+    if (this.hasConsumedJwtToken) {
+      this.authService.clearVerifyEmailState();
+      return;
+    }
+
+    this.startVerificationFlow('');
+  }
+
+  ionViewWillLeave(): void {
+    this.authService.clearVerifyEmailState();
+  }
+
+  ngOnDestroy(): void {
+    this.authService.clearVerifyEmailState();
+  }
+
+  private startVerificationFlow(jwtToken: string = this.resolveJwtTokenFromFragment(this.route.snapshot.fragment)): void {
     this.authService.clearVerifyEmailState();
     this.scrubJwtFromAddressBar();
-    this.authService.verifyEmail(this.jwtToken);
+    this.authService.verifyEmail(jwtToken);
   }
 
   private scrubJwtFromAddressBar(): void {

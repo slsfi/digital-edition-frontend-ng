@@ -1,4 +1,5 @@
 @let loginErrorValue = loginError();
+@let passwordResetSuccessValue = passwordResetSuccess();
 
 <ion-content>
   <article>
@@ -6,7 +7,7 @@
       <h1 i18n="@@Login.Title">Logga in</h1>
 
       <p class="center" i18n="@@Login.AccountNeededForAccess">För att komma åt innehållet i den digitala utgåvan behöver du ett användarkonto.</p>
-      @if (passwordResetSuccess) {
+      @if (passwordResetSuccessValue) {
         <p class="auth-success center" i18n="@@Login.PasswordResetSuccess">Lösenordet har återställts. Du kan nu logga in med ditt nya lösenord.</p>
       }
 

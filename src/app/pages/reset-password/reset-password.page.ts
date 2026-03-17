@@ -1,5 +1,5 @@
 import { Component, inject, OnDestroy } from '@angular/core';
-import { DOCUMENT } from '@angular/common';
+import { Location } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { FormBuilder, Validators } from '@angular/forms';
 
@@ -17,7 +17,7 @@ import { AuthService } from '@services/auth.service';
   standalone: false
 })
 export class ResetPasswordPage implements OnDestroy {
-  private readonly document = inject(DOCUMENT);
+  private readonly location = inject(Location);
   private readonly route = inject(ActivatedRoute);
   private readonly formBuilder = inject(FormBuilder);
   private readonly authService = inject(AuthService);
@@ -70,23 +70,23 @@ export class ResetPasswordPage implements OnDestroy {
   }
 
   private scrubJwtFromAddressBar(): void {
-    const windowRef = this.document.defaultView;
-    if (!windowRef) {
+    const rawFragment = this.route.snapshot.fragment;
+    if (typeof rawFragment !== 'string' || rawFragment.length === 0) {
       return;
     }
 
     try {
-      const url = new URL(windowRef.location.href);
-      const rawFragment = url.hash.startsWith('#') ? url.hash.slice(1) : url.hash;
       const fragmentParams = new URLSearchParams(rawFragment);
       if (!fragmentParams.has('jwt')) {
         return;
       }
 
       fragmentParams.delete('jwt');
+      const currentPath = this.location.path();
+      const [path, query = ''] = currentPath.split('?');
       const fragment = fragmentParams.toString();
-      const sanitizedUrl = `${url.pathname}${url.search}${fragment ? `#${fragment}` : ''}`;
-      windowRef.history.replaceState(windowRef.history.state, '', sanitizedUrl);
+      const sanitizedPath = `${path}${fragment ? `#${fragment}` : ''}`;
+      this.location.replaceState(sanitizedPath, query);
     } catch {
       // Ignore parsing/history errors; reset flow can proceed with in-memory token.
     }

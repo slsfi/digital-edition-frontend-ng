@@ -11,6 +11,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 ### Changed
 
 - Docs: add to-do note about main side menu articles wrapper label.
+- Auth: use Angular location APIs for JWT URL cleanup.
 
 ### Fixed
 

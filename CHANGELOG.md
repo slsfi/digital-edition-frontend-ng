@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+### Changed
+
+- Docs: add to-do note about main side menu articles wrapper label.
+
 ### Fixed
 
 - Clear transient feedback on cached auth pages.

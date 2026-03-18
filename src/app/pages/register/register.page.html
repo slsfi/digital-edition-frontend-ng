@@ -212,8 +212,13 @@
           [disabled]="form.invalid || registerInProgressValue"
         >
           <span class="button-content">
+            <ion-spinner
+              class="button-spinner"
+              [class.hide-spinner]="!registerInProgressValue"
+              name="crescent"
+              aria-hidden="true"
+            ></ion-spinner>
             @if (registerInProgressValue) {
-              <ion-spinner class="button-spinner" name="crescent" aria-hidden="true"></ion-spinner>
               <ng-container i18n="@@Register.InProgress">Skapar konto ...</ng-container>
             } @else {
               <ng-container i18n="@@Register.SubmitButton">Skapa konto</ng-container>

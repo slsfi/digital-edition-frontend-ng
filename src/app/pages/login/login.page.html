@@ -63,8 +63,13 @@
         [disabled]="form.invalid || loginInProgressValue"
       >
         <span class="button-content">
+          <ion-spinner
+            class="button-spinner"
+            [class.hide-spinner]="!loginInProgressValue"
+            name="crescent"
+            aria-hidden="true"
+          ></ion-spinner>
           @if (loginInProgressValue) {
-            <ion-spinner class="button-spinner" name="crescent" aria-hidden="true"></ion-spinner>
             <ng-container i18n="@@Login.InProgress">Loggar in ...</ng-container>
           } @else {
             <ng-container i18n="@@Login.SubmitButton">Logga in</ng-container>

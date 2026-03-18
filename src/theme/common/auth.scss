@@ -50,6 +50,10 @@ p {
   color: #166a2f;
 }
 
+.auth-progress {
+  margin: 0 0 0.2rem 0;
+}
+
 .no-margins {
   margin: 0;
 }
@@ -87,4 +91,16 @@ ion-input.input-fill-outline {
 ion-button.button.custom-button {
   margin-top: 1rem;
   min-height: 42px;
+}
+
+.button-content {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.625em;
+}
+
+.button-spinner {
+  width: 1.375rem;
+  height: 1.375rem;
 }

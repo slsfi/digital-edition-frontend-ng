@@ -86,6 +86,7 @@ export class RegisterPage implements OnDestroy {
   }, { validators: passwordMatchValidator() });
   readonly passwordComplexityErrorKey = PASSWORD_COMPLEXITY_ERROR_KEY;
   readonly registerError = this.authService.registerError;
+  readonly registerInProgress = this.authService.registerInProgress;
   readonly registrationCompleted = this.authService.registrationCompleted;
 
   /**

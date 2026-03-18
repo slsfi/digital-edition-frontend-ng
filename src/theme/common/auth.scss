@@ -88,3 +88,19 @@ ion-button.button.custom-button {
   margin-top: 1rem;
   min-height: 42px;
 }
+
+.button-content {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.625em;
+}
+
+.button-spinner {
+  width: 1.375rem;
+  height: 1.375rem;
+}
+
+.hide-spinner {
+  display: none;
+}

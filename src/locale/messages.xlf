@@ -736,6 +736,11 @@
         <source>Ange e-postadress.</source>
       </segment>
     </unit>
+    <unit id="ForgotPassword.InProgress">
+      <segment>
+        <source>Skickar länk ...</source>
+      </segment>
+    </unit>
     <unit id="ForgotPassword.RequestFailed">
       <segment>
         <source>Begäran om återställning misslyckades. Försök igen senare.</source>
@@ -936,6 +941,11 @@
         <source>Glömt lösenordet?</source>
       </segment>
     </unit>
+    <unit id="Login.InProgress">
+      <segment>
+        <source>Loggar in ...</source>
+      </segment>
+    </unit>
     <unit id="Login.InvalidCredentials">
       <segment>
         <source>Fel e-postadress eller lösenord.</source>
@@ -949,11 +959,6 @@
     <unit id="Login.PasswordLabel">
       <segment>
         <source>Lösenord</source>
-      </segment>
-    </unit>
-    <unit id="Login.PasswordResetSuccess">
-      <segment>
-        <source>Lösenordet har återställts. Du kan nu logga in med ditt nya lösenord.</source>
       </segment>
     </unit>
     <unit id="Login.RequestFailed">
@@ -1596,6 +1601,11 @@
         <source>Ange e-postadress.</source>
       </segment>
     </unit>
+    <unit id="Register.InProgress">
+      <segment>
+        <source>Skapar konto ...</source>
+      </segment>
+    </unit>
     <unit id="Register.IntendedUsageEducational">
       <segment>
         <source>Pedagogiska</source>
@@ -1733,7 +1743,7 @@
     </unit>
     <unit id="ResetPassword.InProgress">
       <segment>
-        <source>Sparar ditt nya lösenord ...</source>
+        <source>Sparar lösenord ...</source>
       </segment>
     </unit>
     <unit id="ResetPassword.InvalidLink">
@@ -1821,16 +1831,6 @@
         <source>Innehåll</source>
       </segment>
     </unit>
-    <unit id="TopMenu.Menu">
-      <segment>
-        <source>Meny</source>
-      </segment>
-    </unit>
-    <unit id="TopMenu.Search">
-      <segment>
-        <source>Sök</source>
-      </segment>
-    </unit>
     <unit id="TopMenu.Login">
       <segment>
         <source>Logga in</source>
@@ -1839,6 +1839,16 @@
     <unit id="TopMenu.Logout">
       <segment>
         <source>Logga ut</source>
+      </segment>
+    </unit>
+    <unit id="TopMenu.Menu">
+      <segment>
+        <source>Meny</source>
+      </segment>
+    </unit>
+    <unit id="TopMenu.Search">
+      <segment>
+        <source>Sök</source>
       </segment>
     </unit>
     <unit id="Variants.ChangeVariant">

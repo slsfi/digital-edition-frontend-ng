@@ -883,6 +883,12 @@
         <target>Ange e-postadress.</target>
       </segment>
     </unit>
+    <unit id="ForgotPassword.InProgress">
+      <segment state="initial">
+        <source>Skickar länk ...</source>
+        <target>Lähetetään ...</target>
+      </segment>
+    </unit>
     <unit id="ForgotPassword.RequestFailed">
       <segment state="initial">
         <source>Begäran om återställning misslyckades. Försök igen senare.</source>
@@ -1123,6 +1129,12 @@
         <target>Unohditko salasanasi?</target>
       </segment>
     </unit>
+    <unit id="Login.InProgress">
+      <segment state="initial">
+        <source>Loggar in ...</source>
+        <target>Kirjaudutaan ...</target>
+      </segment>
+    </unit>
     <unit id="Login.InvalidCredentials">
       <segment state="initial">
         <source>Fel e-postadress eller lösenord.</source>
@@ -1139,12 +1151,6 @@
       <segment state="initial">
         <source>Lösenord</source>
         <target>Salasana</target>
-      </segment>
-    </unit>
-    <unit id="Login.PasswordResetSuccess">
-      <segment state="initial">
-        <source>Lösenordet har återställts. Du kan nu logga in med ditt nya lösenord.</source>
-        <target>Salasanasi on palautettu. Voit nyt kirjautua sisään uudella salasanallasi.</target>
       </segment>
     </unit>
     <unit id="Login.RequestFailed">
@@ -1915,6 +1921,12 @@
         <target>Syötä sähköpostiosoite.</target>
       </segment>
     </unit>
+    <unit id="Register.InProgress">
+      <segment state="initial">
+        <source>Skapar konto ...</source>
+        <target>Luodaan tiliä ...</target>
+      </segment>
+    </unit>
     <unit id="Register.IntendedUsageEducational">
       <segment state="initial">
         <source>Pedagogiska</source>
@@ -2079,8 +2091,8 @@
     </unit>
     <unit id="ResetPassword.InProgress">
       <segment state="initial">
-        <source>Sparar ditt nya lösenord ...</source>
-        <target>Uutta salasanaasi tallennetaan ...</target>
+        <source>Sparar lösenord ...</source>
+        <target>Tallennetaan ...</target>
       </segment>
     </unit>
     <unit id="ResetPassword.InvalidLink">
@@ -2185,18 +2197,6 @@
         <target>Sisältö</target>
       </segment>
     </unit>
-    <unit id="TopMenu.Menu">
-      <segment state="initial">
-        <source>Meny</source>
-        <target>Valikko</target>
-      </segment>
-    </unit>
-    <unit id="TopMenu.Search">
-      <segment state="initial">
-        <source>Sök</source>
-        <target>Hae</target>
-      </segment>
-    </unit>
     <unit id="TopMenu.Login">
       <segment state="initial">
         <source>Logga in</source>
@@ -2207,6 +2207,18 @@
       <segment state="initial">
         <source>Logga ut</source>
         <target>Kirjaudu ulos</target>
+      </segment>
+    </unit>
+    <unit id="TopMenu.Menu">
+      <segment state="initial">
+        <source>Meny</source>
+        <target>Valikko</target>
+      </segment>
+    </unit>
+    <unit id="TopMenu.Search">
+      <segment state="initial">
+        <source>Sök</source>
+        <target>Hae</target>
       </segment>
     </unit>
     <unit id="Variants.ChangeVariant">

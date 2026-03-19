@@ -60,6 +60,10 @@ ion-input.input-fill-outline {
   --highlight-color-invalid: #a10606;
 }
 
+auth-status-message + ion-input {
+  margin-top: 1.5rem;
+}
+
 .authentication-divider {
   width: 100%;
   margin-block: 1.5rem;

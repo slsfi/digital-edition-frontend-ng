@@ -893,7 +893,7 @@
     </unit>
     <unit id="Login.AccountNeededForAccess">
       <segment>
-        <source>För att komma åt innehållet i den digitala utgåvan behöver du ett användarkonto.</source>
+        <source>För att komma åt innehållet i den digitala utgåvan behöver du ett <pc id="0" equivStart="START_LINK" equivEnd="CLOSE_LINK" type="link" dispStart="&lt;a [routerLink]=&quot;[&apos;/register&apos;]&quot; [queryParams]=&quot;authRedirectNavigationQueryParams&quot;&gt;" dispEnd="&lt;/a&gt;">användarkonto</pc>.</source>
       </segment>
     </unit>
     <unit id="Login.ConsentPrivacyOnly">

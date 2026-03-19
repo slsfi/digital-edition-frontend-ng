@@ -2097,8 +2097,8 @@
     </unit>
     <unit id="ResetPassword.InvalidLink">
       <segment state="initial">
-        <source>Återställningslänken är ogiltig eller har löpt ut.</source>
-        <target>Salasanan palautuslinkki on virheellinen tai vanhentunut.</target>
+        <source>Länken för att byta lösenord är ogiltig eller har löpt ut.</source>
+        <target>Salasanan vaihtolinkki on virheellinen tai vanhentunut.</target>
       </segment>
     </unit>
     <unit id="ResetPassword.NoCredentials">
@@ -2121,8 +2121,8 @@
     </unit>
     <unit id="ResetPassword.RequestFailed">
       <segment state="initial">
-        <source>Återställningen av lösenordet misslyckades. Försök igen senare.</source>
-        <target>Salasanan palautus epäonnistui. Yritä myöhemmin uudelleen.</target>
+        <source>Lösenordet kunde inte sparas. Försök igen senare.</source>
+        <target>Salasanan tallennus epäonnistui. Yritä myöhemmin uudelleen.</target>
       </segment>
     </unit>
     <unit id="ResetPassword.SubmitButton">
@@ -2133,8 +2133,8 @@
     </unit>
     <unit id="ResetPassword.Success">
       <segment state="initial">
-        <source>Lösenordet har återställts. Du kan nu logga in med ditt nya lösenord.</source>
-        <target>Salasanasi on palautettu. Voit nyt kirjautua sisään uudella salasanallasi.</target>
+        <source>Lösenordet har sparats. Du kan nu logga in med ditt nya lösenord.</source>
+        <target>Salasanasi on tallennettu. Voit nyt kirjautua sisään uudella salasanallasi.</target>
       </segment>
     </unit>
     <unit id="ResetPassword.Title">
@@ -2313,8 +2313,8 @@
     </unit>
     <unit id="VerifyEmail.Verifying">
       <segment state="initial">
-        <source>Verifierar din e-postadress ...</source>
-        <target>Sähköpostiosoitettasi vahvistetaan ...</target>
+        <source>Verifierar din e-postadress ...</source>
+        <target>Sähköpostiosoitettasi vahvistetaan ...</target>
       </segment>
     </unit>
     <unit id="ViewOptions.Abbreviation">

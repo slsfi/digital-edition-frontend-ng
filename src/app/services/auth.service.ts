@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable, LOCALE_ID, signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { BehaviorSubject, catchError, filter, finalize, map, Observable, of, shareReplay, take, throwError } from 'rxjs';
+import { BehaviorSubject, catchError, delay, dematerialize, filter, finalize, map, materialize, Observable, of, shareReplay, take, throwError } from 'rxjs';
 
 import { config } from '@config';
 import {
@@ -30,6 +30,7 @@ import { AuthTokenStorageService } from '@services/auth-token-storage.service';
 
 const AUTH_EMAIL_STORAGE_KEY = 'auth_email';
 const DEFAULT_SESSION_VALIDATION_TTL_MS = 2 * 60 * 1000;  // = 2 minutes
+const EMAIL_VERIFICATION_UI_DELAY_MS = 2000;
 
 export type LoginErrorCode = 'no_credentials' | 'email_not_verified' | 'invalid_credentials' | 'request_failed';
 export type RegisterErrorCode = 'no_credentials' | 'password_too_short' | 'user_already_exists' | 'request_failed';
@@ -381,6 +382,9 @@ export class AuthService {
 
   /**
    * Verifies a user's email address using a verification JWT token.
+   * The resolution of the backend response is delayed by
+   * EMAIL_VERIFICATION_UI_DELAY_MS milliseconds so the UI has time to
+   * show a "processing" message to the user.
    */
   verifyEmail(jwtToken: string): void {
     this._verifyEmailError.set(null);
@@ -397,13 +401,18 @@ export class AuthService {
 
     const url = this.buildBackendAuthURL('auth/verify_email');
     const headers = { Authorization: `Bearer ${normalizedToken}` };
-    this.http.post<VerifyEmailResponse>(url, null, { headers }).subscribe({
-      next: () => {
+    this.http.post<VerifyEmailResponse>(url, null, { headers }).pipe(
+      materialize(),
+      delay(EMAIL_VERIFICATION_UI_DELAY_MS),
+      dematerialize(),
+      finalize(() => {
         this._emailVerificationInProgress.set(false);
+      })
+    ).subscribe({
+      next: () => {
         this._emailVerificationCompleted.set(true);
       },
       error: (error) => {
-        this._emailVerificationInProgress.set(false);
         this._verifyEmailError.set(this.resolveAuthErrorCode(error, this.verifyEmailErrorResolverMap));
       }
     });

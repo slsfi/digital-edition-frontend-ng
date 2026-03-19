@@ -1748,7 +1748,7 @@
     </unit>
     <unit id="ResetPassword.InvalidLink">
       <segment>
-        <source>Återställningslänken är ogiltig eller har löpt ut.</source>
+        <source>Länken för att byta lösenord är ogiltig eller har löpt ut.</source>
       </segment>
     </unit>
     <unit id="ResetPassword.NoCredentials">
@@ -1768,7 +1768,7 @@
     </unit>
     <unit id="ResetPassword.RequestFailed">
       <segment>
-        <source>Återställningen av lösenordet misslyckades. Försök igen senare.</source>
+        <source>Lösenordet kunde inte sparas. Försök igen senare.</source>
       </segment>
     </unit>
     <unit id="ResetPassword.SubmitButton">
@@ -1778,7 +1778,7 @@
     </unit>
     <unit id="ResetPassword.Success">
       <segment>
-        <source>Lösenordet har återställts. Du kan nu logga in med ditt nya lösenord.</source>
+        <source>Lösenordet har sparats. Du kan nu logga in med ditt nya lösenord.</source>
       </segment>
     </unit>
     <unit id="ResetPassword.Title">
@@ -1928,7 +1928,7 @@
     </unit>
     <unit id="VerifyEmail.Verifying">
       <segment>
-        <source>Verifierar din e-postadress ...</source>
+        <source>Verifierar din e-postadress ...</source>
       </segment>
     </unit>
     <unit id="ViewOptions.Abbreviation">

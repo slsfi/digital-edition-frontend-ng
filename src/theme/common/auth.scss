@@ -39,17 +39,6 @@ p {
   text-align: center;
 }
 
-.auth-error {
-  margin-top: 0;
-  margin: 0 0 0.2rem 0;
-  color: #a10606;
-}
-
-.auth-success {
-  margin: 0 0 0.2rem 0;
-  color: #166a2f;
-}
-
 .no-margins {
   margin: 0;
 }
@@ -58,6 +47,10 @@ ion-input.input-fill-outline {
   --highlight-color-focused: var(--outline-button-color);
   --highlight-color-valid: var(--outline-button-color);
   --highlight-color-invalid: #a10606;
+}
+
+auth-status-message + ion-input {
+  margin-top: 1.5rem;
 }
 
 .authentication-divider {

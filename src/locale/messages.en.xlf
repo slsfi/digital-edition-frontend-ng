@@ -2097,7 +2097,7 @@
     </unit>
     <unit id="ResetPassword.InvalidLink">
       <segment state="initial">
-        <source>Återställningslänken är ogiltig eller har löpt ut.</source>
+        <source>Länken för att byta lösenord är ogiltig eller har löpt ut.</source>
         <target>The password reset link is invalid or has expired.</target>
       </segment>
     </unit>
@@ -2121,8 +2121,8 @@
     </unit>
     <unit id="ResetPassword.RequestFailed">
       <segment state="initial">
-        <source>Återställningen av lösenordet misslyckades. Försök igen senare.</source>
-        <target>Password reset failed. Please try again later.</target>
+        <source>Lösenordet kunde inte sparas. Försök igen senare.</source>
+        <target>Failed to save password. Please try again later.</target>
       </segment>
     </unit>
     <unit id="ResetPassword.SubmitButton">
@@ -2133,8 +2133,8 @@
     </unit>
     <unit id="ResetPassword.Success">
       <segment state="initial">
-        <source>Lösenordet har återställts. Du kan nu logga in med ditt nya lösenord.</source>
-        <target>Your password has been reset. You can now log in with your new password.</target>
+        <source>Lösenordet har sparats. Du kan nu logga in med ditt nya lösenord.</source>
+        <target>Your password has been saved. You can now log in with your new password.</target>
       </segment>
     </unit>
     <unit id="ResetPassword.Title">

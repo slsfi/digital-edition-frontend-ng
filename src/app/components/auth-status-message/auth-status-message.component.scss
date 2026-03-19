@@ -5,7 +5,8 @@
 
 div {
   width: 100%;
-  margin: 0;
+  max-width: 720px;
+  margin: 0 auto;
   padding: 1rem 1.25rem;
   border: 1px solid;
   border-radius: 12px;
@@ -27,7 +28,7 @@ div {
 
 .auth-success {
   background: var(--auth-success-bg, #E7ECE8);
-  border-color: var(--auth-success-border, #F4F6F4);
+  border-color: var(--auth-success-border, #bac3ba);
   color: var(--auth-success-text, #335B49);
 }
 

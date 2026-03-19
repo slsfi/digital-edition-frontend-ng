@@ -2313,7 +2313,7 @@
     </unit>
     <unit id="VerifyEmail.Verifying">
       <segment state="initial">
-        <source>Verifierar din e-postadress ...</source>
+        <source>Verifierar din e-postadress ...</source>
         <target>Verifying your email address...</target>
       </segment>
     </unit>

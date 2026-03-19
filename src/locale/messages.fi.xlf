@@ -2313,8 +2313,8 @@
     </unit>
     <unit id="VerifyEmail.Verifying">
       <segment state="initial">
-        <source>Verifierar din e-postadress ...</source>
-        <target>Sähköpostiosoitettasi vahvistetaan ...</target>
+        <source>Verifierar din e-postadress ...</source>
+        <target>Sähköpostiosoitettasi vahvistetaan ...</target>
       </segment>
     </unit>
     <unit id="ViewOptions.Abbreviation">

@@ -13,6 +13,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - Docs: add to-do note about main side menu articles wrapper label.
 - Auth: use Angular location APIs for JWT URL cleanup.
 - Auth: show immediate in-flight feedback in login, register, forgot-password, and reset-password submit buttons, disable repeated submits while requests are in progress, and keep reset-password completion on the page instead of redirecting to login.
+- Auth: improve status message styling.
 
 ### Fixed
 

@@ -2097,8 +2097,8 @@
     </unit>
     <unit id="ResetPassword.InvalidLink">
       <segment state="initial">
-        <source>Länken för att byta lösenord är ogiltig eller har löpt ut.</source>
-        <target>Länken för att byta lösenord är ogiltig eller har löpt ut.</target>
+        <source>Länken för att byta lösenord är ogiltig eller har löpt ut. Du måste beställa en ny länk för att byta lösenord.</source>
+        <target>Länken för att byta lösenord är ogiltig eller har löpt ut. Du måste beställa en ny länk för att byta lösenord.</target>
       </segment>
     </unit>
     <unit id="ResetPassword.NoCredentials">

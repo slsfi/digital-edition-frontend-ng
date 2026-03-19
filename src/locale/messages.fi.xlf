@@ -2097,8 +2097,8 @@
     </unit>
     <unit id="ResetPassword.InvalidLink">
       <segment state="initial">
-        <source>Länken för att byta lösenord är ogiltig eller har löpt ut.</source>
-        <target>Salasanan vaihtolinkki on virheellinen tai vanhentunut.</target>
+        <source>Länken för att byta lösenord är ogiltig eller har löpt ut. Du måste beställa en ny länk för att byta lösenord.</source>
+        <target>Salasanan vaihtolinkki on virheellinen tai vanhentunut. Sinun on tilattava uusi linkki vaihtaaksesi salasanan.</target>
       </segment>
     </unit>
     <unit id="ResetPassword.NoCredentials">

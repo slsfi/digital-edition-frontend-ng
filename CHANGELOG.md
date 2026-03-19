@@ -18,6 +18,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 ### Fixed
 
 - Clear transient feedback on cached auth pages.
+- Auth: treat invalid link as terminal state for password reset page.
 
 
 

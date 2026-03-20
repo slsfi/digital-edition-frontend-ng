@@ -8,20 +8,24 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+
+
+## [2.6.2] – 2026-03-20
+
 ### Changed
 
-- Docs: add to-do note about main side menu articles wrapper label.
-- Auth: use Angular location APIs for JWT URL cleanup.
-- Auth: show immediate in-flight feedback in login, register, forgot-password, and reset-password submit buttons, disable repeated submits while requests are in progress, and keep reset-password completion on the page instead of redirecting to login.
-- Auth: improve status message styling.
-- Auth: link to registration page from login page.
-- Deps: update `@angular/cli` to 20.3.21.
-- Deps: update transitive dependencies.
+- Docs: add to-do note about main side menu articles wrapper label. ([1b37144](https://github.com/slsfi/digital-edition-frontend-ng/commit/1b37144f0d4d785116a3a102cb55628b54f04d41))
+- Auth: use Angular location APIs for JWT URL cleanup. ([6346a37](https://github.com/slsfi/digital-edition-frontend-ng/commit/6346a37f4abb3094781cc8a382e156ce6b481478))
+- Auth: show immediate in-flight feedback in login, register, forgot-password, and reset-password submit buttons, disable repeated submits while requests are in progress, and keep reset-password completion on the page instead of redirecting to login. ([5cecf92](https://github.com/slsfi/digital-edition-frontend-ng/commit/5cecf92066669992790e907fa68d5620a42a5f92))
+- Auth: improve status message styling. ([23110eb](https://github.com/slsfi/digital-edition-frontend-ng/commit/23110eb328a681e1a98e2f1e128ac1a49c3363a9))
+- Auth: link to registration page from login page. ([854c0ce](https://github.com/slsfi/digital-edition-frontend-ng/commit/854c0ceb66438c60c9226dd0057055be332b3f5a))
+- Deps: update `@angular/cli` to 20.3.21. ([5fbbeb4](https://github.com/slsfi/digital-edition-frontend-ng/commit/5fbbeb493499490b481c61a043405bd2d6cac6d6))
+- Deps: update transitive dependencies. ([867ef86](https://github.com/slsfi/digital-edition-frontend-ng/commit/867ef86a15ca6813c3e6c316637f9172c919fbf3))
 
 ### Fixed
 
-- Clear transient feedback on cached auth pages.
-- Auth: treat invalid link as terminal state for password reset page.
+- Clear transient feedback on cached auth pages. ([3f294fa](https://github.com/slsfi/digital-edition-frontend-ng/commit/3f294fadd4d908ae50d95aa16cfc55eee4eec2d3))
+- Auth: treat invalid link as terminal state for password reset page. ([dade0f6](https://github.com/slsfi/digital-edition-frontend-ng/commit/dade0f60ec05ce6cc50735bdd362a931bdd606ce))
 
 
 
@@ -1300,7 +1304,8 @@ siteLogoDimensions: {
 
 
 
-[unreleased]: https://github.com/slsfi/digital-edition-frontend-ng/compare/2.6.1...HEAD
+[unreleased]: https://github.com/slsfi/digital-edition-frontend-ng/compare/2.6.2...HEAD
+[2.6.2]: https://github.com/slsfi/digital-edition-frontend-ng/compare/2.6.1...2.6.2
 [2.6.1]: https://github.com/slsfi/digital-edition-frontend-ng/compare/2.6.0...2.6.1
 [2.6.0]: https://github.com/slsfi/digital-edition-frontend-ng/compare/2.5.1...2.6.0
 [2.5.1]: https://github.com/slsfi/digital-edition-frontend-ng/compare/2.5.0...2.5.1

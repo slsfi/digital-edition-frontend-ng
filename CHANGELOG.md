@@ -16,6 +16,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - Auth: improve status message styling.
 - Auth: link to registration page from login page.
 - Deps: update `@angular/cli` to 20.3.21.
+- Deps: update transitive dependencies.
 
 ### Fixed
 

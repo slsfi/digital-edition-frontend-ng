@@ -11,6 +11,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 ### Changed
 
 - Deps: update `@angular/cli` to 19.2.22 and `@angular/core` to 19.2.20.
+- Deps (dev): update `@types/node` to 20.19.37.
 
 ### Fixed
 

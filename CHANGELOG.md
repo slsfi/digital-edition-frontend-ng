@@ -8,15 +8,19 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+
+
+## [1.8.4] – 2026-03-20
+
 ### Changed
 
-- Deps: update `@angular/cli` to 19.2.22 and `@angular/core` to 19.2.20.
-- Deps (dev): update `@types/node` to 20.19.37.
-- Deps: update transitive dependencies.
+- Deps: update `@angular/cli` to 19.2.22 and `@angular/core` to 19.2.20. ([6c17767](https://github.com/slsfi/digital-edition-frontend-ng/commit/6c177670c379c6c862b488a7605583a64230d336))
+- Deps (dev): update `@types/node` to 20.19.37. ([594becc](https://github.com/slsfi/digital-edition-frontend-ng/commit/594becc6cce0bf57e583844c1e31996147b9aefd))
+- Deps: update transitive dependencies. ([53b0e23](https://github.com/slsfi/digital-edition-frontend-ng/commit/53b0e23fbbc1b1f2d0bbff3cca546c6af4d22037))
 
 ### Fixed
 
-- Configure `CommonEngine` `allowedHosts` for Angular SSRF host validation.
+- Configure `CommonEngine` `allowedHosts` for Angular SSRF host validation. ([b9c4aa5](https://github.com/slsfi/digital-edition-frontend-ng/commit/b9c4aa5cf9c6352c3b5252d49c5ce71213d72402))
 
 
 
@@ -812,7 +816,8 @@ siteLogoDimensions: {
 
 
 
-[unreleased]: https://github.com/slsfi/digital-edition-frontend-ng/compare/1.8.3...1.x.x
+[unreleased]: https://github.com/slsfi/digital-edition-frontend-ng/compare/1.8.4...1.x.x
+[1.8.4]: https://github.com/slsfi/digital-edition-frontend-ng/compare/1.8.3...1.8.4
 [1.8.3]: https://github.com/slsfi/digital-edition-frontend-ng/compare/1.8.2...1.8.3
 [1.8.2]: https://github.com/slsfi/digital-edition-frontend-ng/compare/1.8.1...1.8.2
 [1.8.1]: https://github.com/slsfi/digital-edition-frontend-ng/compare/1.8.0...1.8.1

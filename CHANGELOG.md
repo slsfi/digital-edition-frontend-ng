@@ -8,13 +8,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+
+
+## [2.6.3] – 2026-03-30
+
 ### Changed
 
-- Update `nginx` to 1.28.3
-- Deps: update `@angular/cli` to 20.3.22.
-- Deps: update `htmlparser2` to 12.0.0.
-- Deps: update `marked` to 17.0.5.
-- Deps: update transitive dependencies.
+- Update `nginx` to 1.28.3. ([388e100](https://github.com/slsfi/digital-edition-frontend-ng/commit/388e100d9440b567b56950ab22bf8b5725b18ab1))
+- Deps: update `@angular/cli` to 20.3.22. ([081b15b](https://github.com/slsfi/digital-edition-frontend-ng/commit/081b15bafbc1992351a4acdd57ad4574bdf8221d))
+- Deps: update `htmlparser2` to 12.0.0. ([4c93476](https://github.com/slsfi/digital-edition-frontend-ng/commit/4c93476b2c3a03a0856b36151243e941e80c93ed))
+- Deps: update `marked` to 17.0.5. ([6ad7e40](https://github.com/slsfi/digital-edition-frontend-ng/commit/6ad7e40e0dee0f3d67bf5b818cd7642f9474fbcc))
+- Deps: update transitive dependencies. ([02add5b](https://github.com/slsfi/digital-edition-frontend-ng/commit/02add5bc968433772092f787b6ed2d0258817db1))
 
 
 
@@ -1312,7 +1316,8 @@ siteLogoDimensions: {
 
 
 
-[unreleased]: https://github.com/slsfi/digital-edition-frontend-ng/compare/2.6.2...HEAD
+[unreleased]: https://github.com/slsfi/digital-edition-frontend-ng/compare/2.6.3...HEAD
+[2.6.3]: https://github.com/slsfi/digital-edition-frontend-ng/compare/2.6.2...2.6.3
 [2.6.2]: https://github.com/slsfi/digital-edition-frontend-ng/compare/2.6.1...2.6.2
 [2.6.1]: https://github.com/slsfi/digital-edition-frontend-ng/compare/2.6.0...2.6.1
 [2.6.0]: https://github.com/slsfi/digital-edition-frontend-ng/compare/2.5.1...2.6.0

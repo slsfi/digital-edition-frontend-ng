@@ -13,6 +13,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - Deps: update `@angular/cli` to 20.3.22.
 - Deps: update `htmlparser2` to 12.0.0.
 - Deps: update `marked` to 17.0.5.
+- Deps: update transitive dependencies.
 
 
 

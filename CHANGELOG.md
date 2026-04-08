@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+### Fixed
+
+- Missing and incorrect translations.
+
 
 
 ## [2.6.3] – 2026-03-30

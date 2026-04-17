@@ -14,6 +14,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - Deps: update `express-rate-limit` to 8.3.2.
 - Deps: update `marked` to 18.0.1.
 - Deps: update `marked-custom-heading-id` to 2.0.17.
+- Deps (dev): update `@types/node` to 22.19.17.
 
 ### Fixed
 

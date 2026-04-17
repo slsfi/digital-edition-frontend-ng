@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+### Changed
+
+- Deps: update `@angular/core` to 20.3.19 and `@angular/cli` to 20.3.24.
+
 ### Fixed
 
 - Missing and incorrect translations.

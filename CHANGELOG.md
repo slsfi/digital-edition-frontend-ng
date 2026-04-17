@@ -11,6 +11,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 ### Changed
 
 - Deps: update `@angular/core` to 20.3.19 and `@angular/cli` to 20.3.24.
+- Deps: update `marked-custom-heading-id` to 2.0.17.
 
 ### Fixed
 

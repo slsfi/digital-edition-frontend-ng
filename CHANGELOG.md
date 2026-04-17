@@ -10,6 +10,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ### Changed
 
+- Update `nginx` to 1.30.0 and remove unnecessary WebSocket-oriented proxy directives from `nginx.conf`.
 - Deps: update `@angular/core` to 20.3.19 and `@angular/cli` to 20.3.24.
 - Deps: update `express-rate-limit` to 8.3.2.
 - Deps: update `marked` to 18.0.1.

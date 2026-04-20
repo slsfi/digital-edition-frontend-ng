@@ -11,6 +11,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 ### Fixed
 
 - Translations.
+- Auth: protect the `content` route with `authGuard` and derive sitemap auth-protected route exclusions from the canonical route definitions.
 
 
 

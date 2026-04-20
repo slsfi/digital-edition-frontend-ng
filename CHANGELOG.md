@@ -8,10 +8,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+
+
+## [2.6.5] – 2026-04-20
+
 ### Changed
 
-- Deps: update `marked` to 18.0.2.
-- Deps: update transitive dependencies.
+- Deps: update `marked` to 18.0.2. ([d941256](https://github.com/slsfi/digital-edition-frontend-ng/commit/d94125662eb2a60c4d36f9b618e76f6516a9cdd0))
+- Deps: update transitive dependencies. ([fb2c220](https://github.com/slsfi/digital-edition-frontend-ng/commit/fb2c220f653214aa5bdabf01f644c90c8e293fdc))
 
 
 
@@ -1339,7 +1343,8 @@ siteLogoDimensions: {
 
 
 
-[unreleased]: https://github.com/slsfi/digital-edition-frontend-ng/compare/2.6.4...HEAD
+[unreleased]: https://github.com/slsfi/digital-edition-frontend-ng/compare/2.6.5...HEAD
+[2.6.5]: https://github.com/slsfi/digital-edition-frontend-ng/compare/2.6.4...2.6.5
 [2.6.4]: https://github.com/slsfi/digital-edition-frontend-ng/compare/2.6.3...2.6.4
 [2.6.3]: https://github.com/slsfi/digital-edition-frontend-ng/compare/2.6.2...2.6.3
 [2.6.2]: https://github.com/slsfi/digital-edition-frontend-ng/compare/2.6.1...2.6.2

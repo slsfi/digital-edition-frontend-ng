@@ -748,7 +748,7 @@
     <unit id="Facsimiles.Facsimile">
       <segment state="initial">
         <source>Faksimil</source>
-        <target>Facsimiles</target>
+        <target>Facsimile</target>
       </segment>
     </unit>
     <unit id="Facsimiles.Fullscreen">

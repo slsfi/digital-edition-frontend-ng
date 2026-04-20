@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+### Changed
+
+- Deps: update `marked` to 18.0.2.
+
 
 
 ## [2.6.4] – 2026-04-17

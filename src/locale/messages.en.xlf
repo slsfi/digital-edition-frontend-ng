@@ -1077,20 +1077,20 @@
     </unit>
     <unit id="Login.ConsentPrivacyOnly">
       <segment state="initial">
-        <source> Genom att logga in godkänner du <pc id="0" equivStart="START_LINK" equivEnd="CLOSE_LINK" type="link" dispStart="&lt;a [routerLink]=&quot;[&apos;/privacy-policy&apos;]&quot;&gt;" dispEnd="&lt;/a&gt;">dataskyddsbeskrivningen</pc>. </source>
-        <target> By logging in, you accept the <pc id="0" equivStart="START_LINK" equivEnd="CLOSE_LINK" type="link" dispStart="&lt;a [routerLink]=&quot;[&apos;/privacy-policy&apos;]&quot;&gt;" dispEnd="&lt;/a&gt;">privacy policy</pc>. </target>
+        <source>Genom att logga in godkänner du <pc id="0" equivStart="START_LINK" equivEnd="CLOSE_LINK" type="link" dispStart="&lt;a [routerLink]=&quot;[&apos;/privacy-policy&apos;]&quot;&gt;" dispEnd="&lt;/a&gt;">dataskyddsbeskrivningen</pc>.</source>
+        <target>By logging in, you accept the <pc id="0" equivStart="START_LINK" equivEnd="CLOSE_LINK" type="link" dispStart="&lt;a [routerLink]=&quot;[&apos;/privacy-policy&apos;]&quot;&gt;" dispEnd="&lt;/a&gt;">Privacy policy</pc>.</target>
       </segment>
     </unit>
     <unit id="Login.ConsentTermsAndPrivacy">
       <segment state="initial">
-        <source> Genom att logga in godkänner du <pc id="0" equivStart="START_LINK" equivEnd="CLOSE_LINK" type="link" dispStart="&lt;a [routerLink]=&quot;[&apos;/terms&apos;]&quot;&gt;" dispEnd="&lt;/a&gt;">användarvillkoren</pc> och <pc id="1" equivStart="START_LINK_1" equivEnd="CLOSE_LINK" type="link" dispStart="&lt;a [routerLink]=&quot;[&apos;/privacy-policy&apos;]&quot;&gt;" dispEnd="&lt;/a&gt;">dataskyddsbeskrivningen</pc>. </source>
-        <target> By logging in, you accept the <pc id="0" equivStart="START_LINK" equivEnd="CLOSE_LINK" type="link" dispStart="&lt;a [routerLink]=&quot;[&apos;/terms&apos;]&quot;&gt;" dispEnd="&lt;/a&gt;">terms of use</pc> and <pc id="1" equivStart="START_LINK_1" equivEnd="CLOSE_LINK" type="link" dispStart="&lt;a [routerLink]=&quot;[&apos;/privacy-policy&apos;]&quot;&gt;" dispEnd="&lt;/a&gt;">privacy policy</pc>. </target>
+        <source>Genom att logga in godkänner du <pc id="0" equivStart="START_LINK" equivEnd="CLOSE_LINK" type="link" dispStart="&lt;a [routerLink]=&quot;[&apos;/terms&apos;]&quot;&gt;" dispEnd="&lt;/a&gt;">användarvillkoren</pc> och <pc id="1" equivStart="START_LINK_1" equivEnd="CLOSE_LINK" type="link" dispStart="&lt;a [routerLink]=&quot;[&apos;/privacy-policy&apos;]&quot;&gt;" dispEnd="&lt;/a&gt;">dataskyddsbeskrivningen</pc>.</source>
+        <target>By logging in, you accept the <pc id="0" equivStart="START_LINK" equivEnd="CLOSE_LINK" type="link" dispStart="&lt;a [routerLink]=&quot;[&apos;/terms&apos;]&quot;&gt;" dispEnd="&lt;/a&gt;">Terms of use</pc> and <pc id="1" equivStart="START_LINK_1" equivEnd="CLOSE_LINK" type="link" dispStart="&lt;a [routerLink]=&quot;[&apos;/privacy-policy&apos;]&quot;&gt;" dispEnd="&lt;/a&gt;">Privacy policy</pc>.</target>
       </segment>
     </unit>
     <unit id="Login.ConsentTermsOnly">
       <segment state="initial">
-        <source> Genom att logga in godkänner du <pc id="0" equivStart="START_LINK" equivEnd="CLOSE_LINK" type="link" dispStart="&lt;a [routerLink]=&quot;[&apos;/terms&apos;]&quot;&gt;" dispEnd="&lt;/a&gt;">användarvillkoren</pc>. </source>
-        <target> By logging in, you accept the <pc id="0" equivStart="START_LINK" equivEnd="CLOSE_LINK" type="link" dispStart="&lt;a [routerLink]=&quot;[&apos;/terms&apos;]&quot;&gt;" dispEnd="&lt;/a&gt;">terms of use</pc>. </target>
+        <source>Genom att logga in godkänner du <pc id="0" equivStart="START_LINK" equivEnd="CLOSE_LINK" type="link" dispStart="&lt;a [routerLink]=&quot;[&apos;/terms&apos;]&quot;&gt;" dispEnd="&lt;/a&gt;">användarvillkoren</pc>.</source>
+        <target>By logging in, you accept the <pc id="0" equivStart="START_LINK" equivEnd="CLOSE_LINK" type="link" dispStart="&lt;a [routerLink]=&quot;[&apos;/terms&apos;]&quot;&gt;" dispEnd="&lt;/a&gt;">Terms of use</pc>.</target>
       </segment>
     </unit>
     <unit id="Login.CreateAccount">
@@ -1852,25 +1852,25 @@
     <unit id="Register.AcceptPrivacyCheckbox">
       <segment state="initial">
         <source>Jag accepterar dataskyddsbeskrivningen.</source>
-        <target>I accept the privacy policy.</target>
+        <target>I accept the Privacy policy.</target>
       </segment>
     </unit>
     <unit id="Register.AcceptPrivacyRequired">
       <segment state="initial">
         <source>Du måste acceptera dataskyddsbeskrivningen.</source>
-        <target>You must accept the privacy policy.</target>
+        <target>You must accept the Privacy policy.</target>
       </segment>
     </unit>
     <unit id="Register.AcceptTermsCheckbox">
       <segment state="initial">
         <source>Jag accepterar användarvillkoren.</source>
-        <target>I accept the terms of use.</target>
+        <target>I accept the Terms of use.</target>
       </segment>
     </unit>
     <unit id="Register.AcceptTermsRequired">
       <segment state="initial">
         <source>Du måste acceptera användarvillkoren.</source>
-        <target>You must accept the terms of use.</target>
+        <target>You must accept the Terms of use.</target>
       </segment>
     </unit>
     <unit id="Register.AccountSectionHeading">
@@ -2002,7 +2002,7 @@
     <unit id="Register.PrivacyLink">
       <segment state="initial">
         <source>Mer information finns i <pc id="0" equivStart="START_LINK" equivEnd="CLOSE_LINK" type="link" dispStart="&lt;a [routerLink]=&quot;[&apos;/privacy-policy&apos;]&quot; target=&quot;_blank&quot;&gt;" dispEnd="&lt;/a&gt;">dataskyddsbeskrivningen</pc>.</source>
-        <target>You can find more information in the <pc id="0" equivStart="START_LINK" equivEnd="CLOSE_LINK" type="link" dispStart="&lt;a [routerLink]=&quot;[&apos;/privacy-policy&apos;]&quot; target=&quot;_blank&quot;&gt;" dispEnd="&lt;/a&gt;">privacy policy</pc>.</target>
+        <target>You can find more information in the <pc id="0" equivStart="START_LINK" equivEnd="CLOSE_LINK" type="link" dispStart="&lt;a [routerLink]=&quot;[&apos;/privacy-policy&apos;]&quot; target=&quot;_blank&quot;&gt;" dispEnd="&lt;/a&gt;">Privacy policy</pc>.</target>
       </segment>
     </unit>
     <unit id="Register.PrivacySummary">
@@ -2014,7 +2014,7 @@
     <unit id="Register.PrivacySummaryHeading">
       <segment state="initial">
         <source>Sammanfattning av dataskyddsbeskrivningen</source>
-        <target>Summary of privacy policy</target>
+        <target>Summary of the Privacy policy</target>
       </segment>
     </unit>
     <unit id="Register.RepeatPasswordLabel">
@@ -2050,19 +2050,19 @@
     <unit id="Register.TermsLink">
       <segment state="initial">
         <source>Fullständiga villkor finns i <pc id="0" equivStart="START_LINK" equivEnd="CLOSE_LINK" type="link" dispStart="&lt;a [routerLink]=&quot;[&apos;/terms&apos;]&quot; target=&quot;_blank&quot;&gt;" dispEnd="&lt;/a&gt;">användarvillkoren</pc>.</source>
-        <target>The full terms and conditions are set out in the <pc id="0" equivStart="START_LINK" equivEnd="CLOSE_LINK" type="link" dispStart="&lt;a [routerLink]=&quot;[&apos;/terms&apos;]&quot; target=&quot;_blank&quot;&gt;" dispEnd="&lt;/a&gt;">terms of Use</pc>.</target>
+        <target>The full terms and conditions are set out in the <pc id="0" equivStart="START_LINK" equivEnd="CLOSE_LINK" type="link" dispStart="&lt;a [routerLink]=&quot;[&apos;/terms&apos;]&quot; target=&quot;_blank&quot;&gt;" dispEnd="&lt;/a&gt;">Terms of use</pc>.</target>
       </segment>
     </unit>
     <unit id="Register.TermsSummary">
       <segment state="initial">
-        <source><pc id="0" equivStart="START_PARAGRAPH" equivEnd="CLOSE_PARAGRAPH" type="other" dispStart="&lt;p&gt;" dispEnd="&lt;/p&gt;">Denna digitala utgåva tillgängliggör upphovs­rättsligt skyddat material. Materialet publiceras online med tillstånd av rätts­innehavarna.</pc><pc id="1" equivStart="START_PARAGRAPH" equivEnd="CLOSE_PARAGRAPH" type="other" dispStart="&lt;p&gt;" dispEnd="&lt;/p&gt;">Utgåvan får användas för <pc id="2" equivStart="START_BOLD_TEXT" equivEnd="CLOSE_BOLD_TEXT" type="fmt" dispStart="&lt;b&gt;" dispEnd="&lt;/b&gt;">privata, pedagogiska och veten­skapliga ändamål</pc>. Du får läsa, studera och utforska innehållet samt citera kortare utdrag i den omfattning som är tillåten enligt lag, under förut­sättning att du anger källan. Text- och data­utvinning på materialet är tillåtet endast för vetenskaplig forskning.</pc><pc id="3" equivStart="START_PARAGRAPH" equivEnd="CLOSE_PARAGRAPH" type="other" dispStart="&lt;p&gt;" dispEnd="&lt;/p&gt;">Det är inte tillåtet att kopiera, dela, återpublicera eller göra texterna eller bilderna tillgängliga på andra plattformar eller tjänster – inte ens för icke-kommersiella ändamål. Materialet får inte heller användas i kommersiellt syfte.</pc></source>
-        <target><pc id="0" equivStart="START_PARAGRAPH" equivEnd="CLOSE_PARAGRAPH" type="other" dispStart="&lt;p&gt;" dispEnd="&lt;/p&gt;">This digital edition makes copyright-protected material available. The material is published online with the permission of the rights holders.</pc><pc id="1" equivStart="START_PARAGRAPH" equivEnd="CLOSE_PARAGRAPH" type="other" dispStart="&lt;p&gt;" dispEnd="&lt;/p&gt;">The edition may be used for <pc id="2" equivStart="START_BOLD_TEXT" equivEnd="CLOSE_BOLD_TEXT" type="fmt" dispStart="&lt;b&gt;" dispEnd="&lt;/b&gt;">personal, educational, and scholarly purposes</pc>. You may read, study, and explore the content, and quote short passages where quotation is permitted by law, provided that the source is cited. Text and data mining of the material is permitted only for scientific research.</pc><pc id="3" equivStart="START_PARAGRAPH" equivEnd="CLOSE_PARAGRAPH" type="other" dispStart="&lt;p&gt;" dispEnd="&lt;/p&gt;">It is not permitted to copy, share, republish, or otherwise make the texts or images available on other platforms or services – not even for non-commercial purposes. The material may not be used for commercial purposes.</pc></target>
+        <source><pc id="0" equivStart="START_PARAGRAPH" equivEnd="CLOSE_PARAGRAPH" type="other" dispStart="&lt;p&gt;" dispEnd="&lt;/p&gt;">Denna digitala utgåva tillgängliggör upphovs­rättsligt skyddat material. Materialet publiceras på nätet med tillstånd av rätts­innehavarna.</pc><pc id="1" equivStart="START_PARAGRAPH" equivEnd="CLOSE_PARAGRAPH" type="other" dispStart="&lt;p&gt;" dispEnd="&lt;/p&gt;">Utgåvan får användas för <pc id="2" equivStart="START_BOLD_TEXT" equivEnd="CLOSE_BOLD_TEXT" type="fmt" dispStart="&lt;b&gt;" dispEnd="&lt;/b&gt;">privata, pedagogiska och veten­skapliga ändamål</pc>. Du får läsa, studera och utforska innehållet samt citera kortare utdrag i den omfattning som är tillåten enligt lag, under förut­sättning att du anger källan. Text- och data­utvinning på materialet är tillåten endast för vetenskaplig forskning.</pc><pc id="3" equivStart="START_PARAGRAPH" equivEnd="CLOSE_PARAGRAPH" type="other" dispStart="&lt;p&gt;" dispEnd="&lt;/p&gt;">Det är inte tillåtet att kopiera, dela, återpublicera eller göra texterna eller bilderna tillgängliga på andra plattformar eller tjänster – inte ens för icke-kommersiella ändamål. Materialet får inte heller användas i kommersiellt syfte.</pc></source>
+        <target><pc id="0" equivStart="START_PARAGRAPH" equivEnd="CLOSE_PARAGRAPH" type="other" dispStart="&lt;p&gt;" dispEnd="&lt;/p&gt;">This digital edition makes copyright-protected material available. The material is published online with the permission of the rights holders.</pc><pc id="1" equivStart="START_PARAGRAPH" equivEnd="CLOSE_PARAGRAPH" type="other" dispStart="&lt;p&gt;" dispEnd="&lt;/p&gt;">The edition may be used for <pc id="2" equivStart="START_BOLD_TEXT" equivEnd="CLOSE_BOLD_TEXT" type="fmt" dispStart="&lt;b&gt;" dispEnd="&lt;/b&gt;">personal, educational, and scholarly purposes</pc>. You may read, study, and explore the content, and quote short passages where quotation is permitted by law, provided that the source is cited. Text and data mining of the material is permitted only for purposes of scholarly research.</pc><pc id="3" equivStart="START_PARAGRAPH" equivEnd="CLOSE_PARAGRAPH" type="other" dispStart="&lt;p&gt;" dispEnd="&lt;/p&gt;">It is not permitted to copy, share, republish, or otherwise make the texts or images available on other platforms or services – not even for non-commercial purposes. The material may not be used for commercial purposes.</pc></target>
       </segment>
     </unit>
     <unit id="Register.TermsSummaryHeading">
       <segment state="initial">
         <source>Sammanfattning av användarvillkoren</source>
-        <target>Summary of the terms of Use</target>
+        <target>Summary of the Terms of use</target>
       </segment>
     </unit>
     <unit id="Register.Title">

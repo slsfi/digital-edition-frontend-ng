@@ -8,10 +8,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+
+
+## [2.6.6] – 2026-04-20
+
 ### Fixed
 
-- Translations.
-- Auth: protect the `content` route with `authGuard` and derive sitemap auth-protected route exclusions from the canonical route definitions.
+- Translations. ([8ec4de1](https://github.com/slsfi/digital-edition-frontend-ng/commit/8ec4de13ccb6cad6a35605512a4d911bc802c0d0), [31cc600](https://github.com/slsfi/digital-edition-frontend-ng/commit/31cc6007ddb8e28d8274c8c6181a0e952fb2b7a1))
+- Auth: protect the `content` route with `authGuard` and derive sitemap auth-protected route exclusions from the canonical route definitions. ([82589c5](https://github.com/slsfi/digital-edition-frontend-ng/commit/82589c5ea2794be134dea10f17b3ca152e1a2b17))
 
 
 
@@ -1348,7 +1352,8 @@ siteLogoDimensions: {
 
 
 
-[unreleased]: https://github.com/slsfi/digital-edition-frontend-ng/compare/2.6.5...HEAD
+[unreleased]: https://github.com/slsfi/digital-edition-frontend-ng/compare/2.6.6...HEAD
+[2.6.6]: https://github.com/slsfi/digital-edition-frontend-ng/compare/2.6.5...2.6.6
 [2.6.5]: https://github.com/slsfi/digital-edition-frontend-ng/compare/2.6.4...2.6.5
 [2.6.4]: https://github.com/slsfi/digital-edition-frontend-ng/compare/2.6.3...2.6.4
 [2.6.3]: https://github.com/slsfi/digital-edition-frontend-ng/compare/2.6.2...2.6.3

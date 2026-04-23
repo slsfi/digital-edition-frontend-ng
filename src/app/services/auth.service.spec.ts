@@ -1,6 +1,6 @@
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
-import { TestBed } from '@angular/core/testing';
+import { fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { DefaultUrlSerializer, Router, UrlTree } from '@angular/router';
 
 import {
@@ -14,7 +14,9 @@ import { AuthService } from './auth.service';
 describe('AuthService', () => {
   let httpMock: HttpTestingController;
   let router: jasmine.SpyObj<Pick<Router, 'navigateByUrl' | 'parseUrl'>>;
-  let redirectStorage: jasmine.SpyObj<Pick<AuthRedirectStorageService, 'consumeReturnUrl' | 'clearReturnUrl'>>;
+  let redirectStorage: jasmine.SpyObj<
+    Pick<AuthRedirectStorageService, 'consumeReturnUrl' | 'clearReturnUrl' | 'storeReturnUrl'>
+  >;
   let tokenStorage: jasmine.SpyObj<Pick<AuthTokenStorageService, 'setItem' | 'getItem' | 'removeItem'>>;
   let tokenMap: Map<string, string>;
 
@@ -32,9 +34,10 @@ describe('AuthService', () => {
     Object.defineProperty(router, 'url', { value: '/login', writable: true });
 
     redirectStorage = jasmine.createSpyObj<
-      Pick<AuthRedirectStorageService, 'consumeReturnUrl' | 'clearReturnUrl'>
-    >('AuthRedirectStorageService', ['consumeReturnUrl', 'clearReturnUrl']);
+      Pick<AuthRedirectStorageService, 'consumeReturnUrl' | 'clearReturnUrl' | 'storeReturnUrl'>
+    >('AuthRedirectStorageService', ['consumeReturnUrl', 'clearReturnUrl', 'storeReturnUrl']);
     redirectStorage.consumeReturnUrl.and.returnValue(null);
+    redirectStorage.storeReturnUrl.and.returnValue(true);
 
     tokenStorage = jasmine.createSpyObj<
       Pick<AuthTokenStorageService, 'setItem' | 'getItem' | 'removeItem'>
@@ -70,16 +73,18 @@ describe('AuthService', () => {
     expect(service.isAuthenticated()).toBeFalse();
   });
 
-  it('initializes isAuthenticated as true when access token exists', () => {
+  it('initializes isAuthenticated as true when a complete stored session exists', () => {
     tokenMap.set('access_token', 'existing-access-token');
+    tokenMap.set('refresh_token', 'existing-refresh-token');
 
     const service = createService();
 
     expect(service.isAuthenticated()).toBeTrue();
   });
 
-  it('initializes authenticatedEmail from storage when access token exists', () => {
+  it('initializes authenticatedEmail from storage when a complete stored session exists', () => {
     tokenMap.set('access_token', 'existing-access-token');
+    tokenMap.set('refresh_token', 'existing-refresh-token');
     tokenMap.set('auth_email', 'user@example.com');
 
     const service = createService();
@@ -632,7 +637,7 @@ describe('AuthService', () => {
     expect(service.passwordResetCompleted()).toBeFalse();
   });
 
-  it('verifies email with jwt token and marks verification as completed on success', () => {
+  it('verifies email with jwt token and marks verification as completed on success', fakeAsync(() => {
     const service = createService();
 
     service.verifyEmail(' verify-token ');
@@ -642,11 +647,12 @@ describe('AuthService', () => {
     expect(request.request.headers.get('Authorization')).toBe('Bearer verify-token');
     expect(service.emailVerificationInProgress()).toBeTrue();
     request.flush({ msg: 'Email verified' });
+    tick(2000);
 
     expect(service.verifyEmailError()).toBeNull();
     expect(service.emailVerificationInProgress()).toBeFalse();
     expect(service.emailVerificationCompleted()).toBeTrue();
-  });
+  }));
 
   it('does not call backend verify email endpoint when jwt token is missing', () => {
     const service = createService();
@@ -659,7 +665,7 @@ describe('AuthService', () => {
     expect(service.emailVerificationCompleted()).toBeFalse();
   });
 
-  it('maps INVALID_CREDENTIALS backend error code to invalid_link for verify email', () => {
+  it('maps INVALID_CREDENTIALS backend error code to invalid_link for verify email', fakeAsync(() => {
     const service = createService();
 
     service.verifyEmail('verify-token');
@@ -670,13 +676,14 @@ describe('AuthService', () => {
       { msg: 'invalid token', err: 'INVALID_CREDENTIALS' },
       { status: 400, statusText: 'Bad Request' }
     );
+    tick(2000);
 
     expect(service.verifyEmailError()).toBe('invalid_link');
     expect(service.emailVerificationInProgress()).toBeFalse();
     expect(service.emailVerificationCompleted()).toBeFalse();
-  });
+  }));
 
-  it('maps generic verify email failures to request_failed', () => {
+  it('maps generic verify email failures to request_failed', fakeAsync(() => {
     const service = createService();
 
     service.verifyEmail('verify-token');
@@ -684,29 +691,32 @@ describe('AuthService', () => {
     const request = httpMock.expectOne((req) => req.url.endsWith('/auth/verify_email'));
     expect(request.request.headers.get('Authorization')).toBe('Bearer verify-token');
     request.flush({ detail: 'server error' }, { status: 500, statusText: 'Server Error' });
+    tick(2000);
 
     expect(service.verifyEmailError()).toBe('request_failed');
     expect(service.emailVerificationInProgress()).toBeFalse();
     expect(service.emailVerificationCompleted()).toBeFalse();
-  });
+  }));
 
-  it('clears verify email feedback state explicitly', () => {
+  it('clears verify email feedback state explicitly', fakeAsync(() => {
     const service = createService();
 
     service.verifyEmail('verify-token');
 
     const request = httpMock.expectOne((req) => req.url.endsWith('/auth/verify_email'));
     request.flush({ msg: 'Email verified' });
+    tick(2000);
     expect(service.emailVerificationCompleted()).toBeTrue();
 
     service.clearVerifyEmailState();
     expect(service.verifyEmailError()).toBeNull();
     expect(service.emailVerificationInProgress()).toBeFalse();
     expect(service.emailVerificationCompleted()).toBeFalse();
-  });
+  }));
 
   it('clears stored marker return URL on logout when authenticated', () => {
     tokenMap.set('access_token', 'access-token-1');
+    tokenMap.set('refresh_token', 'refresh-token-1');
     tokenMap.set('auth_email', 'user@example.com');
     const service = createService();
 
@@ -726,6 +736,7 @@ describe('AuthService', () => {
   });
 
   it('updates signal and access token on successful refresh', () => {
+    tokenMap.set('access_token', 'access-token-1');
     tokenMap.set('refresh_token', 'refresh-token-1');
     const service = createService();
     let refreshedToken: string | undefined;
@@ -763,9 +774,11 @@ describe('AuthService', () => {
     expect(service.isAuthenticated()).toBeFalse();
     expect(tokenMap.has('access_token')).toBeFalse();
     expect(tokenMap.has('refresh_token')).toBeFalse();
+    expect(redirectStorage.clearReturnUrl).not.toHaveBeenCalled();
   });
 
   it('uses a single refresh request for concurrent callers and resolves both', () => {
+    tokenMap.set('access_token', 'access-token-1');
     tokenMap.set('refresh_token', 'refresh-token-1');
     const service = createService();
     let firstResult: string | undefined;
@@ -789,6 +802,7 @@ describe('AuthService', () => {
   });
 
   it('does not replay stale refresh token to waiters in a new refresh cycle', () => {
+    tokenMap.set('access_token', 'access-token-1');
     tokenMap.set('refresh_token', 'refresh-token-1');
     const service = createService();
     let firstCycleToken: string | undefined;
@@ -853,5 +867,73 @@ describe('AuthService', () => {
     expect(service.isAuthenticated()).toBeFalse();
     expect(tokenMap.has('access_token')).toBeFalse();
     expect(tokenMap.has('refresh_token')).toBeFalse();
+    expect(redirectStorage.clearReturnUrl).not.toHaveBeenCalled();
+  });
+
+  it('propagates non-401 refresh errors without clearing auth state', () => {
+    tokenMap.set('access_token', 'access-token-1');
+    tokenMap.set('refresh_token', 'refresh-token-1');
+    const service = createService();
+    let receivedError: any;
+
+    service.refreshToken().subscribe({
+      next: () => fail('expected refresh subscriber to error'),
+      error: (error) => {
+        receivedError = error;
+      }
+    });
+
+    const request = httpMock.expectOne((req) => req.url.endsWith('/auth/refresh'));
+    request.flush({ detail: 'refresh failed' }, { status: 500, statusText: 'Server Error' });
+
+    expect(receivedError?.status).toBe(500);
+    expect(service.isAuthenticated()).toBeTrue();
+    expect(tokenMap.get('access_token')).toBe('access-token-1');
+    expect(tokenMap.get('refresh_token')).toBe('refresh-token-1');
+    expect(redirectStorage.clearReturnUrl).not.toHaveBeenCalled();
+  });
+
+  it('preserves forced re-authentication targets through marker-based redirect storage', () => {
+    const service = createService();
+
+    const queryParams = service.preserveReturnUrlForReauthentication('/collection/123/text?tab=notes');
+
+    expect(redirectStorage.clearReturnUrl).toHaveBeenCalledTimes(1);
+    expect(redirectStorage.storeReturnUrl).toHaveBeenCalledWith('/collection/123/text?tab=notes');
+    expect(queryParams).toEqual({ rt: '1' });
+  });
+
+  it('falls back to returnUrl when redirect storage is unavailable during forced re-authentication', () => {
+    redirectStorage.storeReturnUrl.and.returnValue(false);
+    const service = createService();
+
+    const queryParams = service.preserveReturnUrlForReauthentication('/collection/123/text?tab=notes');
+
+    expect(redirectStorage.clearReturnUrl).toHaveBeenCalledTimes(1);
+    expect(queryParams).toEqual({ returnUrl: '/collection/123/text?tab=notes' });
+  });
+
+  it('explicit logout clears the stored redirect target', () => {
+    tokenMap.set('access_token', 'access-token-1');
+    tokenMap.set('refresh_token', 'refresh-token-1');
+    const service = createService();
+
+    service.logout();
+
+    expect(redirectStorage.clearReturnUrl).toHaveBeenCalledTimes(1);
+  });
+
+  it('session expiry clears auth state while preserving the stored redirect target', () => {
+    tokenMap.set('access_token', 'access-token-1');
+    tokenMap.set('refresh_token', 'refresh-token-1');
+    const service = createService();
+
+    service.expireSession();
+
+    expect(service.isAuthenticated()).toBeFalse();
+    expect(tokenMap.has('access_token')).toBeFalse();
+    expect(tokenMap.has('refresh_token')).toBeFalse();
+    expect(tokenMap.has('auth_email')).toBeFalse();
+    expect(redirectStorage.clearReturnUrl).not.toHaveBeenCalled();
   });
 });

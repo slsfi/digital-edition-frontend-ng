@@ -22,6 +22,7 @@ import {
   AuthRedirectStorageService
 } from '@services/auth-redirect-storage.service';
 import {
+  createLoginRedirectQueryParams,
   getSafeInternalRedirectURL,
   resolveRedirectFromMarker,
   resolveReturnUrlFromQuery
@@ -478,8 +479,10 @@ export class AuthService {
    * - Otherwise this method starts one refresh request and broadcasts result.
    *
    * Defensive behavior:
-   * - If no refresh token is available, this method fails fast, logs out, and
-   *   does not issue a network request.
+   * - If no refresh token is available, this method fails fast, expires the
+   *   current session, and does not issue a network request.
+   * - Only terminal auth failures from the refresh endpoint clear auth state;
+   *   transient/network/server errors are propagated without expiring session.
    */
   refreshToken(): Observable<string> {
     if (this.refreshTokenInProgress) {
@@ -490,7 +493,7 @@ export class AuthService {
     } else {
       const refreshToken = this.getRefreshToken();
       if (!refreshToken) {
-        this.logout();
+        this.expireSession();
         return throwError(() => new Error('Refresh token is missing.'));
       }
 
@@ -515,7 +518,9 @@ export class AuthService {
           // Propagate refresh failure to concurrent waiters and reset subject.
           this.refreshTokenSubject.error(error);
           this.refreshTokenSubject = new BehaviorSubject<string | null>(null);
-          this.logout();
+          if (this.isTerminalRefreshFailure(error)) {
+            this.expireSession();
+          }
           return throwError(() => error);
         }),
         finalize(() => {
@@ -535,10 +540,27 @@ export class AuthService {
    * Clears auth tokens and updates in-memory auth state.
    *
    * Stale redirect targets are always cleared to avoid carrying redirect intent
-   * across explicit logout/login boundaries.
+   * across explicit logout/login boundaries. Use this for explicit user-initiated
+   * logout, not for forced session expiry.
    */
   logout(): void {
     this.clearAuthState(true);
+  }
+
+  /**
+   * Clears auth state after terminal auth failure while preserving any freshly
+   * stored post-login redirect target for one-time session recovery.
+   */
+  expireSession(): void {
+    this.clearAuthState(false);
+  }
+
+  /**
+   * Captures the current safe internal route for one-time post-login recovery
+   * after a forced re-authentication flow.
+   */
+  preserveReturnUrlForReauthentication(currentUrl: string): Record<string, unknown> | undefined {
+    return createLoginRedirectQueryParams(this.router, this.redirectStorage, currentUrl);
   }
 
   /**
@@ -712,6 +734,10 @@ export class AuthService {
   private resetSessionValidationState(): void {
     this.lastSessionValidationAt = null;
     this.sessionValidationInFlight$ = null;
+  }
+
+  private isTerminalRefreshFailure(error: unknown): boolean {
+    return (error as { status?: unknown } | null)?.status === 401;
   }
 
   private clearAuthState(clearRedirectTarget: boolean): void {

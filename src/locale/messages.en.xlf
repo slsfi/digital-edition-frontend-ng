@@ -730,7 +730,7 @@
     <unit id="Facsimiles.ChangeFacsimile">
       <segment state="initial">
         <source>Byt faksimil</source>
-        <target>Select facsimile</target>
+        <target>Change facsimile</target>
       </segment>
     </unit>
     <unit id="Facsimiles.Error">

@@ -27,6 +27,7 @@ import {
   resolveRedirectFromMarker,
   resolveReturnUrlFromQuery
 } from '@services/auth-redirect-url.utils';
+import { isTerminalSessionValidationFailure } from '@services/auth-error.utils';
 import { AuthTokenStorageService } from '@services/auth-token-storage.service';
 
 const AUTH_EMAIL_STORAGE_KEY = 'auth_email';
@@ -434,7 +435,7 @@ export class AuthService {
    * Behavior:
    * - Returns cached success when the previous validation is still fresh.
    * - Reuses one in-flight validation request for concurrent callers.
-   * - On backend 401, clears auth state and propagates the error.
+   * - On backend 401/422, clears auth state and propagates the error.
    */
   validateSessionIfStale(ttlMs: number = this.sessionValidationTTLms): Observable<boolean> {
     const normalizedTtlMs = Number.isFinite(ttlMs) && ttlMs > 0 ? ttlMs : 0;
@@ -455,7 +456,7 @@ export class AuthService {
         return true;
       }),
       catchError((error) => {
-        if ((error as { status?: unknown } | null)?.status === 401) {
+        if (isTerminalSessionValidationFailure(error)) {
           this.clearAuthState(true);
         }
         return throwError(() => error);

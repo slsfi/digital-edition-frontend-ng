@@ -893,6 +893,31 @@ describe('AuthService', () => {
     expect(redirectStorage.clearReturnUrl).not.toHaveBeenCalled();
   });
 
+  it('clears auth state on 422 session validation failure', () => {
+    tokenMap.set('access_token', 'access-token-1');
+    tokenMap.set('refresh_token', 'refresh-token-1');
+    tokenMap.set('auth_email', 'user@example.com');
+    const service = createService();
+    let receivedError: any;
+
+    service.validateSessionIfStale(0).subscribe({
+      next: () => fail('expected validateSessionIfStale() to error'),
+      error: (error) => {
+        receivedError = error;
+      }
+    });
+
+    const request = httpMock.expectOne((req) => req.url.endsWith('/session/validate'));
+    request.flush({ msg: 'Not enough segments' }, { status: 422, statusText: 'Unprocessable Entity' });
+
+    expect(receivedError?.status).toBe(422);
+    expect(service.isAuthenticated()).toBeFalse();
+    expect(tokenMap.has('access_token')).toBeFalse();
+    expect(tokenMap.has('refresh_token')).toBeFalse();
+    expect(tokenMap.has('auth_email')).toBeFalse();
+    expect(redirectStorage.clearReturnUrl).toHaveBeenCalledTimes(1);
+  });
+
   it('preserves forced re-authentication targets through marker-based redirect storage', () => {
     const service = createService();
 

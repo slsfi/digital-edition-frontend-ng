@@ -12,6 +12,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 - Translations.
 - Test-entrypoint for running Angular specs.
+- Auth: keep requests with caller-supplied `Authorization` headers out of the interceptor-managed refresh flow, and on terminal refresh auth failures redirect to `/login` while preserving the current safe internal route through forced re-authentication via shared guard/interceptor redirect-query construction.
 
 
 

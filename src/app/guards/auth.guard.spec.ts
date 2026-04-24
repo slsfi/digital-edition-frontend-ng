@@ -17,7 +17,9 @@ describe('authGuard', () => {
     TestBed.runInInjectionContext(() => authGuard(...guardParameters));
   const isAuthenticated = signal<boolean>(false);
   let validateSessionIfStale: jasmine.Spy<() => any>;
-  let authRedirectStorage: jasmine.SpyObj<Pick<AuthRedirectStorageService, 'storeReturnUrl' | 'consumeReturnUrl'>>;
+  let authRedirectStorage: jasmine.SpyObj<
+    Pick<AuthRedirectStorageService, 'storeReturnUrl' | 'consumeReturnUrl' | 'clearReturnUrl'>
+  >;
 
   function asUrl(value: unknown): string | null {
     return value instanceof UrlTree ? value.toString() : null;
@@ -44,8 +46,8 @@ describe('authGuard', () => {
       isAuthenticated.set(false);
       validateSessionIfStale = jasmine.createSpy('validateSessionIfStale').and.returnValue(of(true));
       authRedirectStorage = jasmine.createSpyObj<
-        Pick<AuthRedirectStorageService, 'storeReturnUrl' | 'consumeReturnUrl'>
-      >('AuthRedirectStorageService', ['storeReturnUrl', 'consumeReturnUrl']);
+        Pick<AuthRedirectStorageService, 'storeReturnUrl' | 'consumeReturnUrl' | 'clearReturnUrl'>
+      >('AuthRedirectStorageService', ['storeReturnUrl', 'consumeReturnUrl', 'clearReturnUrl']);
       authRedirectStorage.storeReturnUrl.and.returnValue(true);
       authRedirectStorage.consumeReturnUrl.and.returnValue(null);
       TestBed.configureTestingModule({
@@ -73,8 +75,8 @@ describe('authGuard', () => {
       isAuthenticated.set(false);
       validateSessionIfStale = jasmine.createSpy('validateSessionIfStale').and.returnValue(of(true));
       authRedirectStorage = jasmine.createSpyObj<
-        Pick<AuthRedirectStorageService, 'storeReturnUrl' | 'consumeReturnUrl'>
-      >('AuthRedirectStorageService', ['storeReturnUrl', 'consumeReturnUrl']);
+        Pick<AuthRedirectStorageService, 'storeReturnUrl' | 'consumeReturnUrl' | 'clearReturnUrl'>
+      >('AuthRedirectStorageService', ['storeReturnUrl', 'consumeReturnUrl', 'clearReturnUrl']);
       authRedirectStorage.storeReturnUrl.and.returnValue(true);
       authRedirectStorage.consumeReturnUrl.and.returnValue(null);
       TestBed.configureTestingModule({
@@ -133,6 +135,7 @@ describe('authGuard', () => {
     it('redirects protected route to /login when unauthenticated', () => {
       const result = runGuard('/collection/123/text');
 
+      expect(authRedirectStorage.clearReturnUrl).toHaveBeenCalledTimes(1);
       expect(authRedirectStorage.storeReturnUrl).toHaveBeenCalledWith('/collection/123/text');
       expect(asUrl(result)).toBe(`/login?${AUTH_REDIRECT_MARKER_QUERY_PARAM}=${AUTH_REDIRECT_MARKER_VALUE}`);
     });
@@ -142,6 +145,7 @@ describe('authGuard', () => {
 
       const result = runGuard('/collection/123/text');
 
+      expect(authRedirectStorage.clearReturnUrl).toHaveBeenCalledTimes(1);
       expect(asUrl(result)).toBe('/login?returnUrl=%2Fcollection%2F123%2Ftext');
     });
 

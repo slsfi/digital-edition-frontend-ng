@@ -122,6 +122,20 @@ describe('authGuard', () => {
       );
     });
 
+    it('redirects to /login when session validation fails with 422', async () => {
+      isAuthenticated.set(true);
+      validateSessionIfStale.and.returnValue(throwError(() => ({ status: 422 })));
+
+      const result = runGuard('/account', { requiresSessionValidation: true });
+      const resolvedResult = await resolveGuardResult(result);
+
+      expect(resolvedResult).toEqual(jasmine.any(UrlTree));
+      expect(authRedirectStorage.storeReturnUrl).toHaveBeenCalledWith('/account');
+      expect(asUrl(resolvedResult)).toBe(
+        `/login?${AUTH_REDIRECT_MARKER_QUERY_PARAM}=${AUTH_REDIRECT_MARKER_VALUE}`
+      );
+    });
+
     it('fails open when session validation fails with non-401 error', async () => {
       isAuthenticated.set(true);
       validateSessionIfStale.and.returnValue(throwError(() => ({ status: 503 })));

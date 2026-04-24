@@ -10,6 +10,7 @@ import {
   isLoginRouteURL,
   resolveLoginRouteRedirectURL
 } from '@services/auth-redirect-url.utils';
+import { isTerminalSessionValidationFailure } from '@services/auth-error.utils';
 import { AuthService } from '@services/auth.service';
 import { AUTH_ENABLED } from '@tokens/auth.tokens';
 
@@ -26,8 +27,9 @@ import { AUTH_ENABLED } from '@tokens/auth.tokens';
  *   legacy `returnUrl` query parameter.
  * - Authenticated users trying to open `/login` are redirected to stored target
  *   URL (when marker is present) or legacy `returnUrl`, otherwise to `/`.
- * - Session validation 401 errors are treated as unauthenticated and redirect to
- *   `/login`; non-401 probe errors are fail-open (navigation is allowed).
+ * - Session validation 401/422 errors are treated as unauthenticated and
+ *   redirect to `/login`; other probe errors are fail-open (navigation is
+ *   allowed).
  * - If `AUTH_ENABLED` is false, guard is a no-op and always allows.
  *
  * Auth state is read synchronously from AuthService's signal, with optional
@@ -67,7 +69,7 @@ export const authGuard: CanActivateFn = (route, state) => {
     return authService.validateSessionIfStale().pipe(
       map(() => true),
       catchError((error) => {
-        if ((error as { status?: unknown } | null)?.status === 401) {
+        if (isTerminalSessionValidationFailure(error)) {
           return of(createLoginRedirectUrlTree(router, authRedirectStorage, state.url));
         }
 

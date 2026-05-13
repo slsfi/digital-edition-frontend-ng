@@ -26,6 +26,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - Auth: treat `/session/validate` backend `422` responses as terminal auth failures alongside `401`, so malformed/unusable bearer tokens on protected route validation clear auth state and redirect to `/login`.
 - Auth: require restored token pairs to pass one-time startup `/session/validate` before marking the user authenticated, and wait for that bootstrap check in the auth guard.
 - Auth: require refreshed access tokens to pass `/session/validate` before storing them or retrying failed backend requests.
+- Publication metadata: allow missing and unknown backend fields while normalizing optional arrays to empty arrays and scalar fields to `null`.
 
 
 

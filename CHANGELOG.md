@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+### Added
+
+- Support for additional metadata fields: `collection_id`, `collection_title`, `keywords`, `licence`, `licence_url`, `phys_description`, `phys_dimensions`, `publication_genre`, `publication_language`, `source`.
+
 ### Changed
 
 - Deps: update `@angular/core` to 20.3.21 and `@angular/cli` to 20.3.26.

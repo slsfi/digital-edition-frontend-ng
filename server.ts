@@ -5,7 +5,7 @@ import '@angular/localize/init';
 import 'zone.js/node';
 import { LOCALE_ID } from '@angular/core';
 import { APP_BASE_HREF } from '@angular/common';
-import { CommonEngine } from '@angular/ssr/node';
+import { renderModule } from '@angular/platform-server';
 import express from 'express';
 import { existsSync, readFileSync } from 'node:fs';
 import rateLimit from 'express-rate-limit';
@@ -130,10 +130,6 @@ export function app(lang: string): express.Express {
   const clientRenderIndexHtml = readFileSync(indexHtml, 'utf-8');
 
   const allowedHosts = getAllowedHosts();
-  const commonEngine = new CommonEngine({
-    // `NG_ALLOWED_HOSTS` from environment is also merged by Angular internally.
-    allowedHosts,
-  });
   // console.log(`[SSR][${lang}] allowedHosts: ${allowedHosts.join(', ')}`);
 
   // Trust configured proxy hops when resolving req.ip for app-level rate limiting.
@@ -228,19 +224,18 @@ export function app(lang: string): express.Express {
 
     // * Inlining critical CSS is disabled here and in angular.json:
     // * architect.build.configurations.production.optimization.styles.inlineCritical
-    commonEngine
-      .render({
-        bootstrap: AppServerModule,
-        documentFilePath: indexHtml,
-        url: `${protocol}://${headers.host}${originalUrl}`,
-        inlineCriticalCss: false,
-        publicPath: browserDistFolder,
-        providers: [
-          { provide: APP_BASE_HREF, useValue: baseUrl },
-          { provide: LOCALE_ID, useValue: lang },
-          { provide: REQUEST, useValue: req },
-        ],
-      })
+    // Angular 20.3.21 validates hosts inside renderModule/renderApplication.
+    // Pass the whitelist here directly so NgModule SSR does not lose it through CommonEngine.
+    renderModule(AppServerModule, {
+      document: clientRenderIndexHtml,
+      url: `${protocol}://${headers.host}${originalUrl}`,
+      allowedHosts,
+      extraProviders: [
+        { provide: APP_BASE_HREF, useValue: baseUrl },
+        { provide: LOCALE_ID, useValue: lang },
+        { provide: REQUEST, useValue: req },
+      ],
+    })
       .then((html) => res.send(html))
       .catch((err) => next(err));
   });

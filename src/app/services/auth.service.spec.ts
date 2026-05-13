@@ -1,14 +1,16 @@
-import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { DefaultUrlSerializer, Router, UrlTree } from '@angular/router';
 
+import { authInterceptor } from '@interceptors/auth.interceptor';
 import {
   AuthRedirectStorageService,
   AUTH_REDIRECT_MARKER_QUERY_PARAM,
   AUTH_REDIRECT_MARKER_VALUE
 } from '@services/auth-redirect-storage.service';
 import { AuthTokenStorageService } from '@services/auth-token-storage.service';
+import { AUTH_ENABLED } from '@tokens/auth.tokens';
 import { AuthService } from './auth.service';
 
 describe('AuthService', () => {
@@ -22,6 +24,16 @@ describe('AuthService', () => {
 
   function createService(): AuthService {
     return TestBed.inject(AuthService);
+  }
+
+  function flushStartupValidation(service: AuthService): void {
+    service.waitForStartupValidation().subscribe({
+      error: () => undefined
+    });
+    const request = httpMock.expectOne((req) => req.url.endsWith('/session/validate'));
+    expect(request.request.headers.get('Authorization')).toBe(`Bearer ${tokenMap.get('access_token')}`);
+    request.flush({ authenticated: true });
+    expect(service.isAuthenticated()).toBeTrue();
   }
 
   beforeEach(() => {
@@ -52,8 +64,9 @@ describe('AuthService', () => {
 
     TestBed.configureTestingModule({
       providers: [
-        provideHttpClient(),
+        provideHttpClient(withInterceptors([authInterceptor])),
         provideHttpClientTesting(),
+        { provide: AUTH_ENABLED, useValue: true },
         { provide: Router, useValue: router },
         { provide: AuthRedirectStorageService, useValue: redirectStorage },
         { provide: AuthTokenStorageService, useValue: tokenStorage }
@@ -73,22 +86,90 @@ describe('AuthService', () => {
     expect(service.isAuthenticated()).toBeFalse();
   });
 
-  it('initializes isAuthenticated as true when a complete stored session exists', () => {
+  it('keeps a complete stored session unauthenticated until startup validation succeeds', () => {
     tokenMap.set('access_token', 'existing-access-token');
     tokenMap.set('refresh_token', 'existing-refresh-token');
 
     const service = createService();
 
+    expect(service.isAuthenticated()).toBeFalse();
+    flushStartupValidation(service);
     expect(service.isAuthenticated()).toBeTrue();
   });
 
-  it('initializes authenticatedEmail from storage when a complete stored session exists', () => {
+  it('initializes authenticatedEmail from storage only after startup validation succeeds', () => {
     tokenMap.set('access_token', 'existing-access-token');
     tokenMap.set('refresh_token', 'existing-refresh-token');
     tokenMap.set('auth_email', 'user@example.com');
 
     const service = createService();
 
+    expect(service.authenticatedEmail()).toBeNull();
+    flushStartupValidation(service);
+    expect(service.authenticatedEmail()).toBe('user@example.com');
+  });
+
+  it('clears partial stored token state when refresh token is missing', () => {
+    tokenMap.set('access_token', 'existing-access-token');
+
+    const service = createService();
+
+    expect(service.isAuthenticated()).toBeFalse();
+    expect(tokenMap.has('access_token')).toBeFalse();
+    expect(tokenMap.has('refresh_token')).toBeFalse();
+  });
+
+  it('clears stored tokens when startup validation fails', () => {
+    tokenMap.set('access_token', 'existing-access-token');
+    tokenMap.set('refresh_token', 'existing-refresh-token');
+    tokenMap.set('auth_email', 'user@example.com');
+
+    const service = createService();
+    service.waitForStartupValidation().subscribe({
+      error: () => undefined
+    });
+    const request = httpMock.expectOne((req) => req.url.endsWith('/session/validate'));
+    expect(request.request.headers.get('Authorization')).toBe('Bearer existing-access-token');
+    request.flush({ detail: 'backend unavailable' }, { status: 503, statusText: 'Server Error' });
+
+    expect(service.isAuthenticated()).toBeFalse();
+    expect(service.authenticatedEmail()).toBeNull();
+    expect(tokenMap.has('access_token')).toBeFalse();
+    expect(tokenMap.has('refresh_token')).toBeFalse();
+    expect(tokenMap.has('auth_email')).toBeFalse();
+    expect(redirectStorage.clearReturnUrl).not.toHaveBeenCalled();
+  });
+
+  it('refreshes a stale startup access token once and accepts only after retry validation succeeds', () => {
+    tokenMap.set('access_token', 'stale-access-token');
+    tokenMap.set('refresh_token', 'refresh-token-1');
+    tokenMap.set('auth_email', 'user@example.com');
+    let startupValidationResult: boolean | undefined;
+
+    const service = createService();
+    service.waitForStartupValidation().subscribe((result) => {
+      startupValidationResult = result;
+    });
+
+    const firstValidationRequest = httpMock.expectOne((req) => req.url.endsWith('/session/validate'));
+    expect(firstValidationRequest.request.headers.get('Authorization')).toBe('Bearer stale-access-token');
+    firstValidationRequest.flush({ msg: 'expired' }, { status: 401, statusText: 'Unauthorized' });
+
+    const refreshRequest = httpMock.expectOne((req) => req.url.endsWith('/auth/refresh'));
+    expect(refreshRequest.request.headers.get('Authorization')).toBe('Bearer refresh-token-1');
+    refreshRequest.flush({
+      msg: 'ok',
+      access_token: 'fresh-access-token'
+    });
+
+    const retryValidationRequest = httpMock.expectOne((req) => req.url.endsWith('/session/validate'));
+    expect(retryValidationRequest.request.headers.get('Authorization')).toBe('Bearer fresh-access-token');
+    retryValidationRequest.flush({ authenticated: true });
+
+    expect(startupValidationResult).toBeTrue();
+    expect(service.isAuthenticated()).toBeTrue();
+    expect(tokenMap.get('access_token')).toBe('fresh-access-token');
+    expect(tokenMap.get('refresh_token')).toBe('refresh-token-1');
     expect(service.authenticatedEmail()).toBe('user@example.com');
   });
 
@@ -268,10 +349,10 @@ describe('AuthService', () => {
   });
 
   it('clears auth state when login fails', () => {
+    const service = createService();
     tokenMap.set('access_token', 'stale-access');
     tokenMap.set('refresh_token', 'stale-refresh');
     tokenMap.set('auth_email', 'stale@example.com');
-    const service = createService();
 
     service.login('user@example.com', 'wrong-password');
     expect(service.loginInProgress()).toBeTrue();
@@ -527,10 +608,10 @@ describe('AuthService', () => {
   });
 
   it('submits new password with jwt token, logs out, and marks reset as completed on success', () => {
+    const service = createService();
     tokenMap.set('access_token', 'existing-access-token');
     tokenMap.set('refresh_token', 'existing-refresh-token');
     tokenMap.set('auth_email', 'user@example.com');
-    const service = createService();
 
     service.resetPassword(' reset-token ', 'new-password-1234');
 
@@ -719,6 +800,7 @@ describe('AuthService', () => {
     tokenMap.set('refresh_token', 'refresh-token-1');
     tokenMap.set('auth_email', 'user@example.com');
     const service = createService();
+    flushStartupValidation(service);
 
     service.logout();
 
@@ -735,10 +817,10 @@ describe('AuthService', () => {
     expect(redirectStorage.clearReturnUrl).toHaveBeenCalledTimes(1);
   });
 
-  it('updates signal and access token on successful refresh', () => {
+  it('updates access token without authenticating an unvalidated session on successful refresh', () => {
+    const service = createService();
     tokenMap.set('access_token', 'access-token-1');
     tokenMap.set('refresh_token', 'refresh-token-1');
-    const service = createService();
     let refreshedToken: string | undefined;
 
     service.refreshToken().subscribe((token) => {
@@ -754,6 +836,16 @@ describe('AuthService', () => {
 
     expect(refreshedToken).toBe('access-token-2');
     expect(tokenMap.get('access_token')).toBe('access-token-2');
+    expect(service.isAuthenticated()).toBeFalse();
+
+    let validationResult: boolean | undefined;
+    service.validateSessionIfStale().subscribe((result) => {
+      validationResult = result;
+    });
+    const validationRequest = httpMock.expectOne((req) => req.url.endsWith('/session/validate'));
+    validationRequest.flush({ authenticated: true });
+
+    expect(validationResult).toBeTrue();
     expect(service.isAuthenticated()).toBeTrue();
   });
 
@@ -778,9 +870,9 @@ describe('AuthService', () => {
   });
 
   it('uses a single refresh request for concurrent callers and resolves both', () => {
+    const service = createService();
     tokenMap.set('access_token', 'access-token-1');
     tokenMap.set('refresh_token', 'refresh-token-1');
-    const service = createService();
     let firstResult: string | undefined;
     let secondResult: string | undefined;
 
@@ -802,9 +894,9 @@ describe('AuthService', () => {
   });
 
   it('does not replay stale refresh token to waiters in a new refresh cycle', () => {
+    const service = createService();
     tokenMap.set('access_token', 'access-token-1');
     tokenMap.set('refresh_token', 'refresh-token-1');
-    const service = createService();
     let firstCycleToken: string | undefined;
     let secondCyclePrimaryToken: string | undefined;
     let secondCycleWaiterToken: string | undefined;
@@ -840,9 +932,9 @@ describe('AuthService', () => {
   });
 
   it('propagates refresh errors to concurrent waiters and clears auth state', () => {
+    const service = createService();
     tokenMap.set('access_token', 'access-token-1');
     tokenMap.set('refresh_token', 'refresh-token-1');
-    const service = createService();
     let firstError: any;
     let secondError: any;
 
@@ -874,6 +966,7 @@ describe('AuthService', () => {
     tokenMap.set('access_token', 'access-token-1');
     tokenMap.set('refresh_token', 'refresh-token-1');
     const service = createService();
+    flushStartupValidation(service);
     let receivedError: any;
 
     service.refreshToken().subscribe({
@@ -898,6 +991,7 @@ describe('AuthService', () => {
     tokenMap.set('refresh_token', 'refresh-token-1');
     tokenMap.set('auth_email', 'user@example.com');
     const service = createService();
+    flushStartupValidation(service);
     let receivedError: any;
 
     service.validateSessionIfStale(0).subscribe({
@@ -939,9 +1033,9 @@ describe('AuthService', () => {
   });
 
   it('explicit logout clears the stored redirect target', () => {
+    const service = createService();
     tokenMap.set('access_token', 'access-token-1');
     tokenMap.set('refresh_token', 'refresh-token-1');
-    const service = createService();
 
     service.logout();
 
@@ -949,9 +1043,9 @@ describe('AuthService', () => {
   });
 
   it('session expiry clears auth state while preserving the stored redirect target', () => {
+    const service = createService();
     tokenMap.set('access_token', 'access-token-1');
     tokenMap.set('refresh_token', 'refresh-token-1');
-    const service = createService();
 
     service.expireSession();
 

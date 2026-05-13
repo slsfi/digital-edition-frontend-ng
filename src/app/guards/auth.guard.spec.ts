@@ -117,7 +117,7 @@ describe('authGuard', () => {
     });
 
     it('redirects protected route to /login when startup validation fails', async () => {
-      waitForStartupValidation.and.returnValue(throwError(() => ({ status: 503 })));
+      waitForStartupValidation.and.returnValue(of(false));
 
       const result = runGuard('/collection/123/text');
       const resolvedResult = await resolveGuardResult(result);
@@ -127,7 +127,7 @@ describe('authGuard', () => {
     });
 
     it('allows /login when startup validation fails', async () => {
-      waitForStartupValidation.and.returnValue(throwError(() => ({ status: 503 })));
+      waitForStartupValidation.and.returnValue(of(false));
 
       const result = runGuard('/login');
 

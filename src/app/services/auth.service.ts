@@ -165,20 +165,28 @@ export class AuthService {
   private sessionValidationTTLms: number = this.resolveSessionValidationTTLms();
   private lastSessionValidationAt: number | null = null;
   private sessionValidationInFlight$: Observable<boolean> | null = null;
+  private startupSessionValidation$: Observable<boolean> | null = null;
   private refreshTokenInProgress = false;
   private refreshTokenSubject: BehaviorSubject<string | null> = new BehaviorSubject<string | null>(null);
 
   /**
-   * Initializes base URL formatting and initial auth state from stored token.
+   * Initializes base URL formatting and starts one-time validation for any
+   * complete stored token pair.
    */
   constructor() {
     const accessToken = this.getAccessToken();
     const refreshToken = this.getRefreshToken();
     const hasCompleteStoredSession = accessToken !== null && refreshToken !== null;
 
-    this._isAuthenticated.set(hasCompleteStoredSession);
     if (hasCompleteStoredSession) {
-      this._authenticatedEmail.set(this.getStorageItem(AUTH_EMAIL_STORAGE_KEY));
+      this.startupSessionValidation$ = this.createSessionValidationRequest({
+        clearAuthStateOnAnyFailure: true,
+        clearRedirectTargetOnFailure: false,
+        expectedRefreshToken: refreshToken
+      });
+      this.startupSessionValidation$.subscribe({
+        error: () => undefined
+      });
     } else {
       this.clearAuthState(false);
     }
@@ -448,16 +456,52 @@ export class AuthService {
       return this.sessionValidationInFlight$;
     }
 
+    return this.createSessionValidationRequest({
+      clearAuthStateOnAnyFailure: false,
+      clearRedirectTargetOnFailure: true
+    });
+  }
+
+  /**
+   * Waits for the one-time startup session validation when restored tokens
+   * were found during service construction. If no startup validation is active,
+   * returns the current in-memory authentication state without issuing network
+   * requests.
+   */
+  waitForStartupValidation(): Observable<boolean> {
+    return this.startupSessionValidation$ ?? of(this._isAuthenticated());
+  }
+
+  private createSessionValidationRequest(options: {
+    clearAuthStateOnAnyFailure: boolean;
+    clearRedirectTargetOnFailure: boolean;
+    expectedRefreshToken?: string;
+  }): Observable<boolean> {
+    if (this.sessionValidationInFlight$) {
+      return this.sessionValidationInFlight$;
+    }
+
     const url = this.buildBackendAuthURL('session/validate');
     const validationRequest$ = this.http.get<{ authenticated?: boolean }>(url).pipe(
       map(() => {
+        if (!this.shouldApplySessionValidationResult(options.expectedRefreshToken)) {
+          return this._isAuthenticated();
+        }
+
         this.markSessionValidatedNow();
+        this._authenticatedEmail.set(this.getStorageItem(AUTH_EMAIL_STORAGE_KEY));
         this._isAuthenticated.set(true);
         return true;
       }),
       catchError((error) => {
-        if (isTerminalSessionValidationFailure(error)) {
-          this.clearAuthState(true);
+        const shouldClearAuthState =
+          options.clearAuthStateOnAnyFailure ||
+          isTerminalSessionValidationFailure(error);
+        if (
+          shouldClearAuthState &&
+          this.shouldApplySessionValidationResult(options.expectedRefreshToken)
+        ) {
+          this.clearAuthState(options.clearRedirectTargetOnFailure);
         }
         return throwError(() => error);
       }),
@@ -509,9 +553,7 @@ export class AuthService {
           refreshCompleted = true;
           const { access_token } = response;
           this.setStorageItem('access_token', access_token);
-          this.markSessionValidatedNow();
           this.refreshTokenSubject.next(access_token);
-          this._isAuthenticated.set(true);
           return access_token;
         }),
         catchError((error) => {
@@ -735,6 +777,11 @@ export class AuthService {
   private resetSessionValidationState(): void {
     this.lastSessionValidationAt = null;
     this.sessionValidationInFlight$ = null;
+    this.startupSessionValidation$ = null;
+  }
+
+  private shouldApplySessionValidationResult(expectedRefreshToken: string | undefined): boolean {
+    return expectedRefreshToken === undefined || this.getRefreshToken() === expectedRefreshToken;
   }
 
   private isTerminalRefreshFailure(error: unknown): boolean {

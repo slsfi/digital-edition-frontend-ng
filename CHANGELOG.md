@@ -16,6 +16,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - Deps (dev): update `@types/node` to 22.19.19.
 - Deps (transitive): update `@babel/plugin-transform-modules-systemjs` to 7.29.4.
 - Deps (transitive): update `fast-uri` to 3.1.2.
+- Deps (transitive): update `hono` to 4.12.18.
 
 ### Fixed
 

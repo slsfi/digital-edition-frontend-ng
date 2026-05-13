@@ -11,6 +11,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 ### Changed
 
 - Deps: update `@angular/core` to 20.3.20 and `@angular/cli` to 20.3.25.
+- Deps: update `express-rate-limit` to 8.5.1.
 - Deps: update `marked` to 18.0.3.
 - Deps (dev): update `@types/node` to 22.19.19.
 

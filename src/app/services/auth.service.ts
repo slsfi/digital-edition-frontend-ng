@@ -45,6 +45,11 @@ type ResolvedAuthErrorCode =
   | ForgotPasswordErrorCode
   | ResetPasswordErrorCode
   | VerifyEmailErrorCode;
+type PostRefreshSessionValidationError = Error & {
+  postRefreshSessionValidationFailed: true;
+  cause?: unknown;
+  status?: unknown;
+};
 type AuthErrorResolverMap<TErrorCode extends ResolvedAuthErrorCode> = {
   backend: Partial<Record<BackendAuthErrorCode, TErrorCode>>;
   status: Partial<Record<number, TErrorCode>>;
@@ -522,7 +527,6 @@ export class AuthService {
         }
 
         return this.refreshToken().pipe(
-          switchMap((refreshedAccessToken) => this.validateSessionWithAccessToken(refreshedAccessToken)),
           map(() => this.acceptStartupSession(expectedRefreshToken)),
           catchError(() => {
             this.clearAuthStateIfStartupSessionStillCurrent(expectedRefreshToken, false);
@@ -581,8 +585,11 @@ export class AuthService {
    * Defensive behavior:
    * - If no refresh token is available, this method fails fast, expires the
    *   current session, and does not issue a network request.
-   * - Only terminal auth failures from the refresh endpoint clear auth state;
-   *   transient/network/server errors are propagated without expiring session.
+   * - A refreshed access token must pass `/session/validate` before it is
+   *   stored or emitted to callers.
+   * - Terminal auth failures from the refresh endpoint and all post-refresh
+   *   validation failures clear auth state; transient/network/server errors
+   *   from the refresh endpoint are propagated without expiring session.
    */
   refreshToken(): Observable<string> {
     if (this.refreshTokenInProgress) {
@@ -604,10 +611,19 @@ export class AuthService {
       const url = this.buildBackendAuthURL('auth/refresh');
       const headers = { Authorization: `Bearer ${refreshToken}` };
       return this.http.post<RefreshTokenResponse>(url, null, { headers }).pipe(
-        map((response) => {
-          refreshCompleted = true;
+        switchMap((response) => {
           const { access_token } = response;
+          return this.validateSessionWithAccessToken(access_token).pipe(
+            map(() => access_token),
+            catchError((error) => throwError(() => this.createPostRefreshSessionValidationError(error)))
+          );
+        }),
+        map((access_token) => {
+          refreshCompleted = true;
           this.setStorageItem('access_token', access_token);
+          this.markSessionValidatedNow();
+          this._authenticatedEmail.set(this.getStorageItem(AUTH_EMAIL_STORAGE_KEY));
+          this._isAuthenticated.set(true);
           this.refreshTokenSubject.next(access_token);
           return access_token;
         }),
@@ -616,7 +632,10 @@ export class AuthService {
           // Propagate refresh failure to concurrent waiters and reset subject.
           this.refreshTokenSubject.error(error);
           this.refreshTokenSubject = new BehaviorSubject<string | null>(null);
-          if (this.isTerminalRefreshFailure(error)) {
+          if (
+            this.isTerminalRefreshFailure(error) ||
+            this.isPostRefreshSessionValidationError(error)
+          ) {
             this.expireSession();
           }
           return throwError(() => error);
@@ -840,7 +859,25 @@ export class AuthService {
   }
 
   private isTerminalRefreshFailure(error: unknown): boolean {
-    return (error as { status?: unknown } | null)?.status === 401;
+    const status = (error as { status?: unknown } | null)?.status;
+    return status === 401 || status === 422;
+  }
+
+  private createPostRefreshSessionValidationError(error: unknown): PostRefreshSessionValidationError {
+    const validationError = new Error('Refreshed access token could not be validated.') as PostRefreshSessionValidationError;
+    validationError.postRefreshSessionValidationFailed = true;
+    validationError.cause = error;
+
+    const status = (error as { status?: unknown } | null)?.status;
+    if (status !== undefined) {
+      validationError.status = status;
+    }
+
+    return validationError;
+  }
+
+  private isPostRefreshSessionValidationError(error: unknown): error is PostRefreshSessionValidationError {
+    return (error as { postRefreshSessionValidationFailed?: unknown } | null)?.postRefreshSessionValidationFailed === true;
   }
 
   private clearAuthState(clearRedirectTarget: boolean): void {

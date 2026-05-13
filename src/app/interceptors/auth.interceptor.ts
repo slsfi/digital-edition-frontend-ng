@@ -20,9 +20,10 @@ import { AUTH_ENABLED } from '@tokens/auth.tokens';
  *   app access token.
  * - Requests that already provide an Authorization header never participate in
  *   the interceptor-managed refresh flow.
- * - If refresh fails with terminal auth failure, expires the current session
- *   and redirects to `/login` while preserving the current safe internal route
- *   for one-time recovery after successful login.
+ * - If refresh fails with terminal auth failure, including post-refresh access
+ *   token validation failure, expires the current session and redirects to
+ *   `/login` while preserving the current safe internal route for one-time
+ *   recovery after successful login.
  * - If backend 401 occurs with no refresh token and this interceptor had
  *   attached an access token to the original request, expires the current
  *   session and redirects to `/login` with the same route-preservation logic.
@@ -98,5 +99,10 @@ function redirectToLoginForReauthentication(router: Router, authService: AuthSer
 }
 
 function isTerminalRefreshFailure(error: unknown): boolean {
-  return (error as { status?: unknown } | null)?.status === 401;
+  const status = (error as { status?: unknown } | null)?.status;
+  return status === 401 || status === 422 || isPostRefreshSessionValidationFailure(error);
+}
+
+function isPostRefreshSessionValidationFailure(error: unknown): boolean {
+  return (error as { postRefreshSessionValidationFailed?: unknown } | null)?.postRefreshSessionValidationFailed === true;
 }

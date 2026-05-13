@@ -817,10 +817,11 @@ describe('AuthService', () => {
     expect(redirectStorage.clearReturnUrl).toHaveBeenCalledTimes(1);
   });
 
-  it('updates access token without authenticating an unvalidated session on successful refresh', () => {
+  it('validates refreshed access token before storing, emitting, and authenticating session', () => {
     const service = createService();
     tokenMap.set('access_token', 'access-token-1');
     tokenMap.set('refresh_token', 'refresh-token-1');
+    tokenMap.set('auth_email', 'user@example.com');
     let refreshedToken: string | undefined;
 
     service.refreshToken().subscribe((token) => {
@@ -834,19 +835,52 @@ describe('AuthService', () => {
       access_token: 'access-token-2'
     });
 
-    expect(refreshedToken).toBe('access-token-2');
-    expect(tokenMap.get('access_token')).toBe('access-token-2');
+    expect(refreshedToken).toBeUndefined();
+    expect(tokenMap.get('access_token')).toBe('access-token-1');
     expect(service.isAuthenticated()).toBeFalse();
 
-    let validationResult: boolean | undefined;
-    service.validateSessionIfStale().subscribe((result) => {
-      validationResult = result;
-    });
     const validationRequest = httpMock.expectOne((req) => req.url.endsWith('/session/validate'));
+    expect(validationRequest.request.headers.get('Authorization')).toBe('Bearer access-token-2');
     validationRequest.flush({ authenticated: true });
 
-    expect(validationResult).toBeTrue();
+    expect(refreshedToken).toBe('access-token-2');
+    expect(tokenMap.get('access_token')).toBe('access-token-2');
     expect(service.isAuthenticated()).toBeTrue();
+    expect(service.authenticatedEmail()).toBe('user@example.com');
+  });
+
+  it('expires session when refreshed access token validation fails', () => {
+    const service = createService();
+    tokenMap.set('access_token', 'access-token-1');
+    tokenMap.set('refresh_token', 'refresh-token-1');
+    tokenMap.set('auth_email', 'user@example.com');
+    let receivedError: any;
+
+    service.refreshToken().subscribe({
+      next: () => fail('expected refreshToken() to error when refreshed token validation fails'),
+      error: (error) => {
+        receivedError = error;
+      }
+    });
+
+    const refreshRequest = httpMock.expectOne((req) => req.url.endsWith('/auth/refresh'));
+    refreshRequest.flush({
+      msg: 'ok',
+      access_token: 'access-token-2'
+    });
+
+    const validationRequest = httpMock.expectOne((req) => req.url.endsWith('/session/validate'));
+    expect(validationRequest.request.headers.get('Authorization')).toBe('Bearer access-token-2');
+    validationRequest.flush({ detail: 'backend unavailable' }, { status: 503, statusText: 'Server Error' });
+
+    expect(receivedError?.postRefreshSessionValidationFailed).toBeTrue();
+    expect(receivedError?.status).toBe(503);
+    expect(service.isAuthenticated()).toBeFalse();
+    expect(service.authenticatedEmail()).toBeNull();
+    expect(tokenMap.has('access_token')).toBeFalse();
+    expect(tokenMap.has('refresh_token')).toBeFalse();
+    expect(tokenMap.has('auth_email')).toBeFalse();
+    expect(redirectStorage.clearReturnUrl).not.toHaveBeenCalled();
   });
 
   it('fails fast, logs out, and skips HTTP when refresh token is missing', () => {
@@ -889,6 +923,13 @@ describe('AuthService', () => {
       access_token: 'access-token-3'
     });
 
+    expect(firstResult).toBeUndefined();
+    expect(secondResult).toBeUndefined();
+
+    const validationRequest = httpMock.expectOne((req) => req.url.endsWith('/session/validate'));
+    expect(validationRequest.request.headers.get('Authorization')).toBe('Bearer access-token-3');
+    validationRequest.flush({ authenticated: true });
+
     expect(firstResult).toBe('access-token-3');
     expect(secondResult).toBe('access-token-3');
   });
@@ -909,6 +950,10 @@ describe('AuthService', () => {
       msg: 'ok',
       access_token: 'access-token-old'
     });
+
+    const firstCycleValidationRequest = httpMock.expectOne((req) => req.url.endsWith('/session/validate'));
+    expect(firstCycleValidationRequest.request.headers.get('Authorization')).toBe('Bearer access-token-old');
+    firstCycleValidationRequest.flush({ authenticated: true });
     expect(firstCycleToken).toBe('access-token-old');
 
     service.refreshToken().subscribe((token) => {
@@ -926,6 +971,13 @@ describe('AuthService', () => {
       msg: 'ok',
       access_token: 'access-token-new'
     });
+
+    expect(secondCyclePrimaryToken).toBeUndefined();
+    expect(secondCycleWaiterToken).toBeUndefined();
+
+    const secondCycleValidationRequest = httpMock.expectOne((req) => req.url.endsWith('/session/validate'));
+    expect(secondCycleValidationRequest.request.headers.get('Authorization')).toBe('Bearer access-token-new');
+    secondCycleValidationRequest.flush({ authenticated: true });
 
     expect(secondCyclePrimaryToken).toBe('access-token-new');
     expect(secondCycleWaiterToken).toBe('access-token-new');

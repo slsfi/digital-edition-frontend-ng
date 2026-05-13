@@ -261,6 +261,36 @@ describe('authInterceptor', () => {
     expect(receivedError).toEqual(jasmine.objectContaining({ status: 500 }));
   });
 
+  it('logs out and redirects to /login when refreshed access token validation fails', () => {
+    authService.getAccessToken.and.returnValue('expired-token');
+    authService.refreshToken.and.returnValue(
+      throwError(() => ({ status: 503, postRefreshSessionValidationFailed: true }))
+    );
+
+    let receivedError: any;
+    http.get(backendProtectedURL).subscribe({
+      error: (error) => {
+        receivedError = error;
+      }
+    });
+
+    const firstReq = httpMock.expectOne(backendProtectedURL);
+    firstReq.flush({ message: 'unauthorized' }, { status: 401, statusText: 'Unauthorized' });
+
+    expect(authService.preserveReturnUrlForReauthentication).toHaveBeenCalledWith('/collection/123/text?tab=notes');
+    expect(authService.expireSession).toHaveBeenCalledTimes(1);
+    expect(router.navigate).toHaveBeenCalledWith(['/login'], {
+      replaceUrl: true,
+      queryParams: {
+        [AUTH_REDIRECT_MARKER_QUERY_PARAM]: AUTH_REDIRECT_MARKER_VALUE
+      }
+    });
+    expect(receivedError).toEqual(jasmine.objectContaining({
+      status: 503,
+      postRefreshSessionValidationFailed: true
+    }));
+  });
+
   it('does not redirect to /login when refresh fails with a network error', () => {
     authService.getAccessToken.and.returnValue('expired-token');
     authService.refreshToken.and.returnValue(

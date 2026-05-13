@@ -102,19 +102,20 @@ export interface TranslationMetadata {
 }
 
 export interface PublicationMetadataApiResponse {
-  author: string[] | null;
-  document_type: string | null;
-  facsimiles: FacsimileMetadata[] | null;
-  id: string | null;
-  manuscript_id: number | null;
-  original_language: string | null;
-  publication_date: string | null;
-  publication_subtitle: string | null;
-  publication_title: string | null;
-  published_by: string | null;
-  recipient: string[] | null;
-  sender: string[] | null;
-  translations: TranslationMetadata[] | null;
+  author?: string[] | null;
+  document_type?: string | null;
+  facsimiles?: FacsimileMetadata[] | null;
+  id?: string | null;
+  manuscript_id?: number | null;
+  original_language?: string | null;
+  publication_date?: string | null;
+  publication_subtitle?: string | null;
+  publication_title?: string | null;
+  published_by?: string | null;
+  recipient?: string[] | null;
+  sender?: string[] | null;
+  translations?: TranslationMetadata[] | null;
+  [key: string]: unknown;
 }
 
 export interface PublicationMetadata {
@@ -131,6 +132,7 @@ export interface PublicationMetadata {
   recipient: string[];
   sender: string[];
   translations: TranslationMetadata[];
+  [key: string]: unknown;
 }
 
 export interface ReferenceData {
@@ -174,16 +176,17 @@ export const toCorrespondenceMetadata = (
 export const toPublicationMetadata = (
   m: PublicationMetadataApiResponse
 ): PublicationMetadata => ({
+  ...m,
   author: m.author ?? [],
-  document_type: m.document_type,
+  document_type: m.document_type ?? null,
   facsimiles: m.facsimiles ?? [],
-  id: m.id,
-  manuscript_id: m.manuscript_id,
-  original_language: m.original_language,
-  publication_date: m.publication_date,
-  publication_subtitle: m.publication_subtitle,
-  publication_title: m.publication_title,
-  published_by: m.published_by,
+  id: m.id ?? null,
+  manuscript_id: m.manuscript_id ?? null,
+  original_language: m.original_language ?? null,
+  publication_date: m.publication_date ?? null,
+  publication_subtitle: m.publication_subtitle ?? null,
+  publication_title: m.publication_title ?? null,
+  published_by: m.published_by ?? null,
   recipient: m.recipient ?? [],
   sender: m.sender ?? [],
   translations: m.translations ?? []

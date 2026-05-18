@@ -316,10 +316,84 @@
               <dd [innerHTML]="v.title"></dd>
             </div>
           }
+          @if (v.author.length) {
+            <div>
+              <dt>
+                @if (v.author.length < 2) {
+                  <ng-container i18n="@@Metadata.Author">Författare</ng-container>
+                }
+                @if (v.author.length > 1) {
+                  <ng-container i18n="@@Metadata.Authors">Författare</ng-container>
+                }
+              </dt>
+              <dd>
+                @for (a of v.author; track $index; let isLast = $last) {
+                  {{a}}
+                  @if (!isLast) {
+                    <br>
+                  }
+                }
+              </dd>
+            </div>
+          }
+          @if (v.orig_date) {
+            <div>
+              <dt i18n="@@Metadata.OrigDate">Datering</dt>
+              <dd>{{v.orig_date}}</dd>
+            </div>
+          }
           @if (v.type !== null) {
             <div>
               <dt i18n="@@Metadata.VariantType">Varianttyp</dt>
               <dd>{{v.type}}</dd>
+            </div>
+          }
+          @if (v.phys_description) {
+            <div>
+              <dt i18n="@@Metadata.PhysDescription">Fysisk beskrivning</dt>
+              <dd [innerHTML]="v.phys_description"></dd>
+            </div>
+          }
+          @if (v.phys_dimensions) {
+            <div>
+              <dt i18n="@@Metadata.PhysDimensions">Fysiska mått</dt>
+              <dd>{{v.phys_dimensions}}</dd>
+            </div>
+          }
+          @if (v.source_archive) {
+            <div>
+              <dt i18n="@@Metadata.SourceArchive">Arkivkälla</dt>
+              <dd [innerHTML]="v.source_archive"></dd>
+            </div>
+          }
+          @if (v.source_bibl) {
+            <div>
+              <dt i18n="@@Metadata.SourceBibl">Bibliografisk källa</dt>
+              <dd [innerHTML]="v.source_bibl"></dd>
+            </div>
+          }
+          @if (v.rights) {
+            <div>
+              <dt i18n="@@Metadata.Rights">Rättigheter</dt>
+              <dd [innerHTML]="v.rights"></dd>
+            </div>
+          }
+          @if (v.licence) {
+            <div>
+              <dt i18n="@@Metadata.Licence">Licens</dt>
+              <dd [innerHTML]="v.licence"></dd>
+            </div>
+          }
+          @if (v.licence_encoding) {
+            <div>
+              <dt i18n="@@Metadata.LicenceEncoding">Licens för TEI-filen</dt>
+              <dd [innerHTML]="v.licence_encoding"></dd>
+            </div>
+          }
+          @if (v.licence_work) {
+            <div>
+              <dt i18n="@@Metadata.LicenceWork">Licens för verket</dt>
+              <dd [innerHTML]="v.licence_work"></dd>
             </div>
           }
         </dl>

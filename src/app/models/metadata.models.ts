@@ -155,17 +155,37 @@ export interface TranslationMetadata {
 }
 
 export interface VariantMetadataApiResponse {
+  author?: string[] | null;
   id?: number | null;
+  licence?: string | null;
+  licence_encoding?: string | null;
+  licence_work?: string | null;
+  orig_date?: string | null;
+  phys_description?: string | null;
+  phys_dimensions?: string | null;
+  rights?: string | null;
   section_id?: string | null;
   sort_order?: number | null;
+  source_archive?: string | null;
+  source_bibl?: string | null;
   title?: string | null;
   type?: number | null;
   [key: string]: unknown;
 }
 
 export interface VariantMetadata {
+  author: string[];
   id: number | null;
+  licence: string | null;
+  licence_encoding: string | null;
+  licence_work: string | null;
+  orig_date: string | null;
+  phys_description: string | null;
+  phys_dimensions: string | null;
+  rights: string | null;
   sort_order: number | null;
+  source_archive: string | null;
+  source_bibl: string | null;
   title: string | null;
   type: number | null;
 }
@@ -305,8 +325,18 @@ export const toManuscriptMetadata = (
 export const toVariantMetadata = (
   v: VariantMetadataApiResponse
 ): VariantMetadata => ({
+  author: v.author ?? [],
   id: v.id ?? null,
+  licence: v.licence ?? null,
+  licence_encoding: v.licence_encoding ?? null,
+  licence_work: v.licence_work ?? null,
+  orig_date: v.orig_date ?? null,
+  phys_description: v.phys_description ?? null,
+  phys_dimensions: v.phys_dimensions ?? null,
+  rights: v.rights ?? null,
   sort_order: v.sort_order ?? null,
+  source_archive: v.source_archive ?? null,
+  source_bibl: v.source_bibl ?? null,
   title: v.title ?? null,
   type: v.type ?? null,
 });

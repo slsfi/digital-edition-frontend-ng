@@ -10,7 +10,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ### Added
 
-- Support for additional metadata fields: `collection_id`, `collection_title`, `keywords`, `licence_encoding`, `licence_url`, `licence_work`, `phys_description`, `phys_dimensions`, `publication_genre`, `publication_language`, `source_archive`, `source_bibl`.
+- Support for additional metadata fields: `collection_id`, `collection_title`, `keywords`, `licence_encoding`, `licence_url`, `licence_work`, `manuscripts`, `phys_description`, `phys_dimensions`, `publication_genre`, `publication_language`, `rights`, `source_archive`, `source_bibl`, `variants`.
 
 ### Changed
 

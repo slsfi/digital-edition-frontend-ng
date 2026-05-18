@@ -114,19 +114,39 @@ export interface FacsimileMetadata {
 }
 
 export interface ManuscriptMetadataApiResponse {
+  author?: string[] | null;
   id?: number | null;
   language?: string | null;
+  licence_encoding?: string | null;
+  licence_url?: string | null;
+  licence_work?: string | null;
+  orig_date?: string | null;
+  phys_description?: string | null;
+  phys_dimensions?: string | null;
+  rights?: string | null;
   section_id?: string | null;
   sort_order?: number | null;
+  source_archive?: string | null;
+  source_bibl?: string | null;
   title?: string | null;
   [key: string]: unknown;
 }
 
 export interface ManuscriptMetadata {
-  id?: number | null;
-  language?: string | null;
-  sort_order?: number | null;
-  title?: string | null;
+  author: string[];
+  id: number | null;
+  language: string | null;
+  licence_encoding: string | null;
+  licence_url: string | null;
+  licence_work: string | null;
+  orig_date: string | null;
+  phys_description: string | null;
+  phys_dimensions: string | null;
+  rights: string | null;
+  sort_order: number | null;
+  source_archive: string | null;
+  source_bibl: string | null;
+  title: string | null;
 }
 
 export interface TranslationMetadata {
@@ -144,10 +164,10 @@ export interface VariantMetadataApiResponse {
 }
 
 export interface VariantMetadata {
-  id?: number | null;
-  sort_order?: number | null;
-  title?: string | null;
-  type?: number | null;
+  id: number | null;
+  sort_order: number | null;
+  title: string | null;
+  type: number | null;
 }
 
 export interface PublicationMetadataApiResponse {
@@ -158,8 +178,9 @@ export interface PublicationMetadataApiResponse {
   facsimiles?: FacsimileMetadataApiResponse[] | null;
   id?: string | number | null;
   keywords?: string | null;
-  licence?: string | null;
+  licence_encoding?: string | null;
   licence_url?: string | null;
+  licence_work?: string | null;
   manuscript_id?: number | null;
   manuscripts?: ManuscriptMetadataApiResponse[] | null;
   original_language?: string | null;
@@ -172,6 +193,7 @@ export interface PublicationMetadataApiResponse {
   publication_title?: string | null;
   published_by?: string | null;
   recipient?: string[] | null;
+  rights?: string | null;
   sender?: string[] | null;
   source_archive?: string | null;
   source_bibl?: string | null;
@@ -188,8 +210,9 @@ export interface PublicationMetadata {
   facsimiles: FacsimileMetadata[];
   id: string | null;
   keywords: string | null;
-  licence: string | null;
+  licence_encoding: string | null;
   licence_url: string | null;
+  licence_work: string | null;
   manuscript_id: number | null;
   manuscripts: ManuscriptMetadata[];
   original_language: string | null;
@@ -202,6 +225,7 @@ export interface PublicationMetadata {
   publication_title: string | null;
   published_by: string | null;
   recipient: string[];
+  rights: string | null;
   sender: string[];
   source_archive: string | null;
   source_bibl: string | null;
@@ -262,9 +286,19 @@ export const toFacsimileMetadata = (
 export const toManuscriptMetadata = (
   m: ManuscriptMetadataApiResponse
 ): ManuscriptMetadata => ({
+  author: m.author ?? [],
   id: m.id ?? null,
   language: m.language ?? null,
+  licence_encoding: m.licence_encoding ?? null,
+  licence_url: m.licence_url ?? null,
+  licence_work: m.licence_work ?? null,
+  orig_date: m.orig_date ?? null,
+  phys_description: m.phys_description ?? null,
+  phys_dimensions: m.phys_dimensions ?? null,
+  rights: m.rights ?? null,
   sort_order: m.sort_order ?? null,
+  source_archive: m.source_archive ?? null,
+  source_bibl: m.source_bibl ?? null,
   title: m.title ?? null,
 });
 
@@ -287,8 +321,9 @@ export const toPublicationMetadata = (
   facsimiles: (p.facsimiles ?? []).map(toFacsimileMetadata),
   id: p.id == null ? null : String(p.id),
   keywords: p.keywords ?? null,
-  licence: p.licence ?? null,
+  licence_encoding: p.licence_encoding ?? null,
   licence_url: p.licence_url ?? null,
+  licence_work: p.licence_work ?? null,
   manuscript_id: p.manuscript_id ?? null,
   manuscripts: (p.manuscripts ?? []).map(toManuscriptMetadata),
   original_language: p.original_language ?? null,
@@ -301,6 +336,7 @@ export const toPublicationMetadata = (
   publication_title: p.publication_title ?? null,
   published_by: p.published_by ?? null,
   recipient: p.recipient ?? [],
+  rights: p.rights ?? null,
   sender: p.sender ?? [],
   source_archive: p.source_archive ?? null,
   source_bibl: p.source_bibl ?? null,

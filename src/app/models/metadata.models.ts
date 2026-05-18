@@ -86,6 +86,23 @@ export interface CorrespondentData {
   receiver?: string | null;
 }
 
+export interface FacsimileMetadataApiResponse {
+  archive_info?: string | null;
+  description?: string | null;
+  external_url?: string | null;
+  facs_coll_id?: number | null;
+  facsimile_title?: string | null;
+  image_number_info?: string | null;
+  number_of_images?: number | null;
+  page_nr?: number | null;
+  priority?: number | null;
+  publication_manuscript_id?: number | null;
+  publication_variant_id?: number | null;
+  section_id?: string | null;
+  title?: string | null;
+  [key: string]: unknown;
+}
+
 export interface FacsimileMetadata {
   archive_info: string | null;
   external_url: string | null;
@@ -106,14 +123,14 @@ export interface PublicationMetadataApiResponse {
   collection_id?: number | null;
   collection_title?: string | null;
   document_type?: string | null;
-  facsimiles?: FacsimileMetadata[] | null;
+  facsimiles?: FacsimileMetadataApiResponse[] | null;
   id?: string | number | null;
   keywords?: string | null;
   licence?: string | null;
   licence_url?: string | null;
   manuscript_id?: number | null;
   original_language?: string | null;
-  phys_description?: string[] | null;
+  phys_description?: string | null;
   phys_dimensions?: string | null;
   publication_date?: string | null;
   publication_genre?: string | null;
@@ -123,7 +140,8 @@ export interface PublicationMetadataApiResponse {
   published_by?: string | null;
   recipient?: string[] | null;
   sender?: string[] | null;
-  source?: string | null;
+  source_archive?: string | null;
+  source_bibl?: string | null;
   translations?: TranslationMetadata[] | null;
   [key: string]: unknown;
 }
@@ -140,7 +158,7 @@ export interface PublicationMetadata {
   licence_url: string | null;
   manuscript_id: number | null;
   original_language: string | null;
-  phys_description: string[];
+  phys_description: string | null;
   phys_dimensions: string | null;
   publication_date: string | null;
   publication_genre: string | null;
@@ -150,9 +168,9 @@ export interface PublicationMetadata {
   published_by: string | null;
   recipient: string[];
   sender: string[];
-  source: string | null;
+  source_archive: string | null;
+  source_bibl: string | null;
   translations: TranslationMetadata[];
-  [key: string]: unknown;
 }
 
 export interface ReferenceData {
@@ -193,22 +211,33 @@ export const toCorrespondenceMetadata = (
   subjects: api.subjects.map(toCorrespondent),
 });
 
+export const toFacsimileMetadata = (
+  f: FacsimileMetadataApiResponse
+): FacsimileMetadata => ({
+  archive_info: f.archive_info ?? null,
+  external_url: f.external_url ?? null,
+  facs_coll_id: f.facs_coll_id ?? null,
+  facsimile_title: f.facsimile_title ?? null,
+  image_number_info: f.image_number_info ?? null,
+  number_of_images: f.number_of_images ?? null,
+  priority: f.priority ?? null,
+});
+
 export const toPublicationMetadata = (
   m: PublicationMetadataApiResponse
 ): PublicationMetadata => ({
-  ...m,
   author: m.author ?? [],
   collection_id: m.collection_id ?? null,
   collection_title: m.collection_title ?? null,
   document_type: m.document_type ?? null,
-  facsimiles: m.facsimiles ?? [],
+  facsimiles: (m.facsimiles ?? []).map(toFacsimileMetadata),
   id: m.id == null ? null : String(m.id),
   keywords: m.keywords ?? null,
   licence: m.licence ?? null,
   licence_url: m.licence_url ?? null,
   manuscript_id: m.manuscript_id ?? null,
   original_language: m.original_language ?? null,
-  phys_description: m.phys_description ?? [],
+  phys_description: m.phys_description ?? null,
   phys_dimensions: m.phys_dimensions ?? null,
   publication_date: m.publication_date ?? null,
   publication_genre: m.publication_genre ?? null,
@@ -218,7 +247,8 @@ export const toPublicationMetadata = (
   published_by: m.published_by ?? null,
   recipient: m.recipient ?? [],
   sender: m.sender ?? [],
-  source: m.source ?? null,
+  source_archive: m.source_archive ?? null,
+  source_bibl: m.source_bibl ?? null,
   translations: m.translations ?? []
 });
 

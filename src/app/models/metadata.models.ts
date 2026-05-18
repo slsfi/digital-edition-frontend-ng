@@ -117,8 +117,8 @@ export interface ManuscriptMetadataApiResponse {
   author?: string[] | null;
   id?: number | null;
   language?: string | null;
+  licence?: string | null;
   licence_encoding?: string | null;
-  licence_url?: string | null;
   licence_work?: string | null;
   orig_date?: string | null;
   phys_description?: string | null;
@@ -136,8 +136,8 @@ export interface ManuscriptMetadata {
   author: string[];
   id: number | null;
   language: string | null;
+  licence: string | null;
   licence_encoding: string | null;
-  licence_url: string | null;
   licence_work: string | null;
   orig_date: string | null;
   phys_description: string | null;
@@ -178,8 +178,8 @@ export interface PublicationMetadataApiResponse {
   facsimiles?: FacsimileMetadataApiResponse[] | null;
   id?: string | number | null;
   keywords?: string | null;
+  licence?: string | null;
   licence_encoding?: string | null;
-  licence_url?: string | null;
   licence_work?: string | null;
   manuscript_id?: number | null;
   manuscripts?: ManuscriptMetadataApiResponse[] | null;
@@ -210,8 +210,8 @@ export interface PublicationMetadata {
   facsimiles: FacsimileMetadata[];
   id: string | null;
   keywords: string | null;
+  licence: string | null;
   licence_encoding: string | null;
-  licence_url: string | null;
   licence_work: string | null;
   manuscript_id: number | null;
   manuscripts: ManuscriptMetadata[];
@@ -289,8 +289,8 @@ export const toManuscriptMetadata = (
   author: m.author ?? [],
   id: m.id ?? null,
   language: m.language ?? null,
+  licence: m.licence ?? null,
   licence_encoding: m.licence_encoding ?? null,
-  licence_url: m.licence_url ?? null,
   licence_work: m.licence_work ?? null,
   orig_date: m.orig_date ?? null,
   phys_description: m.phys_description ?? null,
@@ -321,8 +321,8 @@ export const toPublicationMetadata = (
   facsimiles: (p.facsimiles ?? []).map(toFacsimileMetadata),
   id: p.id == null ? null : String(p.id),
   keywords: p.keywords ?? null,
+  licence: p.licence ?? null,
   licence_encoding: p.licence_encoding ?? null,
-  licence_url: p.licence_url ?? null,
   licence_work: p.licence_work ?? null,
   manuscript_id: p.manuscript_id ?? null,
   manuscripts: (p.manuscripts ?? []).map(toManuscriptMetadata),

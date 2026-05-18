@@ -156,6 +156,19 @@ export interface TranslationMetadata {
   translators: string[] | null;
 }
 
+export interface KeywordMetadataApiResponse {
+  id?: string | number | null;
+  name?: string | null;
+  [key: string]: unknown;
+}
+
+export interface KeywordMetadata {
+  id: string | number;
+  name: string;
+}
+
+export type PublicationKeywordsMetadata = string | KeywordMetadata[] | null;
+
 export interface VariantMetadataApiResponse {
   author?: string[] | null;
   facsimile_summary?: string | null;
@@ -202,7 +215,7 @@ export interface PublicationMetadataApiResponse {
   facsimile_summary?: string | null;
   facsimiles?: FacsimileMetadataApiResponse[] | null;
   id?: string | number | null;
-  keywords?: string | null;
+  keywords?: string | KeywordMetadataApiResponse[] | null;
   licence?: string | null;
   licence_encoding?: string | null;
   licence_work?: string | null;
@@ -235,7 +248,7 @@ export interface PublicationMetadata {
   facsimile_summary: string | null;
   facsimiles: FacsimileMetadata[];
   id: string | null;
-  keywords: string | null;
+  keywords: PublicationKeywordsMetadata;
   licence: string | null;
   licence_encoding: string | null;
   licence_work: string | null;
@@ -349,6 +362,33 @@ export const toVariantMetadata = (
   type: v.type ?? null,
 });
 
+const toKeywordMetadata = (
+  k: KeywordMetadataApiResponse
+): KeywordMetadata | null => {
+  if (k.id == null || k.name == null) {
+    return null;
+  }
+
+  return {
+    id: k.id,
+    name: k.name,
+  };
+};
+
+const toPublicationKeywordsMetadata = (
+  keywords: PublicationMetadataApiResponse['keywords']
+): PublicationKeywordsMetadata => {
+  if (Array.isArray(keywords)) {
+    const mapped = keywords
+      .map(toKeywordMetadata)
+      .filter((k): k is KeywordMetadata => k !== null);
+
+    return mapped.length ? mapped : null;
+  }
+
+  return keywords ?? null;
+};
+
 export const toPublicationMetadata = (
   p: PublicationMetadataApiResponse
 ): PublicationMetadata => ({
@@ -359,7 +399,7 @@ export const toPublicationMetadata = (
   facsimile_summary: p.facsimile_summary ?? null,
   facsimiles: (p.facsimiles ?? []).map(toFacsimileMetadata),
   id: p.id == null ? null : String(p.id),
-  keywords: p.keywords ?? null,
+  keywords: toPublicationKeywordsMetadata(p.keywords),
   licence: p.licence ?? null,
   licence_encoding: p.licence_encoding ?? null,
   licence_work: p.licence_work ?? null,

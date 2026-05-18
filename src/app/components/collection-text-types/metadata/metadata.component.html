@@ -117,9 +117,23 @@
         </div>
       }
       @if (metadata.keywords) {
+        @let keywords = metadata.keywords;
         <div>
           <dt i18n="@@Metadata.Keywords">Ämnesord</dt>
-          <dd>{{metadata.keywords}}</dd>
+          <dd>
+            @if (isKeywordMetadataList(keywords)) {
+              @for (keyword of keywords; track keyword.id; let isLast = $last) {
+                <a
+                      aria-haspopup="dialog"
+                      rel="nofollow"
+                      [routerLink]="['/index', 'keywords']"
+                      [queryParams]="{ id: keyword.id }"
+                >{{keyword.name}}</a>@if (!isLast) {, }
+              }
+            } @else {
+              {{keywords}}
+            }
+          </dd>
         </div>
       }
       @if (metadata.phys_description) {

@@ -115,6 +115,7 @@ export interface FacsimileMetadata {
 
 export interface ManuscriptMetadataApiResponse {
   author?: string[] | null;
+  facsimile_summary?: string | null;
   id?: number | null;
   language?: string | null;
   licence?: string | null;
@@ -134,6 +135,7 @@ export interface ManuscriptMetadataApiResponse {
 
 export interface ManuscriptMetadata {
   author: string[];
+  facsimile_summary: string | null;
   id: number | null;
   language: string | null;
   licence: string | null;
@@ -156,6 +158,7 @@ export interface TranslationMetadata {
 
 export interface VariantMetadataApiResponse {
   author?: string[] | null;
+  facsimile_summary?: string | null;
   id?: number | null;
   licence?: string | null;
   licence_encoding?: string | null;
@@ -175,6 +178,7 @@ export interface VariantMetadataApiResponse {
 
 export interface VariantMetadata {
   author: string[];
+  facsimile_summary: string | null;
   id: number | null;
   licence: string | null;
   licence_encoding: string | null;
@@ -195,6 +199,7 @@ export interface PublicationMetadataApiResponse {
   collection_id?: number | null;
   collection_title?: string | null;
   document_type?: string | null;
+  facsimile_summary?: string | null;
   facsimiles?: FacsimileMetadataApiResponse[] | null;
   id?: string | number | null;
   keywords?: string | null;
@@ -227,6 +232,7 @@ export interface PublicationMetadata {
   collection_id: number | null;
   collection_title: string | null;
   document_type: string | null;
+  facsimile_summary: string | null;
   facsimiles: FacsimileMetadata[];
   id: string | null;
   keywords: string | null;
@@ -307,6 +313,7 @@ export const toManuscriptMetadata = (
   m: ManuscriptMetadataApiResponse
 ): ManuscriptMetadata => ({
   author: m.author ?? [],
+  facsimile_summary: m.facsimile_summary ?? null,
   id: m.id ?? null,
   language: m.language ?? null,
   licence: m.licence ?? null,
@@ -326,6 +333,7 @@ export const toVariantMetadata = (
   v: VariantMetadataApiResponse
 ): VariantMetadata => ({
   author: v.author ?? [],
+  facsimile_summary: v.facsimile_summary ?? null,
   id: v.id ?? null,
   licence: v.licence ?? null,
   licence_encoding: v.licence_encoding ?? null,
@@ -348,6 +356,7 @@ export const toPublicationMetadata = (
   collection_id: p.collection_id ?? null,
   collection_title: p.collection_title ?? null,
   document_type: p.document_type ?? null,
+  facsimile_summary: p.facsimile_summary ?? null,
   facsimiles: (p.facsimiles ?? []).map(toFacsimileMetadata),
   id: p.id == null ? null : String(p.id),
   keywords: p.keywords ?? null,

@@ -146,6 +146,12 @@
           <dd [innerHTML]="metadata.source_bibl"></dd>
         </div>
       }
+      @if (metadata.facsimile_summary) {
+        <div>
+          <dt i18n="@@Metadata.FacsimileSummary">Faksimilinformation</dt>
+          <dd [innerHTML]="metadata.facsimile_summary"></dd>
+        </div>
+      }
       @if (metadata.rights) {
         <div>
           <dt i18n="@@Metadata.Rights">Rättigheter</dt>
@@ -271,6 +277,12 @@
               <dd [innerHTML]="m.source_bibl"></dd>
             </div>
           }
+          @if (m.facsimile_summary) {
+            <div>
+              <dt i18n="@@Metadata.FacsimileSummary">Faksimilinformation</dt>
+              <dd [innerHTML]="m.facsimile_summary"></dd>
+            </div>
+          }
           @if (m.rights) {
             <div>
               <dt i18n="@@Metadata.Rights">Rättigheter</dt>
@@ -370,6 +382,12 @@
             <div>
               <dt i18n="@@Metadata.SourceBibl">Bibliografisk källa</dt>
               <dd [innerHTML]="v.source_bibl"></dd>
+            </div>
+          }
+          @if (v.facsimile_summary) {
+            <div>
+              <dt i18n="@@Metadata.FacsimileSummary">Faksimilinformation</dt>
+              <dd [innerHTML]="v.facsimile_summary"></dd>
             </div>
           }
           @if (v.rights) {

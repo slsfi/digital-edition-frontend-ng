@@ -113,9 +113,41 @@ export interface FacsimileMetadata {
   priority: number | null;
 }
 
+export interface ManuscriptMetadataApiResponse {
+  id?: number | null;
+  language?: string | null;
+  section_id?: string | null;
+  sort_order?: number | null;
+  title?: string | null;
+  [key: string]: unknown;
+}
+
+export interface ManuscriptMetadata {
+  id?: number | null;
+  language?: string | null;
+  sort_order?: number | null;
+  title?: string | null;
+}
+
 export interface TranslationMetadata {
   translated_into: string | null;
   translators: string[] | null;
+}
+
+export interface VariantMetadataApiResponse {
+  id?: number | null;
+  section_id?: string | null;
+  sort_order?: number | null;
+  title?: string | null;
+  type?: number | null;
+  [key: string]: unknown;
+}
+
+export interface VariantMetadata {
+  id?: number | null;
+  sort_order?: number | null;
+  title?: string | null;
+  type?: number | null;
 }
 
 export interface PublicationMetadataApiResponse {
@@ -129,6 +161,7 @@ export interface PublicationMetadataApiResponse {
   licence?: string | null;
   licence_url?: string | null;
   manuscript_id?: number | null;
+  manuscripts?: ManuscriptMetadataApiResponse[] | null;
   original_language?: string | null;
   phys_description?: string | null;
   phys_dimensions?: string | null;
@@ -143,6 +176,7 @@ export interface PublicationMetadataApiResponse {
   source_archive?: string | null;
   source_bibl?: string | null;
   translations?: TranslationMetadata[] | null;
+  variants?: VariantMetadataApiResponse[] | null;
   [key: string]: unknown;
 }
 
@@ -157,6 +191,7 @@ export interface PublicationMetadata {
   licence: string | null;
   licence_url: string | null;
   manuscript_id: number | null;
+  manuscripts: ManuscriptMetadata[];
   original_language: string | null;
   phys_description: string | null;
   phys_dimensions: string | null;
@@ -171,6 +206,7 @@ export interface PublicationMetadata {
   source_archive: string | null;
   source_bibl: string | null;
   translations: TranslationMetadata[];
+  variants: VariantMetadata[];
 }
 
 export interface ReferenceData {
@@ -217,39 +253,59 @@ export const toFacsimileMetadata = (
   archive_info: f.archive_info ?? null,
   external_url: f.external_url ?? null,
   facs_coll_id: f.facs_coll_id ?? null,
-  facsimile_title: f.facsimile_title ?? null,
+  facsimile_title: f.facsimile_title ?? f.title ?? null,
   image_number_info: f.image_number_info ?? null,
   number_of_images: f.number_of_images ?? null,
   priority: f.priority ?? null,
 });
 
+export const toManuscriptMetadata = (
+  m: ManuscriptMetadataApiResponse
+): ManuscriptMetadata => ({
+  id: m.id ?? null,
+  language: m.language ?? null,
+  sort_order: m.sort_order ?? null,
+  title: m.title ?? null,
+});
+
+export const toVariantMetadata = (
+  v: VariantMetadataApiResponse
+): VariantMetadata => ({
+  id: v.id ?? null,
+  sort_order: v.sort_order ?? null,
+  title: v.title ?? null,
+  type: v.type ?? null,
+});
+
 export const toPublicationMetadata = (
-  m: PublicationMetadataApiResponse
+  p: PublicationMetadataApiResponse
 ): PublicationMetadata => ({
-  author: m.author ?? [],
-  collection_id: m.collection_id ?? null,
-  collection_title: m.collection_title ?? null,
-  document_type: m.document_type ?? null,
-  facsimiles: (m.facsimiles ?? []).map(toFacsimileMetadata),
-  id: m.id == null ? null : String(m.id),
-  keywords: m.keywords ?? null,
-  licence: m.licence ?? null,
-  licence_url: m.licence_url ?? null,
-  manuscript_id: m.manuscript_id ?? null,
-  original_language: m.original_language ?? null,
-  phys_description: m.phys_description ?? null,
-  phys_dimensions: m.phys_dimensions ?? null,
-  publication_date: m.publication_date ?? null,
-  publication_genre: m.publication_genre ?? null,
-  publication_language: m.publication_language ?? null,
-  publication_subtitle: m.publication_subtitle ?? null,
-  publication_title: m.publication_title ?? null,
-  published_by: m.published_by ?? null,
-  recipient: m.recipient ?? [],
-  sender: m.sender ?? [],
-  source_archive: m.source_archive ?? null,
-  source_bibl: m.source_bibl ?? null,
-  translations: m.translations ?? []
+  author: p.author ?? [],
+  collection_id: p.collection_id ?? null,
+  collection_title: p.collection_title ?? null,
+  document_type: p.document_type ?? null,
+  facsimiles: (p.facsimiles ?? []).map(toFacsimileMetadata),
+  id: p.id == null ? null : String(p.id),
+  keywords: p.keywords ?? null,
+  licence: p.licence ?? null,
+  licence_url: p.licence_url ?? null,
+  manuscript_id: p.manuscript_id ?? null,
+  manuscripts: (p.manuscripts ?? []).map(toManuscriptMetadata),
+  original_language: p.original_language ?? null,
+  phys_description: p.phys_description ?? null,
+  phys_dimensions: p.phys_dimensions ?? null,
+  publication_date: p.publication_date ?? null,
+  publication_genre: p.publication_genre ?? null,
+  publication_language: p.publication_language ?? null,
+  publication_subtitle: p.publication_subtitle ?? null,
+  publication_title: p.publication_title ?? null,
+  published_by: p.published_by ?? null,
+  recipient: p.recipient ?? [],
+  sender: p.sender ?? [],
+  source_archive: p.source_archive ?? null,
+  source_bibl: p.source_bibl ?? null,
+  translations: p.translations ?? [],
+  variants: (p.variants ?? []).map(toVariantMetadata),
 });
 
 export const toReferenceData = (

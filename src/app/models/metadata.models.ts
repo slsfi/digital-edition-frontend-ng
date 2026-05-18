@@ -156,18 +156,19 @@ export interface TranslationMetadata {
   translators: string[] | null;
 }
 
-export interface KeywordMetadataApiResponse {
+export interface MetadataIndexEntryApiResponse {
   id?: string | number | null;
   name?: string | null;
   [key: string]: unknown;
 }
 
-export interface KeywordMetadata {
+export interface MetadataIndexEntry {
   id: string | number;
   name: string;
 }
 
-export type PublicationKeywordsMetadata = string | KeywordMetadata[] | null;
+export type PublicationIndexMetadata = MetadataIndexEntry[] | null;
+export type PublicationKeywordsMetadata = string | PublicationIndexMetadata;
 
 export interface VariantMetadataApiResponse {
   author?: string[] | null;
@@ -215,15 +216,17 @@ export interface PublicationMetadataApiResponse {
   facsimile_summary?: string | null;
   facsimiles?: FacsimileMetadataApiResponse[] | null;
   id?: string | number | null;
-  keywords?: string | KeywordMetadataApiResponse[] | null;
+  keywords?: string | MetadataIndexEntryApiResponse[] | null;
   licence?: string | null;
   licence_encoding?: string | null;
   licence_work?: string | null;
   manuscript_id?: number | null;
   manuscripts?: ManuscriptMetadataApiResponse[] | null;
   original_language?: string | null;
+  persons?: MetadataIndexEntryApiResponse[] | null;
   phys_description?: string | null;
   phys_dimensions?: string | null;
+  places?: MetadataIndexEntryApiResponse[] | null;
   publication_date?: string | null;
   publication_genre?: string | null;
   publication_language?: string | null;
@@ -255,8 +258,10 @@ export interface PublicationMetadata {
   manuscript_id: number | null;
   manuscripts: ManuscriptMetadata[];
   original_language: string | null;
+  persons: PublicationIndexMetadata;
   phys_description: string | null;
   phys_dimensions: string | null;
+  places: PublicationIndexMetadata;
   publication_date: string | null;
   publication_genre: string | null;
   publication_language: string | null;
@@ -362,17 +367,27 @@ export const toVariantMetadata = (
   type: v.type ?? null,
 });
 
-const toKeywordMetadata = (
-  k: KeywordMetadataApiResponse
-): KeywordMetadata | null => {
-  if (k.id == null || k.name == null) {
+const toMetadataIndexEntry = (
+  entry: MetadataIndexEntryApiResponse
+): MetadataIndexEntry | null => {
+  if (entry.id == null || entry.name == null) {
     return null;
   }
 
   return {
-    id: k.id,
-    name: k.name,
+    id: entry.id,
+    name: entry.name,
   };
+};
+
+const toPublicationIndexMetadata = (
+  entries: MetadataIndexEntryApiResponse[] | null | undefined
+): PublicationIndexMetadata => {
+  const mapped = (entries ?? [])
+    .map(toMetadataIndexEntry)
+    .filter((entry): entry is MetadataIndexEntry => entry !== null);
+
+  return mapped.length ? mapped : null;
 };
 
 const toPublicationKeywordsMetadata = (
@@ -380,8 +395,8 @@ const toPublicationKeywordsMetadata = (
 ): PublicationKeywordsMetadata => {
   if (Array.isArray(keywords)) {
     const mapped = keywords
-      .map(toKeywordMetadata)
-      .filter((k): k is KeywordMetadata => k !== null);
+      .map(toMetadataIndexEntry)
+      .filter((k): k is MetadataIndexEntry => k !== null);
 
     return mapped.length ? mapped : null;
   }
@@ -406,8 +421,10 @@ export const toPublicationMetadata = (
   manuscript_id: p.manuscript_id ?? null,
   manuscripts: (p.manuscripts ?? []).map(toManuscriptMetadata),
   original_language: p.original_language ?? null,
+  persons: toPublicationIndexMetadata(p.persons),
   phys_description: p.phys_description ?? null,
   phys_dimensions: p.phys_dimensions ?? null,
+  places: toPublicationIndexMetadata(p.places),
   publication_date: p.publication_date ?? null,
   publication_genre: p.publication_genre ?? null,
   publication_language: p.publication_language ?? null,

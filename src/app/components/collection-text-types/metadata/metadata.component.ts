@@ -4,7 +4,7 @@ import { RouterLink } from '@angular/router';
 import { IonicModule } from '@ionic/angular';
 import { catchError, of, switchMap, tap } from 'rxjs';
 
-import { KeywordMetadata, PublicationMetadata } from '@models/metadata.models';
+import { MetadataIndexEntry, PublicationMetadata } from '@models/metadata.models';
 import { CollectionContentService } from '@services/collection-content.service';
 
 
@@ -62,7 +62,7 @@ export class MetadataComponent {
 
   isKeywordMetadataList(
     keywords: PublicationMetadata['keywords']
-  ): keywords is KeywordMetadata[] {
+  ): keywords is MetadataIndexEntry[] {
     return Array.isArray(keywords);
   }
 

@@ -26,24 +26,6 @@
           <dd [innerHTML]="metadata.published_by"></dd>
         </div>
       }
-      @if (metadata.document_type) {
-        <div>
-          <dt i18n="@@Metadata.DocumentType">Dokumenttyp</dt>
-          <dd>{{metadata.document_type}}</dd>
-        </div>
-      }
-      @if (metadata.original_language) {
-        <div>
-          <dt i18n="@@Metadata.OriginalLanguage">Originalspråk</dt>
-          <dd>{{metadata.original_language}}</dd>
-        </div>
-      }
-      @if (metadata.publication_date) {
-        <div>
-          <dt i18n="@@Metadata.PublicationDate">Datering</dt>
-          <dd>{{metadata.publication_date}}</dd>
-        </div>
-      }
       @if (metadata.author.length) {
         <div>
           <dt>
@@ -104,6 +86,90 @@
           </dd>
         </div>
       }
+      @if (metadata.publication_date) {
+        <div>
+          <dt i18n="@@Metadata.PublicationDate">Datering</dt>
+          <dd>{{metadata.publication_date}}</dd>
+        </div>
+      }
+      @if (metadata.document_type) {
+        <div>
+          <dt i18n="@@Metadata.DocumentType">Dokumenttyp</dt>
+          <dd>{{metadata.document_type}}</dd>
+        </div>
+      }
+      @if (metadata.publication_genre) {
+        <div>
+          <dt i18n="@@Metadata.PublicationGenre">Genre</dt>
+          <dd>{{metadata.publication_genre}}</dd>
+        </div>
+      }
+      @if (metadata.original_language) {
+        <div>
+          <dt i18n="@@Metadata.OriginalLanguage">Originalspråk</dt>
+          <dd>{{metadata.original_language}}</dd>
+        </div>
+      }
+      @if (metadata.publication_language) {
+        <div>
+          <dt i18n="@@Metadata.PublicationLanguage">Språk</dt>
+          <dd>{{metadata.publication_language}}</dd>
+        </div>
+      }
+      @if (metadata.keywords) {
+        <div>
+          <dt i18n="@@Metadata.Keywords">Ämnesord</dt>
+          <dd>{{metadata.keywords}}</dd>
+        </div>
+      }
+      @if (metadata.phys_description) {
+        <div>
+          <dt i18n="@@Metadata.PhysDescription">Fysisk beskrivning</dt>
+          <dd [innerHTML]="metadata.phys_description"></dd>
+        </div>
+      }
+      @if (metadata.phys_dimensions) {
+        <div>
+          <dt i18n="@@Metadata.PhysDimensions">Fysiska mått</dt>
+          <dd>{{metadata.phys_dimensions}}</dd>
+        </div>
+      }
+      @if (metadata.source_archive) {
+        <div>
+          <dt i18n="@@Metadata.SourceArchive">Arkivkälla</dt>
+          <dd [innerHTML]="metadata.source_archive"></dd>
+        </div>
+      }
+      @if (metadata.source_bibl) {
+        <div>
+          <dt i18n="@@Metadata.SourceBibl">Bibliografisk källa</dt>
+          <dd [innerHTML]="metadata.source_bibl"></dd>
+        </div>
+      }
+      @if (metadata.rights) {
+        <div>
+          <dt i18n="@@Metadata.Rights">Rättigheter</dt>
+          <dd [innerHTML]="metadata.rights"></dd>
+        </div>
+      }
+      @if (metadata.licence) {
+        <div>
+          <dt i18n="@@Metadata.Licence">Licens</dt>
+          <dd [innerHTML]="metadata.licence"></dd>
+        </div>
+      }
+      @if (metadata.licence_encoding) {
+        <div>
+          <dt i18n="@@Metadata.LicenceEncoding">Licens för TEI-filen</dt>
+          <dd [innerHTML]="metadata.licence_encoding"></dd>
+        </div>
+      }
+      @if (metadata.licence_work) {
+        <div>
+          <dt i18n="@@Metadata.LicenceWork">Licens för verket</dt>
+          <dd [innerHTML]="metadata.licence_work"></dd>
+        </div>
+      }
       @if (metadata.translations.length) {
         <div>
           <dt>
@@ -131,6 +197,135 @@
         </div>
       }
     </dl>
+
+    @if (metadata.manuscripts.length) {
+      <h3>
+        @if (metadata.manuscripts.length < 2) {
+          <ng-container i18n="@@Metadata.Manuscript">Manuskript</ng-container>
+        }
+        @if (metadata.manuscripts.length > 1) {
+          <ng-container i18n="@@Metadata.Manuscripts">Manuskript</ng-container>
+        }
+      </h3>
+      @for (m of metadata.manuscripts; track $index) {
+        <dl class="dl-group">
+          @if (m.title) {
+            <div>
+              <dt i18n="@@Metadata.ManuscriptTitle">Manuskriptets titel</dt>
+              <dd [innerHTML]="m.title"></dd>
+            </div>
+          }
+          @if (m.author.length) {
+            <div>
+              <dt>
+                @if (m.author.length < 2) {
+                  <ng-container i18n="@@Metadata.Author">Författare</ng-container>
+                }
+                @if (m.author.length > 1) {
+                  <ng-container i18n="@@Metadata.Authors">Författare</ng-container>
+                }
+              </dt>
+              <dd>
+                @for (a of m.author; track $index; let isLast = $last) {
+                  {{a}}
+                  @if (!isLast) {
+                    <br>
+                  }
+                }
+              </dd>
+            </div>
+          }
+          @if (m.orig_date) {
+            <div>
+              <dt i18n="@@Metadata.OrigDate">Datering</dt>
+              <dd>{{m.orig_date}}</dd>
+            </div>
+          }
+          @if (m.language) {
+            <div>
+              <dt i18n="@@Metadata.Language">Språk</dt>
+              <dd>{{m.language}}</dd>
+            </div>
+          }
+          @if (m.phys_description) {
+            <div>
+              <dt i18n="@@Metadata.PhysDescription">Fysisk beskrivning</dt>
+              <dd [innerHTML]="m.phys_description"></dd>
+            </div>
+          }
+          @if (m.phys_dimensions) {
+            <div>
+              <dt i18n="@@Metadata.PhysDimensions">Fysiska mått</dt>
+              <dd>{{m.phys_dimensions}}</dd>
+            </div>
+          }
+          @if (m.source_archive) {
+            <div>
+              <dt i18n="@@Metadata.SourceArchive">Arkivkälla</dt>
+              <dd [innerHTML]="m.source_archive"></dd>
+            </div>
+          }
+          @if (m.source_bibl) {
+            <div>
+              <dt i18n="@@Metadata.SourceBibl">Bibliografisk källa</dt>
+              <dd [innerHTML]="m.source_bibl"></dd>
+            </div>
+          }
+          @if (m.rights) {
+            <div>
+              <dt i18n="@@Metadata.Rights">Rättigheter</dt>
+              <dd [innerHTML]="m.rights"></dd>
+            </div>
+          }
+          @if (m.licence) {
+            <div>
+              <dt i18n="@@Metadata.Licence">Licens</dt>
+              <dd [innerHTML]="m.licence"></dd>
+            </div>
+          }
+          @if (m.licence_encoding) {
+            <div>
+              <dt i18n="@@Metadata.LicenceEncoding">Licens för TEI-filen</dt>
+              <dd [innerHTML]="m.licence_encoding"></dd>
+            </div>
+          }
+          @if (m.licence_work) {
+            <div>
+              <dt i18n="@@Metadata.LicenceWork">Licens för verket</dt>
+              <dd [innerHTML]="m.licence_work"></dd>
+            </div>
+          }
+        </dl>
+      }
+    }
+
+    @if (metadata.variants.length) {
+      <h3>
+        @if (metadata.variants.length < 2) {
+          <ng-container i18n="@@Metadata.Variant">Tryckt variant</ng-container>
+        }
+        @if (metadata.variants.length > 1) {
+          <ng-container i18n="@@Metadata.Variants">Tryckta varianter</ng-container>
+        }
+      </h3>
+      @for (v of metadata.variants; track $index) {
+        <dl class="dl-group">
+          @if (v.title) {
+            <div>
+              <dt i18n="@@Metadata.VariantTitle">Variantens titel</dt>
+              <dd [innerHTML]="v.title"></dd>
+            </div>
+          }
+          @if (v.type !== null) {
+            <div>
+              <dt i18n="@@Metadata.VariantType">Varianttyp</dt>
+              <dd>{{v.type}}</dd>
+            </div>
+          }
+        </dl>
+      }
+    }
+
     @if (metadata.facsimiles.length) {
       <h3>
         @if (metadata.facsimiles.length < 2) {

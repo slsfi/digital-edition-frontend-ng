@@ -198,6 +198,14 @@ Angular testing frameworks, not in use.
 
 
 
+## Publication metadata
+
+The supported field contract for the collection text metadata panel is documented in [`docs/PUBLICATION-METADATA.md`](PUBLICATION-METADATA.md).
+
+Update that document when changing `PublicationMetadata`, nested manuscript, variant, or facsimile metadata, or the metadata component template.
+
+
+
 ## Router preloading strategy
 
 The app uses a platform-specific router preloading strategy:

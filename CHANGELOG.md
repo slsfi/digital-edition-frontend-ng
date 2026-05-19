@@ -10,7 +10,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ### Added
 
-- Support for additional metadata fields: `collection_id`, `collection_title`, `keywords`, `licence`, `licence_encoding`, `licence_work`, `manuscripts`, `phys_description`, `phys_dimensions`, `publication_genre`, `publication_language`, `rights`, `source_archive`, `source_bibl`, `variants`.
+- Broaden publication metadata support in the text metadata UI. The supported field contract is documented in [`docs/PUBLICATION-METADATA.md`](docs/PUBLICATION-METADATA.md).
 
 ### Changed
 

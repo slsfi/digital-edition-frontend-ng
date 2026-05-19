@@ -1437,7 +1437,7 @@
     </unit>
     <unit id="Metadata.FacsimileSummary">
       <segment state="initial">
-        <source>Faksimilinformation</source>
+        <source>Faksimilinfo</source>
         <target>Facsimile info</target>
       </segment>
     </unit>

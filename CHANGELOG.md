@@ -19,9 +19,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - Deps: update `express-rate-limit` to 8.5.2.
 - Deps: update `marked` to 18.0.4.
 - Deps (dev): update `@types/node` to 22.19.19.
-- Deps (transitive): update `@babel/plugin-transform-modules-systemjs` to 7.29.4.
-- Deps (transitive): update `fast-uri` to 3.1.2.
-- Deps (transitive): update `hono` to 4.12.18.
+- Deps: update transitive dependencies.
 
 ### Fixed
 

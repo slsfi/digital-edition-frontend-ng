@@ -16,7 +16,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 - Update `nginx` to 1.30.1.
 - Deps: update `@angular/core` to 20.3.21 and `@angular/cli` to 20.3.26.
-- Deps: update `express-rate-limit` to 8.5.1.
+- Deps: update `express-rate-limit` to 8.5.2.
 - Deps: update `marked` to 18.0.4.
 - Deps (dev): update `@types/node` to 22.19.19.
 - Deps (transitive): update `@babel/plugin-transform-modules-systemjs` to 7.29.4.

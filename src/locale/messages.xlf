@@ -1196,6 +1196,11 @@
         <source>Faksimil</source>
       </segment>
     </unit>
+    <unit id="Metadata.FacsimileSummary">
+      <segment>
+        <source>Faksimilinfo</source>
+      </segment>
+    </unit>
     <unit id="Metadata.FacsimileTitle">
       <segment>
         <source>Faksimilets titel</source>
@@ -1204,6 +1209,46 @@
     <unit id="Metadata.ImageNumberInfo">
       <segment>
         <source>Bildernas nummer i digitalarkivet</source>
+      </segment>
+    </unit>
+    <unit id="Metadata.Keywords">
+      <segment>
+        <source>Ämnesord</source>
+      </segment>
+    </unit>
+    <unit id="Metadata.Language">
+      <segment>
+        <source>Språk</source>
+      </segment>
+    </unit>
+    <unit id="Metadata.Licence">
+      <segment>
+        <source>Licens</source>
+      </segment>
+    </unit>
+    <unit id="Metadata.LicenceEncoding">
+      <segment>
+        <source>Licens för TEI-filen</source>
+      </segment>
+    </unit>
+    <unit id="Metadata.LicenceWork">
+      <segment>
+        <source>Licens för verket</source>
+      </segment>
+    </unit>
+    <unit id="Metadata.Manuscript">
+      <segment>
+        <source>Manuskript</source>
+      </segment>
+    </unit>
+    <unit id="Metadata.Manuscripts">
+      <segment>
+        <source>Manuskript</source>
+      </segment>
+    </unit>
+    <unit id="Metadata.ManuscriptTitle">
+      <segment>
+        <source>Manuskript</source>
       </segment>
     </unit>
     <unit id="Metadata.Metadata">
@@ -1221,14 +1266,49 @@
         <source>Antal bilder</source>
       </segment>
     </unit>
+    <unit id="Metadata.OrigDate">
+      <segment>
+        <source>Datering</source>
+      </segment>
+    </unit>
     <unit id="Metadata.OriginalLanguage">
       <segment>
         <source>Originalspråk</source>
       </segment>
     </unit>
+    <unit id="Metadata.Persons">
+      <segment>
+        <source>Personer</source>
+      </segment>
+    </unit>
+    <unit id="Metadata.PhysDescription">
+      <segment>
+        <source>Fysisk beskrivning</source>
+      </segment>
+    </unit>
+    <unit id="Metadata.PhysDimensions">
+      <segment>
+        <source>Fysiska mått</source>
+      </segment>
+    </unit>
+    <unit id="Metadata.Places">
+      <segment>
+        <source>Orter</source>
+      </segment>
+    </unit>
     <unit id="Metadata.PublicationDate">
       <segment>
         <source>Datering</source>
+      </segment>
+    </unit>
+    <unit id="Metadata.PublicationGenre">
+      <segment>
+        <source>Genre</source>
+      </segment>
+    </unit>
+    <unit id="Metadata.PublicationLanguage">
+      <segment>
+        <source>Språk</source>
       </segment>
     </unit>
     <unit id="Metadata.PublicationSubtitle">
@@ -1256,6 +1336,11 @@
         <source>Mottagare</source>
       </segment>
     </unit>
+    <unit id="Metadata.Rights">
+      <segment>
+        <source>Rättigheter</source>
+      </segment>
+    </unit>
     <unit id="Metadata.Sender">
       <segment>
         <source>Avsändare</source>
@@ -1266,6 +1351,16 @@
         <source>Avsändare</source>
       </segment>
     </unit>
+    <unit id="Metadata.SourceArchive">
+      <segment>
+        <source>Arkivkälla</source>
+      </segment>
+    </unit>
+    <unit id="Metadata.SourceBibl">
+      <segment>
+        <source>Bibliografisk källa</source>
+      </segment>
+    </unit>
     <unit id="Metadata.Translation">
       <segment>
         <source>Översättning</source>
@@ -1274,6 +1369,26 @@
     <unit id="Metadata.Translations">
       <segment>
         <source>Översättningar</source>
+      </segment>
+    </unit>
+    <unit id="Metadata.Variant">
+      <segment>
+        <source>Tryckt variant</source>
+      </segment>
+    </unit>
+    <unit id="Metadata.VariantBaseText">
+      <segment>
+        <source>grundtext</source>
+      </segment>
+    </unit>
+    <unit id="Metadata.Variants">
+      <segment>
+        <source>Tryckta varianter</source>
+      </segment>
+    </unit>
+    <unit id="Metadata.VariantTitle">
+      <segment>
+        <source>Variant</source>
       </segment>
     </unit>
     <unit id="NamedEntity.Articles">

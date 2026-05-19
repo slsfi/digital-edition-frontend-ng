@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+### Added
+
+- Broaden publication metadata support in the text metadata UI. The supported field contract is documented in [`docs/PUBLICATION-METADATA.md`](docs/PUBLICATION-METADATA.md).
+
 ### Changed
 
 - Deps: update `@angular/core` to 20.3.21 and `@angular/cli` to 20.3.26.

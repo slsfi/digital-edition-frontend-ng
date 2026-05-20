@@ -14,6 +14,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ### Changed
 
+- Improve UI for publication metadata.
 - Update `nginx` to 1.30.1.
 - Deps: update `@angular/core` to 20.3.21 and `@angular/cli` to 20.3.26.
 - Deps: update `express-rate-limit` to 8.5.2.

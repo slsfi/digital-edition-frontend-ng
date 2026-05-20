@@ -1395,7 +1395,7 @@
     </unit>
     <unit id="Metadata.ArchiveInfo">
       <segment state="initial">
-        <source>Arkivkälla för faksimilet</source>
+        <source>Arkivkälla</source>
         <target>Archive</target>
       </segment>
     </unit>
@@ -1419,7 +1419,7 @@
     </unit>
     <unit id="Metadata.ExternalUrl">
       <segment state="initial">
-        <source>Extern länk för faksimilet</source>
+        <source>Extern länk</source>
         <target>Link</target>
       </segment>
     </unit>
@@ -1441,15 +1441,9 @@
         <target>Facsimile info</target>
       </segment>
     </unit>
-    <unit id="Metadata.FacsimileTitle">
-      <segment state="initial">
-        <source>Faksimilets titel</source>
-        <target>Facsimile title</target>
-      </segment>
-    </unit>
     <unit id="Metadata.ImageNumberInfo">
       <segment state="initial">
-        <source>Bildernas nummer i digitalarkivet</source>
+        <source>Bildernas nummer <ph id="0" equiv="LINE_BREAK" type="fmt" disp="&lt;br&gt;"/>i digitalarkivet</source>
         <target>Image number info</target>
       </segment>
     </unit>
@@ -1495,12 +1489,6 @@
         <target>Manuscripts</target>
       </segment>
     </unit>
-    <unit id="Metadata.ManuscriptTitle">
-      <segment state="initial">
-        <source>Manuskript</source>
-        <target>Manuscript</target>
-      </segment>
-    </unit>
     <unit id="Metadata.Metadata">
       <segment state="initial">
         <source>Metadata</source>
@@ -1529,6 +1517,12 @@
       <segment state="initial">
         <source>Originalspråk</source>
         <target>Original language</target>
+      </segment>
+    </unit>
+    <unit id="Metadata.Overview">
+      <segment state="initial">
+        <source>Översikt</source>
+        <target>Overview</target>
       </segment>
     </unit>
     <unit id="Metadata.Persons">
@@ -1645,6 +1639,12 @@
         <target>Translations</target>
       </segment>
     </unit>
+    <unit id="Metadata.Untitled">
+      <segment state="initial">
+        <source>[saknar titel]</source>
+        <target>[untitled]</target>
+      </segment>
+    </unit>
     <unit id="Metadata.Variant">
       <segment state="initial">
         <source>Tryckt variant</source>
@@ -1653,8 +1653,8 @@
     </unit>
     <unit id="Metadata.VariantBaseText">
       <segment state="initial">
-        <source>grundtext</source>
-        <target>base text</target>
+        <source>Grundtext</source>
+        <target>Base text</target>
       </segment>
     </unit>
     <unit id="Metadata.Variants">
@@ -1663,7 +1663,7 @@
         <target>Printed variants</target>
       </segment>
     </unit>
-    <unit id="Metadata.VariantTitle">
+    <unit id="Metadata.VariantText">
       <segment state="initial">
         <source>Variant</source>
         <target>Variant</target>

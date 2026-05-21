@@ -256,11 +256,11 @@
 
     @if (metadata.manuscripts.length) {
       <h3>
-        @if (metadata.manuscripts.length < 2) {
+        @if (metadata.manuscripts.length == 1) {
           <ng-container i18n="@@Metadata.Manuscript">Manuskript</ng-container>
-        }
-        @if (metadata.manuscripts.length > 1) {
+        } @else {
           <ng-container i18n="@@Metadata.Manuscripts">Manuskript</ng-container>
+          &ngsp;<span class="group-count">({{metadata.manuscripts.length}})</span>
         }
       </h3>
       <ul>
@@ -366,11 +366,11 @@
 
     @if (metadata.variants.length) {
       <h3>
-        @if (metadata.variants.length < 2) {
+        @if (metadata.variants.length == 1) {
           <ng-container i18n="@@Metadata.Variant">Tryckt variant</ng-container>
-        }
-        @if (metadata.variants.length > 1) {
+        } @else {
           <ng-container i18n="@@Metadata.Variants">Tryckta varianter</ng-container>
+          &ngsp;<span class="group-count">({{metadata.variants.length}})</span>
         }
       </h3>
       <ul>
@@ -468,11 +468,11 @@
 
     @if (metadata.facsimiles.length) {
       <h3>
-        @if (metadata.facsimiles.length < 2) {
+        @if (metadata.facsimiles.length == 1) {
           <ng-container i18n="@@Metadata.Facsimile">Faksimil</ng-container>
-        }
-        @if (metadata.facsimiles.length > 1) {
+        } @else {
           <ng-container i18n="@@Metadata.Facsimiles">Faksimil</ng-container>
+          &ngsp;<span class="group-count">({{metadata.facsimiles.length}})</span>
         }
       </h3>
       <ul>

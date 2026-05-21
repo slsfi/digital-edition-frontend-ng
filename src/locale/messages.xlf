@@ -1163,7 +1163,7 @@
     </unit>
     <unit id="Metadata.ArchiveInfo">
       <segment>
-        <source>Arkivkälla för faksimilet</source>
+        <source>Arkivkälla</source>
       </segment>
     </unit>
     <unit id="Metadata.Author">
@@ -1183,7 +1183,7 @@
     </unit>
     <unit id="Metadata.ExternalUrl">
       <segment>
-        <source>Extern länk för faksimilet</source>
+        <source>Extern länk</source>
       </segment>
     </unit>
     <unit id="Metadata.Facsimile">
@@ -1201,14 +1201,9 @@
         <source>Faksimilinfo</source>
       </segment>
     </unit>
-    <unit id="Metadata.FacsimileTitle">
-      <segment>
-        <source>Faksimilets titel</source>
-      </segment>
-    </unit>
     <unit id="Metadata.ImageNumberInfo">
       <segment>
-        <source>Bildernas nummer i digitalarkivet</source>
+        <source>Bildernas nummer <ph id="0" equiv="LINE_BREAK" type="fmt" disp="&lt;br&gt;"/>i digitalarkivet</source>
       </segment>
     </unit>
     <unit id="Metadata.Keywords">
@@ -1246,11 +1241,6 @@
         <source>Manuskript</source>
       </segment>
     </unit>
-    <unit id="Metadata.ManuscriptTitle">
-      <segment>
-        <source>Manuskript</source>
-      </segment>
-    </unit>
     <unit id="Metadata.Metadata">
       <segment>
         <source>Metadata</source>
@@ -1274,6 +1264,11 @@
     <unit id="Metadata.OriginalLanguage">
       <segment>
         <source>Originalspråk</source>
+      </segment>
+    </unit>
+    <unit id="Metadata.Overview">
+      <segment>
+        <source>Översikt</source>
       </segment>
     </unit>
     <unit id="Metadata.Persons">
@@ -1371,6 +1366,11 @@
         <source>Översättningar</source>
       </segment>
     </unit>
+    <unit id="Metadata.Untitled">
+      <segment>
+        <source>[saknar titel]</source>
+      </segment>
+    </unit>
     <unit id="Metadata.Variant">
       <segment>
         <source>Tryckt variant</source>
@@ -1378,7 +1378,7 @@
     </unit>
     <unit id="Metadata.VariantBaseText">
       <segment>
-        <source>grundtext</source>
+        <source>Grundtext</source>
       </segment>
     </unit>
     <unit id="Metadata.Variants">
@@ -1386,7 +1386,7 @@
         <source>Tryckta varianter</source>
       </segment>
     </unit>
-    <unit id="Metadata.VariantTitle">
+    <unit id="Metadata.VariantText">
       <segment>
         <source>Variant</source>
       </segment>

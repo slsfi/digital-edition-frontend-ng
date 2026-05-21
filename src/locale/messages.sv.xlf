@@ -1863,8 +1863,8 @@
     </unit>
     <unit id="Password.TooShort">
       <segment state="initial">
-        <source>Lösenordet är för kort.</source>
-        <target>Lösenordet är för kort.</target>
+        <source>Lösenordet måste vara minst 12 tecken långt.</source>
+        <target>Lösenordet måste vara minst 12 tecken långt.</target>
       </segment>
     </unit>
     <unit id="PdfViewer.DownloadPdf">

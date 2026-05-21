@@ -206,7 +206,7 @@
       }
       @if (metadata.persons) {
         <div>
-          <dt i18n="@@Metadata.Persons">Personer</dt>
+          <dt><ng-container i18n="@@Metadata.Persons">Personer</ng-container>&ngsp;<span class="entity-count">({{metadata.persons.length}})</span></dt>
           <dd>
             @for (person of metadata.persons; track person.id; let isLast = $last) {
               <a
@@ -222,7 +222,7 @@
       }
       @if (metadata.places) {
         <div>
-          <dt i18n="@@Metadata.Places">Orter</dt>
+          <dt><ng-container i18n="@@Metadata.Places">Orter</ng-container>&ngsp;<span class="entity-count">({{metadata.places.length}})</span></dt>
           <dd>
             @for (place of metadata.places; track place.id; let isLast = $last) {
               <a
@@ -238,7 +238,7 @@
       }
       @if (metadata.keywords && isKeywordMetadataList(metadata.keywords)) {
         <div>
-          <dt i18n="@@Metadata.Keywords">Ämnesord</dt>
+          <dt><ng-container i18n="@@Metadata.Keywords">Ämnesord</ng-container>&ngsp;<span class="entity-count">({{metadata.keywords.length}})</span></dt>
           <dd>
             @for (keyword of metadata.keywords; track keyword.id; let isLast = $last) {
               <a

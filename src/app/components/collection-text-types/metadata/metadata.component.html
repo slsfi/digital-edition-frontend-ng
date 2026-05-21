@@ -406,6 +406,12 @@
                   <dd>{{v.orig_date}}</dd>
                 </div>
               }
+              @if (v.language) {
+                <div>
+                  <dt i18n="@@Metadata.Language">Språk</dt>
+                  <dd>{{v.language}}</dd>
+                </div>
+              }
               @if (v.phys_description) {
                 <div>
                   <dt i18n="@@Metadata.PhysDescription">Fysisk beskrivning</dt>

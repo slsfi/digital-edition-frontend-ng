@@ -69,7 +69,7 @@ The normalized `PublicationMetadata` interface also contains `id`, `collection_i
 
 ## Manuscript fields
 
-`manuscripts` is normalized to `ManuscriptMetadata[]`. If it contains entries, the component renders a manuscript heading and one `<dl class="dl-group">` per entry, preserving the array order from the backend.
+`manuscripts` is normalized to `ManuscriptMetadata[]`. If it contains entries, the component renders a manuscript heading and one unordered list item per entry, preserving the array order from the backend.
 
 | Field | Normalized type | Rendering |
 | --- | --- | --- |
@@ -91,13 +91,14 @@ The normalized manuscript interface also contains `id` and `sort_order`. These f
 
 ## Variant fields
 
-`variants` is normalized to `VariantMetadata[]`. If it contains entries, the component renders a variant heading and one `<dl class="dl-group">` per entry, preserving the array order from the backend.
+`variants` is normalized to `VariantMetadata[]`. If it contains entries, the component renders a variant heading and one unordered list item per entry, preserving the array order from the backend.
 
 | Field | Normalized type | Rendering |
 | --- | --- | --- |
 | `title` | `string \| null` | Variant title, HTML-enabled. If `type === 0`, the title is annotated as the base text. |
 | `author` | `string[]` | One value per line, with singular/plural label. |
 | `orig_date` | `string \| null` | Plain text date. |
+| `language` | `string \| null` | Plain text language. |
 | `phys_description` | `string \| null` | Physical description, HTML-enabled. |
 | `phys_dimensions` | `string \| null` | Plain text physical dimensions. |
 | `source_archive` | `string \| null` | Archive/source information, HTML-enabled. |
@@ -112,7 +113,7 @@ The normalized variant interface also contains `id`, `sort_order`, and `type`. `
 
 ## Facsimile fields
 
-`facsimiles` is normalized to `FacsimileMetadata[]`. If it contains entries, the component renders a facsimile heading and one `<dl class="dl-group">` per entry, preserving the array order from the backend.
+`facsimiles` is normalized to `FacsimileMetadata[]`. If it contains entries, the component renders a facsimile heading and one unordered list item per entry, preserving the array order from the backend.
 
 | Field | Normalized type | Rendering |
 | --- | --- | --- |

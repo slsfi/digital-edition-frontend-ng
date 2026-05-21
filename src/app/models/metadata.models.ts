@@ -174,6 +174,7 @@ export interface VariantMetadataApiResponse {
   author?: string[] | null;
   facsimile_summary?: string | null;
   id?: number | null;
+  language?: string | null;
   licence?: string | null;
   licence_encoding?: string | null;
   licence_work?: string | null;
@@ -194,6 +195,7 @@ export interface VariantMetadata {
   author: string[];
   facsimile_summary: string | null;
   id: number | null;
+  language: string | null;
   licence: string | null;
   licence_encoding: string | null;
   licence_work: string | null;
@@ -353,6 +355,7 @@ export const toVariantMetadata = (
   author: v.author ?? [],
   facsimile_summary: v.facsimile_summary ?? null,
   id: v.id ?? null,
+  language: v.language ?? null,
   licence: v.licence ?? null,
   licence_encoding: v.licence_encoding ?? null,
   licence_work: v.licence_work ?? null,

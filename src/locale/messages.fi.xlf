@@ -1863,8 +1863,8 @@
     </unit>
     <unit id="Password.TooShort">
       <segment state="initial">
-        <source>Lösenordet är för kort.</source>
-        <target>Salasana on liian lyhyt.</target>
+        <source>Lösenordet måste vara minst 12 tecken långt.</source>
+        <target>Salasanan on oltava vähintään 12 merkkiä pitkä.</target>
       </segment>
     </unit>
     <unit id="PdfViewer.DownloadPdf">

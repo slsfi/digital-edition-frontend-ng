@@ -1333,7 +1333,7 @@
     </unit>
     <unit id="Metadata.Responsibility">
       <segment>
-        <source>Redaktionell <ph id="0" equiv="LINE_BREAK" type="fmt" disp="&lt;br&gt;"/>behandling</source>
+        <source>Bearbetning</source>
       </segment>
     </unit>
     <unit id="Metadata.Rights">

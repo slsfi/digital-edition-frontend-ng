@@ -1599,8 +1599,8 @@
     </unit>
     <unit id="Metadata.Responsibility">
       <segment state="initial">
-        <source>Redaktionell <ph id="0" equiv="LINE_BREAK" type="fmt" disp="&lt;br&gt;"/>behandling</source>
-        <target>Editorial <ph id="0" equiv="LINE_BREAK" type="fmt" disp="&lt;br&gt;"/>preparation</target>
+        <source>Bearbetning</source>
+        <target>Preparation</target>
       </segment>
     </unit>
     <unit id="Metadata.Rights">

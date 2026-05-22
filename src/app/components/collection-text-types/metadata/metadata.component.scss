@@ -11,10 +11,13 @@ div.teiContainer {
 
   h3 {
     background-color: var(--tertiary-color);
-    font-size: 1em;
+    font-family: var(--font-stack-app-base);
+    font-size: 0.8824em;
     font-weight: 600;
+    letter-spacing: 0.03em;
     margin: 2em 0 0.5em 0;
     padding: 0.25em 0.5em;
+    text-transform: uppercase;
 
     &:first-child {
       margin-top: 0;
@@ -32,21 +35,21 @@ div.teiContainer {
       dt,
       dd {
         display: table-cell;
+        padding: 0.15em 0;
       }
 
       dt {
-        font-weight: 600;
+        font-family: var(--font-stack-app-base);
+        font-size: 0.85em;
+        line-height: 1.4;
         padding-right: 1.5em;
+        text-transform: uppercase;
         white-space: pre;
-
-        &::after {
-          content: ": ";
-        }
       }
 
       dd {
         overflow-wrap: break-word;
-        vertical-align: bottom;
+        vertical-align: baseline;
         width: 100%;
 
         a {
@@ -73,11 +76,9 @@ div.teiContainer {
     padding: 0;
 
     li {
-      font-weight: 600;
       padding: 0.25em 0.5em;
 
       dl {
-        font-weight: normal;
         padding-left: 1.125em;
       }
 

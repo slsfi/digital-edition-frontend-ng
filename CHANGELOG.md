@@ -14,6 +14,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - Deps: update `@angular/cli` to 19.2.26 and `@angular/core` to 19.2.22.
 - Deps: update `express` to 4.22.2.
 - Deps (dev): update `@types/node` to 20.19.41.
+- Deps: update transitive dependencies.
 
 
 

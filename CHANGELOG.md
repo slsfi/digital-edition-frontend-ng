@@ -11,6 +11,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 ### Changed
 
 - Update `nginx` to 1.30.1.
+- Deps: update `@angular/cli` to 19.2.26 and `@angular/core` to 19.2.22.
 
 
 

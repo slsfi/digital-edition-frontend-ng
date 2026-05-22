@@ -1,6 +1,30 @@
 @let metadata = publicationMetadata();
 
 <div class="tei teiContainer">
+  <ng-template #responsibilityTemplate let-responsibilities>
+    <div>
+      <dt i18n="@@Metadata.Responsibility">Redaktionell <br>behandling</dt>
+      <dd>
+        <ul class="responsibility-list">
+          @for (responsibility of responsibilities; track $index) {
+            <li>
+              @if (responsibility.resp) {
+                <span class="responsibility-label">{{responsibility.resp}}</span>:
+              }
+              @if (responsibility.names.length) {
+                <ul class="responsibility-names">
+                  @for (name of responsibility.names; track $index) {
+                    <li [innerHTML]="name"></li>
+                  }
+                </ul>
+              }
+            </li>
+          }
+        </ul>
+      </dd>
+    </div>
+  </ng-template>
+
   @if (error()) {
     <p class="noIndent" i18n="@@Metadata.None">Ingen metadata tillgänglig.</p>
   } @else if (metadata === null) {
@@ -87,6 +111,12 @@
             }
           </dd>
         </div>
+      }
+      @if (metadata.responsibility.length) {
+        <ng-container
+              [ngTemplateOutlet]="responsibilityTemplate"
+              [ngTemplateOutletContext]="{ $implicit: metadata.responsibility }"
+        ></ng-container>
       }
       @if (metadata.publication_date) {
         <div>
@@ -292,6 +322,12 @@
                   </dd>
                 </div>
               }
+              @if (m.responsibility.length) {
+                <ng-container
+                      [ngTemplateOutlet]="responsibilityTemplate"
+                      [ngTemplateOutletContext]="{ $implicit: m.responsibility }"
+                ></ng-container>
+              }
               @if (m.orig_date) {
                 <div>
                   <dt i18n="@@Metadata.OrigDate">Datering</dt>
@@ -399,6 +435,12 @@
                     }
                   </dd>
                 </div>
+              }
+              @if (v.responsibility.length) {
+                <ng-container
+                      [ngTemplateOutlet]="responsibilityTemplate"
+                      [ngTemplateOutletContext]="{ $implicit: v.responsibility }"
+                ></ng-container>
               }
               @if (v.orig_date) {
                 <div>

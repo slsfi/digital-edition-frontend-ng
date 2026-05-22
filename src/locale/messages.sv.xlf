@@ -1597,6 +1597,12 @@
         <target>Mottagare</target>
       </segment>
     </unit>
+    <unit id="Metadata.Responsibility">
+      <segment state="initial">
+        <source>Redaktionell <ph id="0" equiv="LINE_BREAK" type="fmt" disp="&lt;br&gt;"/>behandling</source>
+        <target>Redaktionell <ph id="0" equiv="LINE_BREAK" type="fmt" disp="&lt;br&gt;"/>behandling</target>
+      </segment>
+    </unit>
     <unit id="Metadata.Rights">
       <segment state="initial">
         <source>Rättigheter</source>

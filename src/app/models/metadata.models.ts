@@ -124,6 +124,7 @@ export interface ManuscriptMetadataApiResponse {
   orig_date?: string | null;
   phys_description?: string | null;
   phys_dimensions?: string | null;
+  responsibility?: ResponsibilityMetadataApiResponse[] | null;
   rights?: string | null;
   section_id?: string | null;
   sort_order?: number | null;
@@ -144,6 +145,7 @@ export interface ManuscriptMetadata {
   orig_date: string | null;
   phys_description: string | null;
   phys_dimensions: string | null;
+  responsibility: ResponsibilityMetadata[];
   rights: string | null;
   sort_order: number | null;
   source_archive: string | null;
@@ -154,6 +156,17 @@ export interface ManuscriptMetadata {
 export interface TranslationMetadata {
   translated_into: string | null;
   translators: string[] | null;
+}
+
+export interface ResponsibilityMetadataApiResponse {
+  resp?: string | null;
+  names?: string[] | null;
+  [key: string]: unknown;
+}
+
+export interface ResponsibilityMetadata {
+  resp: string;
+  names: string[];
 }
 
 export interface MetadataIndexEntryApiResponse {
@@ -181,6 +194,7 @@ export interface VariantMetadataApiResponse {
   orig_date?: string | null;
   phys_description?: string | null;
   phys_dimensions?: string | null;
+  responsibility?: ResponsibilityMetadataApiResponse[] | null;
   rights?: string | null;
   section_id?: string | null;
   sort_order?: number | null;
@@ -202,6 +216,7 @@ export interface VariantMetadata {
   orig_date: string | null;
   phys_description: string | null;
   phys_dimensions: string | null;
+  responsibility: ResponsibilityMetadata[];
   rights: string | null;
   sort_order: number | null;
   source_archive: string | null;
@@ -236,6 +251,7 @@ export interface PublicationMetadataApiResponse {
   publication_title?: string | null;
   published_by?: string | null;
   recipient?: string[] | null;
+  responsibility?: ResponsibilityMetadataApiResponse[] | null;
   rights?: string | null;
   sender?: string[] | null;
   source_archive?: string | null;
@@ -271,6 +287,7 @@ export interface PublicationMetadata {
   publication_title: string | null;
   published_by: string | null;
   recipient: string[];
+  responsibility: ResponsibilityMetadata[];
   rights: string | null;
   sender: string[];
   source_archive: string | null;
@@ -329,6 +346,27 @@ export const toFacsimileMetadata = (
   priority: f.priority ?? null,
 });
 
+const toResponsibilityMetadata = (
+  responsibility: ResponsibilityMetadataApiResponse
+): ResponsibilityMetadata | null => {
+  const resp = responsibility.resp ?? '';
+  const names = Array.isArray(responsibility.names)
+    ? responsibility.names.filter((name): name is string => typeof name === 'string')
+    : [];
+
+  if (!resp && !names.length) {
+    return null;
+  }
+
+  return { resp, names };
+};
+
+const toResponsibilityMetadataList = (
+  responsibilities: ResponsibilityMetadataApiResponse[] | null | undefined
+): ResponsibilityMetadata[] => (responsibilities ?? [])
+  .map(toResponsibilityMetadata)
+  .filter((responsibility): responsibility is ResponsibilityMetadata => responsibility !== null);
+
 export const toManuscriptMetadata = (
   m: ManuscriptMetadataApiResponse
 ): ManuscriptMetadata => ({
@@ -342,6 +380,7 @@ export const toManuscriptMetadata = (
   orig_date: m.orig_date ?? null,
   phys_description: m.phys_description ?? null,
   phys_dimensions: m.phys_dimensions ?? null,
+  responsibility: toResponsibilityMetadataList(m.responsibility),
   rights: m.rights ?? null,
   sort_order: m.sort_order ?? null,
   source_archive: m.source_archive ?? null,
@@ -362,6 +401,7 @@ export const toVariantMetadata = (
   orig_date: v.orig_date ?? null,
   phys_description: v.phys_description ?? null,
   phys_dimensions: v.phys_dimensions ?? null,
+  responsibility: toResponsibilityMetadataList(v.responsibility),
   rights: v.rights ?? null,
   sort_order: v.sort_order ?? null,
   source_archive: v.source_archive ?? null,
@@ -435,6 +475,7 @@ export const toPublicationMetadata = (
   publication_title: p.publication_title ?? null,
   published_by: p.published_by ?? null,
   recipient: p.recipient ?? [],
+  responsibility: toResponsibilityMetadataList(p.responsibility),
   rights: p.rights ?? null,
   sender: p.sender ?? [],
   source_archive: p.source_archive ?? null,

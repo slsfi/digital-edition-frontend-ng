@@ -23,13 +23,24 @@ interface MetadataIndexEntry {
 
 Entries missing either `id` or `name` are filtered out by the mapper. If no valid entries remain, the normalized value is `null` and the field is not rendered.
 
+Editorial responsibility entries use this shape:
+
+```ts
+interface ResponsibilityMetadata {
+  resp: string;
+  names: string[];
+}
+```
+
+`responsibility` is supported on publications, manuscripts, and variants. Each responsibility entry renders as one outer list item, where `resp` is the item label and `names` renders as a nested unordered list displayed inline with comma separators. Entries with neither a `resp` nor any valid `names` are filtered out by the mapper.
+
 ## HTML fields
 
 Some backend metadata values may contain stringified HTML. These fields are bound with Angular `[innerHTML]` in the template:
 
-- Publication fields: `publication_title`, `publication_subtitle`, `published_by`, `phys_description`, `source_archive`, `source_bibl`, `facsimile_summary`, `rights`, `licence`, `licence_encoding`, `licence_work`
-- Manuscript fields: `title`, `phys_description`, `source_archive`, `source_bibl`, `facsimile_summary`, `rights`, `licence`, `licence_encoding`, `licence_work`
-- Variant fields: `title`, `phys_description`, `source_archive`, `source_bibl`, `facsimile_summary`, `rights`, `licence`, `licence_encoding`, `licence_work`
+- Publication fields: `publication_title`, `publication_subtitle`, `published_by`, `responsibility.names`, `phys_description`, `source_archive`, `source_bibl`, `facsimile_summary`, `rights`, `licence`, `licence_encoding`, `licence_work`
+- Manuscript fields: `title`, `responsibility.names`, `phys_description`, `source_archive`, `source_bibl`, `facsimile_summary`, `rights`, `licence`, `licence_encoding`, `licence_work`
+- Variant fields: `title`, `responsibility.names`, `phys_description`, `source_archive`, `source_bibl`, `facsimile_summary`, `rights`, `licence`, `licence_encoding`, `licence_work`
 - Facsimile fields: `facsimile_title`
 
 Angular sanitizes values bound with `[innerHTML]`. Do not use these fields for scripts or event-handler attributes.
@@ -46,6 +57,7 @@ Top-level publication fields are rendered in the main `<dl>` metadata block.
 | `author` | `string[]` | One value per line, with singular/plural label. |
 | `sender` | `string[]` | One value per line, with singular/plural label. |
 | `recipient` | `string[]` | One value per line, with singular/plural label. |
+| `responsibility` | `ResponsibilityMetadata[]` | Editorial preparation. Renders as an unordered list, one item per `resp`, with nested HTML-enabled `names` displayed inline and comma-separated. |
 | `publication_date` | `string \| null` | Plain text date. |
 | `document_type` | `string \| null` | Plain text document type. |
 | `publication_genre` | `string \| null` | Plain text genre. |
@@ -75,6 +87,7 @@ The normalized `PublicationMetadata` interface also contains `id`, `collection_i
 | --- | --- | --- |
 | `title` | `string \| null` | Manuscript title, HTML-enabled. |
 | `author` | `string[]` | One value per line, with singular/plural label. |
+| `responsibility` | `ResponsibilityMetadata[]` | Editorial preparation. Renders as an unordered list, one item per `resp`, with nested HTML-enabled `names` displayed inline and comma-separated. |
 | `orig_date` | `string \| null` | Plain text date. |
 | `language` | `string \| null` | Plain text language. |
 | `phys_description` | `string \| null` | Physical description, HTML-enabled. |
@@ -97,6 +110,7 @@ The normalized manuscript interface also contains `id` and `sort_order`. These f
 | --- | --- | --- |
 | `title` | `string \| null` | Variant title, HTML-enabled. If `type === 0`, the title is annotated as the base text. |
 | `author` | `string[]` | One value per line, with singular/plural label. |
+| `responsibility` | `ResponsibilityMetadata[]` | Editorial preparation. Renders as an unordered list, one item per `resp`, with nested HTML-enabled `names` displayed inline and comma-separated. |
 | `orig_date` | `string \| null` | Plain text date. |
 | `language` | `string \| null` | Plain text language. |
 | `phys_description` | `string \| null` | Physical description, HTML-enabled. |

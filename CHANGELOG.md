@@ -12,6 +12,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 - Metadata: left-align headings.
 - Auth: preserve query params in top menu language links after router redirects.
+- Search: show an error if initial filter aggregations cannot be loaded.
 
 
 

@@ -1503,7 +1503,7 @@
     </unit>
     <unit id="Metadata.None">
       <segment state="initial">
-        <source>Ingen metadata tillgänglig.</source>
+        <source>Inga metadata tillgängliga.</source>
         <target>Dokumentin metadata ei ole saatavilla.</target>
       </segment>
     </unit>

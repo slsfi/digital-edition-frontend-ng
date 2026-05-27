@@ -451,6 +451,11 @@
         <source>Kommentar till</source>
       </segment>
     </unit>
+    <unit id="ElasticSearch.FilterLoadingError">
+      <segment>
+        <source>Ett fel har uppstått när sökavgränsningarna skulle laddas.</source>
+      </segment>
+    </unit>
     <unit id="ElasticSearch.FilterResults">
       <segment>
         <source>Avgränsa sökningen</source>

@@ -44,6 +44,7 @@ export class ElasticSearchPage implements OnDestroy, OnInit {
   dateHistogramData: any = undefined;
   disableFilterCheckboxes: boolean = true;
   elasticError: boolean = false;
+  filterLoadingError: boolean = false;
   filterGroups: any[] = [];
   filtersVisible: boolean = true;
   from: number = 0;
@@ -99,8 +100,8 @@ export class ElasticSearchPage implements OnDestroy, OnInit {
     this.subscribeToSearchDataStreams();
 
     // Get initial aggregations
-    this.getInitialAggregations().subscribe(
-      (filters: any) => {
+    this.getInitialAggregations().subscribe({
+      next: (filters: any) => {
         // Populate initial filters with initial aggregations data
         this.filterGroups = filters;
 
@@ -117,8 +118,11 @@ export class ElasticSearchPage implements OnDestroy, OnInit {
 
         // Set up URL query params subscriptions in order to trigger new searches
         this.subscribeToQueryParams();
+      },
+      error: (e: any) => {
+        this.handleInitialAggregationsError(e);
       }
-    );
+    });
   }
 
   ngOnDestroy() {
@@ -466,9 +470,28 @@ export class ElasticSearchPage implements OnDestroy, OnInit {
       range: undefined,
     }).pipe(
       map((data: any) => {
-        return this.getInitialFilters(data.aggregations);
+        const aggregations = data?.aggregations;
+        if (!aggregations || typeof aggregations !== 'object' || Array.isArray(aggregations)) {
+          console.error('Elastic search aggregation error, no aggregations: ', data);
+          throw new Error('Elastic search aggregation response did not include aggregations.');
+        }
+
+        return this.getInitialFilters(aggregations);
       })
     );
+  }
+
+  private handleInitialAggregationsError(e: any) {
+    console.error('Elastic search filter loading error: ', e);
+    this.filterLoadingError = true;
+    this.initializing = false;
+    this.loading = false;
+    this.loadingMoreHits = false;
+    this.disableFilterCheckboxes = true;
+    this.from = 0;
+    this.pages = 1;
+    this.total = 0;
+    this.cf.detectChanges();
   }
 
   private parseSortForQuery() {
@@ -743,7 +766,7 @@ export class ElasticSearchPage implements OnDestroy, OnInit {
   private convertAggregationsToFilters(aggregation: AggregationData): Facets {
     const filters = {} as any;
     // Get buckets from either unfiltered or filtered aggregation.
-    const buckets = aggregation.buckets || aggregation?.filtered?.buckets;
+    const buckets = aggregation?.buckets || aggregation?.filtered?.buckets;
 
     buckets?.forEach((filter: Facet) => {
       filters[filter.key] = filter;

@@ -541,6 +541,12 @@
         <target>Commentary to</target>
       </segment>
     </unit>
+    <unit id="ElasticSearch.FilterLoadingError">
+      <segment state="initial">
+        <source>Ett fel har uppstått när sökavgränsningarna skulle laddas.</source>
+        <target>An error occurred while loading filters.</target>
+      </segment>
+    </unit>
     <unit id="ElasticSearch.FilterResults">
       <segment state="initial">
         <source>Avgränsa sökningen</source>

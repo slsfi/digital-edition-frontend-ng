@@ -46,6 +46,14 @@ export class TopMenuComponent {
   private readonly currentLanguage?: Language = this.languages.find(
     (l: Language) => l.code === this.activeLocale
   );
+  protected readonly languageHrefByCode = computed<Record<string, string>>(() => {
+    const currentUrl = this.resolveCurrentRouterUrl();
+
+    return this.languages.reduce<Record<string, string>>((hrefByCode, language) => {
+      hrefByCode[language.code] = `/${language.code}${currentUrl}`;
+      return hrefByCode;
+    }, {});
+  });
   protected readonly currentLanguageLabel = this.currentLanguage?.label ?? '';
   protected readonly showLanguageButton = config.component?.topMenu?.showLanguageButton ?? true;
   protected readonly showTopAboutButton = config.component?.topMenu?.showAboutButton ?? true;
@@ -152,6 +160,46 @@ export class TopMenuComponent {
     event.preventDefault();
     this.getAuthService().logout();
     this.router.navigateByUrl('/login');
+  }
+
+  /**
+   * Returns the route URL used for language links, preserving query params
+   * from the live router URL if the input URL is a same-path stale snapshot.
+   */
+  private resolveCurrentRouterUrl(): string {
+    const currentUrl = this.currentRouterUrl();
+    const routerUrl = this.router.url;
+
+    if (!currentUrl) {
+      return routerUrl || '/';
+    }
+
+    const currentParsedUrl = this.parseRelativeUrl(currentUrl);
+    const routerParsedUrl = this.parseRelativeUrl(routerUrl);
+
+    if (
+      currentParsedUrl &&
+      routerParsedUrl &&
+      currentParsedUrl.pathname === routerParsedUrl.pathname &&
+      !currentParsedUrl.search &&
+      !!routerParsedUrl.search
+    ) {
+      return routerUrl;
+    }
+
+    return currentUrl;
+  }
+
+  /**
+   * Parses an app-relative URL against a dummy origin for pathname/search
+   * comparison.
+   */
+  private parseRelativeUrl(url: string): URL | null {
+    try {
+      return new URL(url, 'http://localhost');
+    } catch {
+      return null;
+    }
   }
 
 }

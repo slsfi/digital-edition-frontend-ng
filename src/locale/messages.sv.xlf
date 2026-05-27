@@ -1503,8 +1503,8 @@
     </unit>
     <unit id="Metadata.None">
       <segment state="initial">
-        <source>Ingen metadata tillgänglig.</source>
-        <target>Ingen metadata tillgänglig.</target>
+        <source>Inga metadata tillgängliga.</source>
+        <target>Inga metadata tillgängliga.</target>
       </segment>
     </unit>
     <unit id="Metadata.NumberOfImages">

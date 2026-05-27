@@ -11,6 +11,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 ### Fixed
 
 - Metadata: left-align headings.
+- Auth: preserve query params in top menu language links after router redirects.
 
 
 

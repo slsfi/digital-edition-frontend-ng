@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+### Fixed
+
+- Search: enable search controls after initial filters load on fresh page loads.
+
 
 
 ## [2.7.1] – 2026-05-28

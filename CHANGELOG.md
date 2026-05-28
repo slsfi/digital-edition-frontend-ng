@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+### Fixed
+
+- Search: start search instruction when filters disabled.
+
 
 
 ## [2.7.2] – 2026-05-28

@@ -218,7 +218,11 @@
               <p i18n="@@ElasticSearch.LoadingFilters">Ett ögonblick, laddar sökavgränsningar ...</p>
             }
             @if (total < 0 && !initializing && !loading && !filterLoadingError) {
-              <p i18n="@@ElasticSearch.StartSearchInstruction">Börja söka genom att skriva in sökord eller välja avgränsningar.</p>
+              @if (enableFilters) {
+                <p i18n="@@ElasticSearch.StartSearchInstruction">Börja söka genom att skriva in sökord eller välja avgränsningar.</p>
+              } @else {
+                <p i18n="@@ElasticSearch.StartSearchInstructionNoFilters">Börja söka genom att skriva in sökord.</p>
+              }
             }
             @if (loading && total < 1 && !filterLoadingError) {
               <ion-spinner class="loading" name="crescent"></ion-spinner>

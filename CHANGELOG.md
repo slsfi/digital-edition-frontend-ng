@@ -11,6 +11,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 ### Changed
 
 - Update `nginx` to 1.30.2.
+- Deps: update `@angular/core` to 20.3.22.
 
 ### Fixed
 

@@ -8,9 +8,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+
+
+## [2.7.2] – 2026-05-28
+
 ### Fixed
 
-- Search: enable search controls after initial filters load on fresh page loads.
+- Search: enable search controls after initial filters load on fresh page loads. ([7a89a0f](https://github.com/slsfi/digital-edition-frontend-ng/commit/7a89a0f2f944135df721d871b7311831fc985bf3))
 
 
 
@@ -1401,7 +1405,8 @@ siteLogoDimensions: {
 
 
 
-[unreleased]: https://github.com/slsfi/digital-edition-frontend-ng/compare/2.7.1...HEAD
+[unreleased]: https://github.com/slsfi/digital-edition-frontend-ng/compare/2.7.2...HEAD
+[2.7.2]: https://github.com/slsfi/digital-edition-frontend-ng/compare/2.7.1...2.7.2
 [2.7.1]: https://github.com/slsfi/digital-edition-frontend-ng/compare/2.7.0...2.7.1
 [2.7.0]: https://github.com/slsfi/digital-edition-frontend-ng/compare/2.6.6...2.7.0
 [2.6.6]: https://github.com/slsfi/digital-edition-frontend-ng/compare/2.6.5...2.6.6

@@ -715,6 +715,12 @@
         <target>Aloita haku kirjoittamalla hakusana tai valitsemalla rajauksia.</target>
       </segment>
     </unit>
+    <unit id="ElasticSearch.StartSearchInstructionNoFilters">
+      <segment state="initial">
+        <source>Börja söka genom att skriva in sökord.</source>
+        <target>Aloita haku kirjoittamalla hakusana.</target>
+      </segment>
+    </unit>
     <unit id="ElasticSearch.TimeRange">
       <segment state="initial">
         <source>Tidsperiod</source>

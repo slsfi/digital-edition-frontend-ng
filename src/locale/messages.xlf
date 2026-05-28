@@ -596,6 +596,11 @@
         <source>Börja söka genom att skriva in sökord eller välja avgränsningar.</source>
       </segment>
     </unit>
+    <unit id="ElasticSearch.StartSearchInstructionNoFilters">
+      <segment>
+        <source>Börja söka genom att skriva in sökord.</source>
+      </segment>
+    </unit>
     <unit id="ElasticSearch.TimeRange">
       <segment>
         <source>Tidsperiod</source>

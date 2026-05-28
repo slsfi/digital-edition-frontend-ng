@@ -715,6 +715,12 @@
         <target>Start by entering search terms or applying filters.</target>
       </segment>
     </unit>
+    <unit id="ElasticSearch.StartSearchInstructionNoFilters">
+      <segment state="initial">
+        <source>Börja söka genom att skriva in sökord.</source>
+        <target>Start by entering search terms.</target>
+      </segment>
+    </unit>
     <unit id="ElasticSearch.TimeRange">
       <segment state="initial">
         <source>Tidsperiod</source>

@@ -8,18 +8,22 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+
+
+## [2.7.1] – 2026-05-28
+
 ### Changed
 
-- Update `nginx` to 1.30.2.
-- Deps: update `@angular/core` to 20.3.22.
-- Deps: update transitive dependencies.
+- Update `nginx` to 1.30.2. ([456131c](https://github.com/slsfi/digital-edition-frontend-ng/commit/456131ca00593648560c48d2f97a468994597c48))
+- Deps: update `@angular/core` to 20.3.22. ([05fdeff](https://github.com/slsfi/digital-edition-frontend-ng/commit/05fdeff3cfdc50f9b57ab4910a5b9bc205ae2700))
+- Deps: update transitive dependencies. ([e4fc9d8](https://github.com/slsfi/digital-edition-frontend-ng/commit/e4fc9d870e7d74819662568f2126912950e83f8c))
 
 ### Fixed
 
-- Metadata: left-align headings.
-- Metadata: no metadata message in Swedish.
-- Auth: preserve query params in top menu language links after router redirects.
-- Search: show an error if initial filter aggregations cannot be loaded.
+- Metadata: left-align headings. ([395d7ef](https://github.com/slsfi/digital-edition-frontend-ng/commit/395d7ef44be02db56f97bbac9f161cbf51022afd))
+- Metadata: no metadata message in Swedish. ([376ca80](https://github.com/slsfi/digital-edition-frontend-ng/commit/376ca80283a7e26fce1218dad5c178201d32643f))
+- Auth: preserve query params in top menu language links after router redirects. ([c276417](https://github.com/slsfi/digital-edition-frontend-ng/commit/c27641712b63995c564cb0fc8c9c85bcd3775574))
+- Search: show an error if initial filter aggregations cannot be loaded. ([86e2ab5](https://github.com/slsfi/digital-edition-frontend-ng/commit/86e2ab57ac0ffd5a3b0a0311f292754d7003fb8b))
 
 
 
@@ -1393,7 +1397,8 @@ siteLogoDimensions: {
 
 
 
-[unreleased]: https://github.com/slsfi/digital-edition-frontend-ng/compare/2.7.0...HEAD
+[unreleased]: https://github.com/slsfi/digital-edition-frontend-ng/compare/2.7.1...HEAD
+[2.7.1]: https://github.com/slsfi/digital-edition-frontend-ng/compare/2.7.0...2.7.1
 [2.7.0]: https://github.com/slsfi/digital-edition-frontend-ng/compare/2.6.6...2.7.0
 [2.6.6]: https://github.com/slsfi/digital-edition-frontend-ng/compare/2.6.5...2.6.6
 [2.6.5]: https://github.com/slsfi/digital-edition-frontend-ng/compare/2.6.4...2.6.5

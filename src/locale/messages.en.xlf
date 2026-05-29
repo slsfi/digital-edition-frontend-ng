@@ -1942,7 +1942,7 @@
     <unit id="Reference.Permalink">
       <segment state="initial">
         <source>Beständig webbadress</source>
-        <target>Permalink</target>
+        <target>Permanent URL</target>
       </segment>
     </unit>
     <unit id="Reference.Refer">

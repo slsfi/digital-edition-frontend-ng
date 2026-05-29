@@ -8,11 +8,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+### Changed
+
+- "Permanent URL" translation in English.
+
 ### Fixed
 
 - Search: start search instruction when filters disabled.
 - Search: increase contrast of text type labels.
 - Register: wrap long checkbox labels.
+
 
 
 ## [2.7.2] – 2026-05-28

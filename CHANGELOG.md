@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+### Changed
+
+- "Permanent URL" translation in English.
+
 ### Fixed
 
 - Search: start search instruction when filters disabled.

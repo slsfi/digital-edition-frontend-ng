@@ -8,17 +8,21 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+
+
+## [2.7.3] – 2026-06-01
+
 ### Changed
 
-- "Permanent URL" translation in English.
-- Deps: update `@angular/core` to 20.3.23.
-- Deps: update transitive dependencies.
+- "Permanent URL" translation in English. ([b4724fe](https://github.com/slsfi/digital-edition-frontend-ng/commit/b4724fe633ffe11ac4128bded0c87b7dff273d51))
+- Deps: update `@angular/core` to 20.3.23. ([601ac40](https://github.com/slsfi/digital-edition-frontend-ng/commit/601ac405f00735d6e021f1f598fb5f6191522778))
+- Deps: update transitive dependencies. ([583effa](https://github.com/slsfi/digital-edition-frontend-ng/commit/583effa35a02d46a5c1cc73ff5b23ce4a21c1424))
 
 ### Fixed
 
-- Search: start search instruction when filters disabled.
-- Search: increase contrast of text type labels.
-- Register: wrap long checkbox labels.
+- Search: start search instruction when filters disabled. ([6be38b4](https://github.com/slsfi/digital-edition-frontend-ng/commit/6be38b4523baf60a8f2597c5ffb2a6cc8501d041))
+- Search: increase contrast of text type labels. ([6545cb0](https://github.com/slsfi/digital-edition-frontend-ng/commit/6545cb0a02bdbfa1defcb24320af48262ff94fdb))
+- Register: wrap long checkbox labels. ([6e1da1c](https://github.com/slsfi/digital-edition-frontend-ng/commit/6e1da1c9410836993a2cc12bacf07a9a860c818e))
 
 
 
@@ -1417,7 +1421,8 @@ siteLogoDimensions: {
 
 
 
-[unreleased]: https://github.com/slsfi/digital-edition-frontend-ng/compare/2.7.2...HEAD
+[unreleased]: https://github.com/slsfi/digital-edition-frontend-ng/compare/2.7.3...HEAD
+[2.7.3]: https://github.com/slsfi/digital-edition-frontend-ng/compare/2.7.2...2.7.3
 [2.7.2]: https://github.com/slsfi/digital-edition-frontend-ng/compare/2.7.1...2.7.2
 [2.7.1]: https://github.com/slsfi/digital-edition-frontend-ng/compare/2.7.0...2.7.1
 [2.7.0]: https://github.com/slsfi/digital-edition-frontend-ng/compare/2.6.6...2.7.0

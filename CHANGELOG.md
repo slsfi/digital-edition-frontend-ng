@@ -11,6 +11,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 ### Changed
 
 - "Permanent URL" translation in English.
+- Deps: update `@angular/core` to 20.3.23.
 
 ### Fixed
 

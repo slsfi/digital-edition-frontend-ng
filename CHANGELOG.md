@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+### Fixed
+
+- Set document title for verify-email page.
+
 
 
 ## [2.7.4] – 2026-06-03

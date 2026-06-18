@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+### Changed
+
+- Deps (dev): update `@types/node` to 20.19.43.
+
 
 
 ## [1.8.6] – 2026-06-04

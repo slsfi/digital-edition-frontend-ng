@@ -11,6 +11,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 ### Changed
 
 - Deps: update `@angular/core` to 20.3.25 and `@angular/cli` to 20.3.29.
+- Deps: update `marked` to 18.0.5.
 
 ### Fixed
 

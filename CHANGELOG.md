@@ -12,6 +12,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 - Deps: update `@angular/core` to 20.3.25 and `@angular/cli` to 20.3.29.
 - Deps: update `marked` to 18.0.5.
+- Deps (dev): update `ng-extract-i18n-merge` to 3.4.0.
 
 ### Fixed
 

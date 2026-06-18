@@ -5,7 +5,9 @@ import { IonicModule } from '@ionic/angular';
 import { config } from '@config';
 import { Language } from '@models/config.models';
 import { AuthService } from '@services/auth.service';
+import { RouteLocalizationService } from '@services/route-localization.service';
 import { AUTH_ENABLED } from '@tokens/auth.tokens';
+import { parseRelativeUrl } from '@utility-functions';
 
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -28,6 +30,7 @@ export class TopMenuComponent {
   private readonly ngZone = inject(NgZone);
   private readonly renderer = inject(Renderer2);
   private readonly router = inject(Router);
+  private readonly routeLocalizationService = inject(RouteLocalizationService);
   private readonly authEnabled = inject(AUTH_ENABLED);
   private authService: AuthService | null = null;
   private readonly authMenuLoginLabel = $localize`:@@TopMenu.Login:Logga in`;
@@ -50,7 +53,9 @@ export class TopMenuComponent {
     const currentUrl = this.resolveCurrentRouterUrl();
 
     return this.languages.reduce<Record<string, string>>((hrefByCode, language) => {
-      hrefByCode[language.code] = `/${language.code}${currentUrl}`;
+      hrefByCode[language.code] = `/${language.code}${
+        this.routeLocalizationService.localizeRouterUrl(currentUrl, language.code)
+      }`;
       return hrefByCode;
     }, {});
   });
@@ -174,8 +179,8 @@ export class TopMenuComponent {
       return routerUrl || '/';
     }
 
-    const currentParsedUrl = this.parseRelativeUrl(currentUrl);
-    const routerParsedUrl = this.parseRelativeUrl(routerUrl);
+    const currentParsedUrl = parseRelativeUrl(currentUrl);
+    const routerParsedUrl = parseRelativeUrl(routerUrl);
 
     if (
       currentParsedUrl &&
@@ -188,18 +193,6 @@ export class TopMenuComponent {
     }
 
     return currentUrl;
-  }
-
-  /**
-   * Parses an app-relative URL against a dummy origin for pathname/search
-   * comparison.
-   */
-  private parseRelativeUrl(url: string): URL | null {
-    try {
-      return new URL(url, 'http://localhost');
-    } catch {
-      return null;
-    }
   }
 
 }

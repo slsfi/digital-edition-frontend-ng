@@ -2,6 +2,8 @@ import { LOCALE_ID } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
 
+import { config } from '@config';
+import { Article } from '@models/article.models';
 import { AUTH_ENABLED } from '@tokens/auth.tokens';
 import { TopMenuComponent } from './top-menu.component';
 
@@ -10,9 +12,25 @@ type TestTopMenuComponent = TopMenuComponent & {
 };
 
 describe('TopMenuComponent', () => {
+  let originalArticles: Article[];
   let router: { url: string };
 
+  const translatedArticles: Article[] = [
+    {
+      id: '04-01',
+      language: 'sv',
+      routeName: 'om-tove-jansson'
+    },
+    {
+      id: '04-01',
+      language: 'fi',
+      routeName: 'tietoa-tove-jansson'
+    }
+  ];
+
   beforeEach(async () => {
+    originalArticles = config.articles ?? [];
+    config.articles = [];
     router = { url: '/' };
 
     await TestBed.configureTestingModule({
@@ -23,6 +41,10 @@ describe('TopMenuComponent', () => {
         { provide: Router, useValue: router }
       ]
     }).compileComponents();
+  });
+
+  afterEach(() => {
+    config.articles = originalArticles;
   });
 
   function createComponent() {
@@ -49,5 +71,25 @@ describe('TopMenuComponent', () => {
     fixture.componentRef.setInput('currentRouterUrl', '/login?returnUrl=%2Fsearch');
 
     expect(component.languageHrefByCode()['fi']).toBe('/fi/login?returnUrl=%2Fsearch');
+  });
+
+  it('localizes article route names in language links', () => {
+    config.articles = translatedArticles;
+    router.url = '/article/om-tove-jansson';
+    const { fixture, component } = createComponent();
+
+    fixture.componentRef.setInput('currentRouterUrl', '/article/om-tove-jansson');
+
+    expect(component.languageHrefByCode()['fi']).toBe('/fi/article/tietoa-tove-jansson');
+  });
+
+  it('preserves live router query params while localizing article route names', () => {
+    config.articles = translatedArticles;
+    router.url = '/article/om-tove-jansson?view=full';
+    const { fixture, component } = createComponent();
+
+    fixture.componentRef.setInput('currentRouterUrl', '/article/om-tove-jansson');
+
+    expect(component.languageHrefByCode()['fi']).toBe('/fi/article/tietoa-tove-jansson?view=full');
   });
 });

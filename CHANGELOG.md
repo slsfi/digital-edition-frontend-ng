@@ -8,12 +8,19 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+
+
+## [1.8.7] – 2026-06-18
+
+> [!WARNING]
+> The `1.x.x` version of the app has a high severity vulnerabilities. Angular 19 that the `1.x.x` version of the app uses is no longer maintained. Please update to the latest `2.x.x` version of the app. Note that support for integrated epubs has been removed in version `2.x.x`. The `1.x.x` version is no longer actively maintained, and this will likely be the last release in the `1.x.x` branch.
+
 ### Changed
 
-- Allow the Docker build workflow to keep running JavaScript actions on Node 20 while GitHub Actions deprecates Node 20 on hosted runners.
-- Update `nginx` to 1.30.3.
-- Deps (dev): update `@types/node` to 20.19.43.
-- Deps: update transitive dependencies.
+- Allow the Docker build workflow to keep running JavaScript actions on Node 20 while GitHub Actions deprecates Node 20 on hosted runners. ([6be8d71](https://github.com/slsfi/digital-edition-frontend-ng/commit/6be8d7181b0b16a3bc8c169194f987b6937b0c5f))
+- Update `nginx` to 1.30.3. ([0934513](https://github.com/slsfi/digital-edition-frontend-ng/commit/0934513f45323d9b60e8c791067efa52985a4b86))
+- Deps (dev): update `@types/node` to 20.19.43. ([a95d5b3](https://github.com/slsfi/digital-edition-frontend-ng/commit/a95d5b313caeb69a24372fee48807fab2b1d46b7))
+- Deps: update transitive dependencies. ([d361ac1](https://github.com/slsfi/digital-edition-frontend-ng/commit/d361ac145cdfb6efe4c718c3972f2f4b7211dced))
 
 
 
@@ -847,7 +854,8 @@ siteLogoDimensions: {
 
 
 
-[unreleased]: https://github.com/slsfi/digital-edition-frontend-ng/compare/1.8.6...1.x.x
+[unreleased]: https://github.com/slsfi/digital-edition-frontend-ng/compare/1.8.7...1.x.x
+[1.8.7]: https://github.com/slsfi/digital-edition-frontend-ng/compare/1.8.6...1.8.7
 [1.8.6]: https://github.com/slsfi/digital-edition-frontend-ng/compare/1.8.5...1.8.6
 [1.8.5]: https://github.com/slsfi/digital-edition-frontend-ng/compare/1.8.4...1.8.5
 [1.8.4]: https://github.com/slsfi/digital-edition-frontend-ng/compare/1.8.3...1.8.4

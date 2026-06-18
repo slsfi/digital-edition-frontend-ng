@@ -11,6 +11,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 ### Fixed
 
 - Set document title for verify-email page.
+- Article: redirect to the active locale's configured route when switching languages from an article URL with a locale-specific route name.
 
 
 

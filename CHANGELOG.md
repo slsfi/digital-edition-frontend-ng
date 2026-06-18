@@ -15,6 +15,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - Deps: update `marked` to 18.0.5.
 - Deps (dev): update `@types/node` to 22.19.21.
 - Deps (dev): update `ng-extract-i18n-merge` to 3.4.0.
+- Deps: update transitive dependencies.
 
 ### Fixed
 

@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+### Changed
+
+- Allow the Docker build workflow to keep running JavaScript actions on Node 20 while GitHub Actions deprecates Node 20 on hosted runners.
+
 
 
 ## [1.8.6] – 2026-06-04

@@ -10,6 +10,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ### Changed
 
+- Allow the Docker build workflow to keep running JavaScript actions on Node 20 while GitHub Actions deprecates Node 20 on hosted runners.
 - Deps (dev): update `@types/node` to 20.19.43.
 
 

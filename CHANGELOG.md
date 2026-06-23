@@ -8,14 +8,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+
+
+## [2.7.6] – 2026-06-23
+
 ### Changed
 
-- Deps (dev): update `@types/node` to 22.20.0.
-- Deps (dev): pin `gzipper` to patch versions of 8.2.x since >= 8.3.0 requires Node 24.
+- Deps (dev): update `@types/node` to 22.20.0. ([b251b78](https://github.com/slsfi/digital-edition-frontend-ng/commit/b251b789258a3170f88e9be0224ed45ed2f730b8))
+- Deps (dev): pin `gzipper` to patch versions of 8.2.x since >= 8.3.0 requires Node 24. ([ddb4b04](https://github.com/slsfi/digital-edition-frontend-ng/commit/ddb4b0478ec79b51b608d5c534f37e7719213a85))
 
 ### Fixed
 
-- SSR: keep canonical and Open Graph URLs on the configured HTTPS origin when the app is deployed behind an internal HTTP proxy hop.
+- SSR: keep canonical and Open Graph URLs on the configured HTTPS origin when the app is deployed behind an internal HTTP proxy hop. ([f6c01de](https://github.com/slsfi/digital-edition-frontend-ng/commit/f6c01dec3e07a79cd97ceff14e9e6442331fefd4))
 
 
 
@@ -1458,7 +1462,8 @@ siteLogoDimensions: {
 
 
 
-[unreleased]: https://github.com/slsfi/digital-edition-frontend-ng/compare/2.7.5...HEAD
+[unreleased]: https://github.com/slsfi/digital-edition-frontend-ng/compare/2.7.6...HEAD
+[2.7.6]: https://github.com/slsfi/digital-edition-frontend-ng/compare/2.7.5...2.7.6
 [2.7.5]: https://github.com/slsfi/digital-edition-frontend-ng/compare/2.7.4...2.7.5
 [2.7.4]: https://github.com/slsfi/digital-edition-frontend-ng/compare/2.7.3...2.7.4
 [2.7.3]: https://github.com/slsfi/digital-edition-frontend-ng/compare/2.7.2...2.7.3

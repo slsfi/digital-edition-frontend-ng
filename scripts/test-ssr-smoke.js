@@ -285,6 +285,32 @@ const TEST_CASES = [
       },
     ],
   },
+  {
+    name: 'SEO tags prefer configured HTTPS origin for public host',
+    route: '/sv/collection/219/text/19443',
+    headers: {
+      Host: 'topelius.sls.fi',
+      'X-Forwarded-Host': 'topelius.sls.fi',
+      'X-Forwarded-Proto': 'http',
+    },
+    checks: [
+      {
+        description: 'Canonical link keeps configured https origin',
+        type: 'includes',
+        value: '<link rel="canonical" href="https://topelius.sls.fi/sv/collection/219/text/19443">',
+      },
+      {
+        description: 'og:url keeps configured https origin',
+        type: 'includes',
+        value: '<meta property="og:url" content="https://topelius.sls.fi/sv/collection/219/text/19443">',
+      },
+      {
+        description: 'og:image keeps configured https origin',
+        type: 'includes',
+        value: '<meta property="og:image" content="https://topelius.sls.fi/sv/assets/images/',
+      },
+    ],
+  },
 ];
 
 function printHelp() {

@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+### Fixed
+
+- SSR: keep canonical and Open Graph URLs on the configured HTTPS origin when the app is deployed behind an internal HTTP proxy hop.
+
 
 
 ## [2.7.5] – 2026-06-18

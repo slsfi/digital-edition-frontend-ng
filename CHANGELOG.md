@@ -11,6 +11,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 ### Changed
 
 - Deps (dev): update `@types/node` to 22.20.0.
+- Deps (dev): pin `gzipper` to patch versions of 8.2.x since >= 8.3.0 requires Node 24.
 
 ### Fixed
 

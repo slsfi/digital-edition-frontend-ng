@@ -8,18 +8,22 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+
+
+## [2.7.7] – 2026-08-11
+
 ### Changed
 
-- Update `nginx` to 1.30.4.
-- Deps: update `@angular/core` to 20.3.27 and `@angular/cli` to 20.3.33.
-- Deps: update `express-rate-limit` to 8.6.2.
-- Deps: update `marked` to 18.0.9.
-- Deps (dev): update `@types/node` to 22.20.1.
-- Deps: update transitive dependencies.
+- Update `nginx` to 1.30.4. ([92a325b](https://github.com/slsfi/digital-edition-frontend-ng/commit/92a325bf865898345701c5a4f127fb155b7f80fc))
+- Deps: update `@angular/core` to 20.3.27 and `@angular/cli` to 20.3.33. ([c4a9ce6](https://github.com/slsfi/digital-edition-frontend-ng/commit/c4a9ce648d21d083c48e0a22594417a2faa4db6c), [67d43b1](https://github.com/slsfi/digital-edition-frontend-ng/commit/67d43b165e3cf56c3d018e398deb1bd3aa691575))
+- Deps: update `express-rate-limit` to 8.6.2. ([07701ce](https://github.com/slsfi/digital-edition-frontend-ng/commit/07701ceab348960aa317222082275623d09a2cf7), [57aa7f5](https://github.com/slsfi/digital-edition-frontend-ng/commit/57aa7f5c93342dba2237a989367b1ca18243d3cc))
+- Deps: update `marked` to 18.0.9. ([68de792](https://github.com/slsfi/digital-edition-frontend-ng/commit/68de792cdb70ac9143a8e6ddc831a91b1e258c09), [c7c100a](https://github.com/slsfi/digital-edition-frontend-ng/commit/c7c100af8b53497b6b709158aabb5784fd2a4bae))
+- Deps (dev): update `@types/node` to 22.20.1. ([f140102](https://github.com/slsfi/digital-edition-frontend-ng/commit/f1401028989dfa72aa105fba1b0c8a8535fd1ead))
+- Deps: update transitive dependencies. ([7c2ab32](https://github.com/slsfi/digital-edition-frontend-ng/commit/7c2ab32126b496a6778d778bfa6d4854d6a5f107), [a40ed77](https://github.com/slsfi/digital-edition-frontend-ng/commit/a40ed773641cdb308b1804617b657eeb7f714345))
 
 ### Removed
 
-- Deps: remove deprecated `@angular/animations`.
+- Deps: remove deprecated `@angular/animations`. ([50f4ad6](https://github.com/slsfi/digital-edition-frontend-ng/commit/50f4ad6d45d7cd3779ec87e8dba1ca5f47d03f48))
 
 
 
@@ -1475,7 +1479,8 @@ siteLogoDimensions: {
 
 
 
-[unreleased]: https://github.com/slsfi/digital-edition-frontend-ng/compare/2.7.6...HEAD
+[unreleased]: https://github.com/slsfi/digital-edition-frontend-ng/compare/2.7.7...HEAD
+[2.7.7]: https://github.com/slsfi/digital-edition-frontend-ng/compare/2.7.6...2.7.7
 [2.7.6]: https://github.com/slsfi/digital-edition-frontend-ng/compare/2.7.5...2.7.6
 [2.7.5]: https://github.com/slsfi/digital-edition-frontend-ng/compare/2.7.4...2.7.5
 [2.7.4]: https://github.com/slsfi/digital-edition-frontend-ng/compare/2.7.3...2.7.4

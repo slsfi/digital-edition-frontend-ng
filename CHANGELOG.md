@@ -16,6 +16,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - Deps (dev): update `@types/node` to 22.20.1.
 - Deps: update transitive dependencies.
 
+### Removed
+
+- Deps: remove deprecated `@angular/animations`.
+
 
 
 ## [2.7.6] – 2026-06-23

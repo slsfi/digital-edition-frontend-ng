@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+### Changed
+
+- Deps (dev): update `@ionic/angular` to 8.8.17 and `ionicons` to 8.1.0.
+
 
 
 ## [2.7.7] – 2026-08-11

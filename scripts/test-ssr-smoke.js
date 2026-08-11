@@ -55,7 +55,7 @@ const TEST_CASES = [
       {
         description: 'Contains Swedish home markdown snippet',
         type: 'includes',
-        value: '<i class="sc-ion-content">Ljungblommor</i>',
+        value: '<i>Ljungblommor</i>',
       },
     ],
   },
@@ -97,7 +97,7 @@ const TEST_CASES = [
       {
         description: 'Contains Finnish home markdown snippet',
         type: 'includes',
-        value: '<b class="sc-ion-content">Lyriikka</b>',
+        value: '<b>Lyriikka</b>',
       },
     ],
   },
@@ -139,7 +139,7 @@ const TEST_CASES = [
       {
         description: 'Contains About heading',
         type: 'includes',
-        value: '<h1 class="sc-ion-content">Zacharias Topelius</h1>',
+        value: '<h1>Zacharias Topelius</h1>',
       },
     ],
   },
@@ -160,8 +160,8 @@ const TEST_CASES = [
     checks: [
       {
         description: 'Contains collection text snippet',
-        type: 'includes',
-        value: '<span class="tei tooltip ttAbbreviations sc-ion-content">Mina Herrar</span>',
+        type: 'regex',
+        value: /<span class="tei(?: tei)? tooltip ttAbbreviations">Mina Herrar<\/span>/,
       },
     ],
   },

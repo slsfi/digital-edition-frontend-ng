@@ -10,6 +10,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ### Changed
 
+- Update `nginx` to 1.30.4.
 - Deps: update `@angular/core` to 20.3.27 and `@angular/cli` to 20.3.33.
 - Deps: update `express-rate-limit` to 8.6.2.
 - Deps: update `marked` to 18.0.9.

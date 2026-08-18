@@ -10,7 +10,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ### Changed
 
-- Deps (dev): update `@ionic/angular` to 8.8.17 and `ionicons` to 8.1.0.
+- Deps (dev): update `@ionic/angular` and `@ionic/angular-server` to 8.8.18 and `ionicons` to 8.1.0.
 - Deps: update `marked` to 18.0.10.
 
 

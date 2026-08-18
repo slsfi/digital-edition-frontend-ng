@@ -8,12 +8,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+
+
+## [2.7.8] – 2026-08-18
+
 ### Changed
 
-- Deps: update `@angular/core` to 20.3.28 and `@angular/cli` to 20.3.34.
-- Deps: update `@ionic/angular` and `@ionic/angular-server` to 8.8.18 and `ionicons` to 8.1.0.
-- Deps: update `marked` to 18.0.10.
-- Deps: update transitive dependencies.
+- Deps: update `@angular/core` to 20.3.28 and `@angular/cli` to 20.3.34. ([594e037](https://github.com/slsfi/digital-edition-frontend-ng/commit/594e0375b779079246fc2c5b542fc4c113e0b03b))
+- Deps: update `@ionic/angular` and `@ionic/angular-server` to 8.8.18 and `ionicons` to 8.1.0. ([0dc0e88](https://github.com/slsfi/digital-edition-frontend-ng/commit/0dc0e88d32e0567f0080d5013d64b4a4eafcc08d), [d06be91](https://github.com/slsfi/digital-edition-frontend-ng/commit/d06be9129776d57fcd2a6c91655864837f59dfc2))
+- Deps: update `marked` to 18.0.10. ([781b10d](https://github.com/slsfi/digital-edition-frontend-ng/commit/781b10db8896c1355e24de925b3a8af4fcc7fb8e))
+- Deps: update transitive dependencies. ([803de54](https://github.com/slsfi/digital-edition-frontend-ng/commit/803de544b76d7d00e070d92bdd41386aebd958f3))
 
 
 
@@ -1486,7 +1490,8 @@ siteLogoDimensions: {
 
 
 
-[unreleased]: https://github.com/slsfi/digital-edition-frontend-ng/compare/2.7.7...HEAD
+[unreleased]: https://github.com/slsfi/digital-edition-frontend-ng/compare/2.7.8...HEAD
+[2.7.8]: https://github.com/slsfi/digital-edition-frontend-ng/compare/2.7.7...2.7.8
 [2.7.7]: https://github.com/slsfi/digital-edition-frontend-ng/compare/2.7.6...2.7.7
 [2.7.6]: https://github.com/slsfi/digital-edition-frontend-ng/compare/2.7.5...2.7.6
 [2.7.5]: https://github.com/slsfi/digital-edition-frontend-ng/compare/2.7.4...2.7.5

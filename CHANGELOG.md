@@ -13,6 +13,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - Deps: update `@angular/core` to 20.3.28 and `@angular/cli` to 20.3.34.
 - Deps: update `@ionic/angular` and `@ionic/angular-server` to 8.8.18 and `ionicons` to 8.1.0.
 - Deps: update `marked` to 18.0.10.
+- Deps: update transitive dependencies.
 
 
 

@@ -5,6 +5,22 @@
   "homepage": "https://github.com/slsfi/digital-edition-frontend-ng#readme",
   "license": "MIT",
   "private": true,
+  "engines": {
+    "node": "^24.0.0",
+    "npm": "^11.0.0"
+  },
+  "devEngines": {
+    "runtime": {
+      "name": "node",
+      "version": "^24.0.0",
+      "onFail": "error"
+    },
+    "packageManager": {
+      "name": "npm",
+      "version": "^11.0.0",
+      "onFail": "error"
+    }
+  },
   "scripts": {
     "ng": "ng",
     "start": "ng serve --configuration=development,sv",
@@ -56,9 +72,9 @@
     "@angular/localize": "^20.3.28",
     "@types/express": "^5.0.6",
     "@types/jasmine": "~5.1.15",
-    "@types/node": "^22.20.1",
+    "@types/node": "^24.13.3",
     "browser-sync": "^3.0.4",
-    "gzipper": "~8.2.1",
+    "gzipper": "^8.3.0",
     "jasmine-core": "~5.13.0",
     "karma": "~6.4.4",
     "karma-chrome-launcher": "~3.2.0",

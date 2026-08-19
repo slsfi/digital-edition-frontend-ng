@@ -12,6 +12,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 - Upgrade the required Node.js runtime and Docker build image to Node 24 with npm 11, update `@types/node` to version 24, and update `gzipper` to 8.3.0.
 
+### Fixed
+
+- SSR smoke test: honor non-default `--base-url` values in URL assertions while preserving forwarded-host and configured-origin proxy coverage.
+
 
 
 ## [2.7.8] – 2026-08-18

@@ -1,5 +1,7 @@
 #!/usr/bin/env node
 
+const http = require('node:http');
+const https = require('node:https');
 const { performance } = require('node:perf_hooks');
 
 /**
@@ -379,6 +381,10 @@ function getUrl(baseUrl, route) {
 }
 
 async function fetchHtml(url, timeoutMs, headers) {
+  if (hasExplicitHostHeader(headers)) {
+    return fetchHtmlWithExplicitHost(url, timeoutMs, headers);
+  }
+
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), timeoutMs);
   const started = performance.now();
@@ -412,24 +418,100 @@ async function fetchHtml(url, timeoutMs, headers) {
   }
 }
 
-function runCheck(body, check) {
+function hasExplicitHostHeader(headers) {
+  return Object.keys(headers || {}).some((name) => name.toLowerCase() === 'host');
+}
+
+/**
+ * Node's Fetch implementation does not send an explicitly supplied Host header.
+ * Use the low-level HTTP client for proxy tests that need the connection target
+ * and public request host to differ.
+ */
+function fetchHtmlWithExplicitHost(url, timeoutMs, headers) {
+  const started = performance.now();
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), timeoutMs);
+
+  return new Promise((resolve) => {
+    let settled = false;
+
+    const finish = (result) => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timeout);
+      resolve({
+        ...result,
+        ms: performance.now() - started,
+      });
+    };
+
+    const fail = (error) => {
+      finish({
+        ok: false,
+        status: 0,
+        contentType: '',
+        body: '',
+        error: error instanceof Error ? error.message : String(error),
+      });
+    };
+
+    let targetUrl;
+    try {
+      targetUrl = new URL(url);
+    } catch (error) {
+      fail(error);
+      return;
+    }
+
+    const client = targetUrl.protocol === 'https:' ? https : http;
+    const request = client.get(targetUrl, { headers, signal: controller.signal }, (response) => {
+      const chunks = [];
+      response.setEncoding('utf8');
+      response.on('data', (chunk) => chunks.push(chunk));
+      response.on('end', () => {
+        const contentType = response.headers['content-type'];
+        finish({
+          ok: true,
+          status: response.statusCode || 0,
+          contentType: Array.isArray(contentType) ? contentType[0] || '' : contentType || '',
+          body: chunks.join(''),
+        });
+      });
+      response.on('error', fail);
+    });
+
+    request.on('error', fail);
+  });
+}
+
+function resolveCheckValue(value, baseUrl) {
+  if (typeof value !== 'string') {
+    return value;
+  }
+
+  return value.replace(DEFAULT_BASE_URL, baseUrl.replace(/\/+$/, ''));
+}
+
+function runCheck(body, check, baseUrl) {
+  const value = resolveCheckValue(check.value, baseUrl);
+
   if (check.type === 'includes') {
-    const matched = body.includes(check.value);
+    const matched = body.includes(value);
     return {
       passed: matched,
       reason: matched
         ? ''
-        : `Missing expected HTML snippet: ${JSON.stringify(check.value)}`,
+        : `Missing expected HTML snippet: ${JSON.stringify(value)}`,
     };
   }
 
   if (check.type === 'regex') {
-    const matched = check.value.test(body);
+    const matched = value.test(body);
     return {
       passed: matched,
       reason: matched
         ? ''
-        : `Missing expected HTML pattern: ${check.value.toString()}`,
+        : `Missing expected HTML pattern: ${value.toString()}`,
     };
   }
 
@@ -466,7 +548,7 @@ async function runTest(baseUrl, timeoutMs, testCase) {
   }
 
   for (const check of testCase.checks) {
-    const result = runCheck(response.body, check);
+    const result = runCheck(response.body, check, baseUrl);
     if (!result.passed) {
       errors.push(`${check.description}: ${result.reason}`);
     }

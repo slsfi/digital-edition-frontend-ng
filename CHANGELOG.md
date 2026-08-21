@@ -16,6 +16,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 ### Fixed
 
 - SSR smoke test: honor non-default `--base-url` values in URL assertions while preserving forwarded-host and configured-origin proxy coverage.
+- Restore Dependabot dependency updates by removing the incompatible `devEngines.packageManager` range and treating npm 11.16.0 as a minimum version.
 
 
 

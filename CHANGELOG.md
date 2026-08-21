@@ -14,6 +14,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - Upgrade `actions/checkout` in Docker build action workflow to v7.
 - Add version-pinned npm install-script approvals and document the transitive dependency update workflow.
 - Deps: update `@angular/core` to 20.3.29.
+- Deps: update `@ionic/angular` and `@ionic/angular-server` to 8.8.19.
 
 ### Fixed
 

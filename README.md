@@ -54,7 +54,7 @@ By default, the app has Swedish and Finnish language versions enabled. See the d
 
 ### Prerequisites
 
-1. Install [Node.js][node.js] which includes [npm][npm]. The app requires Node `^24.0.0` and npm `^11.0.0`; Docker and CI are configured to use Node `24`. Check both versions with:
+1. Install [Node.js][node.js] which includes [npm][npm]. The app requires Node `^24.0.0` and npm `>=11.16.0`; Docker and CI are configured to use Node `24`. Check both versions with:
 
 ```
 node --version

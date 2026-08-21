@@ -197,6 +197,41 @@ Library for extracting and merging i18n xliff translation files for Angular proj
 Angular testing frameworks, not in use.
 
 
+### Updating transitive dependencies
+
+Keep `package-lock.json` when updating transitive dependencies so that the changes remain reproducible and reviewable. Update all dependencies to the newest versions permitted by their existing semver ranges with:
+
+```bash
+npm update
+```
+
+Some dependencies run lifecycle scripts during installation. The approved package versions are pinned in the `allowScripts` section of `package.json`. After updating, list packages whose scripts are not covered by an existing approval:
+
+```bash
+npm approve-scripts --allow-scripts-pending
+```
+
+Review each reported package and its changes before approving it. Approve packages individually, or list several package names in the same command:
+
+```bash
+npm approve-scripts <package> [<package> ...]
+```
+
+This updates the package's version-pinned entry in `allowScripts`. Do not replace it with an unversioned approval unless future versions of that package should be allowed to run install scripts without another review.
+
+Finally, perform a clean installation from the updated lockfile and verify the app:
+
+```bash
+npm ci
+npm run test:source-encoding
+npm run test:routes-parser
+npm run build:ssr
+npm run test:ssr:smoke
+```
+
+`npm ci` removes the existing `node_modules` directory automatically. Commit the reviewed `package-lock.json` changes and, when approvals changed, the corresponding `package.json` changes. Deleting and regenerating the lockfile should only be necessary when repairing a broken dependency tree.
+
+
 
 ## Publication metadata
 

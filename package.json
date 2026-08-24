@@ -37,14 +37,14 @@
     "compress": "gzipper compress ./dist/app/browser --include html,htm,xml,txt,css,js,svg,ico,json,ttf,otf --threshold 1300 --gzip-level 9 --remove-larger"
   },
   "dependencies": {
-    "@angular/common": "^20.3.29",
-    "@angular/compiler": "^20.3.29",
-    "@angular/core": "^20.3.29",
-    "@angular/forms": "^20.3.29",
-    "@angular/platform-browser": "^20.3.29",
-    "@angular/platform-server": "^20.3.29",
-    "@angular/router": "^20.3.29",
-    "@angular/ssr": "^20.3.34",
+    "@angular/common": "^21.2.21",
+    "@angular/compiler": "^21.2.21",
+    "@angular/core": "^21.2.21",
+    "@angular/forms": "^21.2.21",
+    "@angular/platform-browser": "^21.2.21",
+    "@angular/platform-server": "^21.2.21",
+    "@angular/router": "^21.2.21",
+    "@angular/ssr": "^21.2.21",
     "@ionic/angular": "^9.0.0",
     "@ionic/angular-server": "^9.0.0",
     "express": "^5.2.1",
@@ -59,12 +59,12 @@
     "zone.js": "~0.15.1"
   },
   "devDependencies": {
-    "@angular-devkit/build-angular": "^20.3.34",
-    "@angular/build": "^20.3.34",
-    "@angular/cli": "^20.3.34",
-    "@angular/compiler-cli": "^20.3.29",
-    "@angular/language-service": "^20.3.29",
-    "@angular/localize": "^20.3.29",
+    "@angular-devkit/build-angular": "^21.2.21",
+    "@angular/build": "^21.2.21",
+    "@angular/cli": "^21.2.21",
+    "@angular/compiler-cli": "^21.2.21",
+    "@angular/language-service": "^21.2.21",
+    "@angular/localize": "^21.2.21",
     "@types/express": "^5.0.6",
     "@types/jasmine": "~5.1.15",
     "@types/node": "^24.13.3",
@@ -77,7 +77,7 @@
     "karma-jasmine": "~5.1.0",
     "karma-jasmine-html-reporter": "~2.2.0",
     "ng-extract-i18n-merge": "^3.4.0",
-    "typescript": "~5.8.3"
+    "typescript": "~5.9.3"
   },
   "allowScripts": {
     "@parcel/watcher@2.6.0": true,

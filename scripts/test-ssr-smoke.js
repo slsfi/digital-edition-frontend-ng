@@ -168,6 +168,22 @@ const TEST_CASES = [
     ],
   },
   {
+    name: 'Ionic SSR variant select plain-text label',
+    // The variants component is deferred during SSR, so provide a deterministic
+    // title in the serialized view state to test the parent select template.
+    route: '/sv/collection/203/text/20217/ch1?views=(type:variants,uid:v1,id:6872,sortOrder:1,title:SSR+variant+title)',
+    headers: {
+      'User-Agent': 'Mobi',
+    },
+    checks: [
+      {
+        description: 'Contains the selected variant and title as one plain-text label',
+        type: 'regex',
+        value: /<div\b(?=[^>]*\bclass=["'][^"']*\bselect-text\b[^"']*["'])(?=[^>]*\bpart=["']text["'])[^>]*>(?:<!--[\s\S]*?-->\s*)*Tryckt variant – SSR variant title\s*<\/div>/i,
+      },
+    ],
+  },
+  {
     name: 'SEO tags collection text sv',
     route: '/sv/collection/216/text/20280',
     checks: [

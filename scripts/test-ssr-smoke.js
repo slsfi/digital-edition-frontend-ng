@@ -179,7 +179,7 @@ const TEST_CASES = [
       {
         description: 'Contains the selected variant and title as one plain-text label',
         type: 'regex',
-        value: /<div\b(?=[^>]*\bclass=["'][^"']*\bselect-text\b[^"']*["'])(?=[^>]*\bpart=["']text["'])[^>]*>(?:<!--[\s\S]*?-->\s*)*Tryckt variant – SSR variant title\s*<\/div>/i,
+        value: /<div aria-hidden="true" class="select-text sc-ion-select-md" part="text"[^>]*><!--[^>]*-->Tryckt variant – SSR variant title<\/div>/,
       },
     ],
   },

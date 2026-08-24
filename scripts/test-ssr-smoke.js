@@ -168,6 +168,28 @@ const TEST_CASES = [
     ],
   },
   {
+    name: 'Collection introduction',
+    route: '/sv/collection/203/introduction',
+    checks: [
+      {
+        description: 'Contains collection introduction snippet',
+        type: 'includes',
+        value: 'Topelius mest kända och till konceptionen mest ambitiösa verk',
+      },
+    ],
+  },
+  {
+    name: 'Persons index',
+    route: '/sv/index/persons',
+    checks: [
+      {
+        description: 'Contains person index entry',
+        type: 'includes',
+        value: 'Abbas I av Egypten',
+      },
+    ],
+  },
+  {
     name: 'Ionic SSR variant select plain-text label',
     // The variants component is deferred during SSR, so provide a deterministic
     // title in the serialized view state to test the parent select template.
@@ -180,6 +202,32 @@ const TEST_CASES = [
         description: 'Contains the selected variant and title as one plain-text label',
         type: 'regex',
         value: /<div aria-hidden="true" class="select-text sc-ion-select-md" part="text"[^>]*><!--[^>]*-->Tryckt variant – SSR variant title<\/div>/,
+      },
+    ],
+  },
+  {
+    name: 'Ionic SSR ion-button structure',
+    route: '/sv/collection/200/text/19870',
+    checks: [
+      {
+        description: 'Contains hydrated ion-button host element',
+        type: 'regex',
+        value: /<ion-button\b[^>]*\bclass=["'][^"']*\bion-button\b[^"']*\bhydrated\b[^"']*["'][^>]*>/i,
+      },
+      {
+        description: 'Contains native button inside ion-button',
+        type: 'regex',
+        value: /<ion-button\b[\s\S]*?<button\b[^>]*\bclass=["'][^"']*\bbutton-native\b[^"']*["'][^>]*\bpart=["']native["'][^>]*>/i,
+      },
+      {
+        description: 'Contains expected ion-icon inside ion-button',
+        type: 'regex',
+        value: /<ion-button\b[\s\S]*?<ion-icon\b[^>]*\bname=["']arrow-redo-sharp["'][^>]*\bhydrated\b[^>]*>/i,
+      },
+      {
+        description: 'Contains expected button label text',
+        type: 'regex',
+        value: /<ion-button\b[\s\S]*?<span\b[^>]*\bside-title\b[^>]*>\s*Hänvisa\s*<\/span>/i,
       },
     ],
   },
@@ -211,32 +259,6 @@ const TEST_CASES = [
         description: 'og:url points to Swedish collection text route',
         type: 'includes',
         value: '<meta property="og:url" content="http://localhost:4201/sv/collection/216/text/20280">',
-      },
-    ],
-  },
-  {
-    name: 'Ionic SSR ion-button structure',
-    route: '/sv/collection/200/text/19870',
-    checks: [
-      {
-        description: 'Contains hydrated ion-button host element',
-        type: 'regex',
-        value: /<ion-button\b[^>]*\bclass=["'][^"']*\bion-button\b[^"']*\bhydrated\b[^"']*["'][^>]*>/i,
-      },
-      {
-        description: 'Contains native button inside ion-button',
-        type: 'regex',
-        value: /<ion-button\b[\s\S]*?<button\b[^>]*\bclass=["'][^"']*\bbutton-native\b[^"']*["'][^>]*\bpart=["']native["'][^>]*>/i,
-      },
-      {
-        description: 'Contains expected ion-icon inside ion-button',
-        type: 'regex',
-        value: /<ion-button\b[\s\S]*?<ion-icon\b[^>]*\bname=["']arrow-redo-sharp["'][^>]*\bhydrated\b[^>]*>/i,
-      },
-      {
-        description: 'Contains expected button label text',
-        type: 'regex',
-        value: /<ion-button\b[\s\S]*?<span\b[^>]*\bside-title\b[^>]*>\s*Hänvisa\s*<\/span>/i,
       },
     ],
   },

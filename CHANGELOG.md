@@ -8,12 +8,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+### BREAKING CHANGES
+
+- Node.js `^24.15.0` and npm `>=11.16.0` required.
+- Supported browsers aligned with Angular major version browser support.
+
 ### Changed
 
 - Upgrade the required Node.js runtime and Docker build image to Node 24 with npm 11, update `@types/node` to version 24, and update `gzipper` to 8.3.0.
 - Upgrade `actions/checkout` in Docker build action workflow to v7.
 - Add version-pinned npm install-script approvals and document the transitive dependency update workflow.
-- Deps: update `@angular/core` and `@angular/cli` to 21.2.21.
+- Deps: update `@angular/core` to 22.1.3 and `@angular/cli` to 22.1.5.
 - Deps: update `@ionic/angular` and `@ionic/angular-server` to 9.0.0.
 - Deps: update transitive dependencies.
 

@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
+import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { BrowserModule } from '@angular/platform-browser';
 import { RouteReuseStrategy } from '@angular/router';
 import { IonicModule, IonicRouteStrategy } from '@ionic/angular/lazy';
@@ -63,7 +63,6 @@ const authEnabled = config?.app?.auth?.enabled === true;
   ],
   providers: [
     provideHttpClient(
-      withFetch(),
       ...(authEnabled ? [withInterceptors([authInterceptor])] : [])
     ),
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },

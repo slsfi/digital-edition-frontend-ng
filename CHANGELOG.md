@@ -15,6 +15,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - Add version-pinned npm install-script approvals and document the transitive dependency update workflow.
 - Deps: update `@angular/core` and `@angular/cli` to 21.2.21.
 - Deps: update `@ionic/angular` and `@ionic/angular-server` to 9.0.0.
+- Deps: update transitive dependencies.
 
 ### Fixed
 

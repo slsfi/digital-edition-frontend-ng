@@ -1,7 +1,7 @@
 import { Component, DestroyRef, ElementRef, LOCALE_ID, NgZone, OnDestroy, OnInit, Renderer2, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ModalController, PopoverController } from '@ionic/angular';
+import { ModalController, PopoverController } from '@ionic/angular/lazy';
 
 import { config } from '@config';
 import { CollectionContentService } from '@services/collection-content.service';

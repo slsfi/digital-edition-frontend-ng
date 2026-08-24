@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
 import { BrowserModule } from '@angular/platform-browser';
 import { RouteReuseStrategy } from '@angular/router';
-import { IonicModule, IonicRouteStrategy } from '@ionic/angular';
+import { IonicModule, IonicRouteStrategy } from '@ionic/angular/lazy';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';

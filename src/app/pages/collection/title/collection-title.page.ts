@@ -1,6 +1,6 @@
 import { Component, ElementRef, LOCALE_ID, OnInit, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { ModalController, PopoverController } from '@ionic/angular';
+import { ModalController, PopoverController } from '@ionic/angular/lazy';
 import { catchError, combineLatest, map, Observable, of, switchMap, tap } from 'rxjs';
 
 import { config } from '@config';

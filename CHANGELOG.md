@@ -20,6 +20,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - Add version-pinned npm install-script approvals and document the transitive dependency update workflow.
 - Deps: update `@angular/core` to 22.1.3 and `@angular/cli` to 22.1.5.
 - Deps: update `@ionic/angular` and `@ionic/angular-server` to 9.0.0.
+- Deps: pin `zone.js` to 0.15.1.
 - Deps: update transitive dependencies.
 
 ### Fixed

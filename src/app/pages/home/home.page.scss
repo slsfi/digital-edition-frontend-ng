@@ -93,7 +93,7 @@ ion-content.portrait-mode::part(scroll) {
 	.site-presentation {
 		margin: 0 auto 3rem auto;
 		max-width: 1000px;
-		text-align: center;
+		text-align: start;
 	}
 
 	.search-bar-wrapper {
@@ -155,7 +155,6 @@ ion-content.portrait-mode::part(scroll) {
 
 		.site-presentation {
 			margin: 0 0 3rem 0;
-			text-align: start;
 		}
 
 		.footer {

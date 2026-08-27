@@ -23,11 +23,12 @@
 
   To override scoped CSS variables, wrap them in the appropriate
   page/component element selectors. The required selectors are listed
-  in the files in /src/theme/scoped-variables. You must also either
-  add the !important property to the variable values, or increase the
-  specificity of the selector by adding the [class][class] attribute
-  selectors directly after the element selector. Otherwise these variables
-  won’t take precedence. Examples of overriding scoped CSS variables:
+  below and in the files in /src/theme/scoped-variables. You may also have
+  to either add the !important property to the variable values, or
+  increase the specificity of the selector by adding the [class][class]
+  attribute selectors directly after the element selector. Otherwise these
+  variables may not take precedence. Examples of overriding scoped CSS
+  variables:
 
   page-elastic-search[class][class] {
     --inl-color: #000;
@@ -38,6 +39,10 @@
   page-elastic-search {
     --inl-color: #000 !important;
   }
+
+  Note that page-home does not have a file for scoped variables. Instead,
+  the CSS variables used in the page are defined inline in the page's
+  SCSS with default fallbacks.
 
   * ALTERNATIVE TO OVERRIDING CSS VARIABLES
 
@@ -142,6 +147,61 @@
     --top-menu-toolbar-button-icons-font-size: 1.875rem;
     --top-menu-button-filter:                  drop-shadow(0 1px 3px rgba(35, 35, 35, .3));
     --top-menu-logo-height:                    56px;
+  }
+
+  page-home {
+    /// Banner image and site title, mainly in landscape mode
+    --banner-border-bottom: 0;
+    --banner-height: 50%;
+    --banner-height-narrow: 40%;
+    --banner-title-background-color: transparent;
+    --banner-title-color: #000;
+    --banner-title-font-family: var(--font-stack-home-banner);
+    --banner-title-font-size: calc(1.375rem + 2.15vw);
+    --banner-title-font-weight: 400;
+    --banner-title-letter-spacing: normal;
+    --banner-title-opacity: 1;
+    --banner-title-text-shadow: none;
+    --banner-title-text-transform: none;
+    --banner-title-white-space: normal;
+    --banner-title-wrapper-top: 50%;
+    --banner-subtitle-font-size: calc(1.25rem + 0.7vw);
+    --banner-subtitle-font-style: italic;
+    --landscape-pic-img-obj-position: 50% 50%;  /// set to `left top` to fix top left corner always into view
+
+    /// Banner image and site title in portrait mode
+    --portrait-banner-background-color: transparent;
+    --portrait-site-title-color: #000;
+    --portrait-site-title-font-family: var(--font-stack-home-banner);
+    --portrait-site-title-font-size: 3.25rem;
+    --portrait-site-title-font-weight: 400;
+    --portrait-site-title-letter-spacing: normal;
+    --portrait-site-title-text-align: center;
+    --portrait-site-title-text-transform: none;
+    --portrait-site-subtitle-font-size: 2.25rem;
+    --portrait-site-subtitle-font-style: italic;
+
+    /// The following apply in portrait mode when the content is shown in a single column,
+    /// i.e. the banner image is full width and text content is below
+    --portrait-narrow-site-title-font-size: 2.25rem;
+    --portrait-narrow-site-title-text-align: center;
+    --portrait-narrow-site-subtitle-font-size: 1.625rem;
+
+    /// Search bar alignment: change the left margin to 0 to left-align the search bar
+    /// instead of center-align it
+    --search-bar-margin-left: auto;
+    --portrait-narrow-search-bar-margin-left: auto;
+
+    /// Max-width of divisions
+    --text-content-max-width: 750px;
+    --site-presentation-max-width: var(--text-content-max-width);
+    --content-grid-max-width: var(--text-content-max-width);
+    --search-bar-max-width: 520px;
+    --footer-max-width: var(--text-content-max-width);
+
+    /// Footer
+    --footer-color: #353535;
+    --footer-text-align: center;
   }
 
   page-elastic-search[class][class] {

@@ -1,8 +1,5 @@
 /* ATTN. Styles for elements in the markdown content must be defined in global.scss. */
 
-// Import scoped CSS variables
-@use "../../../theme/scoped-variables/page-home-variables.scss";
-
 :host {
 	font-size: 1.125rem;
 }
@@ -18,9 +15,9 @@ ion-content.portrait-mode::part(scroll) {
 }
 
 .banner {
-	border-bottom: var(--banner-border-bottom);
+	border-bottom: var(--banner-border-bottom, 0);
 	flex-shrink: 0;
-	height: var(--banner-height);
+	height: var(--banner-height, 50%);
 	margin: 0;
 	min-height: 200px;
 	padding: 0;
@@ -28,7 +25,7 @@ ion-content.portrait-mode::part(scroll) {
 
 	// Reduce banner height on narrow screens in landscape mode
 	@media screen and (max-width: 1100px) {
-		height: 40%;
+		height: var(--banner-height-narrow, 40%);
 	}
 
 	.landscape-background-image {
@@ -47,7 +44,7 @@ ion-content.portrait-mode::part(scroll) {
 		left: 50%;
 		position: relative;
 		text-align: center;
-		top: var(--banner-title-wrapper-top);
+		top: var(--banner-title-wrapper-top, 50%);
 		transform: translate(-50%, -50%);
 	}
 
@@ -61,7 +58,7 @@ ion-content.portrait-mode::part(scroll) {
 		img {
 			height: 100%;
 			object-fit: cover;
-			object-position: var(--landscape-pic-img-obj-position);
+			object-position: var(--landscape-pic-img-obj-position, 50% 50%);
 			position: relative;
 			width: 100%;
 		}
@@ -70,25 +67,25 @@ ion-content.portrait-mode::part(scroll) {
 
 .banner-title,
 .banner-subtitle {
-	background-color: var(--banner-title-background-color);
-	color: var(--banner-title-color);
-	font-family: var(--font-stack-home-banner);
-	font-size: var(--banner-title-font-size);
-	font-weight: var(--banner-title-font-weight);
-	letter-spacing: var(--banner-title-letter-spacing);
+	background-color: var(--banner-title-background-color, transparent);
+	color: var(--banner-title-color, #000);
+	font-family: var(--banner-title-font-family, var(--font-stack-home-banner));
+	font-size: var(--banner-title-font-size, calc(1.375rem + 2.15vw));
+	font-weight: var(--banner-title-font-weight, 400);
+	letter-spacing: var(--banner-title-letter-spacing, normal);
 	line-height: 1.5;
 	margin: 1.2rem 1rem 1rem 1rem;
-	opacity: var(--banner-title-opacity);
+	opacity: var(--banner-title-opacity, 1);
 	padding: 0 1rem;
-	text-shadow: var(--banner-title-text-shadow);
-	text-transform: var(--banner-title-text-transform);
-	white-space: var(--banner-title-white-space);
+	text-shadow: var(--banner-title-text-shadow, none);
+	text-transform: var(--banner-title-text-transform, none);
+	white-space: var(--banner-title-white-space, normal);
 }
 
 .banner-subtitle {
 	display: inline-block;
-	font-size: var(--banner-subtitle-font-size);
-	font-style: var(--banner-subtitle-font-style);
+	font-size: var(--banner-subtitle-font-size, calc(1.25rem + 0.7vw));
+	font-style: var(--banner-subtitle-font-style, italic);
 	margin-top: 0;
 }
 
@@ -98,26 +95,26 @@ ion-content.portrait-mode::part(scroll) {
 	flex-direction: column;
 	height: 100%;
 	margin: 0 3rem;
-	max-width: var(--text-content-max-width);
+	max-width: var(--text-content-max-width, 750px);
 	padding: 1.5rem 0 0 0;
 
 	.site-presentation {
 		margin: 0 auto 3rem auto;
-		max-width: var(--site-presentation-max-width);
+		max-width: var(--site-presentation-max-width, var(--text-content-max-width, 750px));
 		text-align: start;
 	}
 
 	.search-bar-wrapper {
 		align-items: center;
 		display: flex;
-		margin: 1rem auto 1rem var(--search-bar-margin-left);
-		max-width: var(--search-bar-max-width);
+		margin: 1rem auto 1rem var(--search-bar-margin-left, auto);
+		max-width: var(--search-bar-max-width, 520px);
 		width: 100%;
 
 		ion-searchbar {
 			flex-basis: 200px;
 			flex-grow: 1;
-			max-width: var(--search-bar-max-width);
+			max-width: var(--search-bar-max-width, 520px);
 			min-width: 200px;
 			padding-inline-start: 0;
 			width: auto;
@@ -126,23 +123,23 @@ ion-content.portrait-mode::part(scroll) {
 
 	.content-grid-wrapper {
 		margin: 0 auto 3rem auto;
-		max-width: var(--content-grid-max-width);
+		max-width: var(--content-grid-max-width, var(--text-content-max-width, 750px));
 	}
 
 	.footer {
-		color: var(--footer-color);
+		color: var(--footer-color, #353535);
 		font-size: 1rem;
 		margin: auto auto 0 auto;
-		max-width: var(--footer-max-width);
+		max-width: var(--footer-max-width, var(--text-content-max-width, 750px));
 		padding: 0 0 1.5rem 0;
-		text-align: var(--footer-text-align);
+		text-align: var(--footer-text-align, center);
 		width: 100%;
 	}
 }
 
 .portrait-mode {
 	.banner {
-		background-color: var(--portrait-banner-background-color);
+		background-color: var(--portrait-banner-background-color, transparent);
 		height: 100%;
 		min-height: 100%;
 		min-width: 370px;
@@ -177,22 +174,22 @@ ion-content.portrait-mode::part(scroll) {
 
 	.site-title,
 	.site-subtitle {
-		color: var(--portrait-site-title-color);
-		font-family: var(--portrait-site-title-font-family);
-		font-size: var(--portrait-site-title-font-size);
-		font-weight: var(--portrait-site-title-font-weight);
-		letter-spacing: var(--portrait-site-title-letter-spacing);
+		color: var(--portrait-site-title-color, #000);
+		font-family: var(--portrait-site-title-font-family, var(--font-stack-home-banner));
+		font-size: var(--portrait-site-title-font-size, 3.25rem);
+		font-weight: var(--portrait-site-title-font-weight, 400);
+		letter-spacing: var(--portrait-site-title-letter-spacing, normal);
 		line-height: 1.25;
 		margin-top: 1.2rem;
 		margin-bottom: 1rem;
 		padding: 0 0 0.5rem 0;
-		text-align: var(--portrait-site-title-text-align);
-		text-transform: var(--portrait-site-title-text-transform);
+		text-align: var(--portrait-site-title-text-align, center);
+		text-transform: var(--portrait-site-title-text-transform, none);
 	}
 
 	.site-subtitle {
-		font-size: var(--portrait-site-subtitle-font-size);
-		font-style: var(--portrait-site-subtitle-font-style);
+		font-size: var(--portrait-site-subtitle-font-size, 2.25rem);
+		font-style: var(--portrait-site-subtitle-font-style, italic);
 		margin-top: -1rem;
 	}
 }
@@ -264,18 +261,18 @@ ion-content.portrait-mode::part(scroll) {
 			order: 1;
 
 			.site-title {
-				font-size: var(--portrait-single-site-title-font-size);
+				font-size: var(--portrait-narrow-site-title-font-size, 2.25rem);
 				margin-top: 0.5rem;
-				text-align: var(--portrait-single-site-title-text-align);
+				text-align: var(--portrait-narrow-site-title-text-align, center);
 			}
 
 			.site-subtitle {
-				font-size: var(--portrait-single-site-subtitle-font-size);
-				text-align: var(--portrait-single-site-title-text-align);
+				font-size: var(--portrait-narrow-site-subtitle-font-size, 1.625rem);
+				text-align: var(--portrait-narrow-site-title-text-align, center);
 			}
 
 			.search-bar-wrapper {
-				margin-left: var(--portrait-single-search-bar-margin-left)
+				margin-left: var(--portrait-narrow-search-bar-margin-left, auto);
 			}
 		}
 	}

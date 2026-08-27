@@ -13,7 +13,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - Node.js `^24.15.0` and npm `>=11.16.0` required.
 - Supported browsers aligned with Angular major version browser support.
 - Home page styling defaults have changed:
-  - The site presentation text block is start-aligned (previously centered).
+  - The site presentation text block is start-aligned in landscape mode (previously centered).
   - The banner title and subtitle have a transparent background with full opacity (previously the main background colour with `0.8` opacity).
   - The text content column is centred with a maximum width of `750px` (previously its main sections had a maximum width of `1000px`).
   - The site title, subtitle and footer are centred in portrait mode (previously start-aligned).

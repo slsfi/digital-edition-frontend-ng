@@ -14,6 +14,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - Deps: update `@ionic/angular` and `@ionic/angular-server` to 8.8.19.
 - Deps: update `express-rate-limit` to 8.7.0.
 - Deps: update `marked` to 18.0.11.
+- Deps: update transitive dependencies.
 
 
 

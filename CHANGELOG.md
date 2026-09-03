@@ -10,7 +10,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ### Changed
 
-- Deps: update `@angular/core` to 20.3.30 and `@angular/cli` to 20.3.35.
+- Deps: update `@angular/core` to 20.3.30 and `@angular/cli` to 20.3.36.
 - Deps: update `@ionic/angular` and `@ionic/angular-server` to 8.8.19.
 
 

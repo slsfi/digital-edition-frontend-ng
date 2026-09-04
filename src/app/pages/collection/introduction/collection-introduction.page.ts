@@ -1,4 +1,4 @@
-import { Component, ChangeDetectorRef, ChangeDetectionStrategy, DestroyRef, ElementRef, LOCALE_ID, NgZone, OnDestroy, OnInit, Renderer2, inject } from '@angular/core';
+import { Component, ChangeDetectionStrategy, DestroyRef, ElementRef, LOCALE_ID, NgZone, OnDestroy, OnInit, Renderer2, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ModalController, PopoverController } from '@ionic/angular/lazy';
@@ -23,8 +23,6 @@ import { isBrowser } from '@utility-functions';
   standalone: false
 })
 export class CollectionIntroductionPage implements OnInit, OnDestroy {
-  // TODO: refactor to signals so manual mark for check is not needed
-  private changeDetectorRef = inject(ChangeDetectorRef);
   private collectionContentService = inject(CollectionContentService);
   private collectionsService = inject(CollectionsService);
   private destroyRef = inject(DestroyRef);
@@ -217,15 +215,12 @@ export class CollectionIntroductionPage implements OnInit, OnDestroy {
           this.text = $localize`:@@CollectionIntroduction.None:Inledningen kunde inte laddas.`;
           this.hasSeparateIntroToc = false;
         }
-
-        this.changeDetectorRef.markForCheck();
       },
       error: (e: any) =>  {
         console.error(e);
         this.textLoading = false;
         this.text = $localize`:@@CollectionIntroduction.None:Inledningen kunde inte laddas.`;
         this.hasSeparateIntroToc = false;
-        this.changeDetectorRef.markForCheck();
       }
     });
   }

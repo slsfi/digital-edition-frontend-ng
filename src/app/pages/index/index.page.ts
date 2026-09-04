@@ -1,4 +1,4 @@
-import { Component, LOCALE_ID, OnInit, inject, viewChild, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
+import { Component, LOCALE_ID, OnInit, inject, viewChild, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { IonContent, ModalController } from '@ionic/angular/lazy';
 import { Observable, Subscription } from 'rxjs';
@@ -23,8 +23,6 @@ import { isBrowser, sortArrayOfObjectsAlphabetically } from '@utility-functions'
   standalone: false
 })
 export class IndexPage implements OnInit {
-  // TODO: refactor to signals so manual mark for check is not needed
-  private changeDetectorRef = inject(ChangeDetectorRef);
   private mdService = inject(MarkdownService);
   private modalCtrl = inject(ModalController);
   private namedEntityService = inject(NamedEntityService);
@@ -164,12 +162,10 @@ export class IndexPage implements OnInit {
         this.data = persons;
         this.cachedData = persons;
         this.showLoading = false;
-        this.changeDetectorRef.markForCheck();
       },
       error: (err) => {
         console.error(err);
         this.showLoading = false;
-        this.changeDetectorRef.markForCheck();
       }
     });
   }
@@ -200,14 +196,12 @@ export class IndexPage implements OnInit {
         }
 
         this.showLoading = false;
-        this.changeDetectorRef.markForCheck();
       },
       error: (err) => {
         console.error(err);
         this.showLoading = false;
         this.agg_after_key = {};
         this.lastFetchSize = 0;
-        this.changeDetectorRef.markForCheck();
       }
     });
   }
@@ -237,14 +231,12 @@ export class IndexPage implements OnInit {
         }
 
         this.showLoading = false;
-        this.changeDetectorRef.markForCheck();
       },
       error: (err) => {
         console.error(err);
         this.showLoading = false;
         this.agg_after_key = {};
         this.lastFetchSize = 0;
-        this.changeDetectorRef.markForCheck();
       }
     });
   }
@@ -276,14 +268,12 @@ export class IndexPage implements OnInit {
         }
 
         this.showLoading = false;
-        this.changeDetectorRef.markForCheck();
       },
       error: (err) => {
         console.error(err);
         this.showLoading = false;
         this.agg_after_key = {};
         this.lastFetchSize = 0;
-        this.changeDetectorRef.markForCheck();
       }
     });
   }
@@ -340,12 +330,10 @@ export class IndexPage implements OnInit {
 
         this.sortListAlphabeticallyAndGroup(this.data, 'sortBy');
         this.showLoading = false;
-        this.changeDetectorRef.markForCheck();
       },
       error: (err) => {
         console.error(err);
         this.showLoading = false;
-        this.changeDetectorRef.markForCheck();
       }
     });
   }

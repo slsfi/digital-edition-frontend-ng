@@ -22,6 +22,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 ### Added
 
 - Home: CSS variables for easier styling customisation, with inline defaults in [home.page.scss](src/app/pages/home/home.page.scss) and an override reference in [custom.scss](src/assets/custom_css/custom.scss).
+- TEI styling: alternate (v2) CSS styles for TEI text. To use, change the included SCSS file in [`global.scss`](src/global.scss) from [`_inc-global-tei.scss`](src/theme/_inc-global-tei.scss) to [`_inc-global-tei-v2.scss`](src/theme/_inc-global-tei-v2.scss). Note that the new styles require a different HTML structure.
 
 ### Changed
 

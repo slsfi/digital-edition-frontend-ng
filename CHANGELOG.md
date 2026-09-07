@@ -18,14 +18,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
   - The text content column is centred with a maximum width of `750px` (previously its main sections had a maximum width of `1000px`).
   - The site title, subtitle and footer are centred in portrait mode (previously start-aligned).
   - The search bar is centred in wide portrait mode (previously start-aligned).
-- Some scoped CSS variable imports have been removed in favor of inline variable definitions with defaults:
-  - `src/theme/scoped-variables/_info-overlay-variables.scss` removed, variables defined in `src/theme/common/info-overlay.scss` instead.
-  - `src/theme/scoped-variables/_page-elastic-search-variables.scss` removed, variables defined in `src/app/pages/elastic-search/elastic-search.page.scss`, `src/theme/_inc-global-misc.scss`, and `src/app/components/date-histogram/date-histogram.component.scss` instead.
-  - `src/theme/scoped-variables/_page-index-variables.scss` removed, variables defined in `src/app/pages/index/index.page.scss` instead.
-  - `src/theme/scoped-variables/_page-text-variables.scss` removed, variables defined in `src/theme/TEI/_tei-variants.scss` and `src/theme/TEI/v2/_tei-variants.scss` instead.
-  - `src/theme/scoped-variables/_semantic-code-variables.scss` removed, variables defined in `src/app/dialogs/popovers/view-options/view-options.popover.scss`, `src/theme/TEI/_tei-semantic-extras.scss`, and `src/theme/TEI/v2/_tei-semantic-extras.scss` instead.
-  - `src/theme/scoped-variables/_text-changer-variables.scss` removed, variables defined in `src/app/components/text-changer/text-changer.component.scss` instead.
-  - `src/theme/scoped-variables/_top-menu-variables.scss` removed, variables defined in `src/app/app.component.scss` and `src/app/components/menus/top/top-menu.component.scss` instead. Removed the stale `--top-menu-logo-height` reference from [`custom.scss`](src/assets/custom_css/custom.scss).
+- Scoped CSS variable defaults for info overlays, elastic search, indices, text variants, semantic highlighting, the text changer and the top menu now use inline fallbacks where the variables are consumed. The corresponding files in `src/theme/scoped-variables` have been removed without changing the defaults or supported override selectors.
+  - Existing overrides in [`custom.scss`](src/assets/custom_css/custom.scss) remain compatible. Forks that edited or imported the removed partials must migrate those customisations to `custom.scss` or to the inline fallbacks.
+  - The unused `--top-menu-logo-height` variable has been removed.
 
 ### Added
 
@@ -52,7 +47,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ### Removed
 
-- Redundant CSS styles for ion-datetime-related components.
+- Unused `ion-datetime` and `ion-datetime-button` styles; the application no longer contains either component.
 
 
 

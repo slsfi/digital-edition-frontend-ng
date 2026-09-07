@@ -18,10 +18,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
   - The text content column is centred with a maximum width of `750px` (previously its main sections had a maximum width of `1000px`).
   - The site title, subtitle and footer are centred in portrait mode (previously start-aligned).
   - The search bar is centred in wide portrait mode (previously start-aligned).
+- Some scoped CSS variable imports have been removed in favor of inline variable definitions with defaults:
+  - `src/theme/scoped-variables/_info-overlay-variables.scss` removed, variables defined in `src/theme/common/info-overlay.scss` instead.
+  - `src/theme/scoped-variables/_page-elastic-search-variables.scss` removed, variables defined in `src/app/pages/elastic-search/elastic-search.page.scss`, `src/theme/_inc-global-misc.scss`, and `src/app/components/date-histogram/date-histogram.component.scss` instead.
+  - `src/theme/scoped-variables/_page-index-variables.scss` removed, variables defined in `src/app/pages/index/index.page.scss` instead.
+  - `src/theme/scoped-variables/_page-text-variables.scss` removed, variables defined in `src/theme/TEI/_tei-variants.scss` and `src/theme/TEI/v2/_tei-variants.scss` instead.
+  - `src/theme/scoped-variables/_semantic-code-variables.scss` removed, variables defined in `src/app/dialogs/popovers/view-options/view-options.popover.scss`, `src/theme/TEI/_tei-semantic-extras.scss`, and `src/theme/TEI/v2/_tei-semantic-extras.scss` instead.
+  - `src/theme/scoped-variables/_text-changer-variables.scss` removed, variables defined in `src/app/components/text-changer/text-changer.component.scss` instead.
+  - `src/theme/scoped-variables/_top-menu-variables.scss` removed, variables defined in `src/app/app.component.scss` and `src/app/components/menus/top/top-menu.component.scss` instead. Removed the stale `--top-menu-logo-height` reference from [`custom.scss`](src/assets/custom_css/custom.scss).
 
 ### Added
 
-- Home: CSS variables for easier styling customisation, with inline defaults in [home.page.scss](src/app/pages/home/home.page.scss) and an override reference in [custom.scss](src/assets/custom_css/custom.scss).
+- Home: CSS variables for easier styling customisation, with inline defaults in [`home.page.scss`](src/app/pages/home/home.page.scss) and an override reference in [`custom.scss`](src/assets/custom_css/custom.scss).
 - TEI styling: alternate (v2) CSS styles for TEI text. To use, change the included SCSS file in [`global.scss`](src/global.scss) from [`_inc-global-tei.scss`](src/theme/_inc-global-tei.scss) to [`_inc-global-tei-v2.scss`](src/theme/_inc-global-tei-v2.scss). Note that the new styles require a different HTML structure.
 
 ### Changed
@@ -41,6 +49,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - SSR smoke test: honor non-default `--base-url` values in URL assertions while preserving forwarded-host and configured-origin proxy coverage.
 - Restore Dependabot dependency updates by removing the incompatible `devEngines.packageManager` range and treating npm 11.16.0 as a minimum version.
 - Use Ionic 9.0.2's routed-page change-detection fix and remove the now-redundant manual change-detection workarounds from collection introduction and index pages.
+
+### Removed
+
+- Redundant CSS styles for ion-datetime-related components.
 
 
 

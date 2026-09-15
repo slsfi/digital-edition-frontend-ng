@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+### Fixed
+
+- Home: center-justify footer block in portrait mode.
+
 
 
 ## [3.0.1] – 2026-09-08

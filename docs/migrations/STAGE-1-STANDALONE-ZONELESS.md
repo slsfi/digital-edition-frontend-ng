@@ -11,7 +11,7 @@ Use these consistently so each commit has an appropriate gate.
 ```powershell
 npm run test:source-encoding
 npm run test:routes-parser
-npx ng test --watch=false --browsers=ChromeHeadless
+npm run test:ci
 npx ng build --configuration development,sv
 ```
 

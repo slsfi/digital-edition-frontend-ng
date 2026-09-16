@@ -11,6 +11,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 ### Fixed
 
 - Home: center-justify footer block in portrait mode.
+- Tests: use headless Chrome with GPU acceleration disabled by default and repair stale unit-test setup.
 
 
 

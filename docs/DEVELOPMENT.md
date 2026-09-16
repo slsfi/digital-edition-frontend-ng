@@ -194,7 +194,10 @@ Library for extracting and merging i18n xliff translation files for Angular proj
 
 ### `jasmine` and `karma`
 
-Angular testing frameworks, not in use.
+Unit-testing framework and test runner. Use `npm test` for watch mode or
+`npm run test:ci` for a single run. Karma uses a headless Chrome launcher with
+GPU acceleration disabled by default because the regular Chrome launcher is
+not reliable in the supported development environment.
 
 
 ### Updating transitive dependencies

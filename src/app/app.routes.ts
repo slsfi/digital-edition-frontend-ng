@@ -19,31 +19,31 @@ export const routes: Routes = [
   },
   {
     path: 'about',
-    loadChildren: () => import('./pages/about/about.module').then(m => m.AboutPageModule)
+    loadChildren: () => import('./pages/about/about.routes').then(m => m.aboutRoutes)
   },
   {
     path: 'cookie-policy',
     data: { backendPageId: '05-01' },
-    loadChildren: () => import('./pages/about/about.module').then(m => m.AboutPageModule)
+    loadChildren: () => import('./pages/about/about.routes').then(m => m.aboutRoutes)
   },
   {
     path: 'privacy-policy',
     data: { backendPageId: '05-02' },
-    loadChildren: () => import('./pages/about/about.module').then(m => m.AboutPageModule)
+    loadChildren: () => import('./pages/about/about.routes').then(m => m.aboutRoutes)
   },
   {
     path: 'terms',
     data: { backendPageId: '05-03' },
-    loadChildren: () => import('./pages/about/about.module').then(m => m.AboutPageModule)
+    loadChildren: () => import('./pages/about/about.routes').then(m => m.aboutRoutes)
   },
   {
     path: 'accessibility-statement',
     data: { backendPageId: '05-04' },
-    loadChildren: () => import('./pages/about/about.module').then(m => m.AboutPageModule)
+    loadChildren: () => import('./pages/about/about.routes').then(m => m.aboutRoutes)
   },
   {
     path: 'article',
-    loadChildren: () => import('./pages/article/article.module').then(m => m.ArticlePageModule)
+    loadChildren: () => import('./pages/article/article.routes').then(m => m.articleRoutes)
   },
   {
     path: 'content',
@@ -72,12 +72,12 @@ export const routes: Routes = [
   },
   {
     path: 'collection/:collectionID/text',
-    loadChildren: () => import('./pages/collection/text/collection-text.module').then(m => m.CollectionTextPageModule),
+    loadChildren: () => import('./pages/collection/text/collection-text.routes').then(m => m.collectionTextRoutes),
     canActivate: [authGuard]
   },
   {
     path: 'ebook',
-    loadChildren: () => import('./pages/ebook/ebook.module').then(m => m.EbookPageModule)
+    loadChildren: () => import('./pages/ebook/ebook.routes').then(m => m.ebookRoutes)
   },
   {
     path: 'login',
@@ -133,12 +133,12 @@ export const routes: Routes = [
   },
   {
     path: 'media-collection',
-    loadChildren: () => import('./pages/media-collection/media-collection.module').then(m => m.MediaCollectionPageModule),
+    loadChildren: () => import('./pages/media-collection/media-collection.routes').then(m => m.mediaCollectionRoutes),
     canActivate: [authGuard]
   },
   {
     path: 'search',
-    loadChildren: () => import('./pages/elastic-search/elastic-search.module').then(m => m.ElasticSearchPageModule),
+    loadComponent: () => import('./pages/elastic-search/elastic-search.page').then(m => m.ElasticSearchPage),
     canActivate: [authGuard]
   },
   {

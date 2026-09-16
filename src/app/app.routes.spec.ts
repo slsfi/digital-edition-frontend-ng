@@ -17,7 +17,9 @@ import { routes } from './app.routes';
 type RouteExpectation = {
   url: string;
   componentName: string;
+  parentPath?: string;
   params?: Record<string, string>;
+  queryParams?: Record<string, string>;
 };
 
 describe('application routes', () => {
@@ -50,9 +52,21 @@ describe('application routes', () => {
     const componentName = (leaf.component as { name?: string } | null)?.name;
     expect(componentName).withContext(expectation.url).toBe(expectation.componentName);
 
+    if (expectation.parentPath !== undefined) {
+      expect(leaf.parent?.routeConfig?.path)
+        .withContext(`${expectation.url}: parent route`)
+        .toBe(expectation.parentPath);
+    }
+
     for (const [name, value] of Object.entries(expectation.params ?? {})) {
       expect(leaf.paramMap.get(name))
         .withContext(`${expectation.url}: ${name}`)
+        .toBe(value);
+    }
+
+    for (const [name, value] of Object.entries(expectation.queryParams ?? {})) {
+      expect(leaf.queryParamMap.get(name))
+        .withContext(`${expectation.url}: query parameter ${name}`)
         .toBe(value);
     }
 
@@ -62,9 +76,19 @@ describe('application routes', () => {
   it('recognizes the home, about, policy, article, and content routes', async () => {
     const expectations: RouteExpectation[] = [
       { url: '/', componentName: 'HomePage' },
-      { url: '/about', componentName: 'AboutPage' },
-      { url: '/about/03-01', componentName: 'AboutPage', params: { id: '03-01' } },
-      { url: '/article/example', componentName: 'ArticlePage', params: { name: 'example' } },
+      { url: '/about', componentName: 'AboutPage', parentPath: 'about' },
+      {
+        url: '/about/03-01',
+        componentName: 'AboutPage',
+        parentPath: 'about',
+        params: { id: '03-01' }
+      },
+      {
+        url: '/article/example',
+        componentName: 'ArticlePage',
+        parentPath: 'article',
+        params: { name: 'example' }
+      },
       { url: '/content', componentName: 'ContentPage' }
     ];
 
@@ -120,30 +144,48 @@ describe('application routes', () => {
     await expectRecognizedRoute({
       url: '/collection/203/text/1',
       componentName: 'CollectionTextPage',
+      parentPath: 'collection/:collectionID/text',
       params: { collectionID: '203', publicationID: '1' }
     });
     await expectRecognizedRoute({
       url: '/collection/203/text/1/2',
       componentName: 'CollectionTextPage',
+      parentPath: 'collection/:collectionID/text',
       params: { collectionID: '203', publicationID: '1', chapterID: '2' }
     });
   });
 
   it('recognizes every ebook, search, media collection, and index shape', async () => {
     const expectations: RouteExpectation[] = [
-      { url: '/ebook', componentName: 'EbookPage' },
-      { url: '/ebook/example.epub', componentName: 'EbookPage', params: { filename: 'example.epub' } },
+      { url: '/ebook', componentName: 'EbookPage', parentPath: 'ebook' },
+      {
+        url: '/ebook/example.epub',
+        componentName: 'EbookPage',
+        parentPath: 'ebook',
+        params: { filename: 'example.epub' }
+      },
       {
         url: '/ebook/collection/example',
         componentName: 'EbookPage',
+        parentPath: 'ebook',
         params: { type: 'collection', name: 'example' }
       },
       { url: '/search', componentName: 'ElasticSearchPage' },
-      { url: '/search/tove', componentName: 'ElasticSearchPage', params: { query: 'tove' } },
-      { url: '/media-collection', componentName: 'MediaCollectionPage' },
+      {
+        url: '/search?query=motiv',
+        componentName: 'ElasticSearchPage',
+        queryParams: { query: 'motiv' }
+      },
+      { url: '/search/tove', componentName: 'PageNotFoundPage' },
+      {
+        url: '/media-collection',
+        componentName: 'MediaCollectionPage',
+        parentPath: 'media-collection'
+      },
       {
         url: '/media-collection/portraits',
         componentName: 'MediaCollectionPage',
+        parentPath: 'media-collection',
         params: { mediaCollectionID: 'portraits' }
       },
       { url: '/index/persons', componentName: 'IndexPage', params: { type: 'persons' } }
@@ -186,6 +228,7 @@ describe('application routes', () => {
       'verify-email',
       'account',
       'index/:type',
+      'search',
       '**'
     ];
 

@@ -170,6 +170,33 @@ describe('application routes', () => {
     }
   });
 
+  it('loads simple routes directly as standalone components', () => {
+    const simpleRoutePaths = [
+      '',
+      'content',
+      'collection/:collectionID/cover',
+      'collection/:collectionID/title',
+      'collection/:collectionID/foreword',
+      'collection/:collectionID/introduction',
+      'login',
+      'register',
+      'forgot-password',
+      'change-password',
+      'reset-password',
+      'verify-email',
+      'account',
+      'index/:type',
+      '**'
+    ];
+
+    for (const path of simpleRoutePaths) {
+      const route = getConfiguredRoute(path);
+      expect(route.loadComponent).withContext(path).toBeDefined();
+      expect(route.loadChildren).withContext(path).toBeUndefined();
+      expect(route.children).withContext(path).toBeUndefined();
+    }
+  });
+
   it('preserves redirects, wildcard handling, auth guards, and route data', async () => {
     await expectRecognizedRoute({ url: '/home', componentName: 'HomePage' });
     expect(router.url).toBe('/');

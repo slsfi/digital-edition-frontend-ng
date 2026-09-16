@@ -12,6 +12,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 - Tests: add routing and bootstrap regression coverage.
 - Convert page components to standalone behind compatibility NgModules.
+- Use standalone components for routes.
 
 ### Fixed
 

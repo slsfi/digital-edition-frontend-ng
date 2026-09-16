@@ -1,7 +1,18 @@
-import { Component, inject, LOCALE_ID, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
-import { Router } from '@angular/router';
-import { AbstractControl, FormBuilder, ValidationErrors, Validators } from '@angular/forms';
+import { ChangeDetectionStrategy, Component, inject, LOCALE_ID, OnDestroy } from '@angular/core';
+import { AbstractControl, FormBuilder, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
+import { Router, RouterLink } from '@angular/router';
+import {
+  IonButton,
+  IonCheckbox,
+  IonContent,
+  IonInput,
+  IonInputPasswordToggle,
+  IonSelect,
+  IonSelectOption,
+  IonSpinner
+} from '@ionic/angular';
 
+import { AuthStatusMessageComponent } from '@components/auth-status-message/auth-status-message.component';
 import { config } from '@config';
 import { RegisterIntendedUsage } from '@models/auth.models';
 import { getAuthRedirectNavigationQueryParams } from '@services/auth-redirect-url.utils';
@@ -63,7 +74,19 @@ function createCountryOptions(localeId: string): ReadonlyArray<SelectOption> {
   styleUrls: ['./register.page.scss'],
   host: { ngSkipHydration: 'true' },
   changeDetection: ChangeDetectionStrategy.Eager,
-  standalone: false
+  imports: [
+    AuthStatusMessageComponent,
+    IonButton,
+    IonCheckbox,
+    IonContent,
+    IonInput,
+    IonInputPasswordToggle,
+    IonSelect,
+    IonSelectOption,
+    IonSpinner,
+    ReactiveFormsModule,
+    RouterLink
+  ]
 })
 export class RegisterPage implements OnDestroy {
   private readonly formBuilder = inject(FormBuilder);

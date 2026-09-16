@@ -54,7 +54,7 @@ describe('ArticlePage', () => {
     markdownService.getParsedMdContent.and.returnValue(of('<p>Article</p>'));
 
     await TestBed.configureTestingModule({
-      declarations: [ArticlePage],
+      imports: [ArticlePage],
       providers: [
         { provide: ActivatedRoute, useValue: route },
         { provide: LOCALE_ID, useValue: 'en' },

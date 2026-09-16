@@ -1,12 +1,39 @@
+import { AsyncPipe, NgStyle, NgTemplateOutlet } from '@angular/common';
 import { ChangeDetectionStrategy, Component, DestroyRef, ElementRef, Injector, LOCALE_ID, NgZone, OnInit, Renderer2, afterNextRender, inject, signal, viewChild, viewChildren } from '@angular/core';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
-import { IonFabButton, IonFabList, IonPopover, ModalController, PopoverController } from '@ionic/angular/lazy';
+import {
+  IonButton,
+  IonButtons,
+  IonContent,
+  IonFab,
+  IonFabButton,
+  IonFabList,
+  IonHeader,
+  IonIcon,
+  IonPopover,
+  IonSelect,
+  IonSelectOption,
+  IonSpinner,
+  IonToolbar
+} from '@ionic/angular';
+import { ModalController, PopoverController } from '@ionic/angular/lazy';
 import { distinctUntilChanged, Observable } from 'rxjs';
 
+import { CommentsComponent } from '@components/collection-text-types/comments/comments.component';
+import { FacsimilesComponent } from '@components/collection-text-types/facsimiles/facsimiles.component';
+import { IllustrationsComponent } from '@components/collection-text-types/illustrations/illustrations.component';
+import { LegendComponent } from '@components/collection-text-types/legend/legend.component';
+import { ManuscriptsComponent } from '@components/collection-text-types/manuscripts/manuscripts.component';
+import { MetadataComponent } from '@components/collection-text-types/metadata/metadata.component';
+import { ReadingTextComponent } from '@components/collection-text-types/reading-text/reading-text.component';
+import { VariantsComponent } from '@components/collection-text-types/variants/variants.component';
+import { TextChangerComponent } from '@components/text-changer/text-changer.component';
 import { config } from '@config';
+import { MathJaxDirective } from '@directives/math-jax.directive';
 import { TextKey, ViewState, ViewType, ViewUid } from '@models/collection.models';
 import { Illustration } from '@models/illustration.models';
+import { TrustHtmlPipe } from '@pipes/trust-html.pipe';
 import { CollectionContentService } from '@services/collection-content.service';
 import { CollectionsService } from '@services/collections.service';
 import { DocumentHeadService } from '@services/document-head.service';
@@ -28,8 +55,36 @@ import { enableFrontMatterPageOrTextViewType, isBrowser, moveArrayItem } from '@
   selector: 'page-text',
   templateUrl: './collection-text.page.html',
   styleUrls: ['./collection-text.page.scss'],
-  standalone: false,
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [
+    AsyncPipe,
+    CommentsComponent,
+    FacsimilesComponent,
+    IllustrationsComponent,
+    IonButton,
+    IonButtons,
+    IonContent,
+    IonFab,
+    IonFabButton,
+    IonFabList,
+    IonHeader,
+    IonIcon,
+    IonPopover,
+    IonSelect,
+    IonSelectOption,
+    IonSpinner,
+    IonToolbar,
+    LegendComponent,
+    ManuscriptsComponent,
+    MathJaxDirective,
+    MetadataComponent,
+    NgStyle,
+    NgTemplateOutlet,
+    ReadingTextComponent,
+    TextChangerComponent,
+    TrustHtmlPipe,
+    VariantsComponent
+  ]
 })
 export class CollectionTextPage implements OnInit {
   // ─────────────────────────────────────────────────────────────────────────────

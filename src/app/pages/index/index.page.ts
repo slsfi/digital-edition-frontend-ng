@@ -1,11 +1,22 @@
+import { AsyncPipe } from '@angular/common';
 import { Component, LOCALE_ID, OnInit, inject, viewChild, ChangeDetectionStrategy } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
-import { IonContent, ModalController } from '@ionic/angular/lazy';
+import { FormsModule } from '@angular/forms';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import {
+  IonButton,
+  IonContent,
+  IonFabButton,
+  IonIcon,
+  IonSearchbar,
+  IonSpinner
+} from '@ionic/angular';
+import { ModalController } from '@ionic/angular/lazy';
 import { Observable, Subscription } from 'rxjs';
 
 import { config } from '@config';
 import { IndexFilterModal } from '@modals/index-filter/index-filter.modal';
 import { NamedEntityModal } from '@modals/named-entity/named-entity.modal';
+import { TrustHtmlPipe } from '@pipes/trust-html.pipe';
 import { MarkdownService } from '@services/markdown.service';
 import { NamedEntityService } from '@services/named-entity.service';
 import { TooltipService } from '@services/tooltip.service';
@@ -20,7 +31,18 @@ import { isBrowser, sortArrayOfObjectsAlphabetically } from '@utility-functions'
   templateUrl: './index.page.html',
   styleUrls: ['./index.page.scss'],
   changeDetection: ChangeDetectionStrategy.Eager,
-  standalone: false
+  imports: [
+    AsyncPipe,
+    FormsModule,
+    IonButton,
+    IonContent,
+    IonFabButton,
+    IonIcon,
+    IonSearchbar,
+    IonSpinner,
+    RouterLink,
+    TrustHtmlPipe
+  ]
 })
 export class IndexPage implements OnInit {
   private mdService = inject(MarkdownService);

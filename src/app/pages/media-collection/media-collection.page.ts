@@ -1,13 +1,30 @@
+import { AsyncPipe, NgTemplateOutlet } from '@angular/common';
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, LOCALE_ID, OnDestroy, OnInit, inject } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import {
+  IonButton,
+  IonButtons,
+  IonCol,
+  IonContent,
+  IonGrid,
+  IonHeader,
+  IonIcon,
+  IonRow,
+  IonSelect,
+  IonSelectOption,
+  IonSpinner,
+  IonToolbar
+} from '@ionic/angular';
 import { ModalController } from '@ionic/angular/lazy';
 import { combineLatest, forkJoin, map, Observable, Subscription } from 'rxjs';
 
+import { GalleryThumbImageComponent } from '@components/gallery-thumb-image/gallery-thumb-image.component';
 import { config } from '@config';
 import { ReferenceDataModal } from '@modals/reference-data/reference-data.modal';
 import { GalleryItem } from '@models/gallery-item-models';
 import { MediaCollection } from '@models/media-collection.models';
 import { FullscreenImageViewerModal } from '@modals/fullscreen-image-viewer/fullscreen-image-viewer.modal';
+import { TrustHtmlPipe } from '@pipes/trust-html.pipe';
 import { DocumentHeadService } from '@services/document-head.service';
 import { FacsimileImageService } from '@services/facsimile-image.service';
 import { MarkdownService } from '@services/markdown.service';
@@ -21,7 +38,25 @@ import { isEmptyObject, sortArrayOfObjectsAlphabetically, sortArrayOfObjectsNume
   templateUrl: './media-collection.page.html',
   styleUrls: ['./media-collection.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  standalone: false
+  imports: [
+    AsyncPipe,
+    GalleryThumbImageComponent,
+    IonButton,
+    IonButtons,
+    IonCol,
+    IonContent,
+    IonGrid,
+    IonHeader,
+    IonIcon,
+    IonRow,
+    IonSelect,
+    IonSelectOption,
+    IonSpinner,
+    IonToolbar,
+    NgTemplateOutlet,
+    RouterLink,
+    TrustHtmlPipe
+  ]
 })
 export class MediaCollectionPage implements OnDestroy, OnInit {
   private cdRef = inject(ChangeDetectorRef);

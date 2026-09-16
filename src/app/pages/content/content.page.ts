@@ -1,6 +1,10 @@
-import { Component, LOCALE_ID, OnInit, inject, ChangeDetectionStrategy } from '@angular/core';
+import { AsyncPipe } from '@angular/common';
+import { ChangeDetectionStrategy, Component, LOCALE_ID, OnInit, inject } from '@angular/core';
+import { IonContent } from '@ionic/angular';
 import { Observable } from 'rxjs';
 
+import { ContentGridComponent } from '@components/content-grid/content-grid.component';
+import { TrustHtmlPipe } from '@pipes/trust-html.pipe';
 import { MarkdownService } from '@services/markdown.service';
 
 
@@ -9,7 +13,7 @@ import { MarkdownService } from '@services/markdown.service';
   templateUrl: './content.page.html',
   styleUrls: ['./content.page.scss'],
   changeDetection: ChangeDetectionStrategy.Eager,
-  standalone: false
+  imports: [AsyncPipe, ContentGridComponent, IonContent, TrustHtmlPipe]
 })
 export class ContentPage implements OnInit {
   private mdService = inject(MarkdownService);

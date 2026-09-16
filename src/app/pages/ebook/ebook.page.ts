@@ -1,7 +1,9 @@
-import { Component, OnDestroy, OnInit, inject, ChangeDetectionStrategy } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { IonContent } from '@ionic/angular';
 import { Subscription } from 'rxjs';
 
+import { PdfViewerComponent } from '@components/pdf-viewer/pdf-viewer.component';
 import { config } from '@config';
 import { Ebook } from '@models/ebook.models';
 import { splitFilename } from '@utility-functions';
@@ -12,7 +14,7 @@ import { splitFilename } from '@utility-functions';
   templateUrl: './ebook.page.html',
   styleUrls: ['./ebook.page.scss'],
   changeDetection: ChangeDetectionStrategy.Eager,
-  standalone: false
+  imports: [IonContent, PdfViewerComponent]
 })
 export class EbookPage implements OnDestroy, OnInit {
   private route = inject(ActivatedRoute);

@@ -1,7 +1,10 @@
+import { AsyncPipe } from '@angular/common';
 import { Component, LOCALE_ID, OnInit, inject, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import { IonContent, IonHeader, IonSpinner, IonToolbar } from '@ionic/angular';
 import { catchError, map, Observable, of, switchMap, tap } from 'rxjs';
 
+import { TextChangerComponent } from '@components/text-changer/text-changer.component';
 import { MarkdownService } from '@services/markdown.service';
 import { PlatformService } from '@services/platform.service';
 
@@ -11,7 +14,7 @@ import { PlatformService } from '@services/platform.service';
   templateUrl: './collection-cover.page.html',
   styleUrls: ['./collection-cover.page.scss'],
   changeDetection: ChangeDetectionStrategy.Eager,
-  standalone: false
+  imports: [AsyncPipe, IonContent, IonHeader, IonSpinner, IonToolbar, TextChangerComponent]
 })
 export class CollectionCoverPage implements OnInit {
   private mdService = inject(MarkdownService);

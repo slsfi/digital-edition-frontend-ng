@@ -1,10 +1,27 @@
+import { AsyncPipe, NgStyle } from '@angular/common';
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, LOCALE_ID, OnDestroy, OnInit, inject, viewChild } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
-import { IonContent } from '@ionic/angular/lazy';
+import { FormsModule } from '@angular/forms';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import {
+  IonButton,
+  IonCheckbox,
+  IonContent,
+  IonIcon,
+  IonSearchbar,
+  IonSelect,
+  IonSelectOption,
+  IonSpinner
+} from '@ionic/angular';
 import { map, merge, Observable, of, Subject, Subscription, switchMap } from 'rxjs';
 
+import { DateHistogramComponent } from '@components/date-histogram/date-histogram.component';
 import { config } from '@config';
 import { AggregationData, AggregationsData, Facet, Facets, TimeRange, YearRange } from '@models/elastic-search.models';
+import { CollectionTitlePipe } from '@pipes/collection-title.pipe';
+import { ElasticHitPagePathPipe } from '@pipes/elastic-hit-page-path.pipe';
+import { ElasticHitQueryparamsPipe } from '@pipes/elastic-hit-queryparams.pipe';
+import { LangNamePipe } from '@pipes/lang-name.pipe';
+import { TrustHtmlPipe } from '@pipes/trust-html.pipe';
 import { ElasticSearchService } from '@services/elastic-search.service';
 import { MarkdownService } from '@services/markdown.service';
 import { PlatformService } from '@services/platform.service';
@@ -17,7 +34,26 @@ import { isBrowser, isEmptyObject, sortArrayOfObjectsNumerically } from '@utilit
   templateUrl: './elastic-search.page.html',
   styleUrls: ['./elastic-search.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  standalone: false
+  imports: [
+    AsyncPipe,
+    CollectionTitlePipe,
+    DateHistogramComponent,
+    ElasticHitPagePathPipe,
+    ElasticHitQueryparamsPipe,
+    FormsModule,
+    IonButton,
+    IonCheckbox,
+    IonContent,
+    IonIcon,
+    IonSearchbar,
+    IonSelect,
+    IonSelectOption,
+    IonSpinner,
+    LangNamePipe,
+    NgStyle,
+    RouterLink,
+    TrustHtmlPipe
+  ]
 })
 export class ElasticSearchPage implements OnDestroy, OnInit {
   private cf = inject(ChangeDetectorRef);

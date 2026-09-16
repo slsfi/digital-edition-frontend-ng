@@ -1,7 +1,9 @@
-import { Component, computed, inject, OnDestroy, signal, ChangeDetectionStrategy } from '@angular/core';
-import { PRIMARY_OUTLET, Router } from '@angular/router';
-import { FormBuilder, Validators } from '@angular/forms';
+import { ChangeDetectionStrategy, Component, computed, inject, OnDestroy, signal } from '@angular/core';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { PRIMARY_OUTLET, Router, RouterLink } from '@angular/router';
+import { IonButton, IonContent, IonInput, IonSpinner } from '@ionic/angular';
 
+import { AuthStatusMessageComponent } from '@components/auth-status-message/auth-status-message.component';
 import { AuthService } from '@services/auth.service';
 
 type PasswordFlowMode = 'forgot' | 'change';
@@ -11,7 +13,15 @@ type PasswordFlowMode = 'forgot' | 'change';
   templateUrl: './forgot-password.page.html',
   styleUrls: ['./forgot-password.page.scss'],
   changeDetection: ChangeDetectionStrategy.Eager,
-  standalone: false
+  imports: [
+    AuthStatusMessageComponent,
+    IonButton,
+    IonContent,
+    IonInput,
+    IonSpinner,
+    ReactiveFormsModule,
+    RouterLink
+  ]
 })
 export class ForgotPasswordPage implements OnDestroy {
   private readonly formBuilder = inject(FormBuilder);

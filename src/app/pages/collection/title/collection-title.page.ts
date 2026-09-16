@@ -1,9 +1,21 @@
+import { AsyncPipe } from '@angular/common';
 import { Component, ElementRef, LOCALE_ID, OnInit, inject, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import {
+  IonButton,
+  IonButtons,
+  IonContent,
+  IonHeader,
+  IonIcon,
+  IonSpinner,
+  IonToolbar
+} from '@ionic/angular';
 import { ModalController, PopoverController } from '@ionic/angular/lazy';
 import { catchError, combineLatest, map, Observable, of, switchMap, tap } from 'rxjs';
 
+import { TextChangerComponent } from '@components/text-changer/text-changer.component';
 import { config } from '@config';
+import { TrustHtmlPipe } from '@pipes/trust-html.pipe';
 import { CollectionContentService } from '@services/collection-content.service';
 import { HtmlParserService } from '@services/html-parser.service';
 import { MarkdownService } from '@services/markdown.service';
@@ -17,7 +29,18 @@ import { ViewOptionsService } from '@services/view-options.service';
   templateUrl: './collection-title.page.html',
   styleUrls: ['./collection-title.page.scss'],
   changeDetection: ChangeDetectionStrategy.Eager,
-  standalone: false
+  imports: [
+    AsyncPipe,
+    IonButton,
+    IonButtons,
+    IonContent,
+    IonHeader,
+    IonIcon,
+    IonSpinner,
+    IonToolbar,
+    TextChangerComponent,
+    TrustHtmlPipe
+  ]
 })
 export class CollectionTitlePage implements OnInit {
   private collectionContentService = inject(CollectionContentService);

@@ -1,7 +1,10 @@
-import { Component, ElementRef, LOCALE_ID, NgZone, OnDestroy, OnInit, Renderer2, inject, ChangeDetectionStrategy } from '@angular/core';
+import { AsyncPipe } from '@angular/common';
+import { ChangeDetectionStrategy, Component, ElementRef, LOCALE_ID, NgZone, OnDestroy, OnInit, Renderer2, inject } from '@angular/core';
 import { ActivatedRoute, Data, Router } from '@angular/router';
+import { IonContent } from '@ionic/angular';
 import { combineLatest, distinctUntilChanged, map, Observable, of, Subscription, switchMap } from 'rxjs';
 
+import { TrustHtmlPipe } from '@pipes/trust-html.pipe';
 import { MarkdownService } from '@services/markdown.service';
 import { ScrollService } from '@services/scroll.service';
 import { isBrowser } from '@utility-functions';
@@ -12,7 +15,7 @@ import { isBrowser } from '@utility-functions';
   templateUrl: './about.page.html',
   styleUrls: ['./about.page.scss'],
   changeDetection: ChangeDetectionStrategy.Eager,
-  standalone: false
+  imports: [AsyncPipe, IonContent, TrustHtmlPipe]
 })
 export class AboutPage implements OnInit, OnDestroy {
   private elementRef = inject(ElementRef);

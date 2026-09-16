@@ -1,9 +1,21 @@
+import { NgClass, NgStyle } from '@angular/common';
 import { Component, ChangeDetectionStrategy, DestroyRef, ElementRef, LOCALE_ID, NgZone, OnDestroy, OnInit, Renderer2, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
+import {
+  IonButton,
+  IonButtons,
+  IonContent,
+  IonHeader,
+  IonIcon,
+  IonSpinner,
+  IonToolbar
+} from '@ionic/angular';
 import { ModalController, PopoverController } from '@ionic/angular/lazy';
 
+import { TextChangerComponent } from '@components/text-changer/text-changer.component';
 import { config } from '@config';
+import { TrustHtmlPipe } from '@pipes/trust-html.pipe';
 import { CollectionContentService } from '@services/collection-content.service';
 import { CollectionsService } from '@services/collections.service';
 import { HtmlParserService } from '@services/html-parser.service';
@@ -20,7 +32,19 @@ import { isBrowser } from '@utility-functions';
   templateUrl: './collection-introduction.page.html',
   styleUrls: ['./collection-introduction.page.scss'],
   changeDetection: ChangeDetectionStrategy.Eager,
-  standalone: false
+  imports: [
+    IonButton,
+    IonButtons,
+    IonContent,
+    IonHeader,
+    IonIcon,
+    IonSpinner,
+    IonToolbar,
+    NgClass,
+    NgStyle,
+    TextChangerComponent,
+    TrustHtmlPipe
+  ]
 })
 export class CollectionIntroductionPage implements OnInit, OnDestroy {
   private collectionContentService = inject(CollectionContentService);

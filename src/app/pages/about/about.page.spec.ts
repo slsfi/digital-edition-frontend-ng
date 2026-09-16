@@ -1,11 +1,8 @@
-import { CommonModule } from '@angular/common';
 import { LOCALE_ID } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { ActivatedRoute, Data, Params, Router } from '@angular/router';
-import { IonicModule } from '@ionic/angular/lazy';
 import { BehaviorSubject, EMPTY, of } from 'rxjs';
 
-import { TrustHtmlPipe } from '@pipes/trust-html.pipe';
 import { MarkdownService } from '@services/markdown.service';
 import { ScrollService } from '@services/scroll.service';
 import { AboutPage } from './about.page';
@@ -22,8 +19,7 @@ describe('AboutPage', () => {
     markdownService.getParsedMdContent.and.callFake((fileId: string) => of(`<p>${fileId}</p>`));
 
     await TestBed.configureTestingModule({
-      declarations: [AboutPage],
-      imports: [CommonModule, IonicModule, TrustHtmlPipe],
+      imports: [AboutPage],
       providers: [
         { provide: LOCALE_ID, useValue: 'sv' },
         {

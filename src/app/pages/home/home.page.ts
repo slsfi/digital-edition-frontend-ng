@@ -1,8 +1,13 @@
-import { Component, LOCALE_ID, OnInit, inject, ChangeDetectionStrategy } from '@angular/core';
+import { AsyncPipe } from '@angular/common';
+import { ChangeDetectionStrategy, Component, LOCALE_ID, OnInit, inject } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { IonButton, IonContent, IonIcon, IonSearchbar } from '@ionic/angular';
 import { Observable } from 'rxjs';
 
+import { ContentGridComponent } from '@components/content-grid/content-grid.component';
 import { config } from '@config';
+import { TrustHtmlPipe } from '@pipes/trust-html.pipe';
 import { MarkdownService } from '@services/markdown.service';
 
 
@@ -11,7 +16,16 @@ import { MarkdownService } from '@services/markdown.service';
   templateUrl: './home.page.html',
   styleUrls: ['./home.page.scss'],
   changeDetection: ChangeDetectionStrategy.Eager,
-  standalone: false
+  imports: [
+    AsyncPipe,
+    ContentGridComponent,
+    FormsModule,
+    IonButton,
+    IonContent,
+    IonIcon,
+    IonSearchbar,
+    TrustHtmlPipe
+  ]
 })
 export class HomePage implements OnInit {
   private mdService = inject(MarkdownService);

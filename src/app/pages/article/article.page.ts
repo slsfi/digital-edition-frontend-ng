@@ -1,10 +1,23 @@
-import { Component, ElementRef, LOCALE_ID, NgZone, OnDestroy, OnInit, Renderer2, inject, ChangeDetectionStrategy } from '@angular/core';
+import { AsyncPipe, NgClass } from '@angular/common';
+import { ChangeDetectionStrategy, Component, ElementRef, LOCALE_ID, NgZone, OnDestroy, OnInit, Renderer2, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import {
+  IonButton,
+  IonButtons,
+  IonContent,
+  IonHeader,
+  IonIcon,
+  IonSpinner,
+  IonToolbar
+} from '@ionic/angular';
 import { ModalController, PopoverController } from '@ionic/angular/lazy';
 import { Observable, Subscription, map, of, switchMap, tap } from 'rxjs';
 
+import { ArticleTocComponent } from '@components/article-toc/article-toc.component';
 import { config } from '@config';
 import { Article } from '@models/article.models';
+import { IsExternalURLPipe } from '@pipes/is-external-url.pipe';
+import { TrustHtmlPipe } from '@pipes/trust-html.pipe';
 import { MarkdownService } from '@services/markdown.service';
 import { PlatformService } from '@services/platform.service';
 import { ScrollService } from '@services/scroll.service';
@@ -17,7 +30,20 @@ import { isBrowser } from '@utility-functions';
   templateUrl: './article.page.html',
   styleUrls: ['./article.page.scss'],
   changeDetection: ChangeDetectionStrategy.Eager,
-  standalone: false
+  imports: [
+    ArticleTocComponent,
+    AsyncPipe,
+    IonButton,
+    IonButtons,
+    IonContent,
+    IonHeader,
+    IonIcon,
+    IonSpinner,
+    IonToolbar,
+    IsExternalURLPipe,
+    NgClass,
+    TrustHtmlPipe
+  ]
 })
 export class ArticlePage implements OnInit, OnDestroy {
   private elementRef = inject(ElementRef);

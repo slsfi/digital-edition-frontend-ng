@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, Input, OnInit, inject, signal } from '@angular/core';
+import { Component, DestroyRef, Input, OnInit, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { IonButton, IonButtons, IonContent, IonFooter, IonHeader, IonIcon, IonInput, IonItem, IonLabel, IonList, IonListHeader, IonSpinner, IonTitle, IonToggle, IonToolbar, ModalController } from '@ionic/angular';
@@ -13,8 +13,7 @@ import { NamedEntityService } from '@services/named-entity.service';
   selector: 'modal-index-filter',
   templateUrl: './index-filter.modal.html',
   styleUrls: ['./index-filter.modal.scss'],
-  imports: [FormsModule, IonButton, IonButtons, IonContent, IonFooter, IonHeader, IonIcon, IonInput, IonItem, IonLabel, IonList, IonListHeader, IonSpinner, IonTitle, IonToggle, IonToolbar],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  imports: [FormsModule, IonButton, IonButtons, IonContent, IonFooter, IonHeader, IonIcon, IonInput, IonItem, IonLabel, IonList, IonListHeader, IonSpinner, IonTitle, IonToggle, IonToolbar]
 })
 export class IndexFilterModal implements OnInit {
   // ─────────────────────────────────────────────────────────────────────────────

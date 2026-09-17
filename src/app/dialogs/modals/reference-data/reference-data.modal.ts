@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, DOCUMENT, Input, OnInit, computed, inject, signal } from '@angular/core';
+import { Component, DestroyRef, DOCUMENT, Input, OnInit, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { PRIMARY_OUTLET, Router, RouterModule, UrlSegment, UrlTree } from '@angular/router';
 import { IonButton, IonButtons, IonContent, IonHeader, IonIcon, IonTitle, IonToolbar, ModalController } from '@ionic/angular';
@@ -14,8 +14,7 @@ import { ReferenceDataService } from '@services/reference-data.service';
   selector: 'modal-reference-data',
   templateUrl: './reference-data.modal.html',
   styleUrls: ['./reference-data.modal.scss'],
-  imports: [IonButton, IonButtons, IonContent, IonHeader, IonIcon, IonTitle, IonToolbar, RouterModule],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  imports: [IonButton, IonButtons, IonContent, IonHeader, IonIcon, IonTitle, IonToolbar, RouterModule]
 })
 export class ReferenceDataModal implements OnInit {
   // ─────────────────────────────────────────────────────────────────────────────

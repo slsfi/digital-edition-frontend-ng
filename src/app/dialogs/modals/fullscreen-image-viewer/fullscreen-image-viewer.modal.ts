@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, ElementRef, Input, OnDestroy, OnInit, afterRenderEffect, computed, inject, signal, untracked, viewChild } from '@angular/core';
+import { Component, ElementRef, Input, OnDestroy, OnInit, afterRenderEffect, computed, inject, signal, untracked, viewChild } from '@angular/core';
 import { IonFab, IonFabButton, IonIcon, IonInput, IonSpinner, ModalController } from '@ionic/angular';
 import { Subscription } from 'rxjs';
 
@@ -15,7 +15,6 @@ import { PlatformService } from '@services/platform.service';
   templateUrl: './fullscreen-image-viewer.modal.html',
   styleUrls: ['./fullscreen-image-viewer.modal.scss'],
   imports: [IonFab, IonFabButton, IonIcon, IonInput, IonSpinner, DraggableImageDirective],
-  changeDetection: ChangeDetectionStrategy.OnPush,
   // Change image on keyboard arrow key strokes
   host: {
     ngSkipHydration: 'true',

@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, computed, effect, inject, input, signal } from '@angular/core';
+import { Component, DestroyRef, computed, effect, inject, input, signal } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { IonIcon, IonSpinner } from '@ionic/angular';
@@ -21,8 +21,7 @@ import { sortArrayOfObjectsAlphabetically } from '@utility-functions';
   selector: 'occurrences-accordion',
   templateUrl: './occurrences-accordion.component.html',
   styleUrls: ['./occurrences-accordion.component.scss'],
-  imports: [IonIcon, IonSpinner, RouterModule, CollectionPagePathPipe, OccurrenceCollectionTextPageQueryparamsPipe],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  imports: [IonIcon, IonSpinner, RouterModule, CollectionPagePathPipe, OccurrenceCollectionTextPageQueryparamsPipe]
 })
 export class OccurrencesAccordionComponent {
   // -----------------------------------------------------------------------------

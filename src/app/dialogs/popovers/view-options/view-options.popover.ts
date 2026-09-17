@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, Input, OnInit, computed, inject } from '@angular/core';
+import { Component, Input, OnInit, computed, inject } from '@angular/core';
 import { IonButton, IonIcon, IonItem, IonLabel, IonList, IonListHeader, IonRadio, IonRadioGroup, IonToggle, PopoverController } from '@ionic/angular';
 
 import { config } from '@config';
@@ -28,8 +28,7 @@ function isFlagKey(k: string): k is FlagKey {
   selector: 'popover-view-options',
   templateUrl: './view-options.popover.html',
   styleUrls: ['./view-options.popover.scss'],
-  imports: [IonButton, IonIcon, IonItem, IonLabel, IonList, IonListHeader, IonRadio, IonRadioGroup, IonToggle],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  imports: [IonButton, IonIcon, IonItem, IonLabel, IonList, IonListHeader, IonRadio, IonRadioGroup, IonToggle]
 })
 export class ViewOptionsPopover implements OnInit {
   // ─────────────────────────────────────────────────────────────────────────────

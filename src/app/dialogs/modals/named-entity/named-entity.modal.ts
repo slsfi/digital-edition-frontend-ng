@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, Input, OnInit, inject, signal } from '@angular/core';
+import { Component, DestroyRef, Input, OnInit, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router, RouterModule } from '@angular/router';
 import { IonButton, IonButtons, IonContent, IonHeader, IonIcon, IonSpinner, IonTitle, IonToolbar, ModalController } from '@ionic/angular';
@@ -19,8 +19,7 @@ import { isEmptyObject } from '@utility-functions';
   selector: 'modal-named-entity',
   templateUrl: './named-entity.modal.html',
   styleUrls: ['./named-entity.modal.scss'],
-  imports: [IonButton, IonButtons, IonContent, IonHeader, IonIcon, IonSpinner, IonTitle, IonToolbar, OccurrencesAccordionComponent, RouterModule],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  imports: [IonButton, IonButtons, IonContent, IonHeader, IonIcon, IonSpinner, IonTitle, IonToolbar, OccurrencesAccordionComponent, RouterModule]
 })
 export class NamedEntityModal implements OnInit {
   // ─────────────────────────────────────────────────────────────────────────────

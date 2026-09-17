@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
+import { Component, computed, input } from '@angular/core';
 import { IonIcon } from '@ionic/angular';
 
 type AuthStatusMessageType = 'error' | 'processing' | 'success';
@@ -12,7 +12,6 @@ type AuthStatusMessageType = 'error' | 'processing' | 'success';
   templateUrl: './auth-status-message.component.html',
   styleUrls: ['./auth-status-message.component.scss'],
   imports: [IonIcon],
-  changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     '[attr.aria-live]': 'ariaLive()',
     '[attr.role]': 'role()',

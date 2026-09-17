@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, DOCUMENT, LOCALE_ID, computed, inject, input, signal, viewChild } from '@angular/core';
+import { Component, DOCUMENT, LOCALE_ID, computed, inject, input, signal, viewChild } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { NgStyle } from '@angular/common';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
@@ -20,7 +20,6 @@ import { Ebook } from '@models/ebook.models';
   templateUrl: './pdf-viewer.component.html',
   styleUrls: ['./pdf-viewer.component.scss'],
   imports: [NgStyle, IonButton, IonButtons, IonContent, IonHeader, IonIcon, IonPopover, IonToolbar, IsExternalURLPipe],
-  changeDetection: ChangeDetectionStrategy.OnPush,
   host: { ngSkipHydration: 'true' }
 })
 export class PdfViewerComponent {
@@ -39,34 +38,34 @@ export class PdfViewerComponent {
   private readonly availableEbooks: Ebook[] = config.ebooks ?? [];
   readonly showURNButton: boolean = config.component?.epub?.showURNButton ?? false;
 
-  downloadPopoverIsOpen = signal<boolean>(false);
-  _window: Window | null = <any>this.document.defaultView;
+  readonly downloadPopoverIsOpen = signal<boolean>(false);
+  private readonly window = this.document.defaultView;
 
   // ─────────────────────────────────────────────────────────────────────────────
   // Derived computeds (pure, no side-effects)
   // ─────────────────────────────────────────────────────────────────────────────
-  pdfData = computed<Ebook | undefined>(() => {
+  readonly pdfData = computed<Ebook | undefined>(() => {
     const pdfFileName = this.pdfFileName();
     return this.availableEbooks.find(ebook => ebook.filename === pdfFileName);
   });
 
-  pdfFilePath = computed<string | undefined>(() => {
+  readonly pdfFilePath = computed<string | undefined>(() => {
     const pdfData = this.pdfData();
     if (pdfData === undefined) return undefined;
 
     return pdfData.externalFileURL
           ? pdfData.externalFileURL
           : (
-              (this._window?.location.origin ?? '')
+              (this.window?.location.origin ?? '')
               + (
-                  this._window?.location.pathname.split('/')[1] === this.activeLocale
+                  this.window?.location.pathname.split('/')[1] === this.activeLocale
                   ? '/' + this.activeLocale : ''
                 )
               + '/assets/ebooks/' + pdfData.filename
             );
   });
 
-  params = toSignal(
+  readonly params = toSignal(
     this.route.queryParamMap.pipe(
       map(paramMap => {
         // Check if 'page' queryParam set to display a specific
@@ -94,12 +93,13 @@ export class PdfViewerComponent {
 
         return { pageNumber, pdfParams };
       })
-    )
+    ),
+    { initialValue: { pageNumber: null, pdfParams: '' } }
   );
 
-  pageNumber = computed<number | null>(() => this.params()?.pageNumber ?? null);
+  readonly pageNumber = computed<number | null>(() => this.params().pageNumber);
 
-  pdfURL = computed<SafeResourceUrl | undefined>(() => {
+  readonly pdfURL = computed<SafeResourceUrl | undefined>(() => {
     const filePath = this.pdfFilePath();
     const params = this.params();
     return filePath && params

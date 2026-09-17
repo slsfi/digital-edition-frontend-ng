@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, Injector, LOCALE_ID, computed, effect, inject, input, signal, untracked } from '@angular/core';
+import { Component, Injector, LOCALE_ID, computed, effect, inject, input, signal, untracked } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { NgTemplateOutlet } from '@angular/common';
 import { RouterLink, UrlSegment } from '@angular/router';
@@ -35,8 +35,7 @@ import { addOrRemoveValueInNewArray, sortArrayOfObjectsAlphabetically, splitFile
   imports: [
     NgTemplateOutlet, IonIcon, RouterLink, ArrayIncludesPipe,
     ParentChildPagePathPipe
-  ],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  ]
 })
 export class MainSideMenuComponent {
   // ─────────────────────────────────────────────────────────────────────────────

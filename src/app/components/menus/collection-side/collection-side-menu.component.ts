@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, Injector, NgZone, afterRenderEffect, computed, effect, inject, input, signal, untracked } from '@angular/core';
+import { Component, DestroyRef, Injector, NgZone, afterRenderEffect, computed, effect, inject, input, signal, untracked } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { NgTemplateOutlet } from '@angular/common';
 import { Params, RouterLink, UrlSegment } from '@angular/router';
@@ -30,17 +30,18 @@ import { addOrRemoveValueInNewArray, enableFrontMatterPageOrTextViewType, isBrow
     NgTemplateOutlet, IonIcon, IonSelect, IonSelectOption, RouterLink,
     ArrayIncludesAnyPipe, ArrayIncludesPipe, CollectionPagePathPipe,
     CollectionPagePositionQueryparamPipe
-  ],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  ]
 })
 export class CollectionSideMenuComponent {
   // ─────────────────────────────────────────────────────────────────────────────
   // Dependency injection, Input/Output signals, Fields, Local state signals
   // ─────────────────────────────────────────────────────────────────────────────
+  private readonly destroyRef = inject(DestroyRef);
   private readonly injector = inject(Injector);
   private readonly ngZone = inject(NgZone);
   private readonly scrollService = inject(ScrollService);
   private readonly tocService = inject(CollectionTableOfContentsService);
+  private scrollTimer?: ReturnType<typeof setTimeout>;
 
   readonly collectionID = input<string>('');
   readonly routeQueryParams = input<Params>();
@@ -98,6 +99,7 @@ export class CollectionSideMenuComponent {
   // ─────────────────────────────────────────────────────────────────────────────
 
   constructor() {
+    this.destroyRef.onDestroy(() => this.clearScrollTimer());
     this.registerFrontmatterPageUpdates();
     this.registerHighlightDispatcher();
     this.registerTocUpdates();
@@ -363,8 +365,10 @@ export class CollectionSideMenuComponent {
       return;
     }
 
+    this.clearScrollTimer();
     this.ngZone.runOutsideAngular(() => {
-      setTimeout(() => {
+      this.scrollTimer = setTimeout(() => {
+        this.scrollTimer = undefined;
         const container = document.querySelector<HTMLElement>('.side-navigation');
         const target = document.querySelector<HTMLElement>(
           `collection-side-menu [data-id="toc_${itemId}"] .menu-highlight`
@@ -376,6 +380,13 @@ export class CollectionSideMenuComponent {
         }
       }, timeout);
     });
+  }
+
+  private clearScrollTimer() {
+    if (this.scrollTimer !== undefined) {
+      clearTimeout(this.scrollTimer);
+      this.scrollTimer = undefined;
+    }
   }
 
   private computeSortOptions(collectionID: string) {

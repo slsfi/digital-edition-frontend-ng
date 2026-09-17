@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, DestroyRef, ElementRef, Injector, LOCALE_ID, NgZone, Renderer2, afterNextRender, computed, inject, input, output, signal, viewChild } from '@angular/core';
+import { Component, DestroyRef, ElementRef, Injector, LOCALE_ID, NgZone, Renderer2, afterNextRender, computed, inject, input, output, signal, viewChild } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { IonIcon } from '@ionic/angular';
 
@@ -17,8 +17,7 @@ import { parseRelativeUrl } from '@utility-functions';
   selector: 'top-menu',
   templateUrl: './top-menu.component.html',
   styleUrls: ['./top-menu.component.scss'],
-  imports: [IonIcon, RouterLink],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  imports: [IonIcon, RouterLink]
 })
 export class TopMenuComponent {
   // ─────────────────────────────────────────────────────────────────────────────

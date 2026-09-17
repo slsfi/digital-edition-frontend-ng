@@ -6,9 +6,9 @@ import { Directive, ElementRef, NgZone, OnDestroy, OnInit, Renderer2, inject, ou
   selector: '[draggableImage]'
 })
 export class DraggableImageDirective implements OnInit, OnDestroy {
-  private elRef = inject(ElementRef);
-  private ngZone = inject(NgZone);
-  private renderer = inject(Renderer2);
+  private readonly elRef = inject<ElementRef<HTMLElement>>(ElementRef);
+  private readonly ngZone = inject(NgZone);
+  private readonly renderer = inject(Renderer2);
 
   readonly initialCoordinates = input<number[]>([0, 0], { alias: "draggableImage" });
   readonly angle = input<number>(0);
@@ -16,23 +16,25 @@ export class DraggableImageDirective implements OnInit, OnDestroy {
   readonly mouseOnly = input<boolean>(false);
   readonly finalCoordinates = output<number[]>();
 
-  private activeDrag: boolean = false;
+  private activeDrag = false;
   private currentCoordinates: number[] = [0, 0];
-  private isMouseMoveListenerAdded: boolean = false;
-  private isTouchMoveListenerAdded: boolean = false;
-  private offsetX: number = 0;
-  private offsetY: number = 0;
+  private isMouseMoveListenerAdded = false;
+  private isTouchMoveListenerAdded = false;
+  private offsetX = 0;
+  private offsetY = 0;
 
-  private unlistenMouseDownEvents: () => void;
-  private unlistenMouseMoveEvents: () => void;
-  private unlistenMouseUpEvents: () => void;
-  private unlistenTouchStartEvents: () => void;
-  private unlistenTouchMoveEvents: () => void;
-  private unlistenTouchEndEvents: () => void;
+  private unlistenMouseDownEvents?: () => void;
+  private unlistenMouseMoveEvents?: () => void;
+  private unlistenMouseUpEvents?: () => void;
+  private unlistenTouchStartEvents?: () => void;
+  private unlistenTouchMoveEvents?: () => void;
+  private unlistenTouchEndEvents?: () => void;
 
   ngOnInit() {
     this.unlistenMouseDownEvents = this.renderer.listen(
       this.elRef.nativeElement, 'mousedown', (event: any) => {
+        // The high-frequency move listener only mutates DOM state. Keep it
+        // outside Zone.js while production still uses zone-based change detection.
         this.ngZone.runOutsideAngular(() => {
           if (!this.isMouseMoveListenerAdded) {
             this.unlistenMouseMoveEvents = this.renderer.listen(
@@ -47,9 +49,9 @@ export class DraggableImageDirective implements OnInit, OnDestroy {
       }
     );
     this.unlistenMouseUpEvents = this.renderer.listen(
-      this.elRef.nativeElement, 'mouseup', (event: any) => {
+      this.elRef.nativeElement, 'mouseup', () => {
         this.removeMoveEventListeners();
-        this.stopDrag(event);
+        this.stopDrag();
       }
     );
 
@@ -70,9 +72,9 @@ export class DraggableImageDirective implements OnInit, OnDestroy {
         }
       );
       this.unlistenTouchEndEvents = this.renderer.listen(
-        this.elRef.nativeElement, 'touchend', (event: any) => {
+        this.elRef.nativeElement, 'touchend', () => {
           this.removeMoveEventListeners();
-          this.stopDrag(event);
+          this.stopDrag();
         }
       );
     }
@@ -127,7 +129,7 @@ export class DraggableImageDirective implements OnInit, OnDestroy {
     }
   }
 
-  private stopDrag(event?: any) {
+  private stopDrag() {
     if (this.activeDrag) {
       this.activeDrag = false;
       this.finalCoordinates.emit([this.currentCoordinates[0], this.currentCoordinates[1]]);

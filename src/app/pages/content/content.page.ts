@@ -1,5 +1,5 @@
 import { AsyncPipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, LOCALE_ID, OnInit, inject } from '@angular/core';
+import { Component, LOCALE_ID, OnInit, inject } from '@angular/core';
 import { IonContent } from '@ionic/angular';
 import { Observable } from 'rxjs';
 
@@ -12,7 +12,6 @@ import { MarkdownService } from '@services/markdown.service';
   selector: 'page-content',
   templateUrl: './content.page.html',
   styleUrls: ['./content.page.scss'],
-  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [AsyncPipe, ContentGridComponent, IonContent, TrustHtmlPipe]
 })
 export class ContentPage implements OnInit {

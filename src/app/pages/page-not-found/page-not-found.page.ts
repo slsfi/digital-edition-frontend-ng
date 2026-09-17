@@ -1,5 +1,5 @@
 import { AsyncPipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, LOCALE_ID, OnInit, inject } from '@angular/core';
+import { Component, LOCALE_ID, OnInit, inject } from '@angular/core';
 import { IonContent, IonIcon } from '@ionic/angular';
 import { Observable } from 'rxjs';
 
@@ -11,7 +11,6 @@ import { MarkdownService } from '@services/markdown.service';
   selector: 'page-not-found',
   templateUrl: './page-not-found.page.html',
   styleUrls: ['./page-not-found.page.scss'],
-  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [AsyncPipe, IonContent, IonIcon, TrustHtmlPipe]
 })
 export class PageNotFoundPage implements OnInit {

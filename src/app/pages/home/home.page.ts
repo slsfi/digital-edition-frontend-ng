@@ -1,5 +1,5 @@
 import { AsyncPipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, LOCALE_ID, OnInit, inject } from '@angular/core';
+import { Component, LOCALE_ID, OnInit, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { IonButton, IonContent, IonIcon, IonSearchbar } from '@ionic/angular';
@@ -15,7 +15,6 @@ import { MarkdownService } from '@services/markdown.service';
   selector: 'page-home',
   templateUrl: './home.page.html',
   styleUrls: ['./home.page.scss'],
-  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     AsyncPipe,
     ContentGridComponent,
@@ -49,7 +48,7 @@ export class HomePage implements OnInit {
 
   descriptionText$: Observable<string | null>;
   footerText$: Observable<string | null>;
-  searchQuery: string = '';
+  readonly searchQuery = signal('');
 
   ngOnInit() {
     this.descriptionText$ = this.mdService.getParsedMdContent(
@@ -63,17 +62,22 @@ export class HomePage implements OnInit {
   }
 
   submitSearchQuery() {
-    if (this.searchQuery) {
+    const searchQuery = this.searchQuery();
+    if (searchQuery) {
       this.router.navigate(
         ['/search'],
-        { queryParams: { query: this.searchQuery } }
+        { queryParams: { query: searchQuery } }
       );
-      this.searchQuery = '';
+      this.searchQuery.set('');
     }
   }
 
   clearSearchQuery() {
-    this.searchQuery = '';
+    this.searchQuery.set('');
+  }
+
+  setSearchQuery(searchQuery: string) {
+    this.searchQuery.set(searchQuery);
   }
 
 }

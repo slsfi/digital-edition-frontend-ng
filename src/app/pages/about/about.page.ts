@@ -1,5 +1,5 @@
 import { AsyncPipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, ElementRef, LOCALE_ID, NgZone, OnDestroy, OnInit, Renderer2, inject } from '@angular/core';
+import { Component, ElementRef, LOCALE_ID, NgZone, OnDestroy, OnInit, Renderer2, inject } from '@angular/core';
 import { ActivatedRoute, Data, Router } from '@angular/router';
 import { IonContent } from '@ionic/angular';
 import { combineLatest, distinctUntilChanged, map, Observable, of, Subscription, switchMap } from 'rxjs';
@@ -14,7 +14,6 @@ import { isBrowser } from '@utility-functions';
   selector: 'page-about',
   templateUrl: './about.page.html',
   styleUrls: ['./about.page.scss'],
-  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [AsyncPipe, IonContent, TrustHtmlPipe]
 })
 export class AboutPage implements OnInit, OnDestroy {
@@ -30,6 +29,7 @@ export class AboutPage implements OnInit, OnDestroy {
   markdownText$: Observable<string | null>;
 
   private fragmentSubscription?: Subscription;
+  private scrollRetryTimer?: ReturnType<typeof setTimeout>;
   private unlistenClickEvents?: () => void;
 
   ngOnInit() {
@@ -69,6 +69,7 @@ export class AboutPage implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
+    this.clearScrollRetryTimer();
     this.unlistenClickEvents?.();
     this.fragmentSubscription?.unsubscribe();
   }
@@ -114,11 +115,16 @@ export class AboutPage implements OnInit, OnDestroy {
   private scrollToFragment(targetElemId: string, delayMs: number = 500) {
     if (!isBrowser()) return;
 
+    this.clearScrollRetryTimer();
+
     this.ngZone.runOutsideAngular(() => {
       let attemptsLeft = 10;
 
       const tryScroll = () => {
-        if (attemptsLeft-- < 1) return;
+        if (attemptsLeft-- < 1) {
+          this.scrollRetryTimer = undefined;
+          return;
+        }
 
         const scrollTargetElem = document.querySelector(
           'page-about:not([ion-page-hidden]):not(.ion-page-hidden) [id="' + targetElemId + '"]'
@@ -128,16 +134,24 @@ export class AboutPage implements OnInit, OnDestroy {
         )?.shadowRoot?.querySelector('[part="scroll"]');
 
         if (scrollTargetElem && scrollContainerElem) {
+          this.scrollRetryTimer = undefined;
           this.scrollService.scrollElementIntoView(
             scrollTargetElem as HTMLElement, 'top', 0, 'smooth', scrollContainerElem as HTMLElement
           );
         } else {
-          setTimeout(tryScroll, delayMs);
+          this.scrollRetryTimer = setTimeout(tryScroll, delayMs);
         }
       };
 
       tryScroll();
     });
+  }
+
+  private clearScrollRetryTimer(): void {
+    if (this.scrollRetryTimer !== undefined) {
+      clearTimeout(this.scrollRetryTimer);
+      this.scrollRetryTimer = undefined;
+    }
   }
 
 }

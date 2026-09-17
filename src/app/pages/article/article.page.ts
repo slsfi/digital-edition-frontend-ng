@@ -1,5 +1,5 @@
 import { AsyncPipe, NgClass } from '@angular/common';
-import { ChangeDetectionStrategy, Component, ElementRef, LOCALE_ID, NgZone, OnDestroy, OnInit, Renderer2, inject } from '@angular/core';
+import { Component, ElementRef, LOCALE_ID, NgZone, OnDestroy, OnInit, Renderer2, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
   IonButton,
@@ -30,7 +30,6 @@ import { isBrowser } from '@utility-functions';
   selector: 'page-article',
   templateUrl: './article.page.html',
   styleUrls: ['./article.page.scss'],
-  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     ArticleTocComponent,
     AsyncPipe,
@@ -63,18 +62,17 @@ export class ArticlePage implements OnInit, OnDestroy {
   readonly showTextDownloadButton: boolean = config.page?.article?.showTextDownloadButton ?? false;
   readonly showURNButton: boolean = config.page?.article?.showURNButton ?? false;
 
-  article: Article | null = null;
-  enableTOC: boolean = true;
+  readonly article = signal<Article | null>(null);
+  readonly enableTOC = signal(true);
   markdownText$: Observable<string | null>;
-  mobileMode: boolean = false;
-  tocMenuOpen: boolean = false;
+  readonly mobileMode = this.platformService.isMobile();
+  readonly tocMenuOpen = signal(false);
 
   private fragmentSubscription?: Subscription;
+  private scrollRetryTimer?: ReturnType<typeof setTimeout>;
   private unlistenClickEvents?: () => void;
 
   ngOnInit() {
-    this.mobileMode = this.platformService.isMobile();
-
     if (isBrowser()) {
       this.setUpTextListeners();
 
@@ -91,11 +89,11 @@ export class ArticlePage implements OnInit, OnDestroy {
         article: this.resolveArticle(name)
       })),
       tap(({article}) => {
-        this.article = article;
-        this.enableTOC = this.article?.enableTOC ?? true;
+        this.article.set(article);
+        this.enableTOC.set(article?.enableTOC ?? true);
 
-        if (this.article && !this.mobileMode && !this.tocMenuOpen) {
-          this.tocMenuOpen = true;
+        if (article && !this.mobileMode && !this.tocMenuOpen()) {
+          this.tocMenuOpen.set(true);
         }
       }),
       switchMap(({name, article}) => {
@@ -115,6 +113,7 @@ export class ArticlePage implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
+    this.clearScrollRetryTimer();
     this.unlistenClickEvents?.();
     this.fragmentSubscription?.unsubscribe();
   }
@@ -194,7 +193,7 @@ export class ArticlePage implements OnInit, OnDestroy {
   }
 
   toggleTocMenu() {
-    this.tocMenuOpen = !this.tocMenuOpen;
+    this.tocMenuOpen.update(tocMenuOpen => !tocMenuOpen);
   }
 
   /**
@@ -237,12 +236,17 @@ export class ArticlePage implements OnInit, OnDestroy {
 
   private scrollToFragment(targetElemId: string, delayMs: number = 500) {
     if (!isBrowser()) return;
+
+    this.clearScrollRetryTimer();
   
     this.ngZone.runOutsideAngular(() => {
       let attemptsLeft = 10;
   
       const tryScroll = () => {
-        if (attemptsLeft-- < 1) return;
+        if (attemptsLeft-- < 1) {
+          this.scrollRetryTimer = undefined;
+          return;
+        }
   
         const scrollTargetElem = document.querySelector<HTMLElement>(
           'page-article:not([ion-page-hidden]):not(.ion-page-hidden) [id="' + targetElemId + '"]'
@@ -252,6 +256,7 @@ export class ArticlePage implements OnInit, OnDestroy {
         );
   
         if (scrollTargetElem && scrollContainerElem) {
+          this.scrollRetryTimer = undefined;
           this.scrollService.scrollElementIntoView(
             scrollTargetElem, 'top', 0, 'smooth', scrollContainerElem
           );
@@ -269,12 +274,19 @@ export class ArticlePage implements OnInit, OnDestroy {
 
           focusElem?.focus({ preventScroll: true });
         } else {
-          setTimeout(tryScroll, delayMs);
+          this.scrollRetryTimer = setTimeout(tryScroll, delayMs);
         }
       };
   
       tryScroll();
     });
+  }
+
+  private clearScrollRetryTimer(): void {
+    if (this.scrollRetryTimer !== undefined) {
+      clearTimeout(this.scrollRetryTimer);
+      this.scrollRetryTimer = undefined;
+    }
   }
   
 }

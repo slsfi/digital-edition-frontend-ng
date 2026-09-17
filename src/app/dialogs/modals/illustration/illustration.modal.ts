@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, Input, LOCALE_ID, OnInit, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterModule } from '@angular/router';
-import { IonicModule, ModalController } from '@ionic/angular/lazy';
+import { IonButton, IonButtons, IonContent, IonHeader, IonIcon, IonTitle, IonToolbar, ModalController } from '@ionic/angular';
 
 import { config } from '@config';
 import { FullscreenImageViewerModal } from '@modals/fullscreen-image-viewer/fullscreen-image-viewer.modal';
@@ -15,7 +15,7 @@ import { MediaCollectionService } from '@services/media-collection.service';
   selector: 'modal-illustration',
   templateUrl: './illustration.modal.html',
   styleUrls: ['./illustration.modal.scss'],
-  imports: [RouterModule, IonicModule],
+  imports: [RouterModule, IonButton, IonButtons, IonContent, IonHeader, IonIcon, IonTitle, IonToolbar],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class IllustrationModal implements OnInit {

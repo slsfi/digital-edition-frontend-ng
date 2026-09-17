@@ -8,9 +8,9 @@ import {
   IonFabButton,
   IonIcon,
   IonSearchbar,
-  IonSpinner
+  IonSpinner,
+  ModalController
 } from '@ionic/angular';
-import { ModalController } from '@ionic/angular/lazy';
 import { Observable, Subscription } from 'rxjs';
 
 import { config } from '@config';

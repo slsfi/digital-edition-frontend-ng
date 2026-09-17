@@ -97,7 +97,7 @@ The app is built on Angular and uses many web components from Ionic. It also has
 
 The Angular documentation is available on <https://angular.dev/>.
 
-At its root, the Angular app still uses NgModules, even though all components except `pages` use the standalone API. This is no longer an Ionic limitation: Ionic 9 supports standalone components and provides `provideIonicAngular()` for standalone application bootstrap. The migration plan is to first replace the root, server and page NgModules with standalone bootstrap and components, and enable zoneless change detection, while retaining the existing webpack-based build and SSR setup. These two migrations are not intended to introduce breaking changes. The later migration from Angular's separate `browser` and `server` builders to the [`application` builder](https://angular.dev/tools/cli/build-system-migration) is expected to introduce breaking changes.
+The app uses standalone Angular components and `bootstrapApplication()` for both browser and server rendering. It intentionally retains Angular's separate Webpack-based `browser` and `server` builders, the existing output layout, and the `CommonEngine` SSR integration. A later migration to the [`application` builder](https://angular.dev/tools/cli/build-system-migration) is treated as a separate breaking change.
 
 #### Updating Angular
 
@@ -118,6 +118,8 @@ When updating to a new major version of Angular:
 ### `@ionic`
 
 The Ionic Framework documentation is available on <https://ionicframework.com/docs/>
+
+Application components import the standalone Ionic components they use rather than `IonicModule`. The application-level Ionic providers are registered with `provideIonicAngular()`. On the server, `IonicServerModule` is retained only as a provider bridge through `importProvidersFrom()` because Ionic does not expose an equivalent standalone server-provider function.
 
 #### Updating Ionic
 
@@ -144,7 +146,7 @@ SSR-compatible HTML/XML parser, used in a few places in the app to parse HTML fr
 
 ### [`ionicons`][npm_ionicons]
 
-Iconset especially intended to be used with Ionic.
+Iconset especially intended to be used with Ionic. See the [instruction on how to register icons below](#registering-icons).
 
 
 ### [`marked`][npm_marked]
@@ -174,7 +176,7 @@ Runtime library for TypeScript containing all of the TypeScript helper functions
 
 ### [`zone.js`][npm_zone.js]
 
-Library for execution contexts (”zones”) that persist across async tasks. Required by Angular.
+Library for execution contexts (”zones”) that persist across async tasks. It is temporarily retained while application state is prepared for zoneless change detection. Angular 22 supports zoneless applications, so Zone.js will be removed in a later migration phase.
 
 
 ### [`browser-sync`][npm_browser-sync] (devDependency)
@@ -236,6 +238,36 @@ npm run test:ssr:smoke
 
 
 
+## Registering icons
+
+Application icons referenced by name are registered centrally in [`src/ionicons-polyfill.ts`](../src/ionicons-polyfill.ts). The browser build loads this file as a polyfill before `main.ts`, and the Karma bootstrap imports the same registry from [`src/test.ts`](../src/test.ts).
+
+The early browser registration is required for SSR. When the client starts, the `ion-icon` custom element upgrades the icon elements already present in the server-rendered HTML before Angular creates the page components. Registering icons only in component constructors is therefore too late and produces Ionicons `Invalid base URL` warnings during client bootstrap.
+
+When adding an icon:
+
+1. Import its SVG data by name from `ionicons/icons` in [`src/ionicons-polyfill.ts`](../src/ionicons-polyfill.ts).
+2. Add it to the object passed to `addIcons()` in the same file.
+3. Import the standalone `IonIcon` component in the Angular component that uses it, then reference the registered icon with its kebab-case name, for example `<ion-icon name="information-circle-sharp"></ion-icon>`.
+4. For a dynamic `[name]` binding, register every icon name the binding can produce.
+
+Do not add component-local `addIcons()` calls. The central registry is the single source of truth for application-owned icons.
+
+
+
+## Standalone application bootstrap
+
+The browser and SSR applications share the same standalone provider configuration and then add platform-specific implementations:
+
+- [`src/main.ts`](../src/main.ts) bootstraps `AppComponent` with the browser configuration from [`src/app/app.config.ts`](../src/app/app.config.ts).
+- [`src/main.server.ts`](../src/main.server.ts) bootstraps the same component with [`src/app/app.config.server.ts`](../src/app/app.config.server.ts).
+- The server configuration uses `mergeApplicationConfig()` so server-only providers are applied after the shared browser configuration and override the platform-specific browser implementations.
+- [`server.ts`](../server.ts) continues to pass the server bootstrap function to `CommonEngine`.
+
+There are no application, server, page, or routing NgModules owned by this repository. Page templates and reusable components import their Angular and Ionic dependencies directly.
+
+
+
 ## Publication metadata
 
 The supported field contract for the collection text metadata panel is documented in [`docs/PUBLICATION-METADATA.md`](PUBLICATION-METADATA.md).
@@ -254,13 +286,18 @@ The app uses a platform-specific router preloading strategy:
 Implementation files:
 
 - [`src/app/services/router-preloading-strategy.service.ts`](../src/app/services/router-preloading-strategy.service.ts)
-- [`src/app/app-routing.module.ts`](../src/app/app-routing.module.ts)
+- [`src/app/app.config.ts`](../src/app/app.config.ts)
+- [`src/app/app.config.server.ts`](../src/app/app.config.server.ts)
 - [`src/app/app.routes.ts`](../src/app/app.routes.ts)
 - [`src/app/app.routes.generated.ts`](../src/app/app.routes.generated.ts)
-- [`src/app/app.module.ts`](../src/app/app.module.ts)
-- [`src/app/app.server.module.ts`](../src/app/app.server.module.ts)
+- Lazy standalone route arrays under `src/app/pages/`, currently:
+  - [`about.routes.ts`](../src/app/pages/about/about.routes.ts)
+  - [`article.routes.ts`](../src/app/pages/article/article.routes.ts)
+  - [`collection-text.routes.ts`](../src/app/pages/collection/text/collection-text.routes.ts)
+  - [`ebook.routes.ts`](../src/app/pages/ebook/ebook.routes.ts)
+  - [`media-collection.routes.ts`](../src/app/pages/media-collection/media-collection.routes.ts)
 
-Route-level preload behavior is set with route `data.preload` in `app.routes.ts`:
+The preloading strategy applies to both `loadComponent` and `loadChildren`. Route-level behavior is set with `data.preload` on the route declaration that owns the lazy load. Developers set it in `app.routes.ts` or one of the lazy `*.routes.ts` files. Do not edit `app.routes.generated.ts`; route generation copies the top-level metadata from `app.routes.ts`:
 
 - `'eager'`: preload as soon as router preloading runs.
 - `'idle'`: preload when browser is idle.
@@ -276,27 +313,32 @@ Route-level preload behavior is set with route `data.preload` in `app.routes.ts`
 
 Current route policy:
 
-- default for lazy routes: `idle-if-fast`
-- optional per-route overrides: `eager`, `idle`, or `off`
+- All current lazy routes use the default `idle-if-fast` behavior.
+- A route can override the default with `eager`, `idle`, or `off`.
+- For a `loadChildren` route, the parent route array must first be loaded before the router can discover and apply preloading rules to its child routes. Setting the parent to `off` therefore also prevents its not-yet-loaded children from being considered for preloading.
 
 
 
 ## Feature-based route generation
 
-The app can generate routes at build time based on values in [`src/assets/config/config.ts`](../src/assets/config/config.ts).
+The app can generate its top-level production routes at build time based on values in [`src/assets/config/config.ts`](../src/assets/config/config.ts).
 
-- Canonical routes source (edited by developers): [`src/app/app.routes.ts`](../src/app/app.routes.ts)
+- Canonical top-level routes source (edited by developers): [`src/app/app.routes.ts`](../src/app/app.routes.ts)
 - Generated file: [`src/app/app.routes.generated.ts`](../src/app/app.routes.generated.ts)
 - Generated auth-guarded route paths: [`src/app/auth-protected-route-paths.generated.ts`](../src/app/auth-protected-route-paths.generated.ts)
 - Generator script: [`prebuild-generate-routes.js`](../prebuild-generate-routes.js)
 - npm command: `npm run generate-routes`
 
+Simple routes use `loadComponent` directly in `app.routes.ts`. Routes with multiple URL shapes, child paths, or observable parent-route behavior use a top-level `loadChildren` entry that loads a standalone `Routes` array from the corresponding `*.routes.ts` file under `src/app/pages/`.
+
+The generator parses and filters only the top-level route blocks in `app.routes.ts`. It copies their references to lazy route arrays unchanged; it does not parse, duplicate, or independently feature-filter the child routes in those files. A child route is available in production whenever its top-level parent route is included.
+
 Feature toggle in config:
 
 - `app.prebuild.featureBasedRoutes` (default: `false`)
 - when `false`, the generated routes include all default lazy routes
-- when `true`, the generated routes include only feature-enabled lazy routes
-- filtering is path-based in `prebuild-generate-routes.js`; any new route not listed in the filter map remains included by default
+- when `true`, the generated routes include only feature-enabled top-level routes
+- filtering is path-based in `prebuild-generate-routes.js`; any new top-level route not listed in the filter map remains included by default
 
 Build behavior:
 
@@ -310,7 +352,8 @@ Parser smoke tests:
 
 - Test script: [`scripts/test-prebuild-generate-routes.js`](../scripts/test-prebuild-generate-routes.js)
 - npm command: `npm run test:routes-parser`
-- run these tests after changes to `prebuild-generate-routes.js` and after route syntax refactors in `src/app/app.routes.ts`
+- run these tests after changes to `prebuild-generate-routes.js` and after generator-facing route syntax changes in `src/app/app.routes.ts`
+- run the Angular route-recognition tests after changes to either `app.routes.ts` or a lazy `*.routes.ts` file
 
 
 
@@ -324,7 +367,7 @@ Authentication support is optional and controlled by config. This is intended so
 2. Configure auth API base URL by setting `app.auth.backendAuthBaseURL`.
 3. If `app.auth.backendAuthBaseURL` is missing, auth service falls back to the origin of `app.backendBaseURL` (for example `https://api.example.org/digitaledition` becomes `https://api.example.org/`).
 4. Ensure backend exposes auth endpoints expected by frontend: `POST <backendAuthBaseURL>/auth/login`, `POST <backendAuthBaseURL>/auth/refresh`, and `GET <backendAuthBaseURL>/session/validate`.
-5. Protect routes by adding `canActivate: [authGuard]` in [`src/app/app.routes.ts`](../src/app/app.routes.ts) for the pages that require authentication.
+5. Protect routes by adding `canActivate: [authGuard]` to the route declaration that owns the protected URL. This is normally the top-level route in [`src/app/app.routes.ts`](../src/app/app.routes.ts); child-specific guards belong in the corresponding lazy `*.routes.ts` file.
 6. For protected routes that do not normally fetch backend data (for example `/account`), add `data: { requiresSessionValidation: true }` so the guard can validate current session state through `GET <backendAuthBaseURL>/session/validate`.
 7. Optional: configure `app.auth.sessionValidationTTLms` in [`src/assets/config/config.ts`](../src/assets/config/config.ts) to control how long a successful session validation is cached in the browser (default: `120000` ms).
 8. Keep login route enabled with `canMatch: [authFeatureEnabledMatchGuard]` so `/login` is only matchable when auth feature is enabled.
@@ -335,7 +378,7 @@ In feature-based route mode, the `login` route is included only when `app.auth.e
 
 - `AUTH_ENABLED` resolves to `false` from config.
 - Auth guard is effectively a no-op.
-- Auth interceptor is not registered in browser/server modules.
+- The auth interceptor is not registered in the shared application configuration.
 - `/login` is not matchable because `authFeatureEnabledMatchGuard` returns `false`.
 
 ### Redirect behavior and privacy hardening
@@ -419,7 +462,7 @@ Current status:
 - Auth-protected routes are currently forced to client rendering in Express middleware in [`server.ts`](../server.ts), based on generated route-path metadata from [`src/app/auth-protected-route-paths.generated.ts`](../src/app/auth-protected-route-paths.generated.ts).
 - This is an implementation workaround for the current webpack-based SSR build setup.
 
-The standalone and zoneless migrations are planned first while the legacy builders remain in use. The subsequent migration to Angular's `application` builder (`@angular-devkit/build-angular:application`) is expected to introduce breaking changes. During that builder migration:
+The standalone bootstrap and component migration is complete while the legacy builders remain in use. The zoneless migration is handled separately before the subsequent migration to Angular's `application` builder (`@angular/build:application`), which is expected to introduce breaking changes. During that builder migration:
 
 - Investigate replacing the current middleware-based implementation with Angular server-routes configuration (`withRoutes` / `RenderMode.Client`) for auth-protected routes.
 - Validate compatibility with feature-based route generation before removing the current workaround.

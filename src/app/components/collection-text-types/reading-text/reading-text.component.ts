@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, ElementRef, Injector, NgZone, Renderer2, afterRenderEffect, computed, inject, input, output, signal, untracked } from '@angular/core';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
-import { IonicModule, ModalController } from '@ionic/angular/lazy';
+import { IonSpinner, ModalController } from '@ionic/angular';
 import { catchError, combineLatest, map, of, switchMap, tap } from 'rxjs';
 
 import { config } from '@config';
@@ -23,7 +23,7 @@ import { enableFrontMatterPageOrTextViewType, isFileNotFoundHtml } from '@utilit
   selector: 'reading-text',
   templateUrl: './reading-text.component.html',
   styleUrls: ['./reading-text.component.scss'],
-  imports: [IonicModule, MathJaxDirective, TrustHtmlPipe],
+  imports: [IonSpinner, MathJaxDirective, TrustHtmlPipe],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ReadingTextComponent {

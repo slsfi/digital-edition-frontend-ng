@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, ElementRef, Injector, LOCALE_ID, NgZone, Renderer2, afterRenderEffect, computed, inject, input, signal, untracked } from '@angular/core';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
-import { IonicModule } from '@ionic/angular/lazy';
+import { IonSpinner } from '@ionic/angular';
 import { catchError, Observable, of, switchMap, tap } from 'rxjs';
 
 import { TextKey } from '@models/collection.models';
@@ -16,7 +16,7 @@ import { ScrollService } from '@services/scroll.service';
   selector: 'text-legend',
   templateUrl: './legend.component.html',
   styleUrls: ['./legend.component.scss'],
-  imports: [IonicModule, TrustHtmlPipe],
+  imports: [IonSpinner, TrustHtmlPipe],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class LegendComponent {

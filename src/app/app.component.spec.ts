@@ -1,5 +1,6 @@
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
 import { EMPTY } from 'rxjs';
 
 import { RouterNavigationSourceService } from '@services/router-navigation-source.service';
@@ -9,8 +10,9 @@ describe('AppComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [AppComponent],
+      imports: [AppComponent],
       providers: [
+        provideRouter([]),
         {
           provide: RouterNavigationSourceService,
           useValue: { get: () => EMPTY }

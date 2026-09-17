@@ -11,7 +11,7 @@ import { existsSync, readFileSync } from 'node:fs';
 import rateLimit from 'express-rate-limit';
 import { join } from 'node:path';
 
-import AppServerModule from './src/main.server';
+import bootstrap from './src/main.server';
 import { environment } from './src/environments/environment';
 import { REQUEST } from './src/express.tokens';
 import { config } from './src/assets/config/config';
@@ -211,7 +211,7 @@ export function app(lang: string): express.Express {
     // * architect.build.configurations.production.optimization.styles.inlineCritical
     commonEngine
       .render({
-        bootstrap: AppServerModule,
+        bootstrap,
         documentFilePath: indexHtml,
         url: getRequestRenderUrl(req),
         inlineCriticalCss: false,

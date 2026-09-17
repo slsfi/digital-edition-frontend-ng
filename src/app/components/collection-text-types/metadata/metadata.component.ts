@@ -2,7 +2,7 @@ import { NgTemplateOutlet } from '@angular/common';
 import { ChangeDetectionStrategy, Component, DestroyRef, LOCALE_ID, inject, input, signal } from '@angular/core';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
-import { IonicModule } from '@ionic/angular/lazy';
+import { IonSpinner } from '@ionic/angular';
 import { catchError, of, switchMap, tap } from 'rxjs';
 
 import { MetadataIndexEntry, PublicationMetadata } from '@models/metadata.models';
@@ -16,7 +16,7 @@ import { CollectionContentService } from '@services/collection-content.service';
   selector: 'text-metadata',
   templateUrl: './metadata.component.html',
   styleUrls: ['./metadata.component.scss'],
-  imports: [IonicModule, NgTemplateOutlet, RouterLink],
+  imports: [IonSpinner, NgTemplateOutlet, RouterLink],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class MetadataComponent {

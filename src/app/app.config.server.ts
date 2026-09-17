@@ -1,28 +1,31 @@
-import { NgModule } from '@angular/core';
-import { provideHttpClient, withInterceptors } from '@angular/common/http';
-import { ServerModule } from '@angular/platform-server';
+import {
+  ApplicationConfig,
+  importProvidersFrom,
+  mergeApplicationConfig
+} from '@angular/core';
+import { provideServerRendering } from '@angular/platform-server';
 import { IonicServerModule } from '@ionic/angular-server';
 
-import { AppModule } from './app.module';
-import { AppComponent } from './app.component';
-import { config } from '@config';
-import { authInterceptor } from '@interceptors/auth.interceptor';
 import {
-  RouteStateSourceService,
-  ServerRouteStateSourceService
-} from '@services/route-state-source.service';
-import {
-  CollectionTextViewsQueryParamSyncService,
-  ServerCollectionTextViewsQueryParamSyncService
-} from '@services/collection-text-views-query-param-sync.service';
+  AuthRedirectStorageService,
+  ServerAuthRedirectStorageService
+} from '@services/auth-redirect-storage.service';
 import {
   AuthTokenStorageService,
   ServerAuthTokenStorageService
 } from '@services/auth-token-storage.service';
 import {
-  AuthRedirectStorageService,
-  ServerAuthRedirectStorageService
-} from '@services/auth-redirect-storage.service';
+  CollectionTextViewsQueryParamSyncService,
+  ServerCollectionTextViewsQueryParamSyncService
+} from '@services/collection-text-views-query-param-sync.service';
+import {
+  FacsimileImageService,
+  ServerFacsimileImageService
+} from '@services/facsimile-image.service';
+import {
+  RouteStateSourceService,
+  ServerRouteStateSourceService
+} from '@services/route-state-source.service';
 import {
   RouterNavigationSourceService,
   ServerRouterNavigationSourceService
@@ -31,24 +34,12 @@ import {
   RouterPreloadingStrategyService,
   ServerRouterPreloadingStrategyService
 } from '@services/router-preloading-strategy.service';
-import {
-  FacsimileImageService,
-  ServerFacsimileImageService
-} from '@services/facsimile-image.service';
+import { appConfig } from './app.config';
 
-const authEnabled = config?.app?.auth?.enabled === true;
-
-
-@NgModule({
-  imports: [
-    AppModule,
-    ServerModule,
-    IonicServerModule,
-  ],
+const serverConfig: ApplicationConfig = {
   providers: [
-    provideHttpClient(
-      ...(authEnabled ? [withInterceptors([authInterceptor])] : [])
-    ),
+    provideServerRendering(),
+    importProvidersFrom(IonicServerModule),
     {
       provide: RouteStateSourceService,
       useClass: ServerRouteStateSourceService
@@ -77,7 +68,7 @@ const authEnabled = config?.app?.auth?.enabled === true;
       provide: FacsimileImageService,
       useClass: ServerFacsimileImageService
     }
-  ],
-  bootstrap: [AppComponent],
-})
-export class AppServerModule {}
+  ]
+};
+
+export const config = mergeApplicationConfig(appConfig, serverConfig);

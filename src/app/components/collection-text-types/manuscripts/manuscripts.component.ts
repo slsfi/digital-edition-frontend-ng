@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, ElementRef, Injector, afterRenderEffect, computed, effect, inject, input, output, signal, untracked } from '@angular/core';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
-import { AlertButton, AlertController, AlertInput, IonicModule } from '@ionic/angular/lazy';
+import { AlertButton, AlertController, AlertInput, IonButton, IonIcon, IonSpinner, IonToggle } from '@ionic/angular';
 import { catchError, of, switchMap, tap } from 'rxjs';
 
 import { config } from '@config';
@@ -20,7 +20,7 @@ import { ViewOptionsService } from '@services/view-options.service';
   selector: 'manuscripts',
   templateUrl: './manuscripts.component.html',
   styleUrls: ['./manuscripts.component.scss'],
-  imports: [IonicModule, TrustHtmlPipe],
+  imports: [IonButton, IonIcon, IonSpinner, IonToggle, TrustHtmlPipe],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ManuscriptsComponent {

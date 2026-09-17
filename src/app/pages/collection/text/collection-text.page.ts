@@ -15,9 +15,10 @@ import {
   IonSelect,
   IonSelectOption,
   IonSpinner,
-  IonToolbar
+  IonToolbar,
+  ModalController,
+  PopoverController
 } from '@ionic/angular';
-import { ModalController, PopoverController } from '@ionic/angular/lazy';
 import { distinctUntilChanged, Observable } from 'rxjs';
 
 import { CommentsComponent } from '@components/collection-text-types/comments/comments.component';

@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, Injector, NgZone, afterRenderEffect
 import { toSignal } from '@angular/core/rxjs-interop';
 import { NgTemplateOutlet } from '@angular/common';
 import { Params, RouterLink, UrlSegment } from '@angular/router';
-import { IonicModule } from '@ionic/angular/lazy';
+import { IonIcon, IonSelect, IonSelectOption } from '@ionic/angular';
 import { distinctUntilChanged, filter } from 'rxjs';
 
 import { config } from '@config';
@@ -27,7 +27,7 @@ import { addOrRemoveValueInNewArray, enableFrontMatterPageOrTextViewType, isBrow
   templateUrl: './collection-side-menu.component.html',
   styleUrls: ['./collection-side-menu.component.scss'],
   imports: [
-    NgTemplateOutlet, IonicModule, RouterLink,
+    NgTemplateOutlet, IonIcon, IonSelect, IonSelectOption, RouterLink,
     ArrayIncludesAnyPipe, ArrayIncludesPipe, CollectionPagePathPipe,
     CollectionPagePositionQueryparamPipe
   ],

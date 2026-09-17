@@ -8,9 +8,10 @@ import {
   IonHeader,
   IonIcon,
   IonSpinner,
-  IonToolbar
+  IonToolbar,
+  ModalController,
+  PopoverController
 } from '@ionic/angular';
-import { ModalController, PopoverController } from '@ionic/angular/lazy';
 import { catchError, combineLatest, map, Observable, of, switchMap, tap } from 'rxjs';
 
 import { TextChangerComponent } from '@components/text-changer/text-changer.component';

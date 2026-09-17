@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, computed, effect, inject, input, signal, untracked } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { IonicModule } from '@ionic/angular/lazy';
+import { IonIcon } from '@ionic/angular';
 import { combineLatestWith, distinctUntilChanged, filter, map } from 'rxjs';
 
 import { config } from '@config';
@@ -27,7 +27,7 @@ import { enableFrontMatterPageOrTextViewType } from '@utility-functions';
   selector: 'text-changer',
   templateUrl: './text-changer.component.html',
   styleUrls: ['./text-changer.component.scss'],
-  imports: [RouterLink, IonicModule, CollectionPagePathPipe, CollectionPagePositionQueryparamPipe],
+  imports: [RouterLink, IonIcon, CollectionPagePathPipe, CollectionPagePositionQueryparamPipe],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class TextChangerComponent {

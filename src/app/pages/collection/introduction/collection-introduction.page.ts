@@ -9,9 +9,10 @@ import {
   IonHeader,
   IonIcon,
   IonSpinner,
-  IonToolbar
+  IonToolbar,
+  ModalController,
+  PopoverController
 } from '@ionic/angular';
-import { ModalController, PopoverController } from '@ionic/angular/lazy';
 
 import { TextChangerComponent } from '@components/text-changer/text-changer.component';
 import { config } from '@config';

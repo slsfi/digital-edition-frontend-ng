@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, Injector, LOCALE_ID, computed, effe
 import { toSignal } from '@angular/core/rxjs-interop';
 import { NgTemplateOutlet } from '@angular/common';
 import { RouterLink, UrlSegment } from '@angular/router';
-import { IonicModule } from '@ionic/angular/lazy';
+import { IonIcon } from '@ionic/angular';
 import { catchError, forkJoin, map, Observable, of } from 'rxjs';
 
 import { config } from '@config';
@@ -33,7 +33,7 @@ import { addOrRemoveValueInNewArray, sortArrayOfObjectsAlphabetically, splitFile
   templateUrl: './main-side-menu.component.html',
   styleUrls: ['./main-side-menu.component.scss'],
   imports: [
-    NgTemplateOutlet, IonicModule, RouterLink, ArrayIncludesPipe,
+    NgTemplateOutlet, IonIcon, RouterLink, ArrayIncludesPipe,
     ParentChildPagePathPipe
   ],
   changeDetection: ChangeDetectionStrategy.OnPush

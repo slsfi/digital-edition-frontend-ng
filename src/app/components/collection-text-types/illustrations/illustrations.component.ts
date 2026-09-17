@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, Injector, NgZone, afterRenderEffect, computed, effect, inject, input, output, signal } from '@angular/core';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { NgClass } from '@angular/common';
-import { IonicModule, ModalController } from '@ionic/angular/lazy';
+import { IonButton, IonSpinner, ModalController } from '@ionic/angular';
 import { catchError, of, switchMap, tap } from 'rxjs';
 
 import { FullscreenImageViewerModal } from '@modals/fullscreen-image-viewer/fullscreen-image-viewer.modal';
@@ -20,7 +20,7 @@ import { ScrollService } from '@services/scroll.service';
   selector: 'illustrations',
   templateUrl: './illustrations.component.html',
   styleUrls: ['./illustrations.component.scss'],
-  imports: [NgClass, IonicModule],
+  imports: [NgClass, IonButton, IonSpinner],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class IllustrationsComponent {

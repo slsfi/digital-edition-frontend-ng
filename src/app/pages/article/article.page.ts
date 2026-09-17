@@ -8,9 +8,10 @@ import {
   IonHeader,
   IonIcon,
   IonSpinner,
-  IonToolbar
+  IonToolbar,
+  ModalController,
+  PopoverController
 } from '@ionic/angular';
-import { ModalController, PopoverController } from '@ionic/angular/lazy';
 import { Observable, Subscription, map, of, switchMap, tap } from 'rxjs';
 
 import { ArticleTocComponent } from '@components/article-toc/article-toc.component';

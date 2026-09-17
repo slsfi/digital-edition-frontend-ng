@@ -13,9 +13,9 @@ import {
   IonSelect,
   IonSelectOption,
   IonSpinner,
-  IonToolbar
+  IonToolbar,
+  ModalController
 } from '@ionic/angular';
-import { ModalController } from '@ionic/angular/lazy';
 import { combineLatest, forkJoin, map, Observable, Subscription } from 'rxjs';
 
 import { GalleryThumbImageComponent } from '@components/gallery-thumb-image/gallery-thumb-image.component';

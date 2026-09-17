@@ -1,7 +1,12 @@
 import { Component, DestroyRef, OnInit, inject, ChangeDetectionStrategy } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Params, PRIMARY_OUTLET, Router, UrlSegment, UrlTree } from '@angular/router';
+import { IonApp, IonProgressBar, IonRouterOutlet, IonSpinner } from '@ionic/angular';
 
+import { CollectionSideMenuComponent } from '@components/menus/collection-side/collection-side-menu.component';
+import { MainSideMenuComponent } from '@components/menus/main-side/main-side-menu.component';
+import { TopMenuComponent } from '@components/menus/top/top-menu.component';
+import { StaticHtmlComponent } from '@components/static-html/static-html.component';
 import { config } from '@config';
 import { CollectionTableOfContentsService } from '@services/collection-toc.service';
 import { DocumentHeadService } from '@services/document-head.service';
@@ -15,7 +20,16 @@ import { isBrowser } from '@utility-functions';
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss'],
   changeDetection: ChangeDetectionStrategy.Eager,
-  standalone: false
+  imports: [
+    IonApp,
+    IonProgressBar,
+    IonRouterOutlet,
+    IonSpinner,
+    CollectionSideMenuComponent,
+    MainSideMenuComponent,
+    StaticHtmlComponent,
+    TopMenuComponent
+  ]
 })
 export class AppComponent implements OnInit {
   private destroyRef = inject(DestroyRef);

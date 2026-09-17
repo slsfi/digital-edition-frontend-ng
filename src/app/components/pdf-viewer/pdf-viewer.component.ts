@@ -3,7 +3,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { NgStyle } from '@angular/common';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { ActivatedRoute } from '@angular/router';
-import { IonicModule, ModalController } from '@ionic/angular/lazy';
+import { IonButton, IonButtons, IonContent, IonHeader, IonIcon, IonPopover, IonToolbar, ModalController } from '@ionic/angular';
 import { map } from 'rxjs';
 
 import { config } from '@config';
@@ -19,7 +19,7 @@ import { Ebook } from '@models/ebook.models';
   selector: 'pdf-viewer',
   templateUrl: './pdf-viewer.component.html',
   styleUrls: ['./pdf-viewer.component.scss'],
-  imports: [NgStyle, IonicModule, IsExternalURLPipe],
+  imports: [NgStyle, IonButton, IonButtons, IonContent, IonHeader, IonIcon, IonPopover, IonToolbar, IsExternalURLPipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { ngSkipHydration: 'true' }
 })

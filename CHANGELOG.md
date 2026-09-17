@@ -15,6 +15,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - Use standalone components for routes.
 - Complete the standalone browser and SSR bootstrap migration, replace the remaining `IonicModule` imports with standalone Ionic components, and register application icons centrally before browser and test bootstrap.
 - Tests: run Angular tests without Zone.js.
+- Make application shell zoneless-safe.
 
 ### Fixed
 

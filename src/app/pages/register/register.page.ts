@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, LOCALE_ID, OnDestroy } from '@angular/core';
+import { Component, effect, inject, LOCALE_ID, OnDestroy } from '@angular/core';
 import { AbstractControl, FormBuilder, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import {
@@ -73,7 +73,6 @@ function createCountryOptions(localeId: string): ReadonlyArray<SelectOption> {
   templateUrl: './register.page.html',
   styleUrls: ['./register.page.scss'],
   host: { ngSkipHydration: 'true' },
-  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     AuthStatusMessageComponent,
     IonButton,
@@ -112,6 +111,28 @@ export class RegisterPage implements OnDestroy {
   readonly registerError = this.authService.registerError;
   readonly registerInProgress = this.authService.registerInProgress;
   readonly registrationCompleted = this.authService.registrationCompleted;
+  private readonly controlsDisabledDuringRegistration = [
+    this.form.controls.country,
+    this.form.controls.intendedUsage,
+    this.form.controls.acceptTermsOfUse,
+    this.form.controls.acceptPrivacyPolicy
+  ];
+
+  private readonly syncDisabledFormControls = effect(() => {
+    const shouldDisable = this.registerInProgress();
+
+    for (const control of this.controlsDisabledDuringRegistration) {
+      if (control.disabled === shouldDisable) {
+        continue;
+      }
+
+      if (shouldDisable) {
+        control.disable({ emitEvent: false });
+      } else {
+        control.enable({ emitEvent: false });
+      }
+    }
+  });
 
   /**
    * Preserves any auth redirect target when navigating back to login.

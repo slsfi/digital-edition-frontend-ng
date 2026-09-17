@@ -1,5 +1,5 @@
 import { Location } from '@angular/common';
-import { ChangeDetectionStrategy, Component, inject, OnDestroy } from '@angular/core';
+import { Component, inject, OnDestroy } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { IonContent } from '@ionic/angular';
 
@@ -10,7 +10,6 @@ import { AuthService } from '@services/auth.service';
   selector: 'page-verify-email',
   templateUrl: './verify-email.page.html',
   styleUrls: ['./verify-email.page.scss'],
-  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [AuthStatusMessageComponent, IonContent, RouterLink]
 })
 export class VerifyEmailPage implements OnDestroy {

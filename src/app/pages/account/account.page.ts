@@ -1,4 +1,4 @@
-import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { IonButton, IonContent } from '@ionic/angular';
 
@@ -8,7 +8,6 @@ import { AuthService } from '@services/auth.service';
   selector: 'page-account',
   templateUrl: './account.page.html',
   styleUrls: ['./account.page.scss'],
-  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [IonButton, IonContent, RouterLink]
 })
 export class AccountPage {

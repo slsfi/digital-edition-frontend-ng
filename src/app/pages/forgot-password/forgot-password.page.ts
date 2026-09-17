@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, inject, OnDestroy, signal } from '@angular/core';
+import { Component, computed, inject, OnDestroy, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { PRIMARY_OUTLET, Router, RouterLink } from '@angular/router';
 import { IonButton, IonContent, IonInput, IonSpinner } from '@ionic/angular';
@@ -12,7 +12,6 @@ type PasswordFlowMode = 'forgot' | 'change';
   selector: 'page-forgot-password',
   templateUrl: './forgot-password.page.html',
   styleUrls: ['./forgot-password.page.scss'],
-  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     AuthStatusMessageComponent,
     IonButton,

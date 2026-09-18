@@ -69,10 +69,38 @@ Do not copy the starter blindly.
 - The starter has a simple static localhost allowlist. This application derives allowed hosts from fork configuration and has existing proxy/origin rules that must remain equivalent.
 - The starter has no authentication-specific CSR routing. This application must generate `RenderMode.Client` entries for auth-protected routes.
 - The starter has a small Vitest suite. It is a model for test infrastructure, not proof that this application's larger Jasmine suite will migrate without manual work.
-- The starter's i18n model has one source locale and one translated locale. This application has the existing `aa` source-locale convention and produces Swedish and Finnish; Stage 2 must preserve the existing production locale contract.
+- The starter's i18n model has one real source locale and one translated locale. This application intentionally uses the non-production `aa` locale as a technical source locale and produces Swedish and Finnish as translated locales; Stage 2 must preserve that model.
 - File locations do not need to match the starter merely for symmetry. In particular, moving the repository's root `server.ts` to `src/server.ts` is optional unless it materially simplifies the migration.
 
 When implementation choices are otherwise equivalent, prefer the starter's Angular-native structure over preserving a legacy Stage 1 pattern.
+
+### Why `aa` must remain the source locale
+
+The `aa` locale is an intentional technical convention, not a real production locale.
+
+- The source phrases represented by `aa` are Swedish.
+- `aa` is never intended to be built, routed to, or exposed as a production locale.
+- Production output is localized to `sv` and `fi`.
+- Swedish deliberately remains a translated locale rather than Angular's source locale.
+- Forks need to customize Swedish phrases as well as Finnish phrases. Keeping `sv` in the normal translation pipeline lets a fork override Swedish through the same XLF-based workflow used for other locales, instead of requiring source-template changes.
+- Therefore, making `sv` the Angular `sourceLocale` would be an architectural regression even if it appears simpler or more conventional.
+
+Stage 2 must preserve this separation:
+
+~~~text
+technical source locale: aa
+production locales:      sv, fi
+source phrase language:  Swedish
+~~~
+
+When adapting the reference starter's i18n configuration to the application builder:
+
+- keep `sourceLocale` as `aa`,
+- keep `sv` and `fi` as explicit translated locales,
+- continue building/localizing only the production locales,
+- do not emit an `aa` production application,
+- preserve the existing Swedish and Finnish XLF merge/update workflow,
+- verify that forks can continue overriding Swedish translations without modifying application source strings.
 
 ---
 
@@ -580,7 +608,7 @@ Review especially:
 - server-route configuration,
 - changes to i18n configuration.
 
-Do not assume the starter's `sourceLocale`/`subPath` values should replace this application's current `aa` + Finnish/Swedish configuration. Use the starter to understand the application-builder model, then preserve this application's locale semantics.
+Do not assume the starter's `sourceLocale`/`subPath` values should replace this application's current i18n configuration. Preserve `aa` as the non-production technical source locale and keep both `sv` and `fi` in the translation pipeline; in particular, do not promote `sv` to `sourceLocale` during the migration.
 
 Commit:
 
@@ -1575,6 +1603,9 @@ Stage 2 is complete only when all of the following are true.
 
 ## Localization
 
+- `aa` remains the technical source locale and is not emitted as a production locale.
+- `sv` remains a translated locale rather than becoming `sourceLocale`.
+- Forks can still override Swedish phrases through the XLF translation workflow.
 - Swedish and Finnish production output both work.
 - `/sv` and `/fi` routing work.
 - The approved default Swedish/unprefixed behavior works.

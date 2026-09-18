@@ -2,7 +2,8 @@ import { HttpClient } from '@angular/common/http';
 import {
   ProviderToken,
   Type,
-  ɵIS_ENABLED_BLOCKING_INITIAL_NAVIGATION
+  ɵIS_ENABLED_BLOCKING_INITIAL_NAVIGATION,
+  ɵPROVIDED_NG_ZONE
 } from '@angular/core';
 import {
   ExtraOptions,
@@ -126,12 +127,23 @@ describe('appConfig', () => {
     expect(authInterceptorRegistered).toBe(config.app.auth?.enabled === true);
   });
 
-  it('uses a standalone root component', () => {
+  it('uses Angular default zoneless change detection', () => {
+    const optsIntoNgZoneChangeDetection = providers.some(provider =>
+      isProviderRecord(provider) && provider.provide === ɵPROVIDED_NG_ZONE
+    );
+
+    expect(optsIntoNgZoneChangeDetection).toBeFalse();
+  });
+
+  it('uses a standalone OnPush root component', () => {
     const componentDefinition = (
-      AppComponent as typeof AppComponent & { ɵcmp?: { standalone?: boolean } }
+      AppComponent as typeof AppComponent & {
+        ɵcmp?: { onPush?: boolean; standalone?: boolean };
+      }
     ).ɵcmp;
 
     expect(componentDefinition?.standalone).toBeTrue();
+    expect(componentDefinition?.onPush).toBeTrue();
   });
 
   function findProvider(token: unknown): ProviderRecord {

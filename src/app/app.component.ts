@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, inject, signal } from '@angular/core';
+import { Component, DestroyRef, OnInit, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Params, PRIMARY_OUTLET, Router, UrlSegment, UrlTree } from '@angular/router';
 import { IonApp, IonProgressBar, IonRouterOutlet, IonSpinner } from '@ionic/angular';
@@ -19,7 +19,6 @@ import { isBrowser } from '@utility-functions';
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss'],
-  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     IonApp,
     IonProgressBar,

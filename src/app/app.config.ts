@@ -2,8 +2,7 @@ import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import {
   ApplicationConfig,
   Type,
-  provideBrowserGlobalErrorListeners,
-  provideZoneChangeDetection
+  provideBrowserGlobalErrorListeners
 } from '@angular/core';
 import {
   RouteReuseStrategy,
@@ -55,7 +54,6 @@ const routerPreloadingStrategyToken =
 
 export const appConfig: ApplicationConfig = {
   providers: [
-    provideZoneChangeDetection(),
     provideBrowserGlobalErrorListeners(),
     provideIonicAngular({ mode: 'md' }),
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },

@@ -822,7 +822,7 @@ Work:
   - `__dirname`,
   - `__non_webpack_require__`,
   - Webpack-specific globals or comments.
-- Do not remove the current `server.ts` main-module logic yet if doing so would break the old server builder.
+- Do not remove the current `src/server.ts` main-module logic yet if doing so would break the old server builder.
 - Do not set `"type": "module"` in `package.json` merely to force ESM.
 
 Use the starter's `tsconfig.json` and `tsconfig.app.json` as references, but do not weaken this repository's strict compiler settings solely to make the configurations look alike.
@@ -830,7 +830,7 @@ Use the starter's `tsconfig.json` and `tsconfig.app.json` as references, but do 
 Useful audit:
 
 ~~~powershell
-rg "require\(|__filename|__dirname|__non_webpack_require__|webpack" server.ts src
+rg "require\(|__filename|__dirname|__non_webpack_require__|webpack" src/server.ts src
 ~~~
 
 Verify:

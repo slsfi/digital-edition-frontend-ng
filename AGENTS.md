@@ -1,13 +1,13 @@
 # Repository Guidelines
 
-This repository contains the base frontend for SLS digital editions: an Angular 20.3 web app with server-side rendering (SSR).  
+This repository contains the base frontend for SLS digital editions: an Angular web app with server-side rendering (SSR).  
 It is intended to be forked per edition/project, with most behavior controlled through configuration (primarily [`src/assets/config/config.ts`](src/assets/config/config.ts)).  
 When contributing, changes must be reusable and config-driven; project-specific hardcoding is not allowed in this base repository.
 
 ## Project Structure & Module Organization
 - `src/app/` contains application code:
-  - `components/` reusable UI components (standalone by default).
-  - `pages/` route entry pages (NgModule-based, due to Ionic SSR constraints).
+  - `components/` reusable UI components.
+  - `pages/` route entry pages.
   - `services/`, `guards/`, `interceptors/`, `tokens/`, `models/`.
 - `src/assets/config/config.ts` is the main feature/config switchboard (auth, SSR, prebuild flags, menus, etc.).
 - Route artifacts are generated at build time:
@@ -45,8 +45,7 @@ When contributing, changes must be reusable and config-driven; project-specific 
 - PRs should include:
   - summary of behavior change and rationale,
   - config/deployment impact (especially `src/assets/config/config.ts` and SSR/auth flags),
-  - verification steps and commands run,
-  - screenshots for UI changes when relevant.
+  - verification steps and commands run.
 - Update `CHANGELOG.md` and docs for user-visible or operational changes.
 
 ## Security & Configuration Tips

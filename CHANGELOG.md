@@ -15,7 +15,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - Use standalone components for routes.
 - Complete the standalone browser and SSR bootstrap migration, replace the remaining `IonicModule` imports with standalone Ionic components, and register application icons centrally before browser and test bootstrap.
 - Tests: run Angular tests without Zone.js.
-- Make application shell, authentication UI, shared UI, content pages, index page, media collection page, search page, collection front matter, and the collection introduction zoneless-safe.
+- Make application shell, authentication UI, shared UI, content pages, index page, media collection page, search page, collection front matter, collection introduction, and collection text views zoneless-safe.
 
 ### Fixed
 

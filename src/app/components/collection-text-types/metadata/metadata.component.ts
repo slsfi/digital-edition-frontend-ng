@@ -1,5 +1,5 @@
 import { NgTemplateOutlet } from '@angular/common';
-import { ChangeDetectionStrategy, Component, DestroyRef, LOCALE_ID, inject, input, signal } from '@angular/core';
+import { Component, DestroyRef, LOCALE_ID, inject, input, signal } from '@angular/core';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 import { IonSpinner } from '@ionic/angular';
@@ -16,8 +16,7 @@ import { CollectionContentService } from '@services/collection-content.service';
   selector: 'text-metadata',
   templateUrl: './metadata.component.html',
   styleUrls: ['./metadata.component.scss'],
-  imports: [IonSpinner, NgTemplateOutlet, RouterLink],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  imports: [IonSpinner, NgTemplateOutlet, RouterLink]
 })
 export class MetadataComponent {
   // ─────────────────────────────────────────────────────────────────────────────

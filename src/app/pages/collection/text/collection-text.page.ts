@@ -1,5 +1,5 @@
 import { AsyncPipe, NgStyle, NgTemplateOutlet } from '@angular/common';
-import { ChangeDetectionStrategy, Component, DestroyRef, ElementRef, Injector, LOCALE_ID, NgZone, OnInit, Renderer2, afterNextRender, inject, signal, viewChild, viewChildren } from '@angular/core';
+import { Component, DestroyRef, ElementRef, Injector, LOCALE_ID, NgZone, OnInit, Renderer2, afterNextRender, inject, signal, viewChild, viewChildren } from '@angular/core';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
 import {
@@ -19,7 +19,7 @@ import {
   ModalController,
   PopoverController
 } from '@ionic/angular';
-import { distinctUntilChanged, Observable } from 'rxjs';
+import { Observable } from 'rxjs';
 
 import { CommentsComponent } from '@components/collection-text-types/comments/comments.component';
 import { FacsimilesComponent } from '@components/collection-text-types/facsimiles/facsimiles.component';
@@ -56,7 +56,6 @@ import { enableFrontMatterPageOrTextViewType, isBrowser, moveArrayItem } from '@
   selector: 'page-text',
   templateUrl: './collection-text.page.html',
   styleUrls: ['./collection-text.page.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     AsyncPipe,
     CommentsComponent,
@@ -116,13 +115,13 @@ export class CollectionTextPage implements OnInit {
   readonly fabColumnOptions = viewChildren<IonFabList>('fabColumnOptions');
   readonly fabColumnOptionsButton = viewChildren<IonFabButton>('fabColumnOptionsButton');
 
-  defaultViews: string[] = config.page?.text?.defaultViews ?? ['readingtext'];
-  readonly enableLegacyIDs: boolean = config.collections?.enableLegacyIDs;
+  private defaultViews: string[] = config.page?.text?.defaultViews ?? ['readingtext'];
+  private readonly legacyIDsEnabled: boolean = config.collections?.enableLegacyIDs ?? false;
   readonly multilingualReadingTextLanguages: string[] = config.app?.i18n?.multilingualReadingTextLanguages ?? [];
   readonly showTextDownloadButton: boolean = config.page?.text?.showTextDownloadButton ?? false;
   readonly showURNButton: boolean = config.page?.text?.showURNButton ?? true;
   readonly showViewOptionsButton: boolean = config.page?.text?.showViewOptionsButton ?? true;
-  readonly viewTypes: any = config.page?.text?.viewTypes ?? {};
+  private readonly viewTypes: any = config.page?.text?.viewTypes ?? {};
 
   private collectionAndPublicationLegacyId: string = '';
   private tooltipVisible: boolean = false;
@@ -136,38 +135,36 @@ export class CollectionTextPage implements OnInit {
   private unlistenMouseoutEvents?: () => void;
 
   protected currentPageTitle$: Observable<string> = this.headService.getCurrentPageTitle();
-  protected mobileMode = this.platformService.isMobile();
+  protected readonly mobileMode = this.platformService.isMobile();
 
-  activeComponent = signal<boolean>(true);
-  activeMobileModeViewIndex = signal<number>(0);
-  addViewPopoverisOpen = signal<boolean>(false);
-  enabledViewTypes = signal<string[]>([]);
-  illustrationsViewShown = signal<boolean>(false);
-  infoOverlayPosition = signal<{ bottom: string; left: string }>({
+  readonly activeComponent = signal(true);
+  readonly activeMobileModeViewIndex = signal(0);
+  readonly addViewPopoverisOpen = signal(false);
+  readonly enabledViewTypes = signal<string[]>([]);
+  readonly illustrationsViewShown = signal(false);
+  readonly infoOverlayPosition = signal<{ bottom: string; left: string }>({
     bottom: '0px',
     left: '-1500px',
   });
-  infoOverlayPosType = signal<'fixed' | 'absolute'>('fixed');
-  infoOverlayText = signal<string>('');
-  infoOverlayTitle = signal<string>('');
-  infoOverlayTriggerElem = signal<HTMLElement | null>(null);
-  infoOverlayWidth = signal<string | null>(null);
-  searchMatches = signal<string[]>([]);
-  textKey = signal<TextKey>({ collectionID: '', publicationID: '', textItemID: '' });
-  textPosition = signal<string>('');
-  toolTipMaxWidth = signal<string | null>(null);
-  toolTipPosition = signal<{ top: string; left: string }>({
+  readonly infoOverlayPosType = signal<'fixed' | 'absolute'>('fixed');
+  readonly infoOverlayText = signal('');
+  readonly infoOverlayTitle = signal('');
+  readonly infoOverlayTriggerElem = signal<HTMLElement | null>(null);
+  readonly infoOverlayWidth = signal<string | null>(null);
+  readonly searchMatches = signal<string[]>([]);
+  readonly textKey = signal<TextKey>({ collectionID: '', publicationID: '', textItemID: '' });
+  readonly textPosition = signal('');
+  readonly toolTipMaxWidth = signal<string | null>(null);
+  readonly toolTipPosition = signal<{ top: string; left: string }>({
     top: '0px',
     left: '-1500px'
   });
-  toolTipPosType = signal<'fixed' | 'absolute'>('fixed');
-  toolTipScaleValue = signal<number | null>(null);
-  toolTipText = signal<string>('');
-  views = signal<ViewState[]>([]);
+  readonly toolTipPosType = signal<'fixed' | 'absolute'>('fixed');
+  readonly toolTipScaleValue = signal<number | null>(null);
+  readonly toolTipText = signal('');
+  readonly views = signal<ViewState[]>([]);
 
-  private readonly active$ = toObservable(this.activeComponent).pipe(
-    distinctUntilChanged()
-  );
+  private readonly active$ = toObservable(this.activeComponent);
 
 
   // ─────────────────────────────────────────────────────────────────────────────
@@ -254,7 +251,7 @@ export class CollectionTextPage implements OnInit {
       this.collectionContentService.previousReadViewTextId = this.collectionContentService.readViewTextId;
       this.collectionContentService.readViewTextId = routeTextItemID;
 
-      if (this.enableLegacyIDs && isBrowser()) {
+      if (this.legacyIDsEnabled && isBrowser()) {
         this.setCollectionAndPublicationLegacyId(publicationID);
       }
 

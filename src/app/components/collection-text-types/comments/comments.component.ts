@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, ElementRef, Injector, NgZone, Renderer2, afterRenderEffect, computed, inject, input, output, signal, untracked } from '@angular/core';
+import { Component, DestroyRef, ElementRef, Injector, NgZone, Renderer2, afterRenderEffect, computed, inject, input, output, signal, untracked } from '@angular/core';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { IonSpinner, ModalController } from '@ionic/angular';
 import { catchError, map, of, switchMap, tap } from 'rxjs';
@@ -22,8 +22,7 @@ import { concatenateNames, isFileNotFoundHtml } from '@utility-functions';
   selector: 'comments',
   templateUrl: './comments.component.html',
   styleUrls: ['./comments.component.scss'],
-  imports: [IonSpinner, TrustHtmlPipe],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  imports: [IonSpinner, TrustHtmlPipe]
 })
 export class CommentsComponent {
   // ─────────────────────────────────────────────────────────────────────────────

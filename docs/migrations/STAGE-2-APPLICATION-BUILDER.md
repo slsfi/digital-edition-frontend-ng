@@ -287,6 +287,7 @@ Keep all of the following unless a specific Stage 2 step says otherwise:
 - Existing sitemap and static collection-menu generation.
 - Existing nginx front-end and Docker deployment model.
 - Existing SSR rate limiting and Express proxy trust configuration.
+- Existing Express short-circuit strategy for static content, missing static files, `/static-html`, and non-SSR probe requests; these requests should continue to avoid Angular rendering work.
 - Existing static-file cache policy unless the new runtime requires an equivalent implementation change.
 - Critical CSS inlining remains disabled (`optimization.styles.inlineCritical: false`) so Stage 2 does not change SSR response-generation cost while changing the build/runtime architecture.
 - Existing canonical/Open Graph URL semantics.
@@ -958,9 +959,73 @@ Retain:
 
 Do not add hydration providers.
 
-### 9.5 Replace CommonEngine with AngularNodeAppEngine
+### 9.5 Preserve the Express performance pipeline
 
-Rewrite the Angular rendering boundary in `server.ts` using the starter as the model:
+The application builder and `AngularNodeAppEngine` do **not** require removing the custom Express server. Angular's Node SSR API is designed to sit behind an Express middleware chain: middleware can short-circuit requests first, and the final Angular handler can call `angularApp.handle(req)` only for requests that actually need Angular rendering.
+
+This is important for this application because much of the current `server.ts` middleware exists specifically to avoid unnecessary Angular SSR work.
+
+Preserve the current middleware ordering and intent wherever possible:
+
+- Configure Express `trust proxy` before middleware that depends on `req.ip`.
+- Serve `/static-html` before Angular, with the existing cache policy.
+- Keep the explicit fast 404 for missing `/static-html` files so the Angular wildcard route is not bootstrapped for those requests.
+- Serve unversioned public files such as `robots.txt`, `sitemap.txt`, and `favicon.ico` before Angular, with the existing no-cache behavior.
+- Serve public assets before Angular with the intended short-cache policy.
+- Serve hashed browser output before Angular with long-term caching.
+- Keep the fast missing-static-extension 404 before Angular so requests for missing images, fonts, media, PDFs, and similar files do not bootstrap SSR.
+- Keep the Chrome DevTools probe bypass before the SSR rate limiter.
+- Keep the SSR rate limiter immediately before the dynamic Angular handler so successfully served static files and intentional fast 404s do not consume SSR limiter capacity.
+- Preserve `Vary: User-Agent` for dynamically rendered responses while user-agent-dependent SSR output remains in use.
+- Preserve the existing static cache durations unless a separate measured performance change justifies changing them.
+
+The target request pipeline should conceptually remain:
+
+~~~text
+request
+  -> Express proxy/IP configuration
+  -> special static-html handling
+  -> unversioned static files
+  -> public/static assets
+  -> hashed browser files
+  -> fast missing-static-file 404
+  -> non-SSR probe bypasses
+  -> SSR rate limiter
+  -> dynamic-response headers
+  -> AngularNodeAppEngine.handle(req)
+  -> writeResponseToNodeResponse(...)
+~~~
+
+The exact static-file path matching will need to adapt to the application builder's localized browser output. Do not solve that by hardcoding `sv`/`fi`. The middleware must work with the locale directories emitted from each fork's own `angular.json` configuration, including single-locale forks.
+
+Performance-sensitive middleware should remain in Express rather than being moved into Angular application code or Angular route guards. Requests that can be answered without bootstrapping Angular should continue to avoid Angular entirely.
+
+Not every current `server.ts` branch should survive:
+
+- Remove the manual auth-protected CSR-shell middleware once generated `RenderMode.Client` server routes provide the same behavior.
+- Remove `clientRenderIndexHtml` and related synchronous index-file reads if they are no longer needed after that change.
+- Remove manual `APP_BASE_HREF`, `LOCALE_ID`, and repository-owned Express `REQUEST` providers when the new localized engine/request-context model supplies their replacements.
+- Remove the old per-locale `proxy-server.js`; `AngularNodeAppEngine` should own localized application dispatch.
+- Replace only the final `CommonEngine.render()` boundary with the Angular Node app engine response flow.
+
+Before changing this middleware, add or retain regression coverage for the short-circuit behavior. At minimum verify:
+
+- existing file returns without invoking dynamic SSR,
+- missing known static extension returns the expected fast 404,
+- missing `/static-html` returns its explicit 404,
+- DevTools probe returns 204 and does not consume SSR rate-limit capacity,
+- dynamic SSR requests are rate limited,
+- static requests are not SSR-rate-limited,
+- cache-control behavior remains equivalent for unversioned files, assets, and hashed files,
+- dynamic responses retain the expected `Vary` header.
+
+Where practical, instrument or spy on the final Angular handler in focused server tests so these assertions prove that short-circuited requests never reach `AngularNodeAppEngine.handle()`.
+
+Commit the Express adaptation as part of the atomic application-builder cutover only where required by the new output/runtime contract. Performance-policy changes should be separate later commits backed by measurements.
+
+### 9.6 Replace CommonEngine with AngularNodeAppEngine
+
+Rewrite only the final Angular rendering boundary in `src/server.ts` using the starter as the model; keep the performance-oriented Express middleware described above in front of it:
 
 - `AngularNodeAppEngine`,
 - `createNodeRequestHandler`,
@@ -995,7 +1060,7 @@ Keep custom Express behavior that is still required:
 
 Do not duplicate static-file work unnecessarily if `AngularNodeAppEngine` handles a case equivalently; remove old middleware only after tests prove behavior is preserved.
 
-### 9.6 Swap the request-context adapter
+### 9.7 Swap the request-context adapter
 
 Replace the Stage 1 Express-request adapter introduced in step 4 with an adapter backed by Angular's built-in SSR `REQUEST` token and standard Web `Request`.
 
@@ -1010,7 +1075,7 @@ Verify:
 
 After this works, repository-owned Express request injection should no longer be needed by application services.
 
-### 9.7 Replace auth CSR middleware with RenderMode.Client
+### 9.8 Replace auth CSR middleware with RenderMode.Client
 
 The generated server-route configuration now owns render mode.
 
@@ -1023,7 +1088,7 @@ Verify:
 - route filtering and auth feature flags remain synchronized,
 - no protected SSR HTML leaks.
 
-### 9.8 Update npm scripts
+### 9.9 Update npm scripts
 
 Expected end state:
 
@@ -1852,6 +1917,8 @@ Stage 2 is complete only when all of the following are true.
 - No `__non_webpack_require__` or other Webpack/CommonJS-only server assumptions remain.
 - The emitted `server.mjs`-style runtime can be started through `npm run serve:ssr`.
 - Custom Express middleware still preserves required static, rate-limit, proxy, and cache behavior.
+- Static files, known missing static files, `/static-html` misses, and non-SSR probe requests short-circuit before `AngularNodeAppEngine.handle()`.
+- The SSR rate limiter applies to dynamic Angular requests without unnecessarily counting successful static requests or intentional fast-path responses.
 - Allowed-host and trusted-proxy-header behavior is explicitly configured and tested.
 
 ## Rendering modes

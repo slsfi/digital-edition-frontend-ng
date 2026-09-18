@@ -1,8 +1,9 @@
 import { AsyncPipe } from '@angular/common';
-import { Component, LOCALE_ID, OnInit, inject, ChangeDetectionStrategy } from '@angular/core';
+import { Component, LOCALE_ID, OnInit, inject, signal } from '@angular/core';
+import { toObservable } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
 import { IonContent, IonHeader, IonSpinner, IonToolbar } from '@ionic/angular';
-import { catchError, map, Observable, of, switchMap, tap } from 'rxjs';
+import { catchError, combineLatest, filter, map, Observable, of, switchMap } from 'rxjs';
 
 import { TextChangerComponent } from '@components/text-changer/text-changer.component';
 import { MarkdownService } from '@services/markdown.service';
@@ -13,7 +14,6 @@ import { PlatformService } from '@services/platform.service';
   selector: 'page-cover',
   templateUrl: './collection-cover.page.html',
   styleUrls: ['./collection-cover.page.scss'],
-  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [AsyncPipe, IonContent, IonHeader, IonSpinner, IonToolbar, TextChangerComponent]
 })
 export class CollectionCoverPage implements OnInit {
@@ -22,19 +22,15 @@ export class CollectionCoverPage implements OnInit {
   private route = inject(ActivatedRoute);
   private activeLocale = inject(LOCALE_ID);
 
-  _activeComponent: boolean = true;
-  collectionID: string = '';
+  readonly activeComponent = signal(true);
   coverData$: Observable<any>;
-  mobileMode: boolean = false;
+  readonly mobileMode = this.platformService.isMobile();
+  private readonly active$ = toObservable(this.activeComponent);
 
   ngOnInit() {
-    this.mobileMode = this.platformService.isMobile();
-
-    this.coverData$ = this.route.params.pipe(
-      tap(({collectionID}) => {
-        this.collectionID = collectionID;
-      }),
-      switchMap(({collectionID}) => {
+    this.coverData$ = combineLatest([this.route.params, this.active$]).pipe(
+      filter(([, active]) => active),
+      switchMap(([{collectionID}]) => {
         return this.getCoverDataFromMdContent(
           `${this.activeLocale}-08-${collectionID}`
         );
@@ -43,11 +39,11 @@ export class CollectionCoverPage implements OnInit {
   }
 
   ionViewWillEnter() {
-    this._activeComponent = true;
+    this.activeComponent.set(true);
   }
 
   ionViewWillLeave() {
-    this._activeComponent = false;
+    this.activeComponent.set(false);
   }
 
   private getCoverDataFromMdContent(fileID: string): Observable<any> {

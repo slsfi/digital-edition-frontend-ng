@@ -249,6 +249,9 @@ export class ScrollService {
     if (isBrowser()) {
       this.ngZone.runOutsideAngular(() => {
         let iterationsLeft = 10;
+        // TODO: A number is passed by value, so assigning the new interval ID below
+        // does not update the caller and a repeated call cannot cancel its previous
+        // interval. Refactor this method to own or return the timer handle.
         clearInterval(intervalTimerId);
         const that = this;
 

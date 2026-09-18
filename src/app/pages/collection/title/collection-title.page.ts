@@ -1,5 +1,6 @@
 import { AsyncPipe } from '@angular/common';
-import { Component, ElementRef, LOCALE_ID, OnInit, inject, ChangeDetectionStrategy } from '@angular/core';
+import { Component, ElementRef, LOCALE_ID, OnInit, inject, signal } from '@angular/core';
+import { toObservable } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
 import {
   IonButton,
@@ -12,7 +13,7 @@ import {
   ModalController,
   PopoverController
 } from '@ionic/angular';
-import { catchError, combineLatest, map, Observable, of, switchMap, tap } from 'rxjs';
+import { catchError, combineLatest, filter, map, Observable, of, switchMap, tap } from 'rxjs';
 
 import { TextChangerComponent } from '@components/text-changer/text-changer.component';
 import { config } from '@config';
@@ -29,7 +30,6 @@ import { ViewOptionsService } from '@services/view-options.service';
   selector: 'page-title',
   templateUrl: './collection-title.page.html',
   styleUrls: ['./collection-title.page.scss'],
-  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     AsyncPipe,
     IonButton,
@@ -61,44 +61,42 @@ export class CollectionTitlePage implements OnInit {
   readonly showURNButton: boolean = config.page?.title?.showURNButton ?? false;
   readonly showViewOptionsButton: boolean = config.page?.title?.showViewOptionsButton ?? true;
 
-  _activeComponent: boolean = true;
-  collectionID: string = '';
-  intervalTimerId: number = 0;
-  mobileMode: boolean = false;
-  searchMatches: string[] = [];
+  readonly activeComponent = signal(true);
+  readonly mobileMode = this.platformService.isMobile();
   text$: Observable<string | null>;
+  private readonly active$ = toObservable(this.activeComponent);
 
   ngOnInit() {
-    this.mobileMode = this.platformService.isMobile();
-
     this.text$ = combineLatest(
-      [this.route.params, this.route.queryParams]
+      [this.route.params, this.route.queryParams, this.active$]
     ).pipe(
-      map(([params, queryParams]) => ({...params, ...queryParams})),
-      tap(({collectionID, q}) => {
-        this.collectionID = collectionID;
-        if (q) {
-          this.searchMatches = this.parserService.getSearchMatchesFromQueryParams(q);
-          if (this.searchMatches.length) {
-            this.scrollService.scrollToFirstSearchMatch(this.elementRef.nativeElement, this.intervalTimerId);
-          }
+      filter(([, , active]) => active),
+      map(([params, queryParams]) => ({
+        collectionID: params['collectionID'],
+        searchMatches: queryParams['q']
+          ? this.parserService.getSearchMatchesFromQueryParams(queryParams['q'])
+          : []
+      })),
+      tap(({searchMatches}) => {
+        if (searchMatches.length) {
+          this.scrollService.scrollToFirstSearchMatch(this.elementRef.nativeElement, 0);
         }
       }),
-      switchMap(({collectionID}) => {
-        return this.loadTitle(collectionID, this.activeLocale);
+      switchMap(({collectionID, searchMatches}) => {
+        return this.loadTitle(collectionID, this.activeLocale, searchMatches);
       })
     );
   }
 
   ionViewWillEnter() {
-    this._activeComponent = true;
+    this.activeComponent.set(true);
   }
 
   ionViewWillLeave() {
-    this._activeComponent = false;
+    this.activeComponent.set(false);
   }
 
-  private loadTitle(id: string, lang: string): Observable<string | null> {
+  private loadTitle(id: string, lang: string, searchMatches: string[]): Observable<string | null> {
     if (!this.loadContentFromMarkdown) {
       return this.collectionContentService.getTitle(id, lang).pipe(
         map((res: any) => {
@@ -106,7 +104,7 @@ export class CollectionTitlePage implements OnInit {
             let text = this.replaceImageAssetsPaths
               ? res.content.replace(/src="images\//g, 'src="assets/images/')
               : res.content;
-            return this.parserService.insertSearchMatchTags(text, this.searchMatches);
+            return this.parserService.insertSearchMatchTags(text, searchMatches);
           } else {
             return $localize`:@@CollectionTitle.None:Titelbladet kunde inte laddas.`;
           }

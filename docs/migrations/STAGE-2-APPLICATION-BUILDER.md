@@ -288,6 +288,7 @@ Keep all of the following unless a specific Stage 2 step says otherwise:
 - Existing nginx front-end and Docker deployment model.
 - Existing SSR rate limiting and Express proxy trust configuration.
 - Existing static-file cache policy unless the new runtime requires an equivalent implementation change.
+- Critical CSS inlining remains disabled (`optimization.styles.inlineCritical: false`) so Stage 2 does not change SSR response-generation cost while changing the build/runtime architecture.
 - Existing canonical/Open Graph URL semantics.
 - Existing source-language and translated-language behavior, including fork-specific production locale sets.
 - Centralized app-owned Ionicons registration through `src/ionicons-polyfill.ts`.
@@ -295,6 +296,8 @@ Keep all of the following unless a specific Stage 2 step says otherwise:
 Do **not** enable client hydration in Stage 2. Ionic's underlying Stencil components do not currently support Angular SSR hydration, and hydration must remain a separate migration.
 
 Do **not** add Angular prerendering/SSG merely because the `application` builder and the reference starter support it. Stage 2 should use runtime SSR plus explicit CSR routes. The app's existing static HTML generation remains separate.
+
+Do **not** enable critical CSS inlining during Stage 2. The current `inlineCritical: false` setting is intentional for SSR performance and must survive the application-builder migration even if the new builder's defaults or migration schematic would otherwise inline critical CSS. Evaluating whether critical CSS inlining is beneficial is a separate future performance experiment that should measure both SSR/server cost and client rendering impact before changing this setting.
 
 Do **not** silently change the behavior of unprefixed URLs.
 
@@ -319,6 +322,7 @@ Stage 2 starts from these Stage 1 assumptions:
 - Auth-protected routes are detected from generated top-level route metadata and are served as a CSR shell by Express middleware.
 - nginx serves static browser files from the `dist/app/browser` volume and proxies dynamic requests to the Node app.
 - `build:ssr` currently runs route generation, a browser production build, a separate server production build, and `postbuild-copy-files.js`.
+- Production browser optimization explicitly sets `optimization.styles.inlineCritical` to `false`; this is a deliberate SSR performance choice, not legacy configuration to discard during the builder migration.
 - `serve:ssr` currently starts `dist/app/proxy-server.js`.
 - Unit tests use `@angular-devkit/build-angular:karma`, Jasmine, Karma, and headless Chrome.
 - `src/ionicons-polyfill.ts` is an application polyfill and centrally registers app-owned Ionicons before `<ion-icon>` elements upgrade.
@@ -888,7 +892,7 @@ Retain:
 - translation warning/error behavior,
 - production budgets,
 - output hashing,
-- `inlineCritical: false`.
+- `inlineCritical: false`; preserve this explicitly rather than relying on the application builder's default, because enabling it would change SSR build/rendering performance characteristics during the migration.
 
 Remove options that are obsolete under the application builder, such as legacy `buildOptimizer` and `vendorChunk` settings.
 
@@ -1050,6 +1054,7 @@ Before committing:
 - Canonical/Open Graph assertions.
 - Missing-static-file assertions.
 - No hydration provider.
+- Production configuration still has critical CSS inlining disabled; inspect the migrated `angular.json` rather than assuming the old setting carried over.
 - Representative app-owned Ionicons render correctly in server HTML and remain correct after client bootstrap.
 - `npm run generate-routes` followed by a second generation produces no diff.
 - Existing Jasmine/Karma unit suite still passes unchanged.
@@ -1730,6 +1735,8 @@ Also record:
 
 The application builder and Vitest are expected to improve development/test tooling, but Stage 2 should not claim a performance improvement unless measured in this repository.
 
+Keep critical CSS inlining disabled for this comparison so the before/after SSR measurements isolate the builder/runtime migration rather than mixing in a separate rendering optimization. A future critical-CSS experiment should establish its own baseline and compare at least server response/build cost, HTML response size, and browser rendering metrics.
+
 Investigate material regressions before finalizing the migration.
 
 Commit:
@@ -1834,6 +1841,7 @@ Stage 2 is complete only when all of the following are true.
 - There is no legacy `prerender` builder target.
 - `build:ssr` performs one integrated Angular production build after route generation.
 - Obsolete Webpack-only builder options are removed.
+- Critical CSS inlining remains explicitly disabled in production configuration.
 - `@angular-devkit/build-angular` is no longer a direct dependency unless a concrete remaining requirement is documented.
 
 ## Server runtime

@@ -88,6 +88,20 @@ When updating which Node.js image is used for the build, remember to update both
 
 
 
+## Application architecture
+
+The app is an Angular 22 standalone, zoneless application with server-side rendering and Ionic UI components.
+
+- **Standalone Angular application:** [`src/main.ts`](../src/main.ts) and [`src/main.server.ts`](../src/main.server.ts) both bootstrap `AppComponent` with `bootstrapApplication()`. There are no application, server, page, or routing NgModules owned by this repository; page templates and reusable components import their Angular and Ionic dependencies directly.
+- **Browser/server bootstrap and shared provider configuration:** The browser bootstrap uses [`src/app/app.config.ts`](../src/app/app.config.ts), while the server bootstrap uses [`src/app/app.config.server.ts`](../src/app/app.config.server.ts). The browser configuration owns shared router, HTTP, Ionic, and application providers and selects browser implementations of platform-specific services. The server configuration uses `mergeApplicationConfig()` so server-only providers are applied after the shared browser configuration and override the platform-specific browser implementations.
+- **Ionic standalone components and the `IonicServerModule` bridge:** Application components import the standalone Ionic components they use rather than `IonicModule`, and application-level Ionic providers are registered with `provideIonicAngular()`. On the server, `importProvidersFrom(IonicServerModule)` is the sole intentional application-level NgModule bridge because Ionic does not expose an equivalent standalone server-provider function.
+- **Angular 22 zoneless behavior:** Angular 22 is zoneless by default, so the application does not register `provideZoneChangeDetection()` or another change-detection compatibility provider. Components expose asynchronous template state through signals, inputs, the `async` pipe, or other Angular notification mechanisms. Zone.js is absent from browser, server, and test polyfills and from the dependency tree.
+- **SSR via `CommonEngine`:** [`server.ts`](../server.ts) passes the server bootstrap function to `CommonEngine`, which remains the app's SSR integration.
+- **Retained Webpack `browser`/`server` builders and `dist/app` contract:** The application intentionally retains Angular's separate Webpack-based `browser` and `server` builders in `angular.json` and the existing `dist/app` output contract. Migration to the [`application` builder](https://angular.dev/tools/cli/build-system-migration) is deferred as a separate breaking change.
+- **Hydration intentionally not enabled:** Client hydration is deliberately not configured. The application retains the non-hydrated `CommonEngine` SSR lifecycle; enabling hydration must be handled and tested as a dedicated SSR/deployment migration rather than folded into ordinary component work.
+
+
+
 ## Dependencies
 
 The app is built on Angular and uses many web components from Ionic. It also has a few other essential dependencies, which are briefly described below.
@@ -96,8 +110,6 @@ The app is built on Angular and uses many web components from Ionic. It also has
 ### `@angular`
 
 The Angular documentation is available on <https://angular.dev/>.
-
-The app uses standalone Angular components and `bootstrapApplication()` for both browser and server rendering. Angular 22's default zoneless change detection is used without a compatibility provider, and Zone.js is not an application or test dependency. It intentionally retains Angular's separate Webpack-based `browser` and `server` builders, the existing output layout, and the `CommonEngine` SSR integration. Hydration and migration from `CommonEngine` to the [`application` builder](https://angular.dev/tools/cli/build-system-migration) are deferred to a later stage as separate breaking changes.
 
 #### Updating Angular
 
@@ -118,8 +130,6 @@ When updating to a new major version of Angular:
 ### `@ionic`
 
 The Ionic Framework documentation is available on <https://ionicframework.com/docs/>
-
-Application components import the standalone Ionic components they use rather than `IonicModule`. The application-level Ionic providers are registered with `provideIonicAngular()`. On the server, `IonicServerModule` is retained only as a provider bridge through `importProvidersFrom()` because Ionic does not expose an equivalent standalone server-provider function.
 
 #### Updating Ionic
 
@@ -247,25 +257,6 @@ When adding an icon:
 4. For a dynamic `[name]` binding, register every icon name the binding can produce.
 
 Do not add component-local `addIcons()` calls. The central registry is the single source of truth for application-owned icons.
-
-
-
-## Standalone application bootstrap
-
-The browser and SSR applications share the same standalone provider configuration and then add platform-specific implementations:
-
-- [`src/main.ts`](../src/main.ts) bootstraps `AppComponent` with the browser configuration from [`src/app/app.config.ts`](../src/app/app.config.ts).
-- [`src/main.server.ts`](../src/main.server.ts) bootstraps the same component with [`src/app/app.config.server.ts`](../src/app/app.config.server.ts).
-- The browser configuration owns shared router, HTTP, Ionic, and application providers and selects browser implementations of platform-specific services.
-- The server configuration uses `mergeApplicationConfig()` so server-only providers are applied after the shared browser configuration and override the platform-specific browser implementations.
-- `importProvidersFrom(IonicServerModule)` is the sole intentional application-level NgModule bridge. Ionic does not currently expose an equivalent standalone server-provider function.
-- [`server.ts`](../server.ts) continues to pass the server bootstrap function to `CommonEngine`.
-
-There are no application, server, page, or routing NgModules owned by this repository. Page templates and reusable components import their Angular and Ionic dependencies directly.
-
-Angular 22 is zoneless by default, so the application does not register `provideZoneChangeDetection()` or another change-detection compatibility provider. Components expose asynchronous template state through signals, inputs, the `async` pipe, or other Angular notification mechanisms. Zone.js is absent from browser, server, and test polyfills and from the dependency tree.
-
-Client hydration is deliberately not configured. The application retains the non-hydrated `CommonEngine` SSR lifecycle, the Webpack-based `browser` and `server` builders in `angular.json`, and the existing `dist/app` output contract. Enabling hydration or replacing `CommonEngine` or those builders must be handled and tested as a dedicated SSR/deployment migration rather than folded into ordinary component work.
 
 
 

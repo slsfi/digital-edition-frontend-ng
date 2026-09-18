@@ -69,10 +69,27 @@ Do not copy the starter blindly.
 - The starter has a simple static localhost allowlist. This application derives allowed hosts from fork configuration and has existing proxy/origin rules that must remain equivalent.
 - The starter has no authentication-specific CSR routing. This application must generate `RenderMode.Client` entries for auth-protected routes.
 - The starter has a small Vitest suite. It is a model for test infrastructure, not proof that this application's larger Jasmine suite will migrate without manual work.
+- The starter does not contain this application's `src/ionicons-polyfill.ts`. That omission is **not** part of the target architecture: the starter was created without the standalone-Ionic Ionicons registration workaround, while this application requires the polyfill so app-owned Ionicons are registered before `<ion-icon>` upgrades. Stage 2 must retain the polyfill.
 - The starter's i18n model has one real source locale and one translated locale. This repository intentionally uses the non-production `aa` locale as a technical source locale. The base app currently produces Swedish and Finnish as translated locales, while forks can define different production locale sets; Stage 2 must preserve both the `aa` source-locale strategy and fork-configurable production locales.
 - File locations do not need to match the starter merely for symmetry. In particular, moving the repository's root `server.ts` to `src/server.ts` is optional unless it materially simplifies the migration.
 
-When implementation choices are otherwise equivalent, prefer the starter's Angular-native structure over preserving a legacy Stage 1 pattern.
+When implementation choices are otherwise equivalent, prefer the starter's Angular-native structure over preserving a legacy Stage 1 pattern. The Ionicons polyfill is an explicit exception: preserve this repository's working implementation even though the starter does not have it.
+
+### Ionicons polyfill must be retained
+
+`src/ionicons-polyfill.ts` centrally registers the application-owned Ionicons with `addIcons()` before Ionic defines/upgrades `<ion-icon>` elements.
+
+This ordering matters for the standalone Ionic + SSR setup. Existing server-rendered `<ion-icon>` elements can upgrade before component constructors run, so relying on component-local icon registration can leave icons unresolved.
+
+Stage 2 rules:
+
+- Keep `src/ionicons-polyfill.ts`.
+- Keep it in the application polyfill/bootstrap path when converting `angular.json` to `@angular/build:application`.
+- Do not replace it with component-local `addIcons()` calls.
+- Do not remove it merely because the reference starter works without one; the starter is incomplete as a reference for this specific concern.
+- Keep application-owned icon registration centralized in this file.
+- Verify representative icons after the application-builder cutover in development, production SSR, and client startup.
+- When migrating tests to Vitest, ensure the same registration runs in tests without duplicating the icon list. Prefer inheriting the application polyfill through Angular's unit-test builder; if that does not occur, import `src/ionicons-polyfill.ts` once through a minimal test setup file.
 
 ### Why `aa` must remain the source locale
 
@@ -183,6 +200,7 @@ Keep all of the following unless a specific Stage 2 step says otherwise:
 - Existing static-file cache policy unless the new runtime requires an equivalent implementation change.
 - Existing canonical/Open Graph URL semantics.
 - Existing source-language and translated-language behavior, including fork-specific production locale sets.
+- Centralized app-owned Ionicons registration through `src/ionicons-polyfill.ts`.
 
 Do **not** enable client hydration in Stage 2. Ionic's underlying Stencil components do not currently support Angular SSR hydration, and hydration must remain a separate migration.
 
@@ -213,7 +231,8 @@ Stage 2 starts from these Stage 1 assumptions:
 - `build:ssr` currently runs route generation, a browser production build, a separate server production build, and `postbuild-copy-files.js`.
 - `serve:ssr` currently starts `dist/app/proxy-server.js`.
 - Unit tests use `@angular-devkit/build-angular:karma`, Jasmine, Karma, and headless Chrome.
-- `src/test.ts` manually initializes Angular's browser testing environment and imports `ionicons-polyfill.ts`.
+- `src/ionicons-polyfill.ts` is an application polyfill and centrally registers app-owned Ionicons before `<ion-icon>` elements upgrade.
+- `src/test.ts` manually initializes Angular's browser testing environment and also imports `ionicons-polyfill.ts` so the same icon registration is available to Karma tests.
 - The Karma test target duplicates application assets/styles rather than inheriting them from the build target.
 - The suite has no remaining Angular `fakeAsync`/`tick` dependency, but it does contain Jasmine-specific spies, matchers, property spies, and `jasmine.clock()` timer tests.
 - `ng-extract-i18n-merge` is configured to call `@angular-devkit/build-angular:extract-i18n` even though the installed plugin version supports `@angular/build:extract-i18n`.
@@ -728,7 +747,7 @@ Translate existing options rather than re-creating configuration from scratch.
 Retain:
 
 - `index`,
-- polyfills including `src/ionicons-polyfill.ts`,
+- polyfills including `src/ionicons-polyfill.ts`; this file is required for app-owned Ionicons and must not be dropped when matching the starter's `angular.json`,
 - assets,
 - styles,
 - localization,
@@ -898,6 +917,7 @@ Before committing:
 - Canonical/Open Graph assertions.
 - Missing-static-file assertions.
 - No hydration provider.
+- Representative app-owned Ionicons render correctly in server HTML and remain correct after client bootstrap.
 - `npm run generate-routes` followed by a second generation produces no diff.
 - Existing Jasmine/Karma unit suite still passes unchanged.
 
@@ -1027,6 +1047,7 @@ Test:
 - Component SCSS.
 - custom CSS.
 - Ionicons SVG assets.
+- representative icons registered by `src/ionicons-polyfill.ts`, including direct navigation/SSR followed by client startup.
 - source maps.
 - file replacements where applicable.
 - component/template/style HMR behavior.
@@ -1154,11 +1175,13 @@ The current `src/test.ts` performs two jobs:
 1. imports `ionicons-polyfill.ts`,
 2. manually initializes Angular TestBed.
 
-The `@angular/build:unit-test` builder initializes Angular TestBed automatically.
+The `@angular/build:unit-test` builder initializes Angular TestBed automatically, so the manual TestBed initialization must go away. The Ionicons registration must **not** go away.
 
-Because `ionicons-polyfill.ts` is already an application polyfill and the unit-test builder inherits from the application build target, first verify whether it is already loaded in tests. If yes, no test setup file is needed.
+Because `ionicons-polyfill.ts` remains an application polyfill, first verify that Angular's unit-test builder loads it through the application build configuration. If it does, no test setup file is needed.
 
-If additional initialization is required, use the test target's `setupFiles` option and a minimal setup file. Do not manually call `getTestBed().initTestEnvironment(...)` under the new builder.
+If the unit-test builder does not load that application polyfill in this configuration, use the test target's `setupFiles` option and a minimal setup file that imports `src/ionicons-polyfill.ts` exactly once. Do not duplicate the icon list or reintroduce component-local `addIcons()` calls.
+
+Do not manually call `getTestBed().initTestEnvironment(...)` under the new builder.
 
 Commit:
 
@@ -1249,9 +1272,9 @@ Retain this repository's extended Angular diagnostics.
 
 ### 14.3 Remove manual test bootstrap
 
-Delete `src/test.ts` after confirming its Ionicons setup is covered by inherited application polyfills or a minimal `setupFiles` entry.
+Delete `src/test.ts` only after confirming that `src/ionicons-polyfill.ts` is loaded either through inherited application polyfills or a minimal `setupFiles` entry.
 
-Angular's unit-test builder owns TestBed initialization.
+Do not delete `src/ionicons-polyfill.ts`. Angular's unit-test builder owns TestBed initialization, while the repository's polyfill continues to own centralized Ionicons registration.
 
 ### 14.4 Convert the test APIs
 
@@ -1690,6 +1713,9 @@ Stage 2 is complete only when all of the following are true.
 ## Architecture
 
 - Application remains standalone.
+- `src/ionicons-polyfill.ts` remains part of the application startup/polyfill path.
+- Application-owned Ionicons remain registered centrally rather than in component constructors.
+- Representative Ionicons work in SSR output, after client bootstrap, and in unit tests.
 - Application remains zoneless.
 - Ionic remains standalone except for the intentional server provider bridge.
 - Hydration remains disabled.

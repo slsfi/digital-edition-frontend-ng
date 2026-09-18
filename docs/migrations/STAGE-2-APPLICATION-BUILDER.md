@@ -1059,7 +1059,12 @@ Stage 1 already removed Angular `fakeAsync`/`tick` usage, which reduces Vitest m
 
 ### 12.2 Run Angular's migration schematic as a preview
 
-After the application builder is active in the worktree, install the target test dependencies if needed and run:
+After the application builder is active in the worktree:
+
+1. install `vitest` and `jsdom`,
+2. temporarily configure the worktree's test target with `@angular/build:unit-test` and Vitest,
+3. update the worktree's `tsconfig.spec.json` to expose Vitest globals,
+4. then run:
 
 ~~~powershell
 ng g @schematics/angular:refactor-jasmine-vitest --project app
@@ -1264,7 +1269,7 @@ Compare with the recorded Jasmine/Karma test-runner parity data.
 Audit:
 
 ~~~powershell
-rg "jasmine\.|jasmine:|karma|ChromeHeadless|spyOnProperty\(|\bspyOn\(" src angular.json package.json tsconfig.spec.json karma.conf.js
+rg "jasmine\.|jasmine:|karma|ChromeHeadless|spyOnProperty\(|\bspyOn\(" src angular.json package.json tsconfig.spec.json
 ~~~
 
 The intended result is no legacy test-framework usage, except historical migration documentation.

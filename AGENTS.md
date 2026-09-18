@@ -19,12 +19,15 @@ When contributing, changes must be reusable and config-driven; project-specific 
 
 ## Build, Test, and Development Commands
 - `npm start` - local Angular dev server.
+- `npm test` - run Angular/Jasmine unit tests in Karma watch mode.
+- `npm run test:ci` - run the Angular/Jasmine unit test suite once in headless Chrome.
+- `npm run test:source-encoding` - validate source-file encoding and BOM usage.
+- `npm run test:routes-parser` - smoke tests for route parser/generator logic.
 - `npm run build:ssr` - generate routes + browser/server production build.
 - `npm run serve:ssr` - run built SSR app from `dist/`.
+- `npm run test:ssr:smoke` - verify key SSR responses against a running SSR app.
 - `npm run ssr-start` - build SSR and serve in one command.
 - `npm run generate-routes` - regenerate route artifacts from config.
-- `npm run test:routes-parser` - smoke tests for route parser/generator logic.
-- `npm run test:ssr:smoke` - verify key SSR responses.
 - `npm run bench:ssr:build` - build and benchmark SSR performance.
 
 ## Coding Style & Naming Conventions
@@ -35,9 +38,11 @@ When contributing, changes must be reusable and config-driven; project-specific 
 - Keep behavior config-driven; hardcoding fork-specific values is not allowed.
 
 ## Testing Guidelines
-- Primary automated checks are script-based smoke tests (`scripts/test-*.js`).
-- Add/adjust tests when changing route generation, SSR behavior, or auth routing.
-- Run relevant checks before PRs (typically `test:routes-parser` and `build:ssr`; add `test:ssr:smoke` for SSR changes).
+- Angular unit tests use Jasmine + Karma and live in `src/**/*.spec.ts`. Add or update specs for changed components, pages, services, guards, interceptors, configuration, and routes as appropriate.
+- Use `npm test` while developing and `npm run test:ci` for a single-run verification before PRs.
+- Script-based checks complement the unit suite: use `test:source-encoding` for source encoding, `test:routes-parser` for route-generation/parser changes, and `test:ssr:smoke` for SSR behavior.
+- When changing `app.routes.ts` or lazy `*.routes.ts` files, update/run the Angular route-recognition specs; also run `test:routes-parser` when generator-facing route syntax changes.
+- For SSR changes, run `build:ssr`, start the built app with `serve:ssr`, then run `test:ssr:smoke` (or point the smoke test at another running environment with `--base-url`).
 
 ## Commit & Pull Request Guidelines
 - Follow conventional commits seen in history (for example `feat(ssr): ...`, `fix(auth): ...`, `docs: ...`).

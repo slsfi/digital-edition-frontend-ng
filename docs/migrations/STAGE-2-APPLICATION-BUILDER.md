@@ -71,9 +71,99 @@ Do not copy the starter blindly.
 - The starter has a small Vitest suite. It is a model for test infrastructure, not proof that this application's larger Jasmine suite will migrate without manual work.
 - The starter does not contain this application's `src/ionicons-polyfill.ts`. That omission is **not** part of the target architecture: the starter was created without the standalone-Ionic Ionicons registration workaround, while this application requires the polyfill so app-owned Ionicons are registered before `<ion-icon>` upgrades. Stage 2 must retain the polyfill.
 - The starter's i18n model has one real source locale and one translated locale. This repository intentionally uses the non-production `aa` locale as a technical source locale. The base app currently produces Swedish and Finnish as translated locales, while forks can define different production locale sets; Stage 2 must preserve both the `aa` source-locale strategy and fork-configurable production locales.
-- File locations do not need to match the starter merely for symmetry. In particular, moving the repository's root `server.ts` to `src/server.ts` is optional unless it materially simplifies the migration.
+- For Angular CLI-owned entry/configuration files, prefer the modern CLI layout where it improves consistency. In particular, Stage 2 should move the root `server.ts` to `src/server.ts` in a dedicated mechanical commit before the builder cutover. Do not reorganize application feature folders merely to resemble a fresh CLI project.
 
 When implementation choices are otherwise equivalent, prefer the starter's Angular-native structure over preserving a legacy Stage 1 pattern. The Ionicons polyfill is an explicit exception: preserve this repository's working implementation even though the starter does not have it.
+
+
+### File-layout modernization policy
+
+The repository's high-level structure originates from an older Angular CLI generation. Stage 2 may modernize framework-owned file locations where that makes the final application-builder setup easier to understand and closer to a fresh Angular application.
+
+This does **not** authorize a general source-tree reorganization. Existing locations for components, directives, pipes, services, pages, guards, interceptors, and other application-owned feature code are out of scope.
+
+Every file-location migration must be isolated in its own commit:
+
+- The commit should perform only the move plus the minimum mechanical import/config/script path updates required for the moved file to keep working.
+- Do not combine a file move with API changes, refactoring, formatting, test conversion, builder changes, or behavior changes.
+- Verify the application before and after the move so reviewers and fork maintainers can distinguish relocation conflicts from functional migration conflicts.
+- Prefer Git-aware moves/renames and avoid unrelated line changes, so downstream forks have the best chance of recognizing the rename.
+
+#### Move `server.ts` to the modern CLI location
+
+Stage 2 should move:
+
+~~~text
+server.ts -> src/server.ts
+~~~
+
+Do this **before** the atomic application-builder cutover, while the legacy server builder still works.
+
+The relocation commit may update only the paths required by the move, for example:
+
+- imports inside `server.ts`,
+- the legacy `angular.json` server target's `main` path,
+- TypeScript includes if needed,
+- scripts/tests/docs that refer directly to the source-file location.
+
+Do not convert `CommonEngine` to `AngularNodeAppEngine` in the relocation commit.
+
+Verify the full existing SSR gate after the move.
+
+Suggested commit:
+
+~~~text
+chore(ssr): move server entry under src
+~~~
+
+After that commit, the application-builder cutover should use:
+
+~~~json
+"ssr": {
+  "entry": "src/server.ts"
+}
+~~~
+
+matching the modern Angular CLI/reference-app structure.
+
+#### Public assets require a narrower migration
+
+A fresh Angular application uses a top-level `public/` directory for files copied as public static assets. This repository's `src/assets/` directory mixes two different kinds of content.
+
+Source/build inputs that should stay under `src/`:
+
+- `src/assets/config/config.ts`
+- `src/assets/custom_css/custom.scss`
+
+These files are imported or compiled as source and must **not** be moved into `public/`.
+
+Static assets that are candidates for `public/`:
+
+- `src/assets/fonts/`
+- `src/assets/images/`
+- `src/assets/ebooks/`
+- `src/assets/files/`
+- `src/assets/icon/favicon.ico`
+
+Other copied static files are also candidates:
+
+- `src/robots.txt`
+- `src/sitemap.txt`
+- `src/static-html/`
+
+Moving these files is not required for the `application` builder or Vitest migration. It is a layout modernization with significant downstream conflict potential because forks commonly add or replace static assets and may modify build configuration.
+
+Therefore:
+
+- Do not mix the public-folder migration into the application-builder cutover.
+- Perform it only after the builder/SSR and Vitest migrations are stable.
+- Use one or more dedicated mechanical commits containing only moves and required path-reference updates.
+- Preserve public URLs. For example, assets currently served as `/assets/...` must remain `/assets/...` after moving their source files.
+- Preserve generated-output behavior for sitemap/static HTML; if generator output paths move from `src/` to `public/`, that path update belongs in the same dedicated location-move commit and must not change generation logic.
+- Re-run route generation, sitemap/static-menu generation, development build, production SSR build, SSR smoke tests, and Docker/nginx verification after each move.
+- Document the move clearly for forks because conflicts in `angular.json`, fork-specific images/fonts/files, and generated/static content are expected.
+
+Because of the fork conflict cost, Stage 2 should treat the `public/` move as a **separate optional modernization checkpoint**, not a prerequisite for declaring the application-builder/Vitest migration successful.
 
 ### Ionicons polyfill must be retained
 
@@ -623,6 +713,7 @@ Review:
 - localized production output,
 - generated `server.mjs` entry,
 - `src/server.ts`,
+- top-level `public/` asset handling,
 - `app.config.server.ts`,
 - `app.routes.server.ts`,
 - TypeScript module settings,
@@ -673,7 +764,49 @@ docs(migration): update Stage 2 plan for current Angular CLI
 
 ---
 
-## 7. Prepare TypeScript and source code for the ESM server build
+
+## 7. Move the SSR server entry under `src/`
+
+Modernize the server-entry location in a dedicated mechanical commit before changing builders.
+
+Move:
+
+~~~text
+server.ts -> src/server.ts
+~~~
+
+Allowed changes in this commit:
+
+- update imports inside the moved file for its new relative location,
+- update the legacy `angular.json` server target from `server.ts` to `src/server.ts`,
+- update TypeScript/source includes only if required,
+- update scripts/tests/docs only where they refer directly to the source-file path.
+
+Not allowed in this commit:
+
+- no `CommonEngine` -> `AngularNodeAppEngine` conversion,
+- no builder change,
+- no middleware behavior change,
+- no unrelated ESM refactor,
+- no formatting-only cleanup.
+
+Verify:
+
+- Pre-Vitest fast gate.
+- Full SSR gate.
+- Auth-rendering gate.
+
+Commit:
+
+~~~text
+chore(ssr): move server entry under src
+~~~
+
+This gives the later application-builder cutover the same `src/server.ts` entry-point convention as a modern Angular CLI SSR app and the reference starter.
+
+---
+
+## 8. Prepare TypeScript and source code for the ESM server build
 
 Make ESM-safe changes that are harmless under the Stage 1 builders before changing `angular.json`.
 
@@ -715,13 +848,13 @@ If no safe pre-cutover changes are needed, skip this commit and keep ESM-only ed
 
 ---
 
-## 8. Atomic cutover to the application builder
+## 9. Atomic cutover to the application builder
 
 This is the first deliberately larger commit.
 
 Keep the existing Jasmine/Karma test target working in this commit. Do **not** combine the Vitest migration with the builder cutover.
 
-### 8.1 Convert the application build target
+### 9.1 Convert the application build target
 
 Use the same architecture as the reference starter:
 
@@ -736,11 +869,11 @@ Expected application options include:
 "server": "src/main.server.ts",
 "outputMode": "server",
 "ssr": {
-  "entry": "server.ts"
+  "entry": "src/server.ts"
 }
 ~~~
 
-The exact server path may remain at repository root; moving it into `src/` is optional.
+The server-entry relocation is completed in the preceding dedicated commit, so the builder cutover must not include a file move.
 
 Translate existing options rather than re-creating configuration from scratch.
 
@@ -773,7 +906,7 @@ so Docker/nginx need fewer changes.
 
 The reference starter emits a production runtime at `server/server.mjs`. Expect this application to move toward `dist/app/server/server.mjs`, but verify the actual emitted tree before changing `serve:ssr`.
 
-### 8.2 Remove legacy application Architect targets
+### 9.2 Remove legacy application Architect targets
 
 The integrated application builder replaces the split SSR build.
 
@@ -787,7 +920,7 @@ Keep the normal `serve` target using `@angular/build:dev-server` and point its c
 
 Do not remove the legacy Karma test target yet.
 
-### 8.3 Merge server TypeScript configuration
+### 9.3 Merge server TypeScript configuration
 
 Follow the current Angular migration output and compare it with the reference starter.
 
@@ -802,7 +935,7 @@ Expected direction:
 
 Do not weaken strict compiler settings as a migration shortcut.
 
-### 8.4 Wire Angular server routes
+### 9.4 Wire Angular server routes
 
 Update `app.config.server.ts` following the starter pattern:
 
@@ -821,7 +954,7 @@ Retain:
 
 Do not add hydration providers.
 
-### 8.5 Replace CommonEngine with AngularNodeAppEngine
+### 9.5 Replace CommonEngine with AngularNodeAppEngine
 
 Rewrite the Angular rendering boundary in `server.ts` using the starter as the model:
 
@@ -858,7 +991,7 @@ Keep custom Express behavior that is still required:
 
 Do not duplicate static-file work unnecessarily if `AngularNodeAppEngine` handles a case equivalently; remove old middleware only after tests prove behavior is preserved.
 
-### 8.6 Swap the request-context adapter
+### 9.6 Swap the request-context adapter
 
 Replace the Stage 1 Express-request adapter introduced in step 4 with an adapter backed by Angular's built-in SSR `REQUEST` token and standard Web `Request`.
 
@@ -873,7 +1006,7 @@ Verify:
 
 After this works, repository-owned Express request injection should no longer be needed by application services.
 
-### 8.7 Replace auth CSR middleware with RenderMode.Client
+### 9.7 Replace auth CSR middleware with RenderMode.Client
 
 The generated server-route configuration now owns render mode.
 
@@ -886,7 +1019,7 @@ Verify:
 - route filtering and auth feature flags remain synchronized,
 - no protected SSR HTML leaks.
 
-### 8.8 Update npm scripts
+### 9.8 Update npm scripts
 
 Expected end state:
 
@@ -931,7 +1064,7 @@ Do not proceed if the production SSR workflow or existing unit suite is not full
 
 ---
 
-## 9. Migrate i18n extraction to the @angular/build toolchain
+## 10. Migrate i18n extraction to the @angular/build toolchain
 
 The current `ng-extract-i18n-merge` configuration explicitly delegates to:
 
@@ -976,7 +1109,7 @@ This removes one reason to retain `@angular-devkit/build-angular` after Karma is
 
 ---
 
-## 10. Stabilize localization and default-language serving
+## 11. Stabilize localization and default-language serving
 
 Treat localization as its own checkpoint because the old runtime explicitly started one server bundle per locale, while `AngularNodeAppEngine` manages localized applications internally.
 
@@ -1025,7 +1158,7 @@ If no changes are required, record the verification and continue without a commi
 
 ---
 
-## 11. Validate development-server, output, Docker, nginx, and CI behavior
+## 12. Validate development-server, output, Docker, nginx, and CI behavior
 
 The application builder uses Angular's modern esbuild/Vite development pipeline.
 
@@ -1115,11 +1248,11 @@ The default execution environment should be Node + `jsdom`.
 
 ---
 
-## 12. Rehearse the Jasmine/Karma -> Vitest conversion
+## 13. Rehearse the Jasmine/Karma -> Vitest conversion
 
 Before changing the main branch, rehearse the conversion in a disposable branch/worktree.
 
-### 12.1 Inventory the current Jasmine-specific patterns
+### 13.1 Inventory the current Jasmine-specific patterns
 
 The current suite contains several patterns that require explicit review:
 
@@ -1139,7 +1272,7 @@ The current suite contains several patterns that require explicit review:
 
 Stage 1 already removed Angular `fakeAsync`/`tick` usage, which reduces Vitest migration risk.
 
-### 12.2 Run Angular's migration schematic as a preview
+### 13.2 Run Angular's migration schematic as a preview
 
 After the application builder is active in the worktree:
 
@@ -1156,7 +1289,7 @@ Treat the schematic as a refactoring assistant, not authoritative output. Angula
 
 Inspect every TODO produced by the schematic.
 
-### 12.3 Compare with the reference starter
+### 13.3 Compare with the reference starter
 
 Compare:
 
@@ -1168,7 +1301,7 @@ Compare:
 
 Do not copy the starter's single test style mechanically where this repository's tests need richer fakes or HTTP testing.
 
-### 12.4 Decide global setup
+### 13.4 Decide global setup
 
 The current `src/test.ts` performs two jobs:
 
@@ -1194,7 +1327,7 @@ docs(migration): refine Vitest conversion plan
 
 ---
 
-## 13. Add Vitest dependencies without changing the runner
+## 14. Add Vitest dependencies without changing the runner
 
 Install the dependencies needed by the target test setup while Jasmine/Karma still remains active:
 
@@ -1222,13 +1355,13 @@ This gives a small reversible checkpoint before the test-runner cutover.
 
 ---
 
-## 14. Atomic cutover from Jasmine/Karma to Vitest
+## 15. Atomic cutover from Jasmine/Karma to Vitest
 
 This is the second deliberately atomic migration commit.
 
 All test files must compile and pass under Vitest before this commit is created.
 
-### 14.1 Switch the Angular test target
+### 15.1 Switch the Angular test target
 
 Follow the reference starter:
 
@@ -1255,7 +1388,7 @@ Keep the npm command surface:
 - `npm test` -> watch mode in an interactive terminal,
 - `npm run test:ci` -> one non-watch run.
 
-### 14.2 Update TypeScript test types
+### 15.2 Update TypeScript test types
 
 Match the reference starter's direction:
 
@@ -1270,13 +1403,13 @@ Remove Jasmine types.
 
 Retain this repository's extended Angular diagnostics.
 
-### 14.3 Remove manual test bootstrap
+### 15.3 Remove manual test bootstrap
 
 Delete `src/test.ts` only after confirming that `src/ionicons-polyfill.ts` is loaded either through inherited application polyfills or a minimal `setupFiles` entry.
 
 Do not delete `src/ionicons-polyfill.ts`. Angular's unit-test builder owns TestBed initialization, while the repository's polyfill continues to own centralized Ionicons registration.
 
-### 14.4 Convert the test APIs
+### 15.4 Convert the test APIs
 
 Run the Angular schematic, then manually complete all unsupported conversions.
 
@@ -1305,7 +1438,7 @@ For timer-heavy specs:
 
 Do not replace meaningful typed fakes with broad `any` casts just to make Vitest compile.
 
-### 14.5 Remove Karma/Jasmine dependencies and configuration
+### 15.5 Remove Karma/Jasmine dependencies and configuration
 
 Remove when no longer referenced:
 
@@ -1322,7 +1455,7 @@ The old `ChromeHeadlessNoGpu` workaround disappears because the default Vitest e
 
 Do not add a real-browser provider merely to reproduce the old Chrome runner. The manual browser/SSR gates cover integration behavior; add Vitest browser mode only for a demonstrated test requirement.
 
-### 14.6 Check jsdom-specific compatibility
+### 15.6 Check jsdom-specific compatibility
 
 Pay attention to tests or components that touch browser APIs not fully implemented by `jsdom`, including:
 
@@ -1376,7 +1509,7 @@ Do not commit a partially converted suite.
 
 ---
 
-## 15. Remove legacy split-builder and build-angular artifacts
+## 16. Remove legacy split-builder and build-angular artifacts
 
 After both application and test migrations are stable, remove the old compatibility layer.
 
@@ -1429,7 +1562,68 @@ build: remove legacy Webpack and Karma tooling
 
 ---
 
-## 16. Re-run the complete route/configuration/test matrix
+
+## 17. Optional: move true static assets to `public/`
+
+This checkpoint modernizes static-asset layout only. It is optional because it is not required by the application builder or Vitest and has high downstream merge-conflict cost.
+
+Do this only after:
+
+- application-builder SSR is stable,
+- localization behavior is stable,
+- Docker/nginx behavior is stable,
+- Vitest migration is complete.
+
+Do **not** move:
+
+- `src/assets/config/config.ts`,
+- `src/assets/custom_css/custom.scss`.
+
+Those remain source/build inputs under `src/`.
+
+Candidate static moves include:
+
+~~~text
+src/assets/fonts/   -> public/assets/fonts/
+src/assets/images/  -> public/assets/images/
+src/assets/ebooks/  -> public/assets/ebooks/
+src/assets/files/   -> public/assets/files/
+src/assets/icon/favicon.ico -> public/favicon.ico
+~~~
+
+Evaluate `src/robots.txt`, `src/sitemap.txt`, and `src/static-html/` separately because repository scripts generate or update some of them.
+
+Rules:
+
+- Keep public request URLs unchanged.
+- Make only path/location changes and the minimum required build/script references.
+- Do not refactor asset consumers in the same commit.
+- Do not rename assets while moving them.
+- Avoid unrelated reformatting of `angular.json` or generator scripts.
+- If generated public files are moved, use a separate commit from the bulk static-asset move when that makes downstream conflict resolution clearer.
+- Review the commit from a fork-sync perspective: it should be easy to resolve when a fork has extra or replaced assets.
+
+Verification after each move:
+
+- Post-Vitest fast gate.
+- sitemap/static-menu generation.
+- development server.
+- full SSR gate.
+- manual image/font/icon/file checks.
+- Docker/nginx container gate.
+
+Suggested commits:
+
+~~~text
+chore(assets): move static public assets under public
+chore(assets): move generated public files under public
+~~~
+
+If the conflict cost is judged too high during implementation, defer this checkpoint without blocking Stage 2 completion. Record that decision in the Stage 2 implementation notes.
+
+---
+
+## 18. Re-run the complete route/configuration/test matrix
 
 Before documentation cleanup, run the complete migration matrix.
 
@@ -1515,7 +1709,7 @@ test(ui): stabilize Vitest DOM mocks
 
 ---
 
-## 17. Compare build, test, and runtime performance
+## 19. Compare build, test, and runtime performance
 
 Run:
 
@@ -1544,7 +1738,7 @@ Commit:
 
 ---
 
-## 18. Update documentation and changelog
+## 20. Update documentation and changelog
 
 Only after the new runtime and Vitest suite are stable, update the main documentation.
 
@@ -1559,6 +1753,8 @@ Update the Application architecture section:
 - auth-protected `RenderMode.Client`,
 - public `RenderMode.Server`,
 - final output layout,
+- `src/server.ts` as the modern server-entry source location,
+- public/static asset layout if the optional `public/` checkpoint was completed,
 - ESM server entry.
 
 Update Testing:
@@ -1620,6 +1816,15 @@ Stage 2 is complete only when all of the following are true.
 - Any intentional deviations from the starter are documented by behavior, not accidental legacy carryovers.
 - No starter-only prerender behavior was introduced.
 - The app's Swedish-default unprefixed URL behavior is preserved unless separately approved.
+
+## File layout
+
+- SSR source entry lives at `src/server.ts`.
+- The `server.ts` relocation was committed independently from SSR/API behavior changes.
+- Application feature-folder organization was not changed merely to imitate a fresh CLI app.
+- `src/assets/config/config.ts` and `src/assets/custom_css/custom.scss` remain under `src/` because they are source/build inputs.
+- If the optional `public/` migration was performed, static public URLs are unchanged and the move was isolated from behavioral changes.
+- If the optional `public/` migration was deferred, that does not block Stage 2 completion.
 
 ## Build system
 

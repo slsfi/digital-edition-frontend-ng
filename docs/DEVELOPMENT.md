@@ -97,7 +97,7 @@ The app is built on Angular and uses many web components from Ionic. It also has
 
 The Angular documentation is available on <https://angular.dev/>.
 
-The app uses standalone Angular components and `bootstrapApplication()` for both browser and server rendering. It intentionally retains Angular's separate Webpack-based `browser` and `server` builders, the existing output layout, and the `CommonEngine` SSR integration. A later migration to the [`application` builder](https://angular.dev/tools/cli/build-system-migration) is treated as a separate breaking change.
+The app uses standalone Angular components and `bootstrapApplication()` for both browser and server rendering. Angular 22's default zoneless change detection is used without a compatibility provider, and Zone.js is not an application or test dependency. It intentionally retains Angular's separate Webpack-based `browser` and `server` builders, the existing output layout, and the `CommonEngine` SSR integration. Hydration and migration from `CommonEngine` to the [`application` builder](https://angular.dev/tools/cli/build-system-migration) are deferred to a later stage as separate breaking changes.
 
 #### Updating Angular
 
@@ -172,11 +172,6 @@ Reactive extensions library. Used internally by Angular and heavily in the app f
 ### [`tslib`][npm_tslib]
 
 Runtime library for TypeScript containing all of the TypeScript helper functions. Required by Angular.
-
-
-### [`zone.js`][npm_zone.js]
-
-Library for execution contexts (”zones”) that persist across async tasks. It is temporarily retained while application state is prepared for zoneless change detection. Angular 22 supports zoneless applications, so Zone.js will be removed in a later migration phase.
 
 
 ### [`browser-sync`][npm_browser-sync] (devDependency)
@@ -261,10 +256,16 @@ The browser and SSR applications share the same standalone provider configuratio
 
 - [`src/main.ts`](../src/main.ts) bootstraps `AppComponent` with the browser configuration from [`src/app/app.config.ts`](../src/app/app.config.ts).
 - [`src/main.server.ts`](../src/main.server.ts) bootstraps the same component with [`src/app/app.config.server.ts`](../src/app/app.config.server.ts).
+- The browser configuration owns shared router, HTTP, Ionic, and application providers and selects browser implementations of platform-specific services.
 - The server configuration uses `mergeApplicationConfig()` so server-only providers are applied after the shared browser configuration and override the platform-specific browser implementations.
+- `importProvidersFrom(IonicServerModule)` is the sole intentional application-level NgModule bridge. Ionic does not currently expose an equivalent standalone server-provider function.
 - [`server.ts`](../server.ts) continues to pass the server bootstrap function to `CommonEngine`.
 
 There are no application, server, page, or routing NgModules owned by this repository. Page templates and reusable components import their Angular and Ionic dependencies directly.
+
+Angular 22 is zoneless by default, so the application does not register `provideZoneChangeDetection()` or another change-detection compatibility provider. Components expose asynchronous template state through signals, inputs, the `async` pipe, or other Angular notification mechanisms. Zone.js is absent from browser, server, and test polyfills and from the dependency tree.
+
+Client hydration is deliberately not configured. The application retains the non-hydrated `CommonEngine` SSR lifecycle, the Webpack-based `browser` and `server` builders in `angular.json`, and the existing `dist/app` output contract. Enabling hydration or replacing `CommonEngine` or those builders must be handled and tested as a dedicated SSR/deployment migration rather than folded into ordinary component work.
 
 
 
@@ -462,7 +463,7 @@ Current status:
 - Auth-protected routes are currently forced to client rendering in Express middleware in [`server.ts`](../server.ts), based on generated route-path metadata from [`src/app/auth-protected-route-paths.generated.ts`](../src/app/auth-protected-route-paths.generated.ts).
 - This is an implementation workaround for the current webpack-based SSR build setup.
 
-The standalone bootstrap and component migration is complete while the legacy builders remain in use. The zoneless migration is handled separately before the subsequent migration to Angular's `application` builder (`@angular/build:application`), which is expected to introduce breaking changes. During that builder migration:
+The standalone and zoneless migrations are complete while the legacy builders and `CommonEngine` remain in use. A future migration will evaluate their replacement with Angular's `application` builder (`@angular/build:application`), which is expected to introduce breaking changes. During that migration:
 
 - Investigate replacing the current middleware-based implementation with Angular server-routes configuration (`withRoutes` / `RenderMode.Client`) for auth-protected routes.
 - Validate compatibility with feature-based route generation before removing the current workaround.
@@ -484,7 +485,7 @@ The standalone bootstrap and component migration is complete while the legacy bu
 
 Current status:
 
-- Client hydration is not enabled in this app right now (Ionic SSR limitation).
+- Client hydration is intentionally not enabled; no hydration provider is registered (Ionic SSR compatibility must be re-evaluated before enabling it).
 - `ngSkipHydration` is used only on Angular component hosts, never on plain HTML elements.
 - Facsimile image viewers are explicitly marked with `ngSkipHydration` as a temporary safeguard.
 - Media-collection thumbnails are also resolved through `FacsimileImageService`; in auth-enabled mode, browser `src` can become a blob URL after bootstrap.
@@ -633,7 +634,6 @@ What the benchmark reports:
 [npm_marked-footnote]: https://www.npmjs.com/package/marked-footnote
 [npm_rxjs]: https://www.npmjs.com/package/rxjs
 [npm_tslib]: https://www.npmjs.com/package/tslib
-[npm_zone.js]: https://www.npmjs.com/package/zone.js
 [npm_browser-sync]: https://www.npmjs.com/package/browser-sync
 [npm_gzipper]: https://www.npmjs.com/package/gzipper
 [npm_ng-extract-i18n-merge]: https://www.npmjs.com/package/ng-extract-i18n-merge

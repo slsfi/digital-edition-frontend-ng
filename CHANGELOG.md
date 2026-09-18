@@ -8,6 +8,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+> [!NOTE]
+> This minor release migrates the app to Angular and Ionic standalone and zoneless APIs and should be compatible with most forks. The standalone zoneless migration is not intended to change configuration, routing behavior, theming contracts, HTML, CSS, build commands, deployment, or the output layout. Forks with custom Angular components, application NgModules, routing or bootstrap code, or code that relies on Zone.js-driven change detection should review and adapt those customizations for the standalone zoneless architecture.
+
 ### Changed
 
 - Tests: add routing and bootstrap regression coverage.
@@ -19,6 +22,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - Enable Angular's default zoneless change detection throughout the application.
 - Remove Zone.js from the browser and server runtimes.
 - Remove redundant `NgZone.run()` and `NgZone.runOutsideAngular()` wrappers from the zoneless application.
+- Document the standalone zoneless browser/SSR architecture.
 
 ### Fixed
 

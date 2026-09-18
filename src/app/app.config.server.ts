@@ -39,6 +39,8 @@ import { appConfig } from './app.config';
 const serverConfig: ApplicationConfig = {
   providers: [
     provideServerRendering(),
+    // Ionic exposes its SSR providers only through this NgModule. This is the
+    // sole intentional application-level compatibility bridge.
     importProvidersFrom(IonicServerModule),
     {
       provide: RouteStateSourceService,

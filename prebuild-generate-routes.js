@@ -13,6 +13,10 @@ const authProtectedOutputFilepath = 'src/app/auth-protected-route-paths.generate
  * If app.prebuild.featureBasedRoutes is true in config.ts, feature flags
  * in config determine which top-level routes are included in the file.
  * If false, all default routes are included.
+ *
+ * The parser intentionally treats loadComponent declarations and loadChildren
+ * references to standalone route arrays as opaque route-block content. Feature
+ * filtering and auth-protected path generation operate only on top-level paths.
  */
 function generateRoutes() {
   const config = common.getConfig(configFilepath);

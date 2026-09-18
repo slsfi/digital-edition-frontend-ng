@@ -69,7 +69,7 @@ Do not copy the starter blindly.
 - The starter has a simple static localhost allowlist. This application derives allowed hosts from fork configuration and has existing proxy/origin rules that must remain equivalent.
 - The starter has no authentication-specific CSR routing. This application must generate `RenderMode.Client` entries for auth-protected routes.
 - The starter has a small Vitest suite. It is a model for test infrastructure, not proof that this application's larger Jasmine suite will migrate without manual work.
-- The starter's i18n model has one real source locale and one translated locale. This application intentionally uses the non-production `aa` locale as a technical source locale and produces Swedish and Finnish as translated locales; Stage 2 must preserve that model.
+- The starter's i18n model has one real source locale and one translated locale. This repository intentionally uses the non-production `aa` locale as a technical source locale. The base app currently produces Swedish and Finnish as translated locales, while forks can define different production locale sets; Stage 2 must preserve both the `aa` source-locale strategy and fork-configurable production locales.
 - File locations do not need to match the starter merely for symmetry. In particular, moving the repository's root `server.ts` to `src/server.ts` is optional unless it materially simplifies the migration.
 
 When implementation choices are otherwise equivalent, prefer the starter's Angular-native structure over preserving a legacy Stage 1 pattern.
@@ -88,19 +88,55 @@ The `aa` locale is an intentional technical convention, not a real production lo
 Stage 2 must preserve this separation:
 
 ~~~text
-technical source locale: aa
-production locales:      sv, fi
-source phrase language:  Swedish
+technical source locale:  aa
+base production locales:  sv, fi
+fork production locales:  configured per fork
+source phrase language:   Swedish
 ~~~
 
 When adapting the reference starter's i18n configuration to the application builder:
 
 - keep `sourceLocale` as `aa`,
-- keep `sv` and `fi` as explicit translated locales,
-- continue building/localizing only the production locales,
+- in the base repository, keep `sv` and `fi` as explicit translated locales,
+- in forks, preserve the fork's configured translated locale set rather than replacing it with the base repository's locales,
+- continue building/localizing only the configured production locales,
 - do not emit an `aa` production application,
-- preserve the existing Swedish and Finnish XLF merge/update workflow,
+- preserve the existing XLF merge/update workflow,
 - verify that forks can continue overriding Swedish translations without modifying application source strings.
+
+### Fork locale variability and merge expectations
+
+The base repository's locale set is not a universal runtime contract. Forks intentionally modify `angular.json` and may have, for example:
+
+- only `sv`,
+- `sv` + `en`,
+- `sv` + `fi`,
+- `sv` + `en` + `fi` + `ar`.
+
+This means Stage 2 should expect `angular.json` conflicts when the migration is later synced to forks. Those conflicts are normal and should be resolved by combining the **structural** Stage 2 builder/test changes with the fork's own locale configuration.
+
+Stage 2 implementation rules:
+
+- Do not hardcode a production locale array such as `["sv", "fi"]` in the new SSR runtime.
+- Let the application builder and `AngularNodeAppEngine` use the localized applications emitted from the fork's own `angular.json` configuration.
+- Keep the unprefixed/default-language compatibility behavior driven by `config.app.i18n.defaultLanguage`, not by a hardcoded `sv` literal or by assuming the first two locales are Swedish and Finnish.
+- Keep `config.app.i18n.languages` and `config.app.i18n.defaultLanguage` consistent with the fork's production locales.
+- Production scripts and runtime code must support one locale as well as multiple locales.
+- Base-repository smoke tests may use `sv` and `fi` because those are the base app's configured locales, but reusable tooling should accept fork-specific routes/locales rather than requiring those exact language codes.
+- Do not make runtime behavior depend on the number or names of translated locales.
+- Do not emit the technical `aa` source locale in any fork unless a fork explicitly changes the source-locale strategy as a separate architectural decision.
+
+The current `proxy-server.js` hardcodes `["sv", "fi"]`. That is a legacy Stage 1 limitation and must not be reproduced in the application-builder runtime.
+
+To reduce downstream merge pain, keep the Stage 2 `angular.json` transformation concentrated in the application-builder and Vitest cutover commits instead of mixing unrelated formatting or locale reordering into those files.
+
+When syncing Stage 2 to a fork, the expected `angular.json` resolution is:
+
+1. retain the Stage 2 builder, SSR, dev-server, test, and i18n-extraction structure,
+2. retain `sourceLocale: "aa"` unless the fork deliberately uses a different source-locale architecture,
+3. reapply the fork's own `i18n.locales`, translation files, subpaths/base hrefs, and locale-specific build configurations,
+4. verify that every locale in `config.app.i18n.languages` has the intended production build and that `defaultLanguage` is one of those production locales,
+5. run the fork's own SSR/i18n verification matrix after resolving the conflict.
 
 ---
 
@@ -119,7 +155,7 @@ Supporting goals:
 - Use `RenderMode.Server` for routes that continue to use runtime SSR.
 - Preserve feature-based route generation and make it the source for generated server-rendering metadata as well.
 - Keep the existing Docker/nginx deployment model working.
-- Keep Swedish and Finnish localization behavior working.
+- Keep the base app's Swedish and Finnish localization behavior working while keeping the build/runtime compatible with fork-defined production locale sets.
 - Preserve the current unprefixed Swedish-default behavior.
 - Preserve the current public URL structure and SEO behavior.
 - Migrate i18n extraction to the `@angular/build` toolchain so `@angular-devkit/build-angular` can be removed after Karma is gone.
@@ -146,7 +182,7 @@ Keep all of the following unless a specific Stage 2 step says otherwise:
 - Existing SSR rate limiting and Express proxy trust configuration.
 - Existing static-file cache policy unless the new runtime requires an equivalent implementation change.
 - Existing canonical/Open Graph URL semantics.
-- Existing source-language and translated-language behavior.
+- Existing source-language and translated-language behavior, including fork-specific production locale sets.
 
 Do **not** enable client hydration in Stage 2. Ionic's underlying Stencil components do not currently support Angular SSR hydration, and hydration must remain a separate migration.
 
@@ -170,10 +206,7 @@ Stage 2 starts from these Stage 1 assumptions:
 - Browser build output: `dist/app/browser/{sv,fi}`.
 - Server build output: `dist/app/server/{sv,fi}/main.js`.
 - Runtime launcher: `dist/app/proxy-server.js`.
-- `proxy-server.js` loads one compiled server bundle per locale and mounts:
-  - `/sv`,
-  - `/fi`,
-  - Swedish as the unprefixed default.
+- `proxy-server.js` currently hardcodes `sv` and `fi`, loads one compiled server bundle per locale, and uses Swedish as the unprefixed default. This fixed locale list is a legacy limitation; Stage 2 must not carry it into the new runtime.
 - `server.ts` uses `CommonEngine` and passes request-level providers manually.
 - Auth-protected routes are detected from generated top-level route metadata and are served as a CSR shell by Express middleware.
 - nginx serves static browser files from the `dist/app/browser` volume and proxies dynamic requests to the Node app.
@@ -1604,9 +1637,12 @@ Stage 2 is complete only when all of the following are true.
 ## Localization
 
 - `aa` remains the technical source locale and is not emitted as a production locale.
-- `sv` remains a translated locale rather than becoming `sourceLocale`.
+- `sv` remains a translated locale rather than becoming `sourceLocale` in the base app.
 - Forks can still override Swedish phrases through the XLF translation workflow.
-- Swedish and Finnish production output both work.
+- Production SSR/build logic does not hardcode `sv`/`fi` or assume exactly two locales.
+- A fork can retain a single production locale or a different multi-locale set when resolving the Stage 2 `angular.json` migration.
+- The default unprefixed locale behavior is derived from fork configuration rather than a hardcoded locale list.
+- Swedish and Finnish production output both work in the base repository.
 - `/sv` and `/fi` routing work.
 - The approved default Swedish/unprefixed behavior works.
 - Locale assets and SEO metadata are correct.

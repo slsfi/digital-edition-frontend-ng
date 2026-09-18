@@ -33,8 +33,8 @@ export class DraggableImageDirective implements OnInit, OnDestroy {
   ngOnInit() {
     this.unlistenMouseDownEvents = this.renderer.listen(
       this.elRef.nativeElement, 'mousedown', (event: any) => {
-        // The high-frequency move listener only mutates DOM state. Keep it
-        // outside Zone.js while production still uses zone-based change detection.
+        // The high-frequency move listener only mutates DOM state, so keep it
+        // outside Angular's execution context.
         this.ngZone.runOutsideAngular(() => {
           if (!this.isMouseMoveListenerAdded) {
             this.unlistenMouseMoveEvents = this.renderer.listen(

@@ -194,7 +194,7 @@ export class IllustrationsComponent {
         if ('retry' in data && data.retry) {
           if (this.mobileMode && this._scrollAttempts() < IllustrationsComponent.SCROLL_MAX_RETRIES) {
             this.clearRetryTimer();
-            // run the timer callback outside Angular to avoid extra CD in zone.js apps
+            // Run the timer callback outside Angular's execution context.
             this._scrollRetryTimer = this.ngZone.runOutsideAngular(
               () => window.setTimeout(() => {
                 this._scrollAttempts.update(n => n + 1);

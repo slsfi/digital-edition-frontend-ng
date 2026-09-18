@@ -1,25 +1,87 @@
-# Stage 2 plan: Angular application builder migration
+# Stage 2 plan: Angular application builder and Vitest migration
 
-Stage 2 migrates the application from Angular's deprecated Webpack-based `browser`/`server` build pipeline to the integrated `application` builder.
+Stage 2 migrates the application from Angular's deprecated Webpack-based `browser`/`server` build pipeline to the integrated `application` builder and migrates unit testing from Jasmine/Karma to Vitest.
 
-Stage 1 established the standalone, zoneless application architecture while deliberately retaining the old builders, `CommonEngine`, the existing output layout, and non-hydrated SSR. Stage 2 changes the build system and server runtime while preserving application behavior as far as practical.
+Stage 1 established the standalone, zoneless application architecture while deliberately retaining the old builders, `CommonEngine`, the existing output layout, Jasmine/Karma, and non-hydrated SSR. Stage 2 changes the build system, server runtime, and unit-test runner while preserving application behavior as far as practical.
 
-The plan is structured so that preparatory changes can be committed and tested independently. The actual builder cutover is the one intentionally atomic step: `angular.json`, server bootstrapping, server rendering configuration, TypeScript configuration, and npm build scripts must agree at that point.
+The plan is structured so that preparatory changes can be committed and tested independently. Two transitions are intentionally atomic because the repository must stay runnable at every commit:
 
-Review Angular's current migration guidance again immediately before implementation because the migration schematic and builder options can evolve:
+1. the `application`-builder/SSR cutover, where `angular.json`, server bootstrapping, server rendering configuration, TypeScript configuration, and npm build scripts must agree;
+2. the final Jasmine/Karma -> Vitest runner cutover, where all test files must compile and run under one test API.
+
+Review Angular's current migration guidance again immediately before implementation because the migration schematic, SSR APIs, and test-migration schematic can evolve:
 
 - https://angular.dev/tools/cli/build-system-migration
 - https://angular.dev/best-practices/performance/ssr
 - https://angular.dev/api/ssr/node/AngularNodeAppEngine
+- https://angular.dev/guide/testing/migrating-to-vitest
+- https://angular.dev/guide/testing
 - https://angular.dev/guide/i18n/deploy
+
+---
+
+## Reference implementation
+
+Use [SebastianKohler/ng22-ion9-ssr-starter](https://github.com/SebastianKohler/ng22-ion9-ssr-starter) as the primary reference implementation for Stage 2.
+
+This plan was revised against commit [`d012cb4a9c8942ded25b95de37b6ceede87edfa9`](https://github.com/SebastianKohler/ng22-ion9-ssr-starter/tree/d012cb4a9c8942ded25b95de37b6ceede87edfa9). Recheck the starter's current `main` branch immediately before implementation, but keep the recorded commit available as a stable comparison point.
+
+The most relevant reference files are:
+
+- [`angular.json`](https://github.com/SebastianKohler/ng22-ion9-ssr-starter/blob/d012cb4a9c8942ded25b95de37b6ceede87edfa9/angular.json)
+- [`package.json`](https://github.com/SebastianKohler/ng22-ion9-ssr-starter/blob/d012cb4a9c8942ded25b95de37b6ceede87edfa9/package.json)
+- [`src/server.ts`](https://github.com/SebastianKohler/ng22-ion9-ssr-starter/blob/d012cb4a9c8942ded25b95de37b6ceede87edfa9/src/server.ts)
+- [`src/main.server.ts`](https://github.com/SebastianKohler/ng22-ion9-ssr-starter/blob/d012cb4a9c8942ded25b95de37b6ceede87edfa9/src/main.server.ts)
+- [`src/app/app.config.server.ts`](https://github.com/SebastianKohler/ng22-ion9-ssr-starter/blob/d012cb4a9c8942ded25b95de37b6ceede87edfa9/src/app/app.config.server.ts)
+- [`src/app/app.routes.server.ts`](https://github.com/SebastianKohler/ng22-ion9-ssr-starter/blob/d012cb4a9c8942ded25b95de37b6ceede87edfa9/src/app/app.routes.server.ts)
+- [`tsconfig.app.json`](https://github.com/SebastianKohler/ng22-ion9-ssr-starter/blob/d012cb4a9c8942ded25b95de37b6ceede87edfa9/tsconfig.app.json)
+- [`tsconfig.spec.json`](https://github.com/SebastianKohler/ng22-ion9-ssr-starter/blob/d012cb4a9c8942ded25b95de37b6ceede87edfa9/tsconfig.spec.json)
+- [`src/app/app.spec.ts`](https://github.com/SebastianKohler/ng22-ion9-ssr-starter/blob/d012cb4a9c8942ded25b95de37b6ceede87edfa9/src/app/app.spec.ts)
+
+### What should be copied conceptually
+
+The starter demonstrates the intended Stage 2 architecture:
+
+- `@angular/build:application` for the integrated browser/server build.
+- `browser` and `server` application entries in the same build target.
+- `outputMode: "server"`.
+- `ssr.entry` pointing to the custom Express server.
+- `AngularNodeAppEngine` for localized SSR dispatch.
+- `createNodeRequestHandler()` and `writeResponseToNodeResponse()`.
+- ESM-compatible server code using `import.meta` and `isMainModule()`.
+- `provideServerRendering(withRoutes(...))`.
+- `ServerRoute` + `RenderMode`.
+- `IonicServerModule` retained only through `importProvidersFrom()`.
+- localized production browser/server output.
+- a generated `server.mjs` production entry point.
+- `@angular/build:unit-test`.
+- Vitest with `jsdom`.
+- `vitest/globals` in `tsconfig.spec.json`.
+- no Karma configuration file and no manual Angular TestBed bootstrap file.
+- client hydration intentionally disabled.
+
+### Where this application must intentionally differ
+
+Do not copy the starter blindly.
+
+- The starter contains a `RenderMode.Prerender` proof route. This application must not introduce Angular prerendering in Stage 2.
+- The starter redirects an unprefixed production request using `Accept-Language`. This application currently serves Swedish as the unprefixed default and must preserve that behavior unless a separate breaking change is approved.
+- The starter has a simple static localhost allowlist. This application derives allowed hosts from fork configuration and has existing proxy/origin rules that must remain equivalent.
+- The starter has no authentication-specific CSR routing. This application must generate `RenderMode.Client` entries for auth-protected routes.
+- The starter has a small Vitest suite. It is a model for test infrastructure, not proof that this application's larger Jasmine suite will migrate without manual work.
+- The starter's i18n model has one source locale and one translated locale. This application has the existing `aa` source-locale convention and produces Swedish and Finnish; Stage 2 must preserve the existing production locale contract.
+- File locations do not need to match the starter merely for symmetry. In particular, moving the repository's root `server.ts` to `src/server.ts` is optional unless it materially simplifies the migration.
+
+When implementation choices are otherwise equivalent, prefer the starter's Angular-native structure over preserving a legacy Stage 1 pattern.
 
 ---
 
 ## Stage 2 goals
 
-Primary goal:
+Primary goals:
 
 - Replace the Webpack-based `browser` and `server` builders with Angular's integrated `application` builder.
+- Replace Jasmine/Karma unit testing with Vitest using Angular's `@angular/build:unit-test` integration.
 
 Supporting goals:
 
@@ -30,8 +92,10 @@ Supporting goals:
 - Preserve feature-based route generation and make it the source for generated server-rendering metadata as well.
 - Keep the existing Docker/nginx deployment model working.
 - Keep Swedish and Finnish localization behavior working.
+- Preserve the current unprefixed Swedish-default behavior.
 - Preserve the current public URL structure and SEO behavior.
-- Remove build artifacts and scripts that exist only for the old split browser/server build.
+- Migrate i18n extraction to the `@angular/build` toolchain so `@angular-devkit/build-angular` can be removed after Karma is gone.
+- Remove build and test artifacts that exist only for the old split-builder/Karma architecture.
 
 ---
 
@@ -51,19 +115,20 @@ Keep all of the following unless a specific Stage 2 step says otherwise:
 - Existing token storage strategy.
 - Existing sitemap and static collection-menu generation.
 - Existing nginx front-end and Docker deployment model.
-- Existing SSR rate limiting and proxy trust configuration.
+- Existing SSR rate limiting and Express proxy trust configuration.
 - Existing static-file cache policy unless the new runtime requires an equivalent implementation change.
 - Existing canonical/Open Graph URL semantics.
 - Existing source-language and translated-language behavior.
-- Karma/Jasmine as the test runner during Stage 2.
 
 Do **not** enable client hydration in Stage 2. Ionic's underlying Stencil components do not currently support Angular SSR hydration, and hydration must remain a separate migration.
 
-Do **not** add Angular prerendering/SSG merely because the `application` builder supports it. Stage 2 should use runtime SSR plus explicit CSR routes. The app's existing static HTML generation remains separate.
+Do **not** add Angular prerendering/SSG merely because the `application` builder and the reference starter support it. Stage 2 should use runtime SSR plus explicit CSR routes. The app's existing static HTML generation remains separate.
 
-Do **not** migrate the Karma test target to application-builder mode as part of Stage 2. If Angular later makes that mode the appropriate stable default, handle it independently.
+Do **not** silently change the behavior of unprefixed URLs.
 
-Do **not** silently change the behavior of unprefixed URLs. Today the Node proxy serves the default language for requests without a locale prefix. If the integrated i18n server would instead redirect based on `Accept-Language`, preserve the existing behavior during Stage 2 unless that behavior change is reviewed explicitly.
+Do **not** add Vitest browser mode by default. The Stage 2 target is the Angular CLI default Node + `jsdom` setup used by the reference starter. Add a browser provider such as Playwright only if a specific test cannot be made meaningful in `jsdom`.
+
+Do **not** add a custom `vitest.config.ts` unless a repository-specific need is demonstrated. Prefer Angular CLI test options first.
 
 ---
 
@@ -86,6 +151,11 @@ Stage 2 starts from these Stage 1 assumptions:
 - nginx serves static browser files from the `dist/app/browser` volume and proxies dynamic requests to the Node app.
 - `build:ssr` currently runs route generation, a browser production build, a separate server production build, and `postbuild-copy-files.js`.
 - `serve:ssr` currently starts `dist/app/proxy-server.js`.
+- Unit tests use `@angular-devkit/build-angular:karma`, Jasmine, Karma, and headless Chrome.
+- `src/test.ts` manually initializes Angular's browser testing environment and imports `ionicons-polyfill.ts`.
+- The Karma test target duplicates application assets/styles rather than inheriting them from the build target.
+- The suite has no remaining Angular `fakeAsync`/`tick` dependency, but it does contain Jasmine-specific spies, matchers, property spies, and `jasmine.clock()` timer tests.
+- `ng-extract-i18n-merge` is configured to call `@angular-devkit/build-angular:extract-i18n` even though the installed plugin version supports `@angular/build:extract-i18n`.
 
 Stage 2 must account for all of these contracts rather than treating `angular.json` as the only migration surface.
 
@@ -95,9 +165,7 @@ Stage 2 must account for all of these contracts rather than treating `angular.js
 
 Use these gates consistently so every commit has a clear stopping point.
 
-## Fast gate
-
-Before the builder cutover:
+## Fast gate before the Vitest cutover
 
 ~~~powershell
 npm run test:source-encoding
@@ -107,7 +175,23 @@ npm run generate-routes
 npx ng build --configuration development,sv
 ~~~
 
-After the builder cutover, keep the same intent. If the exact development build command must change because of the new target configuration, update this plan and the development documentation at the same time.
+Before the test-runner migration, `npm run test:ci` uses Jasmine/Karma.
+
+## Fast gate after the Vitest cutover
+
+Keep the same command surface:
+
+~~~powershell
+npm run test:source-encoding
+npm run test:routes-parser
+npm run test:ci
+npm run generate-routes
+npx ng build --configuration development,sv
+~~~
+
+After the test-runner migration, `npm run test:ci` must run Vitest once through Angular CLI.
+
+The npm script name should remain stable so CI/developer habits do not change unnecessarily.
 
 ## Full SSR gate
 
@@ -146,6 +230,37 @@ When auth is enabled:
 - public routes continue to use SSR,
 - protected routes do not leak protected server-rendered content,
 - login/register/account behavior remains unchanged.
+
+## Test-runner parity gate
+
+Immediately before the Vitest cutover, record:
+
+- number of passing spec files,
+- number of passing tests,
+- any intentionally skipped tests,
+- approximate suite duration.
+
+Immediately after the cutover:
+
+- the same spec files should run unless an intentional test consolidation is documented,
+- the same behavioral assertions should remain,
+- no tests should be deleted merely to make the migration pass.
+
+Also verify:
+
+~~~powershell
+npm test
+~~~
+
+Watch mode should remain useful for local development.
+
+Optionally verify coverage still works:
+
+~~~powershell
+npx ng test --watch=false --coverage
+~~~
+
+There is currently no Stage 2 goal to introduce new coverage thresholds.
 
 ## Container gate
 
@@ -199,12 +314,13 @@ Do not change runtime behavior yet.
 
 Work:
 
-- Run the fast gate.
+- Run the pre-Vitest fast gate.
 - Run the full SSR gate.
 - Run the auth-rendering gate.
 - Run the container gate.
 - Run the SSR benchmark and retain the result.
 - Record the current `dist/app` tree.
+- Record the Jasmine/Karma test-runner parity data.
 - Confirm generated route artifacts are cleanly reproducible.
 - Confirm `CommonEngine` is still the active runtime.
 - Confirm hydration is not configured.
@@ -218,7 +334,8 @@ Record specifically:
 - unprefixed URL behavior,
 - `/sv` and `/fi` behavior,
 - static-file caching headers,
-- CSR-shell response behavior for auth-protected routes.
+- CSR-shell response behavior for auth-protected routes,
+- current unit-test file/test counts.
 
 Commit:
 
@@ -226,14 +343,14 @@ Commit:
 - If migration-specific baseline tests are added:
 
 ~~~text
-test(migration): capture application-builder baseline
+test(migration): capture Stage 2 baseline
 ~~~
 
 ---
 
 ## 2. Add migration-specific regression coverage
 
-Add coverage before touching the server runtime.
+Add coverage before touching the server runtime or test runner.
 
 Work:
 
@@ -262,7 +379,7 @@ Do not make the test depend on hashed browser bundle names.
 
 Verify:
 
-- Fast gate.
+- Pre-Vitest fast gate.
 - Full SSR gate.
 - No intentional production behavior change.
 
@@ -287,7 +404,7 @@ Work:
 
 Verify:
 
-- Fast gate.
+- Pre-Vitest fast gate.
 - Full SSR gate.
 - Benchmark still auto-starts the current SSR server.
 - Container gate.
@@ -298,15 +415,15 @@ Commit:
 build(ssr): decouple tooling from proxy server filename
 ~~~
 
-This commit should remain fully compatible with the Stage 1 builders.
+This commit remains fully compatible with the Stage 1 builders.
 
 ---
 
 ## 4. Decouple application services from Express request objects
 
-The current `CommonEngine` path injects an Express `Request` using the repository-owned `src/express.tokens.ts`. The integrated Angular SSR runtime exposes a standard Web `Request` through Angular's SSR request context.
+The current `CommonEngine` path injects an Express `Request` using the repository-owned `src/express.tokens.ts`. `AngularNodeAppEngine` provides Angular's built-in SSR request context using the standard Web `Request` API.
 
-Prepare for that API boundary before switching builders.
+Prepare that API boundary before switching builders.
 
 Work:
 
@@ -324,7 +441,6 @@ Work:
 - Preserve browser behavior.
 - Preserve canonical/Open Graph URL behavior.
 - Preserve user-agent-based mobile/desktop detection.
-- Do not switch to Angular's built-in SSR `REQUEST` token yet unless the current `CommonEngine` path provides exactly the required semantics and tests prove it.
 
 Tests:
 
@@ -339,7 +455,7 @@ Tests:
 
 Verify:
 
-- Fast gate.
+- Pre-Vitest fast gate.
 - Full SSR gate.
 - Canonical/Open Graph assertions.
 - Mobile/desktop SSR mode parity.
@@ -350,13 +466,13 @@ Commit:
 refactor(ssr): isolate application request context
 ~~~
 
-This creates an important seam: the builder-cutover commit should only need to replace the server-side adapter, not rewrite application services.
+The builder-cutover commit should then only replace the server-side adapter, not rewrite application services.
 
 ---
 
 ## 5. Generate Angular server-rendering route metadata
 
-Prepare the future `RenderMode` configuration while the existing Express CSR-shell workaround is still active.
+Prepare future `RenderMode` configuration while the existing Express CSR-shell workaround is still active.
 
 Extend route generation so the same canonical route source controls browser routing and server rendering mode.
 
@@ -381,13 +497,13 @@ Rules:
 - Feature-based route filtering must be applied before server routes are generated.
 - Routes excluded from the production browser route set must not reappear in server rendering metadata.
 - Parameterized paths must remain parameterized.
-- Do not introduce `RenderMode.Prerender`.
+- Do not introduce `RenderMode.Prerender` even though the reference starter demonstrates it.
 - Keep the existing auth-protected path output until the new runtime is active.
 
 Tests:
 
-- Auth disabled -> no client server-routes.
-- Auth enabled -> correct client server-routes.
+- Auth disabled -> no client server routes.
+- Auth enabled -> correct client server routes.
 - Feature filtering + auth enabled.
 - Parameterized collection routes.
 - `index/:type`.
@@ -398,7 +514,7 @@ Tests:
 Verify:
 
 - `npm run test:routes-parser`.
-- Fast gate.
+- Pre-Vitest fast gate.
 - Full SSR gate using the old runtime.
 
 Commit:
@@ -411,11 +527,32 @@ The new generated server-route file is intentionally unused by production until 
 
 ---
 
-## 6. Rehearse Angular's official migration in a disposable worktree
+## 6. Rehearse the application-builder migration against the starter and Angular schematic
 
 Do this immediately before the real builder switch because Angular's migration schematic can change between releases.
 
-Use a temporary branch or worktree and run:
+Use a temporary branch or worktree.
+
+### 6.1 Recheck the reference starter
+
+Compare the current starter to the recorded `d012cb4...` snapshot.
+
+Review:
+
+- `angular.json` application build options,
+- localized production output,
+- generated `server.mjs` entry,
+- `src/server.ts`,
+- `app.config.server.ts`,
+- `app.routes.server.ts`,
+- TypeScript module settings,
+- npm scripts.
+
+Document any relevant divergence that appeared after the recorded snapshot.
+
+### 6.2 Run Angular's official migration
+
+Run:
 
 ~~~powershell
 npx ng update @angular/cli --name use-application-builder
@@ -423,7 +560,7 @@ npx ng update @angular/cli --name use-application-builder
 
 Do **not** merge the schematic output directly.
 
-Use it as a reference to identify the exact changes required by the currently installed Angular version.
+Compare it with both this repository and the starter.
 
 Review especially:
 
@@ -437,12 +574,13 @@ Review especially:
 - removed legacy builder options,
 - removal of separate `server`, `serve-ssr`, and `prerender` targets,
 - TypeScript config merge,
-- `esModuleInterop`,
-- generated server entry style,
-- ESM changes,
-- server-route configuration.
+- `module`/`moduleResolution` changes,
+- `esModuleInterop` if introduced,
+- ESM server entry style,
+- server-route configuration,
+- changes to i18n configuration.
 
-Compare the schematic output to this plan. Update the plan first if Angular has materially changed the recommended architecture.
+Do not assume the starter's `sourceLocale`/`subPath` values should replace this application's current `aa` + Finnish/Swedish configuration. Use the starter to understand the application-builder model, then preserve this application's locale semantics.
 
 Commit:
 
@@ -455,13 +593,13 @@ docs(migration): update Stage 2 plan for current Angular CLI
 
 ---
 
-## 7. Prepare TypeScript for the ESM server build
+## 7. Prepare TypeScript and source code for the ESM server build
 
-Make ESM-safe TypeScript changes that are harmless under the Stage 1 builders before changing `angular.json`.
+Make ESM-safe changes that are harmless under the Stage 1 builders before changing `angular.json`.
 
 Work:
 
-- Enable `esModuleInterop` in shared TypeScript configuration if the current migration schematic requires it.
+- Apply only TypeScript configuration changes that are both migration-required and safe under the current builder.
 - Audit application/server imports for CommonJS-call assumptions.
 - Prefer ESM-compatible imports for packages used by server code.
 - Check Node built-in imports.
@@ -472,7 +610,9 @@ Work:
   - `__non_webpack_require__`,
   - Webpack-specific globals or comments.
 - Do not remove the current `server.ts` main-module logic yet if doing so would break the old server builder.
-- Do not set `"type": "module"` in `package.json` merely to force ESM. Let the application builder emit the required server module format.
+- Do not set `"type": "module"` in `package.json` merely to force ESM.
+
+Use the starter's `tsconfig.json` and `tsconfig.app.json` as references, but do not weaken this repository's strict compiler settings solely to make the configurations look alike.
 
 Useful audit:
 
@@ -482,7 +622,7 @@ rg "require\(|__filename|__dirname|__non_webpack_require__|webpack" server.ts sr
 
 Verify:
 
-- Fast gate.
+- Pre-Vitest fast gate.
 - Full SSR gate using the old builder.
 
 Commit:
@@ -497,43 +637,49 @@ If no safe pre-cutover changes are needed, skip this commit and keep ESM-only ed
 
 ## 8. Atomic cutover to the application builder
 
-This is the one deliberately larger commit.
+This is the first deliberately larger commit.
 
-Do not split it into intermediate commits that leave `ng build` or SSR structurally broken.
+Keep the existing Jasmine/Karma test target working in this commit. Do **not** combine the Vitest migration with the builder cutover.
 
-### 8.1 Convert the build target
+### 8.1 Convert the application build target
 
-Change the application build target to the current stable application builder recommended by the installed Angular CLI.
-
-Expected direction:
+Use the same architecture as the reference starter:
 
 ~~~json
 "builder": "@angular/build:application"
 ~~~
 
-Use the exact builder identifier produced/recommended by the migration rehearsal if it differs.
+Expected application options include:
+
+~~~json
+"browser": "src/main.ts",
+"server": "src/main.server.ts",
+"outputMode": "server",
+"ssr": {
+  "entry": "server.ts"
+}
+~~~
+
+The exact server path may remain at repository root; moving it into `src/` is optional.
 
 Translate existing options rather than re-creating configuration from scratch.
 
-Expected changes include:
+Retain:
 
-- rename `main` to `browser`,
-- add `server: "src/main.server.ts"`,
-- add `ssr.entry` pointing to `server.ts`,
-- use `outputMode: "server"`,
-- explicitly keep Angular prerendering disabled,
-- retain `index`,
-- retain assets,
-- retain styles,
-- retain localization,
-- retain file replacements,
-- retain translation warning/error behavior,
-- retain production budgets,
-- retain output hashing,
-- retain `inlineCritical: false`,
-- remove obsolete options such as `buildOptimizer` and `vendorChunk`.
+- `index`,
+- polyfills including `src/ionicons-polyfill.ts`,
+- assets,
+- styles,
+- localization,
+- file replacements,
+- translation warning/error behavior,
+- production budgets,
+- output hashing,
+- `inlineCritical: false`.
 
-Prefer preserving the current top-level output directories:
+Remove options that are obsolete under the application builder, such as legacy `buildOptimizer` and `vendorChunk` settings.
+
+Prefer preserving:
 
 ~~~json
 "outputPath": {
@@ -543,30 +689,33 @@ Prefer preserving the current top-level output directories:
 }
 ~~~
 
-Do not assume server bundle filenames or locale sub-layout will match Stage 1; verify the actual emitted tree.
+so Docker/nginx need fewer changes.
 
-### 8.2 Remove legacy Architect targets
+The reference starter emits a production runtime at `server/server.mjs`. Expect this application to move toward `dist/app/server/server.mjs`, but verify the actual emitted tree before changing `serve:ssr`.
 
-The application builder integrates server building and SSR.
+### 8.2 Remove legacy application Architect targets
 
-Remove obsolete dedicated targets after their behavior has been represented in the application build:
+The integrated application builder replaces the split SSR build.
+
+Remove obsolete dedicated application targets after their behavior is represented in the application build:
 
 - `server`,
 - `serve-ssr`,
 - `prerender`.
 
-Keep the normal development `serve` target and point its configurations at the application build target.
+Keep the normal `serve` target using `@angular/build:dev-server` and point its configurations at the application build target.
 
-Verify Swedish and Finnish development configurations independently because the development server supports one locale at a time.
+Do not remove the legacy Karma test target yet.
 
 ### 8.3 Merge server TypeScript configuration
 
-Follow the current Angular migration output.
+Follow the current Angular migration output and compare it with the reference starter.
 
 Expected direction:
 
 - merge required `tsconfig.server.json` settings into `tsconfig.app.json`,
-- ensure browser and server entry files are included correctly,
+- include browser and server TypeScript sources correctly,
+- exclude specs from the app build,
 - retain Node and localization types where required,
 - retain extended diagnostics,
 - remove `tsconfig.server.json` only after the integrated build succeeds.
@@ -575,15 +724,15 @@ Do not weaken strict compiler settings as a migration shortcut.
 
 ### 8.4 Wire Angular server routes
 
-Update `app.config.server.ts` to use the integrated SSR provider from `@angular/ssr` with the generated server routes.
-
-Expected shape:
+Update `app.config.server.ts` following the starter pattern:
 
 ~~~typescript
 provideServerRendering(
   withRoutes(serverRoutes)
 )
 ~~~
+
+Use the generated server-route artifact from step 5.
 
 Retain:
 
@@ -594,45 +743,55 @@ Do not add hydration providers.
 
 ### 8.5 Replace CommonEngine with AngularNodeAppEngine
 
-Rewrite the Angular rendering boundary in `server.ts` to use:
+Rewrite the Angular rendering boundary in `server.ts` using the starter as the model:
 
 - `AngularNodeAppEngine`,
 - `createNodeRequestHandler`,
 - `writeResponseToNodeResponse`,
-- `isMainModule(import.meta.url)` or the current CLI-recommended equivalent.
+- `isMainModule(import.meta.url)` or the current Angular-recommended equivalent.
 
 Requirements:
 
 - no `CommonEngine`,
 - no `__non_webpack_require__`,
 - no CommonJS main-module assumptions,
-- server entry must be valid ESM,
+- valid ESM server code,
 - export the Node request handler expected by Angular CLI tooling,
 - start the Express listener only when the emitted server entry is executed directly.
 
+Instantiate `AngularNodeAppEngine` once.
+
+Do not copy the starter's localhost-only security configuration blindly. Preserve this application's dynamic allowed-host behavior. Prefer passing the configured allowlist directly to `AngularNodeAppEngine` or using the equivalent supported Angular mechanism.
+
+Also evaluate `trustProxyHeaders` explicitly. AngularNodeAppEngine does not blindly trust forwarded headers. The deployed app relies on nginx/upstream proxy headers for public protocol/host resolution, so trust only the exact forwarded headers supplied by the trusted proxy chain and verify that direct untrusted requests cannot spoof them.
+
 Keep custom Express behavior that is still required:
 
-- trust-proxy configuration,
+- Express `trust proxy` for request-IP/rate-limit behavior,
 - SSR rate limiting,
 - `/static-html` behavior,
 - special static-file handling,
 - Chrome DevTools probe bypass,
 - cache policy where Node directly serves files,
 - `Vary: User-Agent` behavior if still required,
-- allowed-host behavior,
 - configured public-origin behavior.
 
 Do not duplicate static-file work unnecessarily if `AngularNodeAppEngine` handles a case equivalently; remove old middleware only after tests prove behavior is preserved.
 
 ### 8.6 Swap the request-context adapter
 
-Replace the Stage 1 Express-request adapter introduced in step 4 with an adapter backed by Angular's built-in SSR request context.
+Replace the Stage 1 Express-request adapter introduced in step 4 with an adapter backed by Angular's built-in SSR `REQUEST` token and standard Web `Request`.
 
-Use Angular's standard Web `Request` semantics inside Angular application code.
+Verify:
 
-Verify canonical URLs, Open Graph URLs, request path, locale stripping, user-agent, and forwarded host/protocol behavior.
+- canonical URLs,
+- Open Graph URLs,
+- request path,
+- locale stripping,
+- user-agent,
+- forwarded host/protocol behavior.
 
-After this works, the repository-owned Express injection token should no longer be needed by application services.
+After this works, repository-owned Express request injection should no longer be needed by application services.
 
 ### 8.7 Replace auth CSR middleware with RenderMode.Client
 
@@ -654,23 +813,22 @@ Expected end state:
 - `build:ssr`:
   - generate routes,
   - run one integrated production `ng build`,
-  - no separate `ng run app:server:production`.
+  - no separate `ng run app:server:production`,
+  - no post-build copy of `proxy-server.js`.
 - `serve:ssr`:
-  - execute the emitted server entry produced by the application builder.
+  - execute the application builder's emitted server entry, expected to be equivalent to the starter's `server/server.mjs` pattern.
 - `ssr-start`:
   - remains build + serve.
 - `bench:ssr:build`:
   - remains build + benchmark.
 
-Remove `postbuild-copy-files.js` from the build flow.
-
-Do not guess the emitted server entry filename. Confirm it from actual build output and use that exact path.
+Do not guess the emitted server entry filename. Confirm it from the actual build output and use that path.
 
 ### Cutover verification
 
-Before committing, all of these must pass:
+Before committing:
 
-- Fast gate.
+- Pre-Vitest fast gate.
 - Full SSR gate.
 - Auth-rendering gate.
 - Swedish route.
@@ -680,8 +838,7 @@ Before committing, all of these must pass:
 - Missing-static-file assertions.
 - No hydration provider.
 - `npm run generate-routes` followed by a second generation produces no diff.
-
-Inspect the emitted output tree and record it for the next step.
+- Existing Jasmine/Karma unit suite still passes unchanged.
 
 Commit:
 
@@ -689,65 +846,72 @@ Commit:
 build(ssr): migrate to Angular application builder
 ~~~
 
-Do not proceed if the local production SSR workflow is not fully usable at this commit.
+Do not proceed if the production SSR workflow or existing unit suite is not fully usable at this commit.
 
 ---
 
-## 9. Remove legacy split-builder artifacts
+## 9. Migrate i18n extraction to the @angular/build toolchain
 
-Once the application-builder commit is stable, delete the old compatibility layer in a separate cleanup commit.
+The current `ng-extract-i18n-merge` configuration explicitly delegates to:
 
-Candidates:
-
-- `proxy-server.js`,
-- `postbuild-copy-files.js`,
-- `tsconfig.server.json`,
-- old `CommonEngine`-specific comments,
-- old Webpack-specific main-module comments,
-- obsolete `auth-protected-route-paths.generated.ts` if the generated server-route file fully replaces it,
-- `src/express.tokens.ts` if nothing still consumes it.
-
-Update:
-
-- `.gitignore` generated artifact list,
-- route-generator tests,
-- hard-coded output paths in scripts,
-- comments referring to separate browser/server builder targets.
-
-Audit:
-
-~~~powershell
-rg "CommonEngine|proxy-server|postbuild-copy-files|tsconfig.server|auth-protected-route-paths|__non_webpack_require__|browserTarget|serverTarget|serve-ssr" .
+~~~text
+@angular-devkit/build-angular:extract-i18n
 ~~~
 
-Review every remaining match; historical migration-plan references do not necessarily need removal.
+The installed `ng-extract-i18n-merge` version supports `@angular/build:extract-i18n` and uses it as the modern default.
+
+Change only the underlying extraction builder; preserve this repository's merge/sort/target-file behavior.
+
+Work:
+
+- Change `builderI18n` to `@angular/build:extract-i18n` or remove the override if the plugin's current default is confirmed equivalent.
+- Keep:
+  - `format`,
+  - `outputPath`,
+  - `sort`,
+  - `targetFiles`,
+  - existing source-language target behavior.
+- Run extraction and inspect all XLF diffs.
+- Ensure the migration itself does not reorder or rewrite translations unexpectedly.
 
 Verify:
 
-- Fast gate.
-- Full SSR gate.
+~~~powershell
+npm run extract-i18n
+~~~
+
+Then:
+
+- pre-Vitest fast gate,
+- confirm no unintended XLF diff remains.
 
 Commit:
 
 ~~~text
-build(ssr): remove legacy split-builder artifacts
+build(i18n): use application-builder extraction tooling
 ~~~
+
+This removes one reason to retain `@angular-devkit/build-angular` after Karma is removed.
 
 ---
 
 ## 10. Stabilize localization and default-language serving
 
-Treat localization as its own checkpoint because the old runtime explicitly started one server bundle per locale, while `AngularNodeAppEngine` manages localized applications differently.
+Treat localization as its own checkpoint because the old runtime explicitly started one server bundle per locale, while `AngularNodeAppEngine` manages localized applications internally.
 
-Required behavior:
+Use the reference starter to understand the localized application-builder output and request dispatch.
+
+Required behavior for this application:
 
 - `/sv/...` serves Swedish.
 - `/fi/...` serves Finnish.
-- Locale-specific browser assets resolve correctly.
-- Direct navigation works.
-- Browser refresh works.
-- Canonical/hreflang/Open Graph URLs use the correct locale.
-- Existing unprefixed/default-language behavior remains Swedish unless a deliberate breaking change is approved.
+- locale-specific browser assets resolve correctly.
+- direct navigation works.
+- browser refresh works.
+- canonical/hreflang/Open Graph URLs use the correct locale.
+- the existing unprefixed/default-language behavior remains Swedish unless a deliberate breaking change is approved.
+
+Pay special attention to the difference from the starter: its unprefixed production URL redirects using `Accept-Language`. Do not adopt that behavior by accident.
 
 Test:
 
@@ -761,13 +925,14 @@ Test:
 - both locale prefixes,
 - no prefix.
 
-If Angular's automatic i18n server behavior introduces an `Accept-Language` redirect for unprefixed URLs, do not accept that silently. Add the smallest Express-level compatibility behavior necessary to preserve the existing default-language contract, or document and approve a deliberate change separately.
+If Angular's localized engine introduces language negotiation at the root, add the smallest compatibility layer necessary to preserve the existing Swedish-default contract. Verify canonical URLs carefully if an internal rewrite is used.
 
 Verify:
 
 - Full SSR gate.
 - Manual browser gate.
 - Container gate.
+- Existing Jasmine/Karma unit suite.
 
 Commit only if code/configuration changes are required:
 
@@ -779,9 +944,11 @@ If no changes are required, record the verification and continue without a commi
 
 ---
 
-## 11. Validate development-server behavior
+## 11. Validate development-server, output, Docker, nginx, and CI behavior
 
-The application builder changes the development build system and uses Angular's Vite-based development server integration.
+The application builder uses Angular's modern esbuild/Vite development pipeline.
+
+### Development server
 
 Verify:
 
@@ -804,55 +971,25 @@ Test:
 - component/template/style HMR behavior.
 - route generation expectations during development.
 
-Do not require production `server.ts` middleware behavior from `ng serve`; Angular's development SSR path can differ from executing the built server entry. Production server behavior is validated by the full SSR and container gates.
+The reference starter confirms that development SSR can differ from the production locale-prefixed runtime. Do not require production `server.ts` middleware behavior from `ng serve`; validate production server behavior separately through `serve:ssr`.
 
-Keep Karma/Jasmine unchanged unless the build migration exposes a specific incompatibility.
+### Output/deployment
 
-Also run:
+Confirm:
 
-~~~powershell
-npm run extract-i18n
-~~~
-
-Confirm translation extraction behaves as expected and produces no unintended changes.
-
-Commit only if development-server-specific fixes are required:
-
-~~~text
-fix(dev): align development server with application builder
-~~~
-
----
-
-## 12. Update Docker, nginx, compression, and CI for the final output contract
-
-Prefer keeping:
-
-~~~text
-dist/app/browser
-dist/app/server
-~~~
-
-as the top-level output directories so nginx's static volume and the compression script require minimal changes.
-
-Do not preserve obsolete inner filenames merely for cosmetic compatibility.
-
-Work:
-
-- Confirm `npm run compress` still targets the correct browser directory.
-- Confirm gzip files are produced where nginx expects them.
-- Confirm the Docker build copies the complete new output.
-- Confirm the final image contains all runtime dependencies required by the emitted server bundle.
-- Confirm Docker starts through `npm run serve:ssr`.
-- Confirm the nginx volume points to the correct browser output directory.
-- Confirm `nginx.conf` can still serve hashed JS/CSS/fonts, locale assets, `static-html`, and root robots/sitemap fallback.
-- Confirm GitHub Actions requires no builder-specific changes beyond normal Docker build behavior.
-- Confirm production dependency installation with `npm ci --omit=dev` is still sufficient for the emitted server runtime.
-
-If the application builder bundles a dependency that was previously required at runtime, do not remove that dependency from `package.json` unless it is truly unused by source/runtime code.
+- `npm run compress` still targets the correct browser directory.
+- gzip files are produced where nginx expects them.
+- Docker copies the complete application-builder output.
+- Docker starts through `npm run serve:ssr`.
+- nginx volume still points to the correct browser output directory.
+- `nginx.conf` still serves hashed JS/CSS/fonts, locale assets, `static-html`, and root robots/sitemap fallback.
+- GitHub Actions requires no unexpected builder-specific changes.
+- `npm ci --omit=dev` is sufficient for the emitted production server runtime.
 
 Verify:
 
+- Pre-Vitest fast gate.
+- Full SSR gate.
 - Container gate.
 - Docker Compose + nginx.
 - SSR smoke through nginx.
@@ -861,17 +998,349 @@ Verify:
 - Static caching.
 - gzip-static delivery.
 
-Commit:
+Possible commits, only when changes are needed:
 
 ~~~text
+fix(dev): align development server with application builder
 build(docker): align deployment with application builder
 ~~~
 
-If the preparatory tooling and preserved output-path configuration mean no deployment files need changing, skip the commit but still run the full container gate.
+Keep development and deployment fixes separate when practical.
 
 ---
 
-## 13. Re-run the complete route/configuration matrix
+# Vitest migration
+
+The Vitest migration happens only after the application builder is stable. Angular's Vitest unit-test builder requires the application build system.
+
+The reference starter is the target infrastructure model:
+
+~~~json
+"test": {
+  "builder": "@angular/build:unit-test"
+}
+~~~
+
+with:
+
+- `vitest`,
+- `jsdom`,
+- `vitest/globals` in `tsconfig.spec.json`,
+- no `karma.conf.js`,
+- no `src/test.ts` manual TestBed initialization.
+
+The default execution environment should be Node + `jsdom`.
+
+---
+
+## 12. Rehearse the Jasmine/Karma -> Vitest conversion
+
+Before changing the main branch, rehearse the conversion in a disposable branch/worktree.
+
+### 12.1 Inventory the current Jasmine-specific patterns
+
+The current suite contains several patterns that require explicit review:
+
+- `jasmine.SpyObj`,
+- `jasmine.createSpyObj`,
+- `jasmine.createSpy`,
+- `spyOn`,
+- `spyOnProperty`,
+- `jasmine.any`,
+- `jasmine.objectContaining`,
+- `.and.returnValue(...)`,
+- `.and.resolveTo(...)`,
+- `.and.callFake(...)`,
+- `.calls.reset()`,
+- `.calls.mostRecent().args`,
+- `jasmine.clock()` timer control.
+
+Stage 1 already removed Angular `fakeAsync`/`tick` usage, which reduces Vitest migration risk.
+
+### 12.2 Run Angular's migration schematic as a preview
+
+After the application builder is active in the worktree, install the target test dependencies if needed and run:
+
+~~~powershell
+ng g @schematics/angular:refactor-jasmine-vitest --project app
+~~~
+
+Treat the schematic as a refactoring assistant, not authoritative output. Angular currently documents this migration tooling as requiring manual review.
+
+Inspect every TODO produced by the schematic.
+
+### 12.3 Compare with the reference starter
+
+Compare:
+
+- `angular.json` test target,
+- `tsconfig.spec.json`,
+- package dependencies,
+- absence of manual TestBed bootstrap,
+- default `jsdom` environment.
+
+Do not copy the starter's single test style mechanically where this repository's tests need richer fakes or HTTP testing.
+
+### 12.4 Decide global setup
+
+The current `src/test.ts` performs two jobs:
+
+1. imports `ionicons-polyfill.ts`,
+2. manually initializes Angular TestBed.
+
+The `@angular/build:unit-test` builder initializes Angular TestBed automatically.
+
+Because `ionicons-polyfill.ts` is already an application polyfill and the unit-test builder inherits from the application build target, first verify whether it is already loaded in tests. If yes, no test setup file is needed.
+
+If additional initialization is required, use the test target's `setupFiles` option and a minimal setup file. Do not manually call `getTestBed().initTestEnvironment(...)` under the new builder.
+
+Commit:
+
+- No production commit.
+- If the migration plan needs changes:
+
+~~~text
+docs(migration): refine Vitest conversion plan
+~~~
+
+---
+
+## 13. Add Vitest dependencies without changing the runner
+
+Install the dependencies needed by the target test setup while Jasmine/Karma still remains active:
+
+~~~powershell
+npm install --save-dev vitest jsdom
+~~~
+
+Do not remove Karma/Jasmine yet.
+
+Update `allowScripts` only if npm reports a newly required reviewed lifecycle-script approval.
+
+Verify:
+
+- Existing Jasmine/Karma `npm run test:ci` still passes.
+- Pre-Vitest fast gate.
+- Clean `npm ci` from the updated lockfile.
+
+Commit:
+
+~~~text
+test: add Vitest migration dependencies
+~~~
+
+This gives a small reversible checkpoint before the test-runner cutover.
+
+---
+
+## 14. Atomic cutover from Jasmine/Karma to Vitest
+
+This is the second deliberately atomic migration commit.
+
+All test files must compile and pass under Vitest before this commit is created.
+
+### 14.1 Switch the Angular test target
+
+Follow the reference starter:
+
+~~~json
+"test": {
+  "builder": "@angular/build:unit-test"
+}
+~~~
+
+Prefer the minimal target first. The builder defaults to the project's development build configuration and `tsconfig.spec.json`.
+
+If repository-specific options are required, add them explicitly rather than copying legacy Karma options.
+
+The new test builder does **not** accept the old Karma target's duplicated `assets`/`styles` options. Tests should inherit application styles/assets from the application build target.
+
+Remove:
+
+- `main: "src/test.ts"`,
+- `karmaConfig`,
+- Karma-only CI target options that are no longer needed.
+
+Keep the npm command surface:
+
+- `npm test` -> watch mode in an interactive terminal,
+- `npm run test:ci` -> one non-watch run.
+
+### 14.2 Update TypeScript test types
+
+Match the reference starter's direction:
+
+~~~json
+"types": [
+  "vitest/globals",
+  "@angular/localize"
+]
+~~~
+
+Remove Jasmine types.
+
+Retain this repository's extended Angular diagnostics.
+
+### 14.3 Remove manual test bootstrap
+
+Delete `src/test.ts` after confirming its Ionicons setup is covered by inherited application polyfills or a minimal `setupFiles` entry.
+
+Angular's unit-test builder owns TestBed initialization.
+
+### 14.4 Convert the test APIs
+
+Run the Angular schematic, then manually complete all unsupported conversions.
+
+Typical mappings:
+
+- `jasmine.createSpy(...)` -> `vi.fn()`
+- `jasmine.createSpyObj(...)` -> typed objects composed from `vi.fn()`, or deliberate `vi.mocked`/`vi.spyOn` usage where appropriate
+- `spyOn(obj, method)` -> `vi.spyOn(obj, method)`
+- `spyOnProperty(obj, prop, 'get')` -> `vi.spyOn(obj, prop, 'get')`
+- `jasmine.any(Type)` -> `expect.any(Type)`
+- `jasmine.objectContaining(...)` -> `expect.objectContaining(...)`
+- `.and.returnValue(...)` -> `.mockReturnValue(...)`
+- `.and.resolveTo(...)` -> `.mockResolvedValue(...)`
+- `.and.callFake(...)` -> `.mockImplementation(...)`
+- `.calls.reset()` -> `.mockReset()` or `.mockClear()` depending on intended semantics
+- `.calls.mostRecent().args` -> inspect `mock.calls`
+- `jasmine.clock().install()` -> `vi.useFakeTimers()`
+- `jasmine.clock().tick(ms)` -> `vi.advanceTimersByTime(ms)` or `await vi.advanceTimersByTimeAsync(ms)`
+- `jasmine.clock().uninstall()` -> `vi.useRealTimers()`
+
+For timer-heavy specs:
+
+- always restore real timers in `afterEach`,
+- use async timer advancement when queued promises/microtasks participate,
+- keep `fixture.whenStable()` assertions where they verify zoneless scheduling.
+
+Do not replace meaningful typed fakes with broad `any` casts just to make Vitest compile.
+
+### 14.5 Remove Karma/Jasmine dependencies and configuration
+
+Remove when no longer referenced:
+
+- `karma`,
+- `karma-chrome-launcher`,
+- `karma-coverage`,
+- `karma-jasmine`,
+- `karma-jasmine-html-reporter`,
+- `jasmine-core`,
+- `@types/jasmine`,
+- `karma.conf.js`.
+
+The old `ChromeHeadlessNoGpu` workaround disappears because the default Vitest environment is `jsdom`.
+
+Do not add a real-browser provider merely to reproduce the old Chrome runner. The manual browser/SSR gates cover integration behavior; add Vitest browser mode only for a demonstrated test requirement.
+
+### 14.6 Check jsdom-specific compatibility
+
+Pay attention to tests or components that touch browser APIs not fully implemented by `jsdom`, including:
+
+- scrolling/layout measurements,
+- `matchMedia`,
+- observers,
+- object URLs,
+- navigation/location APIs,
+- custom elements and Ionic interactions.
+
+Prefer narrow deterministic mocks in a test setup file over broad global browser emulation.
+
+The reference starter demonstrates that an Ionic app shell can be tested under the default `jsdom` setup, but this repository's richer components still need explicit verification.
+
+### Vitest cutover verification
+
+Run:
+
+~~~powershell
+npm run test:ci
+npm test
+~~~
+
+Also run the post-Vitest fast gate.
+
+Compare with the recorded Jasmine/Karma test-runner parity data.
+
+Audit:
+
+~~~powershell
+rg "jasmine\.|jasmine:|karma|ChromeHeadless|spyOnProperty\(|\bspyOn\(" src angular.json package.json tsconfig.spec.json karma.conf.js
+~~~
+
+The intended result is no legacy test-framework usage, except historical migration documentation.
+
+Also verify:
+
+~~~powershell
+npm ls karma jasmine-core @types/jasmine
+~~~
+
+The intended result is that these are not direct project dependencies.
+
+Commit:
+
+~~~text
+test: migrate unit tests from Jasmine Karma to Vitest
+~~~
+
+Do not commit a partially converted suite.
+
+---
+
+## 15. Remove legacy split-builder and build-angular artifacts
+
+After both application and test migrations are stable, remove the old compatibility layer.
+
+Candidates:
+
+- `proxy-server.js`,
+- `postbuild-copy-files.js`,
+- `tsconfig.server.json`,
+- old `CommonEngine`-specific comments,
+- old Webpack-specific main-module comments,
+- obsolete `auth-protected-route-paths.generated.ts` if generated server routes fully replace it,
+- `src/express.tokens.ts` if nothing still consumes it,
+- `@angular-devkit/build-angular` if no target/config/package still requires it.
+
+Before removing `@angular-devkit/build-angular`, verify:
+
+- application build uses `@angular/build:application`,
+- dev server uses `@angular/build:dev-server`,
+- test target uses `@angular/build:unit-test`,
+- i18n extraction delegates to `@angular/build:extract-i18n`,
+- no package/plugin configuration references the old devkit builder.
+
+Update:
+
+- `.gitignore` generated artifact list,
+- route-generator tests,
+- hard-coded output paths in scripts,
+- comments referring to separate browser/server builder targets.
+
+Audit:
+
+~~~powershell
+rg "CommonEngine|proxy-server|postbuild-copy-files|tsconfig.server|auth-protected-route-paths|__non_webpack_require__|browserTarget|serverTarget|@angular-devkit/build-angular|karma|jasmine" .
+~~~
+
+Review historical migration-plan matches separately; they do not need to be erased.
+
+Verify:
+
+- Post-Vitest fast gate.
+- Full SSR gate.
+- `npm run extract-i18n`.
+- `npm ci` from a clean dependency tree.
+
+Commit:
+
+~~~text
+build: remove legacy Webpack and Karma tooling
+~~~
+
+---
+
+## 16. Re-run the complete route/configuration/test matrix
 
 Before documentation cleanup, run the complete migration matrix.
 
@@ -921,11 +1390,23 @@ Verify:
 
 - Swedish.
 - Finnish.
-- default language.
+- default Swedish language behavior.
 - locale-prefixed direct navigation.
 - unprefixed navigation.
 - hreflang links.
 - localized assets.
+- `npm run extract-i18n`.
+
+### Unit tests
+
+Verify:
+
+- `npm run test:ci` under Vitest.
+- `npm test` watch mode.
+- timer-heavy tests do not leak fake timers.
+- mocks/spies are restored between tests.
+- no test depends on Chrome-specific ordering or layout by accident.
+- optional `ng test --watch=false --coverage` works if coverage is used by maintainers.
 
 ### Browser behavior
 
@@ -939,11 +1420,13 @@ Example commits:
 fix(ssr): preserve proxy origin handling
 fix(auth): align client render modes with generated routes
 fix(i18n): preserve default-language routing
+test(auth): stabilize Vitest auth specs
+test(ui): stabilize Vitest DOM mocks
 ~~~
 
 ---
 
-## 14. Compare build and runtime performance
+## 17. Compare build, test, and runtime performance
 
 Run:
 
@@ -959,21 +1442,22 @@ Also record:
 - browser initial bundle size,
 - server bundle size,
 - cold SSR timings,
-- warm SSR timings.
+- warm SSR timings,
+- `npm run test:ci` duration before and after Vitest.
 
-The application builder is expected to improve the build pipeline, but Stage 2 should not claim a performance improvement unless measured in this repository.
+The application builder and Vitest are expected to improve development/test tooling, but Stage 2 should not claim a performance improvement unless measured in this repository.
 
 Investigate material regressions before finalizing the migration.
 
 Commit:
 
-- No commit unless a justified optimization or benchmark-tool fix is required.
+- No commit unless a justified optimization or benchmark/test-tool fix is required.
 
 ---
 
-## 15. Update documentation and changelog
+## 18. Update documentation and changelog
 
-Only after the new runtime is stable, update the main documentation.
+Only after the new runtime and Vitest suite are stable, update the main documentation.
 
 ### docs/DEVELOPMENT.md
 
@@ -988,18 +1472,28 @@ Update the Application architecture section:
 - final output layout,
 - ESM server entry.
 
+Update Testing:
+
+- Vitest instead of Jasmine/Karma,
+- Node + `jsdom` default test environment,
+- `npm test` watch behavior,
+- `npm run test:ci` single-run behavior,
+- any test setup file that remains.
+
 Remove the completed application-builder migration TODO.
 
 Keep the separate hydration TODO.
 
 ### AGENTS.md
 
-Update architecture guardrails:
+Update architecture/testing guardrails:
 
-- application builder is now the required architecture,
+- application builder is now required,
 - `AngularNodeAppEngine` is the SSR engine,
 - server render modes are generated/config-driven,
 - do not reintroduce split legacy builders,
+- unit tests use Vitest,
+- do not add Jasmine/Karma dependencies,
 - hydration remains out of scope unless explicitly requested.
 
 ### docs/DEPLOYMENT.md
@@ -1013,16 +1507,16 @@ Update:
 
 ### README
 
-Update only if developer setup/build commands or output assumptions changed.
+Update only if developer setup/build/test commands or output assumptions changed.
 
 ### CHANGELOG.md
 
-Document Stage 2 as a breaking build/deployment architecture change.
+Document Stage 2 as a breaking build/deployment/tooling change, including the Vitest migration.
 
 Commit:
 
 ~~~text
-docs: document application builder architecture
+docs: document application builder and Vitest architecture
 ~~~
 
 ---
@@ -1031,23 +1525,32 @@ docs: document application builder architecture
 
 Stage 2 is complete only when all of the following are true.
 
+## Reference-model alignment
+
+- The final Angular build/SSR architecture has been compared with the current `ng22-ion9-ssr-starter`.
+- Any intentional deviations from the starter are documented by behavior, not accidental legacy carryovers.
+- No starter-only prerender behavior was introduced.
+- The app's Swedish-default unprefixed URL behavior is preserved unless separately approved.
+
 ## Build system
 
 - The application build target uses Angular's integrated `application` builder.
 - There is no separate legacy `server` build target.
 - There is no legacy `serve-ssr` builder target.
 - There is no legacy `prerender` builder target.
-- `build:ssr` performs a single integrated Angular production build after route generation.
+- `build:ssr` performs one integrated Angular production build after route generation.
 - Obsolete Webpack-only builder options are removed.
+- `@angular-devkit/build-angular` is no longer a direct dependency unless a concrete remaining requirement is documented.
 
 ## Server runtime
 
 - `CommonEngine` is no longer used.
 - `AngularNodeAppEngine` is the rendering engine.
 - The server entry is ESM-compatible.
-- No `__non_webpack_require__`, `__filename`, `__dirname`, or other CommonJS-only server assumptions remain unless intentionally isolated in non-application tooling.
-- The emitted server entry can be started through `npm run serve:ssr`.
+- No `__non_webpack_require__` or other Webpack/CommonJS-only server assumptions remain.
+- The emitted `server.mjs`-style runtime can be started through `npm run serve:ssr`.
 - Custom Express middleware still preserves required static, rate-limit, proxy, and cache behavior.
+- Allowed-host and trusted-proxy-header behavior is explicitly configured and tested.
 
 ## Rendering modes
 
@@ -1069,21 +1572,38 @@ Stage 2 is complete only when all of the following are true.
 
 - Swedish and Finnish production output both work.
 - `/sv` and `/fi` routing work.
-- The approved default-language/unprefixed behavior works.
+- The approved default Swedish/unprefixed behavior works.
 - Locale assets and SEO metadata are correct.
+- `ng-extract-i18n-merge` uses the `@angular/build` extraction path.
+- Translation extraction produces no unintended XLF churn.
+
+## Unit testing
+
+- Test target uses `@angular/build:unit-test`.
+- Vitest is the test runner.
+- `jsdom` is the default test environment.
+- `tsconfig.spec.json` uses `vitest/globals` rather than Jasmine types.
+- `src/test.ts` manual TestBed initialization is removed.
+- Ionicons test initialization is handled through inherited application polyfills or a minimal documented setup file.
+- No direct Jasmine/Karma dependency remains.
+- No `karma.conf.js` remains.
+- No `jasmine.*` API remains in active test code.
+- Timer tests use Vitest fake timers or native async techniques.
+- The post-migration suite preserves the behavioral coverage of the pre-migration suite.
+- `npm test` and `npm run test:ci` both work as documented.
 
 ## Deployment
 
 - Docker builds successfully.
 - The production container starts successfully.
-- nginx serves the new browser output correctly.
+- nginx serves the application-builder browser output correctly.
 - gzip-static assets still work.
 - Docker Compose deployment works.
 - GitHub Actions Docker build works.
 
-## Testing
+## Testing and verification
 
-- Unit tests pass.
+- Unit tests pass under Vitest.
 - Route parser/generator tests pass.
 - Source encoding test passes.
 - Development builds pass.
@@ -1092,7 +1612,8 @@ Stage 2 is complete only when all of the following are true.
 - Auth-enabled and auth-disabled rendering matrix passes.
 - Container and nginx gates pass.
 - Manual browser gate passes.
-- Benchmark comparison has been reviewed.
+- i18n extraction passes.
+- Build/runtime/test benchmark comparison has been reviewed.
 
 ## Architecture
 

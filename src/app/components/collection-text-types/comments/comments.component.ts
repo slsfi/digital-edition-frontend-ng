@@ -1,4 +1,4 @@
-import { Component, DestroyRef, ElementRef, Injector, NgZone, Renderer2, afterRenderEffect, computed, inject, input, output, signal, untracked } from '@angular/core';
+import { Component, DestroyRef, ElementRef, Injector, Renderer2, afterRenderEffect, computed, inject, input, output, signal, untracked } from '@angular/core';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { IonSpinner, ModalController } from '@ionic/angular';
 import { catchError, map, of, switchMap, tap } from 'rxjs';
@@ -33,7 +33,6 @@ export class CommentsComponent {
   private elementRef = inject(ElementRef);
   private injector = inject(Injector);
   private modalController = inject(ModalController);
-  private ngZone = inject(NgZone);
   private parserService = inject(HtmlParserService);
   private platformService = inject(PlatformService);
   private renderer2 = inject(Renderer2);
@@ -204,7 +203,7 @@ export class CommentsComponent {
 
 
   // ─────────────────────────────────────────────────────────────────────────────
-  // Event listeners (outside Angular) + UI helpers
+  // Event listeners + UI helpers
   // ─────────────────────────────────────────────────────────────────────────────
 
   private setUpTextListeners() {
@@ -215,86 +214,84 @@ export class CommentsComponent {
     const host: HTMLElement = this.elementRef.nativeElement;
 
     /* CLICK EVENTS */
-    this.unlistenClickEvents = this.ngZone.runOutsideAngular(() =>
-      this.renderer2.listen(host, 'click', (event) => {
-        try {
-          // This check for xreference is necessary since we don't want the comment to
-          // scroll if the clicked target is a link in a comment. Clicks on links are
-          // handled by read.ts.
-          let targetIsLink = false;
-          let targetElem: HTMLElement | null = event.target as HTMLElement;
+    this.unlistenClickEvents = this.renderer2.listen(host, 'click', (event) => {
+      try {
+        // This check for xreference is necessary since we don't want the comment to
+        // scroll if the clicked target is a link in a comment. Clicks on links are
+        // handled by collection-text.page.ts.
+        let targetIsLink = false;
+        let targetElem: HTMLElement | null = event.target as HTMLElement;
 
-          // Detect "xreference" links (don't trigger comment-to-lemma scroll)
-          if (
-            targetElem.classList.contains('xreference') ||
-            targetElem.parentElement?.classList.contains('xreference') ||
-            targetElem.parentElement?.parentElement?.classList.contains('xreference')
-          ) {
-            targetIsLink = true;
+        // Detect "xreference" links (don't trigger comment-to-lemma scroll)
+        if (
+          targetElem.classList.contains('xreference') ||
+          targetElem.parentElement?.classList.contains('xreference') ||
+          targetElem.parentElement?.parentElement?.classList.contains('xreference')
+        ) {
+          targetIsLink = true;
+        }
+
+        if (!targetIsLink && this.viewOptionsService.show().comments) {
+          // This is linking to a comment lemma ("asterisk") in the reading text,
+          // i.e. the user has clicked a comment in the comments-column.
+          event.preventDefault();
+
+          // Find the comment element that has been clicked in the comment-column.
+          if (!targetElem.classList.contains('commentScrollTarget')) {
+            targetElem = targetElem.parentElement;
+            while (
+              targetElem &&
+              !targetElem.classList.contains('commentScrollTarget') &&
+              targetElem.tagName !== 'COMMENTS'
+            ) {
+              targetElem = targetElem.parentElement;
+            }
           }
 
-          if (!targetIsLink && this.viewOptionsService.show().comments) {
-            // This is linking to a comment lemma ("asterisk") in the reading text,
-            // i.e. the user has clicked a comment in the comments-column.
-            event.preventDefault();
+          if (targetElem) {
+            // Find the lemma in the reading text.
+            // Remove all non-digits at the start of the comment's id.
+            const numId: string = targetElem.classList[targetElem.classList.length - 1]
+                  .replace( /^\D+/g, '');
+            const targetId: string = 'start' + numId;
+            const lemmaStart = this.scrollService.findElementInColumnByAttribute(
+              'data-id', targetId, 'reading-text'
+            );
 
-            // Find the comment element that has been clicked in the comment-column.
-            if (!targetElem.classList.contains('commentScrollTarget')) {
-              targetElem = targetElem.parentElement;
-              while (
-                targetElem &&
-                !targetElem.classList.contains('commentScrollTarget') &&
-                targetElem.tagName !== 'COMMENTS'
-              ) {
-                targetElem = targetElem.parentElement;
-              }
-            }
-
-            if (targetElem) {
-              // Find the lemma in the reading text.
-              // Remove all non-digits at the start of the comment's id.
-              const numId: string = targetElem.classList[targetElem.classList.length - 1]
-                    .replace( /^\D+/g, '');
-              const targetId: string = 'start' + numId;
-              const lemmaStart = this.scrollService.findElementInColumnByAttribute(
-                'data-id', targetId, 'reading-text'
-              );
-
-              if (lemmaStart) {
-                // There is a reading text view open.
-                // Scroll to start of lemma in reading text and temporarily prepend arrow.
-                if (this.mobileMode) {
-                  this.ngZone.run(() => this.setMobileModeActiveText.emit('readingtext'));
-                  // In mobile mode the reading text view needs time to be made
-                  // visible before scrolling can start.
-                  setTimeout(() => {
-                    this.scrollService.scrollToCommentLemma(lemmaStart);
-                  }, 700);
-                } else {
+            if (lemmaStart) {
+              // There is a reading text view open.
+              // Scroll to start of lemma in reading text and temporarily prepend arrow.
+              if (this.mobileMode) {
+                this.setMobileModeActiveText.emit('readingtext');
+                // In mobile mode the reading text view needs time to be made
+                // visible before scrolling can start.
+                setTimeout(() => {
                   this.scrollService.scrollToCommentLemma(lemmaStart);
-                  // Scroll to comment in the comments-column.
-                  this.scrollService.scrollToComment(numId, targetElem);
-                }
+                }, 700);
               } else {
-                // A reading text view is not open -> open one so the lemma can be scrolled
-                // into view there.
-                this.ngZone.run(() => this.openNewReadingTextView.emit(targetId));
+                this.scrollService.scrollToCommentLemma(lemmaStart);
                 // Scroll to comment in the comments-column.
                 this.scrollService.scrollToComment(numId, targetElem);
               }
+            } else {
+              // A reading text view is not open -> open one so the lemma can be scrolled
+              // into view there.
+              this.openNewReadingTextView.emit(targetId);
+              // Scroll to comment in the comments-column.
+              this.scrollService.scrollToComment(numId, targetElem);
             }
           }
-
-          // Check if click on a link to an illustration that should be opened in a modal
-          if (targetIsLink && targetElem?.classList.contains('ref_illustration')) {
-            const imageNumber = (targetElem as HTMLAnchorElement).hash.split('#')[1];
-            this.ngZone.run(() => this.openIllustration(imageNumber));
-          }
-        } catch (e) {
-          console.error(e);
         }
-      })
-    );
+
+        // Check if click on a link to an illustration that should be opened in a modal
+        if (targetIsLink && targetElem?.classList.contains('ref_illustration')) {
+          const imageNumber = (targetElem as HTMLAnchorElement).hash.split('#')[1];
+          this.openIllustration(imageNumber);
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    });
   }
 
   private async openIllustration(imageNumber: string) {

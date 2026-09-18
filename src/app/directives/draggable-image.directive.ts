@@ -1,4 +1,4 @@
-import { Directive, ElementRef, NgZone, OnDestroy, OnInit, Renderer2, inject, output, input } from '@angular/core';
+import { Directive, ElementRef, OnDestroy, OnInit, Renderer2, inject, output, input } from '@angular/core';
 
 
 @Directive({
@@ -7,7 +7,6 @@ import { Directive, ElementRef, NgZone, OnDestroy, OnInit, Renderer2, inject, ou
 })
 export class DraggableImageDirective implements OnInit, OnDestroy {
   private readonly elRef = inject<ElementRef<HTMLElement>>(ElementRef);
-  private readonly ngZone = inject(NgZone);
   private readonly renderer = inject(Renderer2);
 
   readonly initialCoordinates = input<number[]>([0, 0], { alias: "draggableImage" });
@@ -33,19 +32,15 @@ export class DraggableImageDirective implements OnInit, OnDestroy {
   ngOnInit() {
     this.unlistenMouseDownEvents = this.renderer.listen(
       this.elRef.nativeElement, 'mousedown', (event: any) => {
-        // The high-frequency move listener only mutates DOM state, so keep it
-        // outside Angular's execution context.
-        this.ngZone.runOutsideAngular(() => {
-          if (!this.isMouseMoveListenerAdded) {
-            this.unlistenMouseMoveEvents = this.renderer.listen(
-              this.elRef.nativeElement, 'mousemove', (event: any) => {
-                this.dragElement(event);
-              }
-            );
-          }
-          this.isMouseMoveListenerAdded = true;
-          this.startDrag(event);
-        });
+        if (!this.isMouseMoveListenerAdded) {
+          this.unlistenMouseMoveEvents = this.renderer.listen(
+            this.elRef.nativeElement, 'mousemove', (event: any) => {
+              this.dragElement(event);
+            }
+          );
+        }
+        this.isMouseMoveListenerAdded = true;
+        this.startDrag(event);
       }
     );
     this.unlistenMouseUpEvents = this.renderer.listen(
@@ -58,17 +53,15 @@ export class DraggableImageDirective implements OnInit, OnDestroy {
     if (!this.mouseOnly()) {
       this.unlistenTouchStartEvents = this.renderer.listen(
         this.elRef.nativeElement, 'touchstart', (event: any) => {
-          this.ngZone.runOutsideAngular(() => {
-            if (!this.isTouchMoveListenerAdded) {
-              this.unlistenTouchMoveEvents = this.renderer.listen(
-                this.elRef.nativeElement, 'touchmove', (event: any) => {
-                  this.dragElement(event);
-                }
-              );
-            }
-            this.isTouchMoveListenerAdded = true;
-            this.startDrag(event);
-          });
+          if (!this.isTouchMoveListenerAdded) {
+            this.unlistenTouchMoveEvents = this.renderer.listen(
+              this.elRef.nativeElement, 'touchmove', (event: any) => {
+                this.dragElement(event);
+              }
+            );
+          }
+          this.isTouchMoveListenerAdded = true;
+          this.startDrag(event);
         }
       );
       this.unlistenTouchEndEvents = this.renderer.listen(

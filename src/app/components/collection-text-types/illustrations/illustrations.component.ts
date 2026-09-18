@@ -1,4 +1,4 @@
-import { Component, DestroyRef, Injector, NgZone, afterRenderEffect, computed, effect, inject, input, output, signal } from '@angular/core';
+import { Component, DestroyRef, Injector, afterRenderEffect, computed, effect, inject, input, output, signal } from '@angular/core';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { NgClass } from '@angular/common';
 import { IonButton, IonSpinner, ModalController } from '@ionic/angular';
@@ -29,7 +29,6 @@ export class IllustrationsComponent {
   private destroyRef = inject(DestroyRef);
   private injector = inject(Injector);
   private modalCtrl = inject(ModalController);
-  private ngZone = inject(NgZone);
   private parserService = inject(HtmlParserService);
   private platformService = inject(PlatformService);
   private scrollService = inject(ScrollService);
@@ -194,12 +193,9 @@ export class IllustrationsComponent {
         if ('retry' in data && data.retry) {
           if (this.mobileMode && this._scrollAttempts() < IllustrationsComponent.SCROLL_MAX_RETRIES) {
             this.clearRetryTimer();
-            // Run the timer callback outside Angular's execution context.
-            this._scrollRetryTimer = this.ngZone.runOutsideAngular(
-              () => window.setTimeout(() => {
-                this._scrollAttempts.update(n => n + 1);
-              }, IllustrationsComponent.SCROLL_RETRY_DELAY)
-            );
+            this._scrollRetryTimer = window.setTimeout(() => {
+              this._scrollAttempts.update(n => n + 1);
+            }, IllustrationsComponent.SCROLL_RETRY_DELAY);
           } else {
             this.resetScrollState();
           }
@@ -227,15 +223,13 @@ export class IllustrationsComponent {
           // Insert arrow BEFORE the actual target
           arrowParent.insertBefore(arrow, target);
 
-          this.ngZone.runOutsideAngular(() => this.scrollService.applyScroll(plan));
+          this.scrollService.applyScroll(plan);
 
           // Remove prepended arrow after a while
-          this.ngZone.runOutsideAngular(() => {
-            setTimeout(() => { try { arrow.remove(); } catch {} }, 5000);
-          });
+          setTimeout(() => { try { arrow.remove(); } catch {} }, 5000);
         } else {
           // Visible inline illustration: scroll to target itself
-          this.ngZone.runOutsideAngular(() => this.scrollService.applyScroll(plan));
+          this.scrollService.applyScroll(plan);
         }
 
         this.resetScrollState(); // success -> clear state

@@ -1,4 +1,4 @@
-import { Component, DestroyRef, ElementRef, Injector, LOCALE_ID, NgZone, Renderer2, afterNextRender, computed, inject, input, output, signal, viewChild } from '@angular/core';
+import { Component, DestroyRef, ElementRef, Injector, LOCALE_ID, Renderer2, afterNextRender, computed, inject, input, output, signal, viewChild } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { IonIcon } from '@ionic/angular';
 
@@ -26,7 +26,6 @@ export class TopMenuComponent {
   protected readonly activeLocale = inject(LOCALE_ID);
   private readonly destroyRef = inject(DestroyRef);
   private readonly injector = inject(Injector);
-  private readonly ngZone = inject(NgZone);
   private readonly renderer = inject(Renderer2);
   private readonly router = inject(Router);
   private readonly routeLocalizationService = inject(RouteLocalizationService);
@@ -107,10 +106,8 @@ export class TopMenuComponent {
               this.languageMenuOpen.set(false);
             }
           };
-          this.ngZone.runOutsideAngular(() => {
-            this.unlistenClick = this.renderer.listen('window', 'click', handler);
-            this.unlistenFocusIn = this.renderer.listen('window', 'focusin', handler);
-          });
+          this.unlistenClick = this.renderer.listen('window', 'click', handler);
+          this.unlistenFocusIn = this.renderer.listen('window', 'focusin', handler);
         }
       }
     }, { injector: this.injector });

@@ -18,6 +18,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - Make application shell, authentication UI, shared UI, content pages, index page, media collection page, search page, collection front matter, collection introduction, and collection text views zoneless-safe.
 - Enable Angular's default zoneless change detection throughout the application.
 - Remove Zone.js from the browser and server runtimes.
+- Remove redundant `NgZone.run()` and `NgZone.runOutsideAngular()` wrappers from the zoneless application.
 
 ### Fixed
 

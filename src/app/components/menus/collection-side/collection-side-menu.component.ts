@@ -1,4 +1,4 @@
-import { Component, DestroyRef, Injector, NgZone, afterRenderEffect, computed, effect, inject, input, signal, untracked } from '@angular/core';
+import { Component, DestroyRef, Injector, afterRenderEffect, computed, effect, inject, input, signal, untracked } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { NgTemplateOutlet } from '@angular/common';
 import { Params, RouterLink, UrlSegment } from '@angular/router';
@@ -38,7 +38,6 @@ export class CollectionSideMenuComponent {
   // ─────────────────────────────────────────────────────────────────────────────
   private readonly destroyRef = inject(DestroyRef);
   private readonly injector = inject(Injector);
-  private readonly ngZone = inject(NgZone);
   private readonly scrollService = inject(ScrollService);
   private readonly tocService = inject(CollectionTableOfContentsService);
   private scrollTimer?: ReturnType<typeof setTimeout>;
@@ -366,20 +365,18 @@ export class CollectionSideMenuComponent {
     }
 
     this.clearScrollTimer();
-    this.ngZone.runOutsideAngular(() => {
-      this.scrollTimer = setTimeout(() => {
-        this.scrollTimer = undefined;
-        const container = document.querySelector<HTMLElement>('.side-navigation');
-        const target = document.querySelector<HTMLElement>(
-          `collection-side-menu [data-id="toc_${itemId}"] .menu-highlight`
+    this.scrollTimer = setTimeout(() => {
+      this.scrollTimer = undefined;
+      const container = document.querySelector<HTMLElement>('.side-navigation');
+      const target = document.querySelector<HTMLElement>(
+        `collection-side-menu [data-id="toc_${itemId}"] .menu-highlight`
+      );
+      if (container && target) {
+        this.scrollService.scrollElementIntoView(
+          target, 'center', 0, 'smooth', container
         );
-        if (container && target) {
-          this.scrollService.scrollElementIntoView(
-            target, 'center', 0, 'smooth', container
-          );
-        }
-      }, timeout);
-    });
+      }
+    }, timeout);
   }
 
   private clearScrollTimer() {

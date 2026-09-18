@@ -1,5 +1,5 @@
 import { NgClass, NgStyle } from '@angular/common';
-import { Component, DestroyRef, ElementRef, LOCALE_ID, NgZone, OnDestroy, OnInit, Renderer2, inject, signal } from '@angular/core';
+import { Component, DestroyRef, ElementRef, LOCALE_ID, OnDestroy, OnInit, Renderer2, inject, signal } from '@angular/core';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
@@ -53,7 +53,6 @@ export class CollectionIntroductionPage implements OnInit, OnDestroy {
   private destroyRef = inject(DestroyRef);
   private elementRef = inject(ElementRef);
   private modalCtrl = inject(ModalController);
-  private ngZone = inject(NgZone);
   private parserService = inject(HtmlParserService);
   private platformService = inject(PlatformService);
   private popoverCtrl = inject(PopoverController);
@@ -298,62 +297,60 @@ export class CollectionIntroductionPage implements OnInit, OnDestroy {
   private scrollToPos(timeout: number = 1000) {
     if (isBrowser()) {
       const that = this;
-      this.ngZone.runOutsideAngular(() => {
-        let iterationsLeft = 10;
-        clearInterval(this.intervalTimerId);
-        this.intervalTimerId = window.setInterval(function() {
-          if (iterationsLeft < 1) {
-            clearInterval(that.intervalTimerId);
-          } else {
-            iterationsLeft -= 1;
-            if (that.pos !== undefined && that.pos !== null) {
-              // Look for position in name attributes
-              let posElem: HTMLElement | null = that.elementRef.nativeElement.querySelector(
-                '[name="' + that.pos + '"]'
-              );
-              if (posElem) {
-                const parentElem = posElem.parentElement;
-                if (parentElem) {
-                  if (
-                    parentElem.classList.contains('ttFixed') ||
-                    parentElem.parentElement?.classList?.contains('ttFixed')
-                  ) {
-                    // Anchor is in footnote --> look for next occurence
-                    // since the first footnote element is not displayed
-                    // (footnote elements are copied to a list at the
-                    // end of the introduction and that's the position
-                    // we need to find).
-                    posElem = that.elementRef.nativeElement.querySelectorAll(
-                      '[name="' + that.pos + '"]'
-                    )[1] as HTMLElement;
-                  }
-                }
-                if (posElem && !posElem.classList?.contains('anchor')) {
-                  posElem = null;
-                }
-              } else {
-                // Look for position in data-id attributes
-                posElem = that.elementRef.nativeElement.querySelector(
-                  '[data-id="' + that.pos + '"]'
-                );
-              }
-              if (posElem) {
+      let iterationsLeft = 10;
+      clearInterval(this.intervalTimerId);
+      this.intervalTimerId = window.setInterval(function() {
+        if (iterationsLeft < 1) {
+          clearInterval(that.intervalTimerId);
+        } else {
+          iterationsLeft -= 1;
+          if (that.pos !== undefined && that.pos !== null) {
+            // Look for position in name attributes
+            let posElem: HTMLElement | null = that.elementRef.nativeElement.querySelector(
+              '[name="' + that.pos + '"]'
+            );
+            if (posElem) {
+              const parentElem = posElem.parentElement;
+              if (parentElem) {
                 if (
-                  posElem.classList?.contains('anchor') ||
-                  posElem.classList?.contains('footnoteindicator')
+                  parentElem.classList.contains('ttFixed') ||
+                  parentElem.parentElement?.classList?.contains('ttFixed')
                 ) {
-                  that.scrollService.scrollToHTMLElement(posElem, 'top');
-                } else {
-                  that.scrollService.scrollElementIntoView(posElem, 'top');
+                  // Anchor is in footnote --> look for next occurence
+                  // since the first footnote element is not displayed
+                  // (footnote elements are copied to a list at the
+                  // end of the introduction and that's the position
+                  // we need to find).
+                  posElem = that.elementRef.nativeElement.querySelectorAll(
+                    '[name="' + that.pos + '"]'
+                  )[1] as HTMLElement;
                 }
-                clearInterval(that.intervalTimerId);
+              }
+              if (posElem && !posElem.classList?.contains('anchor')) {
+                posElem = null;
               }
             } else {
+              // Look for position in data-id attributes
+              posElem = that.elementRef.nativeElement.querySelector(
+                '[data-id="' + that.pos + '"]'
+              );
+            }
+            if (posElem) {
+              if (
+                posElem.classList?.contains('anchor') ||
+                posElem.classList?.contains('footnoteindicator')
+              ) {
+                that.scrollService.scrollToHTMLElement(posElem, 'top');
+              } else {
+                that.scrollService.scrollElementIntoView(posElem, 'top');
+              }
               clearInterval(that.intervalTimerId);
             }
+          } else {
+            clearInterval(that.intervalTimerId);
           }
-        }.bind(this), timeout);
-      });
+        }
+      }.bind(this), timeout);
     }
   }
 
@@ -378,146 +375,204 @@ export class CollectionIntroductionPage implements OnInit, OnDestroy {
   private setUpTextListeners() {
     const nElement: HTMLElement = this.elementRef.nativeElement;
 
-    this.ngZone.runOutsideAngular(() => {
+    /* CHECK ONCE IF THE USER IF TOUCHING THE SCREEN */
+    this.unlistenFirstTouchStartEvent = this.renderer2.listen(nElement, 'touchstart', (event) => {
+      this.userIsTouching = true;
+      // Don't listen for keyup enter, mouseover and mouseout
+      // events since they should have no effect on touch devices
+      this.unlistenKeyUpEnterEvents?.();
+      this.unlistenMouseoverEvents?.();
+      this.unlistenMouseoutEvents?.();
+      this.unlistenFirstTouchStartEvent?.();
+    });
 
-      /* CHECK ONCE IF THE USER IF TOUCHING THE SCREEN */
-      this.unlistenFirstTouchStartEvent = this.renderer2.listen(nElement, 'touchstart', (event) => {
-        this.userIsTouching = true;
-        // Don't listen for keyup enter, mouseover and mouseout
-        // events since they should have no effect on touch devices
-        this.unlistenKeyUpEnterEvents?.();
-        this.unlistenMouseoverEvents?.();
-        this.unlistenMouseoutEvents?.();
-        this.unlistenFirstTouchStartEvent?.();
-      });
+    /* KEY UP ENTER EVENTS */
+    // For keyboard navigation to work on semantic information in
+    // dynamically loaded content we need to convert keyup events
+    // on the Enter key to click events, since spans are used for
+    // them and they won't natively trigger click events on Enter
+    // key hits.
+    this.unlistenKeyUpEnterEvents = this.renderer2.listen(nElement, 'keyup.enter', (event) => {
+      const keyTarget = event.target as HTMLElement;
+      if (
+        keyTarget?.tagName !== 'A' &&
+        keyTarget?.tagName !== 'BUTTON' &&
+        keyTarget?.classList.contains('tooltiptrigger')
+      ) {
+        keyTarget.click();
+      }
+    });
 
-      /* KEY UP ENTER EVENTS */
-      // For keyboard navigation to work on semantic information in
-      // dynamically loaded content we need to convert keyup events
-      // on the Enter key to click events, since spans are used for
-      // them and they won't natively trigger click events on Enter
-      // key hits.
-      this.unlistenKeyUpEnterEvents = this.renderer2.listen(nElement, 'keyup.enter', (event) => {
-        const keyTarget = event.target as HTMLElement;
+    /* CLICK EVENTS */
+    this.unlistenClickEvents = this.renderer2.listen(nElement, 'click', (event) => {
+      if (!this.userIsTouching) {
+        this.hideToolTip();
+      }
+
+      if (event?.target?.classList.contains('close-info-overlay')) {
+        this.hideInfoOverlay();
+        return;
+      }
+
+      let eventTarget = this.getEventTarget(event);
+
+      // Modal trigger for person-, place- or workinfo and info overlay trigger for footnote.
+      if (
+        eventTarget.classList.contains('tooltiptrigger') &&
+        eventTarget.hasAttribute('data-id')
+      ) {
+        const viewOptions = this.viewOptionsService.show();
         if (
-          keyTarget?.tagName !== 'A' &&
-          keyTarget?.tagName !== 'BUTTON' &&
-          keyTarget?.classList.contains('tooltiptrigger')
+          eventTarget.classList.contains('person') &&
+          viewOptions.personInfo
         ) {
-          keyTarget.click();
-        }
-      });
-
-      /* CLICK EVENTS */
-      this.unlistenClickEvents = this.renderer2.listen(nElement, 'click', (event) => {
-        if (!this.userIsTouching) {
-          this.hideToolTip();
-        }
-
-        if (event?.target?.classList.contains('close-info-overlay')) {
-          this.hideInfoOverlay();
-          return;
-        }
-
-        let eventTarget = this.getEventTarget(event);
-
-        // Modal trigger for person-, place- or workinfo and info overlay trigger for footnote.
-        if (
-          eventTarget.classList.contains('tooltiptrigger') &&
-          eventTarget.hasAttribute('data-id')
+          this.showSemanticDataObjectModal(eventTarget.getAttribute('data-id') || '', 'subject');
+        } else if (
+          eventTarget.classList.contains('placeName') &&
+          viewOptions.placeInfo
         ) {
-          const viewOptions = this.viewOptionsService.show();
-          if (
-            eventTarget.classList.contains('person') &&
-            viewOptions.personInfo
-          ) {
-            this.showSemanticDataObjectModal(eventTarget.getAttribute('data-id') || '', 'subject');
-          } else if (
-            eventTarget.classList.contains('placeName') &&
-            viewOptions.placeInfo
-          ) {
-            this.showSemanticDataObjectModal(eventTarget.getAttribute('data-id') || '', 'location');
-          } else if (
-            eventTarget.classList.contains('title') &&
-            viewOptions.workInfo
-          ) {
-            this.showSemanticDataObjectModal(eventTarget.getAttribute('data-id') || '', 'work');
-          } else if (eventTarget.classList.contains('ttFoot')) {
-            this.showFootnoteInfoOverlay(eventTarget.getAttribute('data-id') || '', eventTarget);
-          }
+          this.showSemanticDataObjectModal(eventTarget.getAttribute('data-id') || '', 'location');
+        } else if (
+          eventTarget.classList.contains('title') &&
+          viewOptions.workInfo
+        ) {
+          this.showSemanticDataObjectModal(eventTarget.getAttribute('data-id') || '', 'work');
+        } else if (eventTarget.classList.contains('ttFoot')) {
+          this.showFootnoteInfoOverlay(eventTarget.getAttribute('data-id') || '', eventTarget);
         }
+      }
 
-        // Possibly click on link.
-        eventTarget = event.target as HTMLElement;
-        if (eventTarget !== null && !eventTarget.classList.contains('xreference')) {
-          if (eventTarget.parentElement) {
+      // Possibly click on link.
+      eventTarget = event.target as HTMLElement;
+      if (eventTarget !== null && !eventTarget.classList.contains('xreference')) {
+        if (eventTarget.parentElement) {
+          eventTarget = eventTarget.parentElement;
+          if (!eventTarget.classList.contains('xreference') && eventTarget.parentElement) {
             eventTarget = eventTarget.parentElement;
-            if (!eventTarget.classList.contains('xreference') && eventTarget.parentElement) {
-              eventTarget = eventTarget.parentElement;
-            }
           }
         }
+      }
 
-        // Links in the introduction.
-        if (eventTarget?.classList.contains('xreference')) {
-          event.preventDefault();
-          const anchorElem: HTMLAnchorElement = eventTarget as HTMLAnchorElement;
+      // Links in the introduction.
+      if (eventTarget?.classList.contains('xreference')) {
+        event.preventDefault();
+        const anchorElem: HTMLAnchorElement = eventTarget as HTMLAnchorElement;
 
-          if (anchorElem.classList.contains('ref_external')) {
-            // Link to external web page, open in new window/tab.
-            if (anchorElem.hasAttribute('href')) {
-              window.open(anchorElem.href, '_blank');
+        if (anchorElem.classList.contains('ref_external')) {
+          // Link to external web page, open in new window/tab.
+          if (anchorElem.hasAttribute('href')) {
+            window.open(anchorElem.href, '_blank');
+          }
+
+        } else if (
+          anchorElem.classList.contains('ref_readingtext') ||
+          anchorElem.classList.contains('ref_comment') ||
+          anchorElem.classList.contains('ref_introduction')
+        ) {
+          // Link to reading text, comment or introduction.
+          // Get the href parts for the targeted text.
+          const link = anchorElem.href;
+          const hrefTargetItems: Array<string> = decodeURIComponent(
+            String(link).split('/').pop() || ''
+          ).trim().split(' ');
+          let publicationId = '';
+          let textId = '';
+          let chapterId = '';
+          let positionId = '';
+
+          if (
+            anchorElem.classList.contains('ref_readingtext') ||
+            anchorElem.classList.contains('ref_comment')
+          ) {
+            // Link to reading text or comment, open in new window.
+            const newWindowRef = window.open();
+
+            publicationId = hrefTargetItems[0];
+            textId = hrefTargetItems[1];
+            this.collectionsService.getCollectionAndPublicationByLegacyId(
+              publicationId + '_' + textId
+            ).pipe(
+              takeUntilDestroyed(this.destroyRef)
+            ).subscribe({
+              next: (data: any) => {
+                if (data?.length && data[0]['coll_id'] && data[0]['pub_id']) {
+                  publicationId = data[0]['coll_id'];
+                  textId = data[0]['pub_id'];
+                }
+
+                if (hrefTargetItems.length > 2 && !hrefTargetItems[2].startsWith('#')) {
+                  chapterId = hrefTargetItems[2];
+                }
+
+                let hrefString = '/collection/' + publicationId + '/text/' + textId;
+                if (chapterId) {
+                  hrefString += '/' + chapterId;
+                  if (hrefTargetItems.length > 3 && hrefTargetItems[3].startsWith('#')) {
+                    positionId = hrefTargetItems[3].replace('#', '');
+                    hrefString += '?position=' + positionId;
+                  }
+                } else if (hrefTargetItems.length > 2 && hrefTargetItems[2].startsWith('#')) {
+                  positionId = hrefTargetItems[2].replace('#', '');
+                  hrefString += '?position=' + positionId;
+                }
+                if (newWindowRef) {
+                  newWindowRef.location.href = '/' + this.activeLocale + hrefString;
+                }
+              }
+            });
+
+          } else if (anchorElem.classList.contains('ref_introduction')) {
+            // Link to introduction.
+            if (hrefTargetItems.length === 1 && hrefTargetItems[0].startsWith('#')) {
+              // If only a position starting with a hash, assume it's in the same publication.
+              publicationId = this.collectionID;
+              positionId = hrefTargetItems[0];
+            } else {
+              publicationId = hrefTargetItems[0];
+            }
+            if (
+              hrefTargetItems.length > 1 &&
+              hrefTargetItems[hrefTargetItems.length - 1].startsWith('#')
+            ) {
+              positionId = hrefTargetItems[hrefTargetItems.length - 1];
             }
 
-          } else if (
-            anchorElem.classList.contains('ref_readingtext') ||
-            anchorElem.classList.contains('ref_comment') ||
-            anchorElem.classList.contains('ref_introduction')
-          ) {
-            // Link to reading text, comment or introduction.
-            // Get the href parts for the targeted text.
-            const link = anchorElem.href;
-            const hrefTargetItems: Array<string> = decodeURIComponent(
-              String(link).split('/').pop() || ''
-            ).trim().split(' ');
-            let publicationId = '';
-            let textId = '';
-            let chapterId = '';
-            let positionId = '';
-
+            // Check if we are already on the same page.
             if (
-              anchorElem.classList.contains('ref_readingtext') ||
-              anchorElem.classList.contains('ref_comment')
+              (
+                String(publicationId) === String(this.collectionID) ||
+                String(publicationId) === String(this.collectionLegacyId)
+              ) && positionId !== undefined 
             ) {
-              // Link to reading text or comment, open in new window.
+              // Same introduction.
+              positionId = positionId.replace('#', '');
+              if (positionId !== this.pos) {
+                this.router.navigate(
+                  [],
+                  {
+                    relativeTo: this.route,
+                    queryParams: { position: positionId },
+                    queryParamsHandling: 'merge'
+                  }
+                );
+              } else {
+                this.scrollToPos(100);
+              }
+            } else {
+              // Different introduction, open in new window.
               const newWindowRef = window.open();
-
-              publicationId = hrefTargetItems[0];
-              textId = hrefTargetItems[1];
               this.collectionsService.getCollectionAndPublicationByLegacyId(
-                publicationId + '_' + textId
+                publicationId
               ).pipe(
                 takeUntilDestroyed(this.destroyRef)
               ).subscribe({
                 next: (data: any) => {
-                  if (data?.length && data[0]['coll_id'] && data[0]['pub_id']) {
+                  if (data?.length && data[0]['coll_id']) {
                     publicationId = data[0]['coll_id'];
-                    textId = data[0]['pub_id'];
                   }
-
-                  if (hrefTargetItems.length > 2 && !hrefTargetItems[2].startsWith('#')) {
-                    chapterId = hrefTargetItems[2];
-                  }
-
-                  let hrefString = '/collection/' + publicationId + '/text/' + textId;
-                  if (chapterId) {
-                    hrefString += '/' + chapterId;
-                    if (hrefTargetItems.length > 3 && hrefTargetItems[3].startsWith('#')) {
-                      positionId = hrefTargetItems[3].replace('#', '');
-                      hrefString += '?position=' + positionId;
-                    }
-                  } else if (hrefTargetItems.length > 2 && hrefTargetItems[2].startsWith('#')) {
-                    positionId = hrefTargetItems[2].replace('#', '');
+                  let hrefString = '/collection/' + publicationId + '/introduction';
+                  if (hrefTargetItems.length > 1 && hrefTargetItems[1].startsWith('#')) {
+                    positionId = hrefTargetItems[1].replace('#', '');
                     hrefString += '?position=' + positionId;
                   }
                   if (newWindowRef) {
@@ -525,148 +580,86 @@ export class CollectionIntroductionPage implements OnInit, OnDestroy {
                   }
                 }
               });
-
-            } else if (anchorElem.classList.contains('ref_introduction')) {
-              // Link to introduction.
-              if (hrefTargetItems.length === 1 && hrefTargetItems[0].startsWith('#')) {
-                // If only a position starting with a hash, assume it's in the same publication.
-                publicationId = this.collectionID;
-                positionId = hrefTargetItems[0];
-              } else {
-                publicationId = hrefTargetItems[0];
-              }
-              if (
-                hrefTargetItems.length > 1 &&
-                hrefTargetItems[hrefTargetItems.length - 1].startsWith('#')
-              ) {
-                positionId = hrefTargetItems[hrefTargetItems.length - 1];
-              }
-
-              // Check if we are already on the same page.
-              if (
-                (
-                  String(publicationId) === String(this.collectionID) ||
-                  String(publicationId) === String(this.collectionLegacyId)
-                ) && positionId !== undefined 
-              ) {
-                // Same introduction.
-                positionId = positionId.replace('#', '');
-                if (positionId !== this.pos) {
-                  this.router.navigate(
-                    [],
-                    {
-                      relativeTo: this.route,
-                      queryParams: { position: positionId },
-                      queryParamsHandling: 'merge'
-                    }
-                  );
-                } else {
-                  this.scrollToPos(100);
+            }
+          }
+        } else if (anchorElem.classList.contains('ref_illustration')) {
+          const imageNumber = anchorElem.hash.split('#')[1];
+          this.showIllustrationModal(imageNumber);
+        } else {
+          // Link in the introduction's TOC or link to (foot)note reference
+          let targetId = '' as any;
+          if (anchorElem.hasAttribute('href')) {
+            targetId = anchorElem.getAttribute('href');
+          } else if (anchorElem.parentElement?.hasAttribute('href')) {
+            targetId = anchorElem.parentElement.getAttribute('href');
+          }
+          targetId = String(targetId).replace('#', '');
+          const dataIdSelector = '[data-id="' + targetId + '"]';
+          const target = nElement.querySelector(dataIdSelector) as HTMLElement;
+          if (target !== null) {
+            if (targetId !== this.pos) {
+              this.router.navigate(
+                [],
+                {
+                  relativeTo: this.route,
+                  queryParams: { position: targetId },
+                  queryParamsHandling: 'merge'
                 }
-              } else {
-                // Different introduction, open in new window.
-                const newWindowRef = window.open();
-                this.collectionsService.getCollectionAndPublicationByLegacyId(
-                  publicationId
-                ).pipe(
-                  takeUntilDestroyed(this.destroyRef)
-                ).subscribe({
-                  next: (data: any) => {
-                    if (data?.length && data[0]['coll_id']) {
-                      publicationId = data[0]['coll_id'];
-                    }
-                    let hrefString = '/collection/' + publicationId + '/introduction';
-                    if (hrefTargetItems.length > 1 && hrefTargetItems[1].startsWith('#')) {
-                      positionId = hrefTargetItems[1].replace('#', '');
-                      hrefString += '?position=' + positionId;
-                    }
-                    if (newWindowRef) {
-                      newWindowRef.location.href = '/' + this.activeLocale + hrefString;
-                    }
-                  }
-                });
-              }
-            }
-          } else if (anchorElem.classList.contains('ref_illustration')) {
-            const imageNumber = anchorElem.hash.split('#')[1];
-            this.showIllustrationModal(imageNumber);
-          } else {
-            // Link in the introduction's TOC or link to (foot)note reference
-            let targetId = '' as any;
-            if (anchorElem.hasAttribute('href')) {
-              targetId = anchorElem.getAttribute('href');
-            } else if (anchorElem.parentElement?.hasAttribute('href')) {
-              targetId = anchorElem.parentElement.getAttribute('href');
-            }
-            targetId = String(targetId).replace('#', '');
-            const dataIdSelector = '[data-id="' + targetId + '"]';
-            const target = nElement.querySelector(dataIdSelector) as HTMLElement;
-            if (target !== null) {
-              if (targetId !== this.pos) {
-                this.router.navigate(
-                  [],
-                  {
-                    relativeTo: this.route,
-                    queryParams: { position: targetId },
-                    queryParamsHandling: 'merge'
-                  }
-                );
-              } else {
-                this.scrollToPos(100);
-              }
+              );
+            } else {
+              this.scrollToPos(100);
             }
           }
         }
-      });
+      }
+    });
 
-      /* MOUSE OVER EVENTS */
-      this.unlistenMouseoverEvents = this.renderer2.listen(nElement, 'mouseover', (event) => {
-        if (!this.userIsTouching) {
-          // Mouseover effects only if using a cursor, not if the user is touching the screen
-          const eventTarget = this.getEventTarget(event) as any;
+    /* MOUSE OVER EVENTS */
+    this.unlistenMouseoverEvents = this.renderer2.listen(nElement, 'mouseover', (event) => {
+      if (!this.userIsTouching) {
+        // Mouseover effects only if using a cursor, not if the user is touching the screen
+        const eventTarget = this.getEventTarget(event) as any;
 
+        if (
+          eventTarget.classList.contains('tooltiptrigger') &&
+          eventTarget.hasAttribute('data-id')
+        ) {
+          const show = this.viewOptionsService.show();
           if (
-            eventTarget.classList.contains('tooltiptrigger') &&
-            eventTarget.hasAttribute('data-id')
+            eventTarget.classList.contains('person') &&
+            show.personInfo
           ) {
-            const show = this.viewOptionsService.show();
-            if (
-              eventTarget.classList.contains('person') &&
-              show.personInfo
-            ) {
-              this.showSemanticDataObjectTooltip(
-                eventTarget.getAttribute('data-id'), 'person', eventTarget
-              );
-            } else if (
-              eventTarget.classList.contains('placeName') &&
-              show.placeInfo
-            ) {
-              this.showSemanticDataObjectTooltip(
-                eventTarget.getAttribute('data-id'), 'place', eventTarget
-              );
-            } else if (
-              eventTarget.classList.contains('title') &&
-              show.workInfo
-            ) {
-              this.showSemanticDataObjectTooltip(
-                eventTarget.getAttribute('data-id'), 'work', eventTarget
-              );
-            } else if (eventTarget.classList.contains('ttFoot')) {
-              this.showFootnoteTooltip(
-                eventTarget.getAttribute('data-id'), eventTarget
-              );
-            }
+            this.showSemanticDataObjectTooltip(
+              eventTarget.getAttribute('data-id'), 'person', eventTarget
+            );
+          } else if (
+            eventTarget.classList.contains('placeName') &&
+            show.placeInfo
+          ) {
+            this.showSemanticDataObjectTooltip(
+              eventTarget.getAttribute('data-id'), 'place', eventTarget
+            );
+          } else if (
+            eventTarget.classList.contains('title') &&
+            show.workInfo
+          ) {
+            this.showSemanticDataObjectTooltip(
+              eventTarget.getAttribute('data-id'), 'work', eventTarget
+            );
+          } else if (eventTarget.classList.contains('ttFoot')) {
+            this.showFootnoteTooltip(
+              eventTarget.getAttribute('data-id'), eventTarget
+            );
           }
         }
-      });
+      }
+    });
 
-      /* MOUSE OUT EVENTS */
-      this.unlistenMouseoutEvents = this.renderer2.listen(nElement, 'mouseout', () => {
-        if (!this.userIsTouching && this.tooltipVisible) {
-          this.hideToolTip();
-        }
-      });
-
+    /* MOUSE OUT EVENTS */
+    this.unlistenMouseoutEvents = this.renderer2.listen(nElement, 'mouseout', () => {
+      if (!this.userIsTouching && this.tooltipVisible) {
+        this.hideToolTip();
+      }
     });
   }
 
@@ -724,8 +717,10 @@ export class CollectionIntroductionPage implements OnInit, OnDestroy {
     }
   }
 
-  /** Set position and width of infoOverlay element. This function is not exactly
-   *  the same as in read.ts due to different page structure in introductions.
+  /**
+   * Set position and width of infoOverlay element. This function is not exactly
+   * the same as in collection-text.page.ts due to different page structure in
+   * introductions.
    */
   private setInfoOverlayPositionAndWidth(triggerElement: HTMLElement, defaultMargins = 10, maxWidth = 600) {
     // Store triggering element so focus can later be restored to it
@@ -866,13 +861,11 @@ export class CollectionIntroductionPage implements OnInit, OnDestroy {
     // Return focus to element that triggered the info overlay
     // timeout so the info overlay isn't triggered again on
     // keyup.enter event
-    this.ngZone.runOutsideAngular(() => {
-      this.restoreInfoOverlayFocusTimer = setTimeout(() => {
-        this.infoOverlayTriggerElem()?.focus({ preventScroll: true });
-        this.infoOverlayTriggerElem.set(null);
-        this.restoreInfoOverlayFocusTimer = undefined;
-      }, 250);
-    });
+    this.restoreInfoOverlayFocusTimer = setTimeout(() => {
+      this.infoOverlayTriggerElem()?.focus({ preventScroll: true });
+      this.infoOverlayTriggerElem.set(null);
+      this.restoreInfoOverlayFocusTimer = undefined;
+    }, 250);
   }
 
   async showSemanticDataObjectModal(id: string, type: string) {

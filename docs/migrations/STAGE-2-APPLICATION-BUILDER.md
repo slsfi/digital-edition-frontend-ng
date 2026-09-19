@@ -1868,7 +1868,139 @@ Update only if developer setup/build/test commands or output assumptions changed
 
 ### CHANGELOG.md
 
-Document Stage 2 as a breaking build/deployment/tooling change, including the Vitest migration.
+Treat the changelog as a **fork migration guide**, not merely a release summary.
+
+Stage 2 must add an explicit `### BREAKING CHANGES` section under the relevant release/`Unreleased` entry. The breaking-change notes should be concrete enough that a fork maintainer can resolve upstream conflicts without having to reconstruct the migration from commit history.
+
+At minimum document the following.
+
+#### Build configuration
+
+Explain that `angular.json` changes structurally:
+
+- the legacy split `browser` + `server` builders are replaced by the integrated `application` builder,
+- the separate `server`, `serve-ssr`, and `prerender` targets are removed,
+- the normal dev-server target changes to the modern `@angular/build` tooling,
+- the test target changes to `@angular/build:unit-test`,
+- i18n extraction moves to the `@angular/build` extraction path,
+- obsolete Webpack-builder options disappear,
+- production critical CSS inlining intentionally remains disabled.
+
+State explicitly that forks with customized `angular.json` files should expect merge conflicts.
+
+For locale conflicts, tell maintainers to preserve:
+
+- the fork's own translated locale set,
+- locale translation-file paths,
+- locale-specific subpaths/base hrefs,
+- locale-specific build configurations,
+- the fork's `config.app.i18n.languages`,
+- the fork's `config.app.i18n.defaultLanguage`,
+- `sourceLocale: "aa"` unless the fork intentionally uses a different source-locale architecture.
+
+Make clear that the base app's `sv`/`fi` list must **not** overwrite a fork's locale set.
+
+#### SSR/server runtime
+
+Document that:
+
+- source `server.ts` moves to `src/server.ts`,
+- `CommonEngine` is replaced by `AngularNodeAppEngine`,
+- the emitted production server entry/output changes to the application-builder layout,
+- `proxy-server.js` is removed,
+- localized application dispatch is handled by the Angular Node app engine rather than a hardcoded locale array,
+- request-specific Angular context moves away from the repository-owned Express request provider,
+- auth-protected CSR handling moves from custom Express index-shell middleware to generated `RenderMode.Client` server routes,
+- public routes continue to use runtime SSR,
+- existing performance-oriented Express static/404/cache/rate-limit middleware remains intentionally in front of Angular rendering.
+
+Call out that forks which modified `server.ts` or `proxy-server.js` must manually reapply those customizations to the new `src/server.ts` architecture rather than choosing one side of the conflict wholesale.
+
+#### Build and runtime scripts/output
+
+List every user-visible command or path change, including the final values after implementation:
+
+- what `npm run build:ssr` now does,
+- what `npm run serve:ssr` executes,
+- the final browser output path,
+- the final server output path/entry,
+- whether `postbuild-copy-files.js` was removed,
+- Docker start-command changes,
+- nginx/static-volume changes if any.
+
+Do not describe expected paths from the plan if the actual application-builder output differs; write the changelog from the verified final implementation.
+
+#### TypeScript/configuration files
+
+Document removed or materially changed files, for example:
+
+- `tsconfig.server.json` if removed after merging server settings,
+- `tsconfig.app.json` server-source changes,
+- `tsconfig.spec.json` changing from Jasmine to Vitest globals,
+- generated server-route artifacts,
+- removal of the old generated auth-protected-path artifact if it is no longer used.
+
+This is particularly useful for forks that carry local edits in these files.
+
+#### Unit testing
+
+Document the Jasmine/Karma -> Vitest migration explicitly:
+
+- `@angular/build:unit-test` is now the Angular test target,
+- Vitest + `jsdom` replace Jasmine/Karma/headless Chrome,
+- `karma.conf.js` is removed,
+- the manual Angular TestBed bootstrap in `src/test.ts` is removed,
+- `npm test` and `npm run test:ci` keep their intended developer/CI roles,
+- Jasmine/Karma dependencies and APIs are removed,
+- forks with custom `*.spec.ts` files must convert Jasmine spies, matchers, clocks, and other Jasmine-specific APIs to Vitest equivalents.
+
+Also state that `src/ionicons-polyfill.ts` is intentionally retained and must still be loaded for tests, either through inherited application polyfills or the final documented Vitest setup.
+
+#### Dependencies
+
+List important direct dependency/tooling changes relevant to fork merges, especially:
+
+- addition of Vitest/`jsdom`,
+- removal of Jasmine/Karma packages,
+- removal of `@angular-devkit/build-angular` if the final implementation no longer needs it,
+- continued use of `@angular/build`.
+
+Do not turn the changelog into a full lockfile diff; mention only dependencies fork maintainers may need to reconcile manually.
+
+#### Optional file-layout changes
+
+If the optional `public/` migration was performed, give it its own breaking-change item and explicitly list:
+
+- which paths moved,
+- which source/build inputs deliberately stayed under `src/assets`,
+- confirmation that public request URLs did not change,
+- likely conflict areas for forks with custom images, fonts, ebooks, files, sitemap/static HTML, or asset declarations.
+
+If the `public/` migration was deferred, say nothing about it as a completed breaking change.
+
+#### Fork migration checklist
+
+End the breaking-change section with a concise checklist specifically for downstream forks. It should instruct maintainers to:
+
+1. merge/rebase the Stage 2 changes rather than replacing the fork's `angular.json`,
+2. resolve `angular.json` by combining the new builder/test structure with the fork's own locale configuration,
+3. reapply any fork-specific `server.ts`/Express middleware changes to `src/server.ts`,
+4. verify the fork's `config.app.i18n.languages` and `defaultLanguage`,
+5. convert any fork-only Jasmine tests to Vitest,
+6. check any fork-specific Docker/nginx/runtime-script changes,
+7. regenerate route/server-route artifacts,
+8. run the fork's unit, SSR, locale, auth, Docker/nginx, and manual browser verification.
+
+Where a breaking change has a straightforward old -> new mapping, show it directly in the changelog. For example:
+
+~~~text
+server.ts                         -> src/server.ts
+CommonEngine                      -> AngularNodeAppEngine
+Karma/Jasmine                     -> Vitest + jsdom
+@angular-devkit/build-angular:*   -> @angular/build:* where applicable
+~~~
+
+Keep the changelog concise enough to scan, but err on the side of explicitness for fork-impacting changes. The detailed implementation rationale remains in this Stage 2 plan and `docs/DEVELOPMENT.md`; the changelog should focus on **what changed, what can conflict, and what a fork maintainer must do**.
 
 Commit:
 

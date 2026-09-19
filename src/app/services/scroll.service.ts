@@ -236,22 +236,15 @@ export class ScrollService {
    * Searches for the first <mark> element that isn't in a footnote tooltip within
    * the given containerElement and scrolls it into view.
    * @param containerElement the context element to look for <mark> within
-   * @param intervalTimerId reference to a variable where the return value of
-   * window.setInterval can be stored
+   * @returns the retry interval handle, or undefined outside the browser
    */
-  scrollToFirstSearchMatch(containerElement: HTMLElement, intervalTimerId: number) {
+  scrollToFirstSearchMatch(containerElement: HTMLElement): number | undefined {
     if (!isBrowser()) {
-      return;
+      return undefined;
     }
 
     let iterationsLeft = 10;
-    // TODO: A number is passed by value, so assigning the new interval ID below
-    // does not update the caller and a repeated call cannot cancel its previous
-    // interval. Refactor this method to own or return the timer handle.
-    clearInterval(intervalTimerId);
-    const that = this;
-
-    intervalTimerId = window.setInterval(function() {
+    const intervalTimerId = window.setInterval(() => {
       if (iterationsLeft < 1) {
         clearInterval(intervalTimerId);
       } else {
@@ -276,11 +269,13 @@ export class ScrollService {
         }
 
         if (target) {
-          that.scrollToHTMLElement(target);
+          this.scrollToHTMLElement(target);
           clearInterval(intervalTimerId);
         }
       }
-    }.bind(this), 1000);
+    }, 1000);
+
+    return intervalTimerId;
   }
 
   /**

@@ -100,7 +100,7 @@ export class CollectionIntroductionPage implements OnInit, OnDestroy {
   private readonly active$ = toObservable(this.activeComponent);
   private collectionID: string = '';
   private collectionLegacyId: string = '';
-  private intervalTimerId: number = 0;
+  private intervalTimerId?: number;
   private legacyIdSubscription?: Subscription;
   private pos: string | null = null;
   private restoreInfoOverlayFocusTimer?: ReturnType<typeof setTimeout>;
@@ -190,7 +190,7 @@ export class CollectionIntroductionPage implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    clearInterval(this.intervalTimerId);
+    this.clearScrollInterval();
     if (this.restoreInfoOverlayFocusTimer !== undefined) {
       clearTimeout(this.restoreInfoOverlayFocusTimer);
     }
@@ -208,6 +208,14 @@ export class CollectionIntroductionPage implements OnInit, OnDestroy {
 
   ionViewWillLeave() {
     this.activeComponent.set(false);
+    this.clearScrollInterval();
+  }
+
+  private clearScrollInterval() {
+    if (this.intervalTimerId !== undefined) {
+      clearInterval(this.intervalTimerId);
+      this.intervalTimerId = undefined;
+    }
   }
 
   /** Reset collection-specific state before loading a reused page. */
@@ -286,7 +294,10 @@ export class CollectionIntroductionPage implements OnInit, OnDestroy {
     if (this.pos) {
       this.scrollToPos();
     } else if (this.searchMatches.length) {
-      this.scrollService.scrollToFirstSearchMatch(this.elementRef.nativeElement, this.intervalTimerId);
+      this.clearScrollInterval();
+      this.intervalTimerId = this.scrollService.scrollToFirstSearchMatch(
+        this.elementRef.nativeElement
+      );
     }
   }
 
@@ -298,10 +309,10 @@ export class CollectionIntroductionPage implements OnInit, OnDestroy {
     if (isBrowser()) {
       const that = this;
       let iterationsLeft = 10;
-      clearInterval(this.intervalTimerId);
+      this.clearScrollInterval();
       this.intervalTimerId = window.setInterval(function() {
         if (iterationsLeft < 1) {
-          clearInterval(that.intervalTimerId);
+          that.clearScrollInterval();
         } else {
           iterationsLeft -= 1;
           if (that.pos !== undefined && that.pos !== null) {
@@ -344,10 +355,10 @@ export class CollectionIntroductionPage implements OnInit, OnDestroy {
               } else {
                 that.scrollService.scrollElementIntoView(posElem, 'top');
               }
-              clearInterval(that.intervalTimerId);
+              that.clearScrollInterval();
             }
           } else {
-            clearInterval(that.intervalTimerId);
+            that.clearScrollInterval();
           }
         }
       }.bind(this), timeout);

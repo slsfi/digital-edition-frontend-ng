@@ -1,5 +1,5 @@
 import { AsyncPipe } from '@angular/common';
-import { Component, ElementRef, LOCALE_ID, OnInit, inject, signal } from '@angular/core';
+import { Component, ElementRef, LOCALE_ID, OnDestroy, OnInit, inject, signal } from '@angular/core';
 import { toObservable } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
 import {
@@ -42,7 +42,7 @@ import { ViewOptionsService } from '@services/view-options.service';
     TrustHtmlPipe
   ]
 })
-export class CollectionForewordPage implements OnInit {
+export class CollectionForewordPage implements OnInit, OnDestroy {
   private collectionContentService = inject(CollectionContentService);
   private elementRef = inject(ElementRef);
   private modalController = inject(ModalController);
@@ -62,6 +62,7 @@ export class CollectionForewordPage implements OnInit {
   readonly mobileMode = this.platformService.isMobile();
   text$: Observable<string>;
   private readonly active$ = toObservable(this.activeComponent);
+  private intervalTimerId?: number;
 
   ngOnInit() {
     this.text$ = combineLatest(
@@ -76,9 +77,10 @@ export class CollectionForewordPage implements OnInit {
       })),
       tap(({searchMatches}) => {
         if (searchMatches.length) {
-          // TODO: Store and clean up the retry interval once scrollToFirstSearchMatch
-          // owns or returns its timer handle instead of receiving a number by value.
-          this.scrollService.scrollToFirstSearchMatch(this.elementRef.nativeElement, 0);
+          this.clearSearchMatchInterval();
+          this.intervalTimerId = this.scrollService.scrollToFirstSearchMatch(
+            this.elementRef.nativeElement
+          );
         }
       }),
       switchMap(({collectionID, searchMatches}) => {
@@ -93,6 +95,18 @@ export class CollectionForewordPage implements OnInit {
 
   ionViewWillLeave() {
     this.activeComponent.set(false);
+    this.clearSearchMatchInterval();
+  }
+
+  ngOnDestroy() {
+    this.clearSearchMatchInterval();
+  }
+
+  private clearSearchMatchInterval() {
+    if (this.intervalTimerId !== undefined) {
+      clearInterval(this.intervalTimerId);
+      this.intervalTimerId = undefined;
+    }
   }
 
   private loadForeword(id: string, lang: string, searchMatches: string[]): Observable<string> {

@@ -1,4 +1,4 @@
-import { Component, DestroyRef, ElementRef, Injector, Renderer2, afterRenderEffect, computed, inject, input, output, signal, untracked } from '@angular/core';
+import { Component, DestroyRef, ElementRef, Injector, OnDestroy, Renderer2, afterRenderEffect, computed, inject, input, output, signal, untracked } from '@angular/core';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { IonSpinner, ModalController } from '@ionic/angular';
 import { catchError, map, of, switchMap, tap } from 'rxjs';
@@ -24,7 +24,7 @@ import { concatenateNames, isFileNotFoundHtml } from '@utility-functions';
   styleUrls: ['./comments.component.scss'],
   imports: [IonSpinner, TrustHtmlPipe]
 })
-export class CommentsComponent {
+export class CommentsComponent implements OnDestroy {
   // ─────────────────────────────────────────────────────────────────────────────
   // Dependency injection, Input/Output signals, Fields, Local state signals
   // ─────────────────────────────────────────────────────────────────────────────
@@ -44,7 +44,7 @@ export class CommentsComponent {
   readonly openNewReadingTextView = output<string>();
   readonly setMobileModeActiveText = output<string>();
 
-  intervalTimerId: number = 0;
+  private intervalTimerId?: number;
   private mobileMode = this.platformService.isMobile();
   private unlistenClickEvents?: () => void;
   private _lastScrollKey: string | null = null;
@@ -80,14 +80,26 @@ export class CommentsComponent {
 
 
   // ─────────────────────────────────────────────────────────────────────────────
-  // Constructor: wire data loads, after-render scroll, and cleanup
+  // Constructor: wire data loads and after-render scroll
   // ─────────────────────────────────────────────────────────────────────────────
 
   constructor() {
     this.loadComments();
     this.loadCorrespondenceMetadata();
     this.registerAfterRenderEffects();
-    this.registerCleanup();
+  }
+
+  ngOnDestroy() {
+    this.unlistenClickEvents?.();
+    this.unlistenClickEvents = undefined;
+    this.clearSearchMatchInterval();
+  }
+
+  private clearSearchMatchInterval() {
+    if (this.intervalTimerId !== undefined) {
+      clearInterval(this.intervalTimerId);
+      this.intervalTimerId = undefined;
+    }
   }
 
   private loadComments() {
@@ -161,15 +173,6 @@ export class CommentsComponent {
     });
   }
 
-  private registerCleanup() {
-    // Clean up attached listeners and interval timer on destroy
-    this.destroyRef.onDestroy(() => {
-      this.unlistenClickEvents?.();
-      this.unlistenClickEvents = undefined;
-      clearInterval(this.intervalTimerId);
-    });
-  }
-
   private registerAfterRenderEffects() {
     // After-render: attach listeners (once) and perform first-search-match scroll
     afterRenderEffect({
@@ -192,9 +195,9 @@ export class CommentsComponent {
         if (this._lastScrollKey !== key) {
           this._lastScrollKey = key;
 
-          this.scrollService.scrollToFirstSearchMatch(
-            this.elementRef.nativeElement,
-            this.intervalTimerId
+          this.clearSearchMatchInterval();
+          this.intervalTimerId = this.scrollService.scrollToFirstSearchMatch(
+            this.elementRef.nativeElement
           );
         }
       }

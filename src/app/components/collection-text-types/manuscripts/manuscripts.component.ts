@@ -1,4 +1,4 @@
-import { Component, DestroyRef, ElementRef, Injector, afterRenderEffect, computed, effect, inject, input, output, signal, untracked } from '@angular/core';
+import { Component, DestroyRef, ElementRef, Injector, OnDestroy, afterRenderEffect, computed, effect, inject, input, output, signal, untracked } from '@angular/core';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { AlertButton, AlertController, AlertInput, IonButton, IonIcon, IonSpinner, IonToggle } from '@ionic/angular';
 import { catchError, of, switchMap, tap } from 'rxjs';
@@ -22,7 +22,7 @@ import { ViewOptionsService } from '@services/view-options.service';
   styleUrls: ['./manuscripts.component.scss'],
   imports: [IonButton, IonIcon, IonSpinner, IonToggle, TrustHtmlPipe]
 })
-export class ManuscriptsComponent {
+export class ManuscriptsComponent implements OnDestroy {
   // ─────────────────────────────────────────────────────────────────────────────
   // Dependency injection, Input/Output signals, Fields, Local state signals
   // ─────────────────────────────────────────────────────────────────────────────
@@ -46,7 +46,7 @@ export class ManuscriptsComponent {
   readonly showOpenLegendButton: boolean = config.component?.manuscripts?.showOpenLegendButton ?? false;
   readonly showTitle: boolean = config.component?.manuscripts?.showTitle ?? true;
 
-  intervalTimerId: number = 0;
+  private intervalTimerId?: number;
   private _lastScrollKey: string | null = null;
 
   manuscripts = signal<Manuscript[] | null>(null);
@@ -109,6 +109,17 @@ export class ManuscriptsComponent {
     this.loadManuscripts();
     this.registerOutputEmissions();
     this.registerAfterRenderEffects();
+  }
+
+  ngOnDestroy() {
+    this.clearSearchMatchInterval();
+  }
+
+  private clearSearchMatchInterval() {
+    if (this.intervalTimerId !== undefined) {
+      clearInterval(this.intervalTimerId);
+      this.intervalTimerId = undefined;
+    }
   }
 
   private loadManuscripts() {
@@ -175,9 +186,9 @@ export class ManuscriptsComponent {
         if (this._lastScrollKey !== key) {
           this._lastScrollKey = key;
 
-          this.scrollService.scrollToFirstSearchMatch(
-            this.elementRef.nativeElement,
-            this.intervalTimerId
+          this.clearSearchMatchInterval();
+          this.intervalTimerId = this.scrollService.scrollToFirstSearchMatch(
+            this.elementRef.nativeElement
           );
         }
       }

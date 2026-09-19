@@ -178,6 +178,24 @@ describe('CollectionIntroductionPage', () => {
     expect(scrollToPos).toHaveBeenCalledOnceWith(100);
   });
 
+  it('clears the search-match retry interval when the Ionic page leaves', async () => {
+    queryParams$.next({ q: 'match' });
+    scrollService.scrollToFirstSearchMatch.and.returnValue(101);
+    const clearIntervalSpy = spyOn(window, 'clearInterval').and.callThrough();
+    const fixture = TestBed.createComponent(CollectionIntroductionPage);
+    fixture.detectChanges();
+
+    firstIntroduction$.next({ content: '<p>Introduction</p>' });
+    await fixture.whenStable();
+
+    expect((fixture.componentInstance as any).intervalTimerId).toBe(101);
+
+    fixture.componentInstance.ionViewWillLeave();
+
+    expect(clearIntervalSpy).toHaveBeenCalledWith(101);
+    expect((fixture.componentInstance as any).intervalTimerId).toBeUndefined();
+  });
+
   it('renders an asynchronously loaded tooltip without a manual change-detection pass', async () => {
     const fixture = TestBed.createComponent(CollectionIntroductionPage);
     fixture.detectChanges();

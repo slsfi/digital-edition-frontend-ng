@@ -111,6 +111,7 @@ describe('Collection front-matter pages', () => {
         'ScrollService',
         ['scrollToFirstSearchMatch']
       );
+      scrollService.scrollToFirstSearchMatch.and.returnValues(101, 102);
 
       await TestBed.configureTestingModule({
         imports: [CollectionTitlePage],
@@ -139,6 +140,7 @@ describe('Collection front-matter pages', () => {
     });
 
     it('renders searched content and replacement collection content after route reuse', async () => {
+      const clearIntervalSpy = spyOn(window, 'clearInterval').and.callThrough();
       const fixture = TestBed.createComponent(CollectionTitlePage);
       fixture.detectChanges();
 
@@ -148,6 +150,7 @@ describe('Collection front-matter pages', () => {
         '<p>First title</p>|match'
       );
       expect(scrollService.scrollToFirstSearchMatch).toHaveBeenCalled();
+      expect((fixture.componentInstance as any).intervalTimerId).toBe(101);
 
       params$.next({ collectionID: '204' });
       secondTitle$.next({ content: '<p>Second title</p>' });
@@ -155,10 +158,14 @@ describe('Collection front-matter pages', () => {
       expect(fixture.nativeElement.querySelector('.text').textContent).toContain(
         '<p>Second title</p>|match'
       );
+      expect(clearIntervalSpy).toHaveBeenCalledWith(101);
+      expect((fixture.componentInstance as any).intervalTimerId).toBe(102);
 
       fixture.componentInstance.ionViewWillLeave();
       await fixture.whenStable();
       expect(fixture.nativeElement.querySelector('.active').textContent).toContain('false');
+      expect(clearIntervalSpy).toHaveBeenCalledWith(102);
+      expect((fixture.componentInstance as any).intervalTimerId).toBeUndefined();
     });
   });
 

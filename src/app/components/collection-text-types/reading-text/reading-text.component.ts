@@ -1,4 +1,4 @@
-import { Component, DestroyRef, ElementRef, Injector, Renderer2, afterRenderEffect, computed, inject, input, output, signal, untracked } from '@angular/core';
+import { Component, DestroyRef, ElementRef, Injector, OnDestroy, Renderer2, afterRenderEffect, computed, inject, input, output, signal, untracked } from '@angular/core';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { IonSpinner, ModalController } from '@ionic/angular';
 import { catchError, combineLatest, map, of, switchMap, tap } from 'rxjs';
@@ -25,7 +25,7 @@ import { enableFrontMatterPageOrTextViewType, isFileNotFoundHtml } from '@utilit
   styleUrls: ['./reading-text.component.scss'],
   imports: [IonSpinner, MathJaxDirective, TrustHtmlPipe]
 })
-export class ReadingTextComponent {
+export class ReadingTextComponent implements OnDestroy {
   // ─────────────────────────────────────────────────────────────────────────────
   // Dependency injection, Input/Output signals, Fields, Local state signals
   // ─────────────────────────────────────────────────────────────────────────────
@@ -46,7 +46,7 @@ export class ReadingTextComponent {
   readonly openNewIllustrView = output<any>();
   readonly selectedIllustration = output<any>();
 
-  intervalTimerId: number = 0;
+  private intervalTimerId?: number;
   private unlistenClickEvents?: () => void;
   private _lastScrollKey: string | null = null;
   private _lastTextPosition: string | null = null;
@@ -94,12 +94,24 @@ export class ReadingTextComponent {
 
   
   // ─────────────────────────────────────────────────────────────────────────────
-  // Constructor: wire side-effects (load, outputs, after-render, listeners, cleanup)
+  // Constructor: wire side-effects (load, outputs, after-render, listeners)
   // ─────────────────────────────────────────────────────────────────────────────
   constructor() {
     this.loadReadingtext();
     this.registerAfterRenderEffects();
-    this.registerCleanup();
+  }
+
+  ngOnDestroy() {
+    this.unlistenClickEvents?.();
+    this.unlistenClickEvents = undefined;
+    this.clearScrollInterval();
+  }
+
+  private clearScrollInterval() {
+    if (this.intervalTimerId !== undefined) {
+      clearInterval(this.intervalTimerId);
+      this.intervalTimerId = undefined;
+    }
   }
 
   private loadReadingtext() {
@@ -199,24 +211,14 @@ export class ReadingTextComponent {
         if (this._lastScrollKey !== key) {
           this._lastScrollKey = key;
 
-          this.scrollService.scrollToFirstSearchMatch(
-            this.elementRef.nativeElement,
-            this.intervalTimerId
+          this.clearScrollInterval();
+          this.intervalTimerId = this.scrollService.scrollToFirstSearchMatch(
+            this.elementRef.nativeElement
           );
         }
       }
     }, { injector: this.injector });
   }
-
-  private registerCleanup() {
-    // Clean up attached listeners and interval timer on destroy
-    this.destroyRef.onDestroy(() => {
-      this.unlistenClickEvents?.();
-      this.unlistenClickEvents = undefined;
-      clearInterval(this.intervalTimerId);
-    });
-  }
-
 
   // ─────────────────────────────────────────────────────────────────────────────
   // UI actions
@@ -334,11 +336,11 @@ export class ReadingTextComponent {
 
     const nElement: HTMLElement = this.elementRef.nativeElement;
     let iterationsLeft = 10;
-    clearInterval(this.intervalTimerId);
+    this.clearScrollInterval();
 
     this.intervalTimerId = window.setInterval(() => {
       if (iterationsLeft-- < 1) {
-        clearInterval(this.intervalTimerId);
+        this.clearScrollInterval();
         return;
       }
       let target = nElement.querySelector(
@@ -357,7 +359,7 @@ export class ReadingTextComponent {
 
       if (target) {
         this.scrollService.scrollToHTMLElement(target);
-        clearInterval(this.intervalTimerId);
+        this.clearScrollInterval();
       }
     }, 1000);
   }

@@ -8,40 +8,47 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+
+
+## [3.1.0] – 2026-09-21
+
 > [!NOTE]
 > This minor release migrates the app to Angular and Ionic standalone and zoneless APIs and should be compatible with most forks. The standalone zoneless migration is not intended to change configuration, routing behavior, theming contracts, HTML, CSS, build commands, deployment, or the output layout. Forks with custom Angular components, application NgModules, routing or bootstrap code, or code that relies on Zone.js-driven change detection should review and adapt those customizations for the standalone zoneless architecture.
+> One caveat: `ionicons` icons referenced by name must be registered centrally in [`src/ionicons-polyfill.ts`](src/ionicons-polyfill.ts). Forks that have modified the base app's set of icons must make sure the added icons are registered in the polyfill.
 
 ### Added
 
-- Docs: theming guidance.
+- Tests: add routing and bootstrap regression coverage. ([003e309](https://github.com/slsfi/digital-edition-frontend-ng/commit/003e309f185851261f638d5522d8f23955fe1565))
+- Docs: document the standalone zoneless browser/SSR architecture, record its migration plan as completed for 3.1.0, and add an overview with a planned application-builder and Vitest migration. ([fe12749](https://github.com/slsfi/digital-edition-frontend-ng/commit/fe1274909d4a6c541e7c8e3a400ed0ca7d9e2479), [553d317](https://github.com/slsfi/digital-edition-frontend-ng/commit/553d3178c285394e37409df651f60b6d212d2c3d), [524814c](https://github.com/slsfi/digital-edition-frontend-ng/commit/524814c24b69c16d33d1d54de5f5cd72167dc294))
+- Docs: theming guidance. ([86c04a7](https://github.com/slsfi/digital-edition-frontend-ng/commit/86c04a7ef6be67df0afc98e5f983c87bdbf66c8d))
 
 ### Changed
 
-- Tests: add routing and bootstrap regression coverage.
-- Convert page components to standalone behind compatibility NgModules.
-- Use standalone components for routes.
-- Complete the standalone browser and SSR bootstrap migration, replace the remaining `IonicModule` imports with standalone Ionic components, and register application icons centrally before browser and test bootstrap.
-- Tests: run Angular tests without Zone.js.
-- Make application shell, authentication UI, shared UI, content pages, index page, media collection page, search page, collection front matter, collection introduction, and collection text views zoneless-safe.
-- Enable Angular's default zoneless change detection throughout the application.
-- Remove Zone.js from the browser and server runtimes.
-- Remove redundant `NgZone.run()` and `NgZone.runOutsideAngular()` wrappers from the zoneless application.
-- Document the standalone zoneless browser/SSR architecture, record its migration plan as completed for 3.1.0, and add an overview with a planned application-builder and Vitest migration.
-- Move authentication guidance and cross-cutting future work from the development notes into dedicated [`docs/AUTHENTICATION.md`](docs/AUTHENTICATION.md) and [`docs/TODO.md`](docs/TODO.md) documents.
-- Update `nginx` to 1.30.5.
-- Deps: update `@angular/core` to 22.1.7 and `@angular/cli` to 22.1.8.
-- Deps: update `@ionic/angular` and `@ionic/angular-server` to 9.0.4.
-- Deps: update `marked` to 18.0.13.
-- Deps (dev): update `@types/node` to 24.13.6.
-- Deps: update transitive dependencies.
+- Convert page components to standalone behind compatibility NgModules. ([303c4bb](https://github.com/slsfi/digital-edition-frontend-ng/commit/303c4bbe06cdf03f3549e6a6d9bdac4b4895562f))
+- Use standalone components for routes. ([091e94f](https://github.com/slsfi/digital-edition-frontend-ng/commit/091e94f15204c2cb9128ad65f0f89d5c20a25511))
+- Complete the standalone browser and SSR bootstrap migration, replace the remaining `IonicModule` imports with standalone Ionic components, and register application icons centrally before browser and test bootstrap. ([e9b9f71](https://github.com/slsfi/digital-edition-frontend-ng/commit/e9b9f71a46f66593129bad52c8a58cfb0a58630c))
+- Tests: run Angular tests without Zone.js. ([cb630d3](https://github.com/slsfi/digital-edition-frontend-ng/commit/cb630d3f1ef67dcfa9c1e81d8643754b1075e9e5))
+- Make application shell, authentication UI, shared UI, content pages, index page, media collection page, search page, collection front matter, collection introduction, and collection text views zoneless-safe. ([62ef103](https://github.com/slsfi/digital-edition-frontend-ng/commit/62ef103ee0a4af51c54a30747b5d3cd93a621d08), [8e4f926](https://github.com/slsfi/digital-edition-frontend-ng/commit/8e4f9263042672beec7d78aee62356292ae6372f), [da243fe](https://github.com/slsfi/digital-edition-frontend-ng/commit/da243fe6730ca6edac1b2e4492fa1881d24dc0ea), [76c105e](https://github.com/slsfi/digital-edition-frontend-ng/commit/76c105e3e05124411747b0293ae5fb1ae61bf7fa), [38f8dce](https://github.com/slsfi/digital-edition-frontend-ng/commit/38f8dce1876d78e584998ee1686b98a58ecaba06), [0ee5ae8](https://github.com/slsfi/digital-edition-frontend-ng/commit/0ee5ae8527161736a556030ab2407d9619572908), [1cdd88e](https://github.com/slsfi/digital-edition-frontend-ng/commit/1cdd88e51577492e253f2688a9606493cbce80f3))
+- Enable Angular's default zoneless change detection throughout the application. ([1e6321c](https://github.com/slsfi/digital-edition-frontend-ng/commit/1e6321cc8635f85b875e0c2bd1d9a2e3877a670a))
+- Move authentication guidance and cross-cutting future work from the development notes into dedicated [`docs/AUTHENTICATION.md`](docs/AUTHENTICATION.md) and [`docs/TODO.md`](docs/TODO.md) documents. ([39586e4](https://github.com/slsfi/digital-edition-frontend-ng/commit/39586e42a7660101676c3bbb1be524967f402b01), [79f1698](https://github.com/slsfi/digital-edition-frontend-ng/commit/79f169856bd9b56f6c3cc54c902514730f63cf0d))
+- Update `nginx` to 1.30.5. ([5a3b43d](https://github.com/slsfi/digital-edition-frontend-ng/commit/5a3b43de632a78be2f5e23e953349220c5760226))
+- Deps: update `@angular/core` to 22.1.7 and `@angular/cli` to 22.1.8. ([de4bacd](https://github.com/slsfi/digital-edition-frontend-ng/commit/de4bacd5d1a00e0162cd7b1c1354ca2a6ca33290))
+- Deps: update `@ionic/angular` and `@ionic/angular-server` to 9.0.4. ([41c41ea](https://github.com/slsfi/digital-edition-frontend-ng/commit/41c41eaf1121e3e388cc077e928107b5c151a1dc))
+- Deps: update `marked` to 18.0.13. ([0cbb398](https://github.com/slsfi/digital-edition-frontend-ng/commit/0cbb3985ea7b8e987dfc967ebf9f12b7e4eba081))
+- Deps (dev): update `@types/node` to 24.13.6. ([d4faf11](https://github.com/slsfi/digital-edition-frontend-ng/commit/d4faf1140cf30ac0a4b71040c57dc70833037b6b))
+- Deps: update transitive dependencies. ([93e1b5f](https://github.com/slsfi/digital-edition-frontend-ng/commit/93e1b5fda8a6a3972e0161680818ab899e341c48))
 
 ### Fixed
 
-- Home: center-justify footer block in portrait mode.
-- Search: cancel stale first-match scroll retry intervals when restarting or leaving a view.
-- Tests: use headless Chrome with GPU acceleration disabled by default and repair stale unit-test setup.
-- SSR: return HTTP 404 for routes rendered by the page-not-found wildcard route.
+- Home: center-justify footer block in portrait mode. ([a94e9eb](https://github.com/slsfi/digital-edition-frontend-ng/commit/a94e9eb96847bcbe0b6167f62ed7a737b6629282))
+- Search: cancel stale first-match scroll retry intervals when restarting or leaving a view. ([99e58d3](https://github.com/slsfi/digital-edition-frontend-ng/commit/99e58d3e01f6a2f62f908814bbfe71bfc42bbb2f))
+- Tests: use headless Chrome with GPU acceleration disabled by default and repair stale unit-test setup. ([5dca5d6](https://github.com/slsfi/digital-edition-frontend-ng/commit/5dca5d661dc5c603037d33b8e2611dc754b19297))
+- SSR: return HTTP 404 for routes rendered by the page-not-found wildcard route. ([7181467](https://github.com/slsfi/digital-edition-frontend-ng/commit/7181467e2046a7e0763f61e13eaa2b4424ff3403))
 
+### Removed
+
+- Zone.js from the browser and server runtimes. ([2483ec1](https://github.com/slsfi/digital-edition-frontend-ng/commit/2483ec108779047728c69452515ccd1fd1463d28))
+- Redundant `NgZone.run()` and `NgZone.runOutsideAngular()` wrappers from the zoneless application. ([13c5a92](https://github.com/slsfi/digital-edition-frontend-ng/commit/13c5a92cde00172f2133a491a44f3655999c43d3))
 
 
 ## [3.0.1] – 2026-09-08
@@ -1584,7 +1591,8 @@ siteLogoDimensions: {
 
 
 
-[unreleased]: https://github.com/slsfi/digital-edition-frontend-ng/compare/3.0.1...HEAD
+[unreleased]: https://github.com/slsfi/digital-edition-frontend-ng/compare/3.1.0...HEAD
+[3.1.0]: https://github.com/slsfi/digital-edition-frontend-ng/compare/3.0.1...3.1.0
 [3.0.1]: https://github.com/slsfi/digital-edition-frontend-ng/compare/3.0.0...3.0.1
 [3.0.0]: https://github.com/slsfi/digital-edition-frontend-ng/compare/2.7.8...3.0.0
 [2.7.8]: https://github.com/slsfi/digital-edition-frontend-ng/compare/2.7.7...2.7.8

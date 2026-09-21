@@ -106,6 +106,8 @@ The app is a standalone, zoneless Angular application with server-side rendering
 - **Retained Webpack `browser`/`server` builders and `dist/app` contract:** The application intentionally retains Angular's separate Webpack-based `browser` and `server` builders in `angular.json` and the existing `dist/app` output contract. Migration to the [`application` builder](https://angular.dev/tools/cli/build-system-migration) is deferred as a separate breaking change.
 - **Hydration intentionally not enabled:** Client hydration is deliberately not configured because Ionic's underlying Stencil components do not currently support SSR hydration with Angular ([ionic-team/ionic-framework#30490](https://github.com/ionic-team/ionic-framework/issues/30490)). The application therefore retains the non-hydrated `CommonEngine` SSR lifecycle; enabling hydration must be handled and tested as a dedicated SSR/deployment migration rather than folded into ordinary component work.
 
+The current architecture resulted from the completed standalone and zoneless phase of a [two-stage Angular modernization](migrations/README.md). The migration overview also links to the planned application-builder and Vitest phase.
+
 
 
 ## Dependencies

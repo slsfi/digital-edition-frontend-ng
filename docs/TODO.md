@@ -9,7 +9,7 @@ Current status:
 - Auth-protected routes are currently forced to client rendering in Express middleware in [`server.ts`](../server.ts), based on generated route-path metadata from [`src/app/auth-protected-route-paths.generated.ts`](../src/app/auth-protected-route-paths.generated.ts).
 - This is an implementation workaround for the current webpack-based SSR build setup.
 
-The standalone and zoneless migrations are complete while the legacy builders and `CommonEngine` remain in use. A future migration will evaluate their replacement with Angular's `application` builder (`@angular/build:application`), which is expected to introduce breaking changes. See the detailed [Stage 2 application-builder and Vitest migration plan](migrations/STAGE-2-APPLICATION-BUILDER.md). During that migration:
+The standalone and zoneless migrations are complete while the legacy builders and `CommonEngine` remain in use. A future migration will evaluate their replacement with Angular's `application` builder (`@angular/build:application`), which is expected to introduce breaking changes. See the detailed [application-builder and Vitest migration plan](migrations/STAGE-2-APPLICATION-BUILDER.md). During that migration:
 
 - Investigate replacing the current middleware-based implementation with Angular server-routes configuration (`withRoutes` / `RenderMode.Client`) for auth-protected routes.
 - Validate compatibility with feature-based route generation before removing the current workaround.

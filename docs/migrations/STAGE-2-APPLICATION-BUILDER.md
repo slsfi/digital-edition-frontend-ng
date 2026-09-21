@@ -1,6 +1,9 @@
-# Stage 2 plan: Angular application builder and Vitest migration
+# Angular 22 modernization — Stage 2: application builder and Vitest migration
 
-Stage 2 migrates the application from Angular's deprecated Webpack-based `browser`/`server` build pipeline to the integrated `application` builder and migrates unit testing from Jasmine/Karma to Vitest.
+> [!IMPORTANT]
+> **Status: Planned; not yet implemented.** Revalidate Angular's migration guidance, schematics, SSR APIs, and test APIs immediately before implementation.
+
+This is the second stage of the repository's [two-stage Angular modernization](README.md). It migrates the application from Angular's deprecated Webpack-based `browser`/`server` build pipeline to the integrated `application` builder and migrates unit testing from Jasmine/Karma to Vitest.
 
 Stage 1 established the standalone, zoneless application architecture while deliberately retaining the old builders, `CommonEngine`, the existing output layout, Jasmine/Karma, and non-hydrated SSR. Stage 2 changes the build system, server runtime, and unit-test runner while preserving application behavior as far as practical.
 

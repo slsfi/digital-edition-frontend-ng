@@ -68,7 +68,7 @@
     "@angular/localize": "^22.1.7",
     "@types/express": "^5.0.6",
     "@types/jasmine": "~5.1.15",
-    "@types/node": "^24.13.3",
+    "@types/node": "^24.13.5",
     "browser-sync": "^3.0.4",
     "gzipper": "^8.3.0",
     "istanbul-lib-instrument": "^6.0.3",

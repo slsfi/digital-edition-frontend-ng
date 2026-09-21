@@ -24,6 +24,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - Remove redundant `NgZone.run()` and `NgZone.runOutsideAngular()` wrappers from the zoneless application.
 - Document the standalone zoneless browser/SSR architecture and add plan for Angular application builder and Vitest migration.
 - Update `nginx` to 1.30.5.
+- Deps: update `marked` to 18.0.13.
 
 ### Fixed
 

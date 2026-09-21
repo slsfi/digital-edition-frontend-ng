@@ -5,6 +5,7 @@ import { Observable } from 'rxjs';
 
 import { TrustHtmlPipe } from '@pipes/trust-html.pipe';
 import { MarkdownService } from '@services/markdown.service';
+import { RESPONSE } from 'src/express.tokens';
 
 
 @Component({
@@ -16,10 +17,12 @@ import { MarkdownService } from '@services/markdown.service';
 export class PageNotFoundPage implements OnInit {
   private mdService = inject(MarkdownService);
   private activeLocale = inject(LOCALE_ID);
+  private response = inject(RESPONSE, { optional: true });
 
   markdownText$: Observable<string | null>;
 
   ngOnInit() {
+    this.response?.status(404);
     this.markdownText$ = this.mdService.getParsedMdContent(
       this.activeLocale + '-404',
       '<p>'

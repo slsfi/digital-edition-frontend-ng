@@ -12,7 +12,7 @@ import { join } from 'node:path';
 
 import bootstrap from './src/main.server';
 import { environment } from './src/environments/environment';
-import { REQUEST } from './src/express.tokens';
+import { REQUEST, RESPONSE } from './src/express.tokens';
 import { config } from './src/assets/config/config';
 import { authProtectedRoutePaths } from './src/app/auth-protected-route-paths.generated';
 import { getConfiguredSiteHostname, getRequestRenderUrl } from './src/app/utils/request-origin';
@@ -219,6 +219,7 @@ export function app(lang: string): express.Express {
           { provide: APP_BASE_HREF, useValue: baseUrl },
           { provide: LOCALE_ID, useValue: lang },
           { provide: REQUEST, useValue: req },
+          { provide: RESPONSE, useValue: res },
         ],
       })
       .then((html) => res.send(html))

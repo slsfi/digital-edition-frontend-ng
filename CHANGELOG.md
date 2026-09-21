@@ -29,6 +29,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - Home: center-justify footer block in portrait mode.
 - Search: cancel stale first-match scroll retry intervals when restarting or leaving a view.
 - Tests: use headless Chrome with GPU acceleration disabled by default and repair stale unit-test setup.
+- SSR: return HTTP 404 for routes rendered by the page-not-found wildcard route.
 
 
 

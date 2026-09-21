@@ -19,7 +19,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ### Added
 
-- Tests: add routing and bootstrap regression coverage. ([003e309](https://github.com/slsfi/digital-edition-frontend-ng/commit/003e309f185851261f638d5522d8f23955fe1565))
+- Tests: routing and bootstrap regression coverage. ([003e309](https://github.com/slsfi/digital-edition-frontend-ng/commit/003e309f185851261f638d5522d8f23955fe1565))
 - Docs: document the standalone zoneless browser/SSR architecture, record its migration plan as completed for 3.1.0, and add an overview with a planned application-builder and Vitest migration. ([fe12749](https://github.com/slsfi/digital-edition-frontend-ng/commit/fe1274909d4a6c541e7c8e3a400ed0ca7d9e2479), [553d317](https://github.com/slsfi/digital-edition-frontend-ng/commit/553d3178c285394e37409df651f60b6d212d2c3d), [524814c](https://github.com/slsfi/digital-edition-frontend-ng/commit/524814c24b69c16d33d1d54de5f5cd72167dc294))
 - Docs: theming guidance. ([86c04a7](https://github.com/slsfi/digital-edition-frontend-ng/commit/86c04a7ef6be67df0afc98e5f983c87bdbf66c8d))
 

@@ -13,9 +13,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 ## [3.1.0] – 2026-09-21
 
 > [!NOTE]
-> This minor release migrates the app to Angular and Ionic standalone and zoneless APIs and should be compatible with most forks. The standalone zoneless migration is not intended to change configuration, routing behavior, theming contracts, HTML, CSS, build commands, deployment, or the output layout. Forks with custom Angular components, application NgModules, routing or bootstrap code, or code that relies on Zone.js-driven change detection should review and adapt those customizations for the standalone zoneless architecture.
+> This minor release migrates the app to Angular and Ionic standalone APIs and to zoneless change detection. It should remain compatible with most forks: configuration, routing behavior, theming contracts, HTML, CSS, build commands, deployment, and the output layout are unchanged. Forks with custom Angular components, application NgModules, routing or bootstrap code, or code that relies on Zone.js-driven change detection should review and adapt those customizations for the standalone zoneless architecture.
 >
-> One caveat: `ionicons` icons referenced by name must be registered centrally in [`src/ionicons-polyfill.ts`](src/ionicons-polyfill.ts). Forks that have modified the base app's set of icons must make sure the added icons are registered in the polyfill.
+> **Action required for forks with custom icons:** Ionicons referenced by name are now registered centrally in [`src/ionicons-polyfill.ts`](src/ionicons-polyfill.ts). If a fork uses icons beyond the base app's set, import each additional icon and include it in the file's `addIcons()` call.
 
 ### Added
 

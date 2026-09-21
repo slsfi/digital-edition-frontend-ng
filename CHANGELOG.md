@@ -33,6 +33,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - Deps: update `@ionic/angular` and `@ionic/angular-server` to 9.0.4.
 - Deps: update `marked` to 18.0.13.
 - Deps (dev): update `@types/node` to 24.13.6.
+- Deps: update transitive dependencies.
 
 ### Fixed
 

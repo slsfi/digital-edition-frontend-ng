@@ -23,7 +23,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - Remove Zone.js from the browser and server runtimes.
 - Remove redundant `NgZone.run()` and `NgZone.runOutsideAngular()` wrappers from the zoneless application.
 - Document the standalone zoneless browser/SSR architecture and add plan for Angular application builder and Vitest migration.
-- Move authentication configuration, implementation notes, and the regression checklist into a dedicated [`docs/AUTHENTICATION.md`](docs/AUTHENTICATION.md) guide.
+- Move authentication guidance and cross-cutting future work from the development notes into dedicated [`docs/AUTHENTICATION.md`](docs/AUTHENTICATION.md) and [`docs/TODO.md`](docs/TODO.md) documents.
 - Update `nginx` to 1.30.5.
 - Deps: update `@angular/core` to 22.1.7 and `@angular/cli` to 22.1.8.
 - Deps: update `@ionic/angular` and `@ionic/angular-server` to 9.0.4.

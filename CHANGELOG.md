@@ -11,6 +11,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 > [!NOTE]
 > This minor release migrates the app to Angular and Ionic standalone and zoneless APIs and should be compatible with most forks. The standalone zoneless migration is not intended to change configuration, routing behavior, theming contracts, HTML, CSS, build commands, deployment, or the output layout. Forks with custom Angular components, application NgModules, routing or bootstrap code, or code that relies on Zone.js-driven change detection should review and adapt those customizations for the standalone zoneless architecture.
 
+### Added
+
+- Docs: theming guidance.
+
 ### Changed
 
 - Tests: add routing and bootstrap regression coverage.

@@ -41,12 +41,13 @@ The `base` branch of the forked repository must **never** be manually modified. 
 
 This workflow enables updates to the app in the original, upstream repository to be easily distributed to forked project repositories.
 
-By default, the app has Swedish and Finnish language versions enabled. See [Updating, building and deployment](docs/DEPLOYMENT.md) and the [development notes](docs/DEVELOPMENT.md) for the currently available guidance. Complete documentation for internationalization and app customization is not yet available.
+By default, the app has Swedish and Finnish language versions enabled. See the [theming guide](docs/THEMING.md), [updating, building and deployment](docs/DEPLOYMENT.md), and the [development notes](docs/DEVELOPMENT.md) for the currently available guidance. Complete documentation for internationalization and other app customization is not yet available.
 
 
 ## Documentation
 
 - [Authentication](docs/AUTHENTICATION.md).
+- [Theming](docs/THEMING.md).
 - [Updating, building and deployment](docs/DEPLOYMENT.md).
 - [Development notes](docs/DEVELOPMENT.md).
 

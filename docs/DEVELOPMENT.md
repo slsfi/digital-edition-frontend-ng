@@ -244,6 +244,7 @@ npm ci
 npm run test:ci
 npm run test:source-encoding
 npm run test:routes-parser
+npm run test:static-collection-menus
 npm run build:ssr
 ```
 
@@ -271,6 +272,7 @@ Use the Angular/Jasmine unit suite as the primary automated check, with the scri
 - `npm run test:ci`: run the full Angular/Jasmine unit suite once in headless Chrome; use this for pre-PR verification.
 - `npm run test:source-encoding`: validate source-file encoding and BOM usage.
 - `npm run test:routes-parser`: verify route parser/generator behavior; run it after changes to `prebuild-generate-routes.js` or generator-facing route syntax in `src/app/app.routes.ts`.
+- `npm run test:static-collection-menus`: verify that shared non-multilingual TOCs are fetched once, per-locale menu files are generated, and fetch retries back off as expected; run it after changes to `prebuild-generate-static-collection-menus.js` or shared fetch retry behavior in `prebuild-common-fns.js`.
 - `npm run test:ssr:smoke`: verify selected server-rendered responses against a running SSR app; build and start the app first, or pass `--base-url` to target another running environment.
 
 When changing `app.routes.ts` or a lazy `*.routes.ts` file, also update and run the Angular route-recognition specs. For SSR-specific changes, run `npm run build:ssr`, start the built app with `npm run serve:ssr`, and then run `npm run test:ssr:smoke` in another terminal. The detailed route-parser and SSR smoke-test sections below describe those workflows further.

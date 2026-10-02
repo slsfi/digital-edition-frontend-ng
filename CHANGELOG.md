@@ -57,6 +57,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - Redundant `NgZone.run()` and `NgZone.runOutsideAngular()` wrappers from the zoneless application. ([13c5a92](https://github.com/slsfi/digital-edition-frontend-ng/commit/13c5a92cde00172f2133a491a44f3655999c43d3))
 
 
+
 ## [3.0.1] – 2026-09-08
 
 ### Changed

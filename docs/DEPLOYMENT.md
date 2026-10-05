@@ -38,6 +38,8 @@ If you edit `package.json` manually instead, run `npm install --package-lock-onl
 
 You can start a Docker container of the app from an image created in the step above by using the [`docker run`][docker_run_reference] command.
 
+The Docker runtime starts SSR through `npm run serve:ssr`. Keep that script aligned with the compiled server entry when customizing a fork's runtime; Docker and benchmark auto-start both use it.
+
 However, for easier configuration and better performance it is recommended to use [Docker Compose][docker_compose_reference] and the provided Compose file [`compose.yml`][docker_compose_file]. The Compose file defines an [nginx][nginx] web server to be used for serving static files in front of Node ([`nginx.conf`][nginx_conf]). This increases performance.
 
 The Node SSR app uses app-level request limiting for dynamic render requests. Limits can be tuned with environment variables (or by modifying in [`server.ts`](../server.ts)):

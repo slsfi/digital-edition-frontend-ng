@@ -36,6 +36,7 @@
     "test:static-collection-menus": "node ./scripts/test-prebuild-generate-static-collection-menus.js",
     "test:ssr:smoke": "node ./scripts/test-ssr-smoke.js",
     "test:ssr:checks": "node ./scripts/test-ssr-smoke-runner.js",
+    "test:ssr:benchmark": "node ./scripts/test-benchmark-ssr.js",
     "bench:ssr": "node ./scripts/benchmark-ssr.js",
     "bench:ssr:build": "npm run build:ssr && npm run bench:ssr",
     "gzipper": "gzipper",

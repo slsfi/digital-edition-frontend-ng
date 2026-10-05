@@ -10,11 +10,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ### Added
 
-- Tests: lock SSR/CSR rendering, default-language routing, public/proxy SEO URLs, missing-static-file handling, and parameterized auth-route metadata ahead of the Stage 2 migration. Add `test:build-output` for stable output contracts and `test:ssr:checks` for the smoke runner; `test:ssr:smoke -- --auth-enabled` verifies an auth-enabled build's CSR shells.
+- Tests: lock SSR/CSR rendering, default-language routing, public/proxy SEO URLs, missing-static-file handling, and parameterized auth-route metadata ahead of the Stage 2 migration. Add `test:build-output` for stable output contracts and `test:ssr:checks` for the smoke runner; `test:ssr:smoke -- --auth-enabled` verifies an auth-enabled build's CSR shells. Prevent regex injection in SSR smoke checks by accepting only literal `includes` checks in JSON case files; regex checks remain available as code-owned literals in the script.
 
 ### Fixed
 
-- Tests: prevent regex injection in SSR smoke checks by accepting only literal `includes` checks in JSON case files; regex checks remain available as code-owned literals in the script.
 - Pdf-viewer: broaden error message if the PDF can't be displayed.
 
 

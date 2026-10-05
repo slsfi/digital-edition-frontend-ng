@@ -14,6 +14,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ### Fixed
 
+- Tests: prevent regex injection in SSR smoke checks by accepting only literal `includes` checks in JSON case files; regex checks remain available as code-owned literals in the script.
 - Pdf-viewer: broaden error message if the PDF can't be displayed.
 
 

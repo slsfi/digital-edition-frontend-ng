@@ -442,7 +442,7 @@ Optional arguments:
 - `--base-url=<url>` to target another host/port (including remote environments).
 - `--timeout-ms=<number>` to change per-request timeout.
 - `--auth-enabled` to expect CSR shells for protected routes in an already built auth-enabled app. It changes test expectations only; set `app.auth.enabled: true`, regenerate/build, and restart the app before using it. Without the flag, protected routes must SSR and auth-only routes must return 404. Restore the normal configuration and rebuild when finished.
-- `--cases-file=<path>` to load a JSON array of test cases for a fork's own routes/locales. The default fixtures use the base app's Swedish/Finnish content. JSON cases use the same fields as `TEST_CASES`; regex check values are pattern strings, and optional `csrChecks` validate locale/base href in CSR mode.
+- `--cases-file=<path>` to load a JSON array of test cases for a fork's own routes/locales. The default fixtures use the base app's Swedish/Finnish content. JSON cases use the same fields as `TEST_CASES`, but `checks` and optional `csrChecks` accept only `includes` checks with literal string values (for example, `{ "type": "includes", "value": "lang=\"fi\"" }`). Regex checks require code-owned `RegExp` literals in the script; JSON pattern strings are rejected before requests run. Optional `csrChecks` validate locale/base href in CSR mode.
 
 Example:
 

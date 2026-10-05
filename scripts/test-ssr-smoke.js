@@ -28,6 +28,7 @@ const { performance } = require('node:perf_hooks');
  * - npm run test:ssr:smoke -- --base-url=https://topelius.sls.fi
  * - npm run test:ssr:smoke -- --timeout-ms=5000
  * - npm run test:ssr:smoke -- --auth-enabled
+ * - npm run test:ssr:smoke -- --cases-file=smoke-cases.json (literal includes checks only)
  *
  * Exit codes:
  * - 0: all tests passed.
@@ -47,7 +48,7 @@ const DEFAULT_TIMEOUT_MS = 30000;
  *
  * Check types:
  * - includes: strict substring match.
- * - regex: regular-expression match (useful for attribute-order tolerance).
+ * - regex: code-owned RegExp literal (useful for attribute-order tolerance; unavailable in JSON).
  *
  * Optional test-case fields:
  * - headers: request headers to send for the route.
@@ -487,7 +488,7 @@ Options:
   --base-url <url> | --base-url=<url>     Base URL (default: ${DEFAULT_BASE_URL})
   --timeout-ms <n> | --timeout-ms=<n>     Request timeout in ms (default: ${DEFAULT_TIMEOUT_MS})
   --auth-enabled                         Expect CSR shells for protected routes; build with auth enabled first
-  --cases-file <path>                     JSON test cases for a fork's routes/locales (default: base app fixtures)
+  --cases-file <path>                     JSON test cases using literal includes checks (default: base app fixtures)
   --help, -h                              Show this help
 `.trim());
 }
@@ -687,13 +688,19 @@ function runCheck(body, check, baseUrl) {
   }
 
   if (check.type === 'regex') {
-    const pattern = typeof value === 'string' ? new RegExp(value) : value;
-    const matched = pattern.test(body);
+    // Only code-owned regex literals are supported. Never compile JSON input.
+    if (!(value instanceof RegExp)) {
+      return {
+        passed: false,
+        reason: 'Regex checks require a RegExp literal defined in the script; use literal includes checks in JSON case files',
+      };
+    }
+    const matched = value.test(body);
     return {
       passed: matched,
       reason: matched
         ? ''
-        : `Missing expected HTML pattern: ${pattern.toString()}`,
+        : `Missing expected HTML pattern: ${value.toString()}`,
     };
   }
 
@@ -789,6 +796,15 @@ async function main() {
   if (!Array.isArray(sourceCases) || !sourceCases.length) {
     throw new Error('Expected a non-empty array of smoke test cases');
   }
+  if (opts.casesFile) {
+    for (const testCase of sourceCases) {
+      for (const check of [...(testCase.checks || []), ...(testCase.csrChecks || [])]) {
+        if (check.type !== 'includes' || typeof check.value !== 'string') {
+          throw new Error('JSON case files support only includes checks with literal string values');
+        }
+      }
+    }
+  }
   const testCases = getTestCases(opts.authEnabled, sourceCases);
   console.log(`Auth rendering expectations: ${opts.authEnabled ? 'enabled' : 'disabled'}`);
   console.log(`Running ${testCases.length} SSR smoke tests...\n`);
@@ -834,4 +850,4 @@ if (require.main === module) {
   });
 }
 
-module.exports = { getTestCases, getRenderingErrors, runTest };
+module.exports = { getTestCases, getRenderingErrors, runCheck, runTest };

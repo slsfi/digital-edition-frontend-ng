@@ -35,10 +35,12 @@ import {
   ServerRouterPreloadingStrategyService
 } from '@services/router-preloading-strategy.service';
 import { appConfig } from './app.config';
+import { provideExpressRequestContext } from '../ssr/express-request-context';
 
 const serverConfig: ApplicationConfig = {
   providers: [
     provideServerRendering(),
+    provideExpressRequestContext(),
     // Ionic exposes its SSR providers only through this NgModule. This is the
     // sole intentional application-level compatibility bridge.
     importProvidersFrom(IonicServerModule),

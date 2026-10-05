@@ -24,6 +24,7 @@ When contributing, changes must be reusable and config-driven; project-specific 
 - Import Ionic components as standalone components rather than through `IonicModule`. `importProvidersFrom(IonicServerModule)` in the server configuration is the intentional application-level NgModule bridge.
 - Keep the application zoneless. Do not add Zone.js, `provideZoneChangeDetection()`, or another compatibility provider as a workaround; expose asynchronous template state through signals, inputs, the `async` pipe, or another Angular notification mechanism.
 - Preserve the current SSR architecture unless the task is explicitly a dedicated migration: `CommonEngine`, separate `browser`/`server` builders, and the `dist/app` output contract are intentional.
+- Application services consume `APPLICATION_REQUEST_CONTEXT` for request URL, public origin, and user agent. Keep server-specific request adapters under `src/ssr/` rather than injecting Express requests into application services.
 - Do not enable client hydration or migrate to Angular's `application` builder as part of unrelated work.
 - Register application-owned Ionicons centrally in `src/ionicons-polyfill.ts`; do not add component-local `addIcons()` registrations.
 - See `docs/DEVELOPMENT.md` for the detailed architecture rationale and migration notes.

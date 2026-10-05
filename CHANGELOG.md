@@ -16,6 +16,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 - Pdf-viewer: broaden error message if the PDF can't be displayed.
 
+### Changed
+
+- SSR tooling: Docker and benchmark auto-start now use the canonical `npm run serve:ssr` command, preparing for the Stage 2 server-entry change. The script still starts the existing proxy runtime; benchmark cleanup stops the launcher and its SSR child processes. Add `test:ssr:benchmark` to verify alternate entries, startup failures, and process cleanup on Windows/Linux.
+
 
 
 ## [3.1.1] – 2026-10-02

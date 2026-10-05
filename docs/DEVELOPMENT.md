@@ -292,6 +292,7 @@ Use the Angular/Jasmine unit suite as the primary automated check, with the scri
 - `npm run test:static-collection-menus`: verify that shared non-multilingual TOCs are fetched once, per-locale menu files are generated, and fetch retries back off as expected; run it after changes to `prebuild-generate-static-collection-menus.js` or shared fetch retry behavior in `prebuild-common-fns.js`.
 - `npm run test:ssr:smoke`: verify selected SSR/CSR responses, SEO/default-language URLs, and missing-static-file behavior against a running SSR app; build and start the app first, or pass `--base-url` to target another running environment.
 - `npm run test:ssr:checks`: verify that the smoke runner rejects incorrect render modes and redirects, and sends explicit proxy Host headers, using local fixtures without a running app.
+- `npm run test:ssr:benchmark`: verify benchmark auto-start through `serve:ssr`, including an alternate runtime entry, failed startup, interruption, and child-process cleanup, using local fixtures without building the app.
 - `npm run test:build-output`: verify browser output for the production locales configured in `angular.json` and the runtime entry from `serve:ssr`; run after `npm run build:ssr`. Supports `--dist-root`, `--locales` (comma-separated), and `--server-entry` (relative to the output root) for custom output.
 
 When changing `app.routes.ts` or a lazy `*.routes.ts` file, also update and run the Angular route-recognition specs. For SSR-specific changes, run `npm run build:ssr`, start the built app with `npm run serve:ssr`, and then run `npm run test:ssr:smoke` in another terminal. The detailed route-parser and SSR smoke-test sections below describe those workflows further.
@@ -475,6 +476,8 @@ Use the SSR benchmark to measure response-time performance of server-rendered ro
 - npm commands: `npm run bench:ssr`, `npm run bench:ssr:build`
 - Default base URL: `http://127.0.0.1:4201`
 
+Auto-start uses `npm run serve:ssr`, the same launcher used by the Docker runtime. The benchmark stops its launcher and SSR child processes when it finishes, is interrupted, or cannot start the server.
+
 Recommended workflow:
 
 1. Build and run benchmark in one command:
@@ -503,7 +506,7 @@ Optional arguments:
 - `--base-url=<url>` to target another host/port.
 - `--startup-timeout-ms=<number>` to adjust server startup wait time.
 - `--request-timeout-ms=<number>` to adjust per-request timeout.
-- `--skip-start` to benchmark without starting `dist/app/proxy-server.js`.
+- `--skip-start` to benchmark an existing server without invoking `npm run serve:ssr`.
 
 Example:
 

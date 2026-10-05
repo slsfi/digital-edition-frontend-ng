@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+### Fixed
+
+- Pdf-viewer: broaden error message if the PDF can't be displayed.
+
 
 
 ## [3.1.1] – 2026-10-02

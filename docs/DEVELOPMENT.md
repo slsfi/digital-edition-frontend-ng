@@ -290,7 +290,9 @@ Use the Angular/Jasmine unit suite as the primary automated check, with the scri
 - `npm run test:source-encoding`: validate source-file encoding and BOM usage.
 - `npm run test:routes-parser`: verify route parser/generator behavior; run it after changes to `prebuild-generate-routes.js` or generator-facing route syntax in `src/app/app.routes.ts`.
 - `npm run test:static-collection-menus`: verify that shared non-multilingual TOCs are fetched once, per-locale menu files are generated, and fetch retries back off as expected; run it after changes to `prebuild-generate-static-collection-menus.js` or shared fetch retry behavior in `prebuild-common-fns.js`.
-- `npm run test:ssr:smoke`: verify selected server-rendered responses against a running SSR app; build and start the app first, or pass `--base-url` to target another running environment.
+- `npm run test:ssr:smoke`: verify selected SSR/CSR responses, SEO/default-language URLs, and missing-static-file behavior against a running SSR app; build and start the app first, or pass `--base-url` to target another running environment.
+- `npm run test:ssr:checks`: verify that the smoke runner rejects incorrect render modes and redirects, and sends explicit proxy Host headers, using local fixtures without a running app.
+- `npm run test:build-output`: verify browser output for the production locales configured in `angular.json` and the runtime entry from `serve:ssr`; run after `npm run build:ssr`. Supports `--dist-root`, `--locales` (comma-separated), and `--server-entry` (relative to the output root) for custom output.
 
 When changing `app.routes.ts` or a lazy `*.routes.ts` file, also update and run the Angular route-recognition specs. For SSR-specific changes, run `npm run build:ssr`, start the built app with `npm run serve:ssr`, and then run `npm run test:ssr:smoke` in another terminal. The detailed route-parser and SSR smoke-test sections below describe those workflows further.
 
@@ -439,6 +441,8 @@ Optional arguments:
 
 - `--base-url=<url>` to target another host/port (including remote environments).
 - `--timeout-ms=<number>` to change per-request timeout.
+- `--auth-enabled` to expect CSR shells for protected routes in an already built auth-enabled app. It changes test expectations only; set `app.auth.enabled: true`, regenerate/build, and restart the app before using it. Without the flag, protected routes must SSR and auth-only routes must return 404. Restore the normal configuration and rebuild when finished.
+- `--cases-file=<path>` to load a JSON array of test cases for a fork's own routes/locales. The default fixtures use the base app's Swedish/Finnish content. JSON cases use the same fields as `TEST_CASES`; regex check values are pattern strings, and optional `csrChecks` validate locale/base href in CSR mode.
 
 Example:
 
@@ -448,9 +452,11 @@ npm run test:ssr:smoke -- --base-url=http://localhost:4201 --timeout-ms=5000
 
 What the smoke test validates per route:
 
-- HTTP status is `200`.
+- HTTP status matches the expected result (`200`, or `404` for missing files/pages and disabled auth-only routes); redirects are not followed.
 - `Content-Type` contains `text/html`.
-- Expected SSR HTML snippets or patterns are present in the raw response body.
+- SSR responses contain a populated Angular root and the expected content/SEO snippets. CSR responses contain an empty root without server-rendered protected content; public pages remain SSR with auth enabled.
+- Dynamic responses include `Vary: User-Agent`. Missing static files contain no Angular application or SSR rate-limit headers.
+- Unprefixed home requests keep Swedish as the default, including with Finnish `Accept-Language`.
 - Optional per-test request headers can be set in `TEST_CASES` (for example to simulate forwarded HTTPS headers).
 
 Updating checks:

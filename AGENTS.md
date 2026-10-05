@@ -39,6 +39,8 @@ When contributing, changes must be reusable and config-driven; project-specific 
 - `npm run build:ssr` - generate routes + browser/server production build.
 - `npm run serve:ssr` - run built SSR app from `dist/`.
 - `npm run test:ssr:smoke` - verify key SSR responses against a running SSR app.
+- `npm run test:ssr:checks` - verify SSR smoke-runner rendering and HTTP checks without a running app.
+- `npm run test:build-output` - verify configured locale browser directories and the runtime entry after building.
 - `npm run ssr-start` - build SSR and serve in one command.
 - `npm run generate-routes` - regenerate route artifacts from config.
 - `npm run bench:ssr:build` - build and benchmark SSR performance.

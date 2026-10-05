@@ -1,7 +1,9 @@
 const assert = require('assert');
 const fs = require('fs');
 const path = require('path');
+const common = require('../prebuild-common-fns');
 const {
+  generateRoutes,
   createRouteGenerationPlan,
   extractRouteBlocks,
   extractRoutesArrayBody,
@@ -235,6 +237,120 @@ test('getAuthProtectedRoutePaths returns empty list when auth is disabled', () =
   ];
   const paths = getAuthProtectedRoutePaths(blocks, false);
   assert.deepStrictEqual(paths, []);
+});
+
+for (const featureBasedRoutes of [false, true]) {
+  for (const authEnabled of [false, true]) {
+    test(`protected metadata follows filtered routes (features: ${featureBasedRoutes}, auth: ${authEnabled})`, () => {
+      const source = `export const routes: Routes = [
+        { path: '', loadComponent: () => import('./home') },
+        { path: 'collection/:collectionID/cover', canActivate: [authGuard], loadComponent: () => import('./cover') },
+        { path: 'collection/:collectionID/introduction', canActivate: [authGuard], loadComponent: () => import('./introduction') },
+        { path: 'collection/:collectionID/text', canActivate: [authGuard], loadChildren: () => import('./text.routes') },
+        { path: 'index/:type', canActivate: [authGuard], loadComponent: () => import('./index') },
+        { path: 'media-collection', canActivate: [authGuard], loadChildren: () => import('./media.routes') },
+        { path: 'search', canActivate: [authGuard], loadComponent: () => import('./search') },
+        { path: 'account', canMatch: [authFeatureEnabledMatchGuard], canActivate: [authGuard] },
+        { path: 'forgot-password', canMatch: [authFeatureEnabledMatchGuard] },
+        { path: '**', loadComponent: () => import('./not-found') }
+      ];`;
+      const config = createGeneratorConfig(featureBasedRoutes, authEnabled);
+      config.collections = { order: [203], frontMatterPages: { introduction: true, cover: false } };
+      config.component.mainSideMenu.items.collections = true;
+      config.component.mainSideMenu.items.indexPersons = true;
+      config.component.mainSideMenu.items.mediaCollections = false;
+
+      const plan = createRouteGenerationPlan(source, config);
+      const protectedPaths = getAuthProtectedRoutePaths(plan.routeBlocks, plan.authEnabled);
+      const expectedProtectedPaths = !authEnabled ? [] : featureBasedRoutes ? [
+        'account', 'collection/:collectionID/introduction', 'collection/:collectionID/text',
+        'forgot-password', 'index/:type'
+      ] : [
+        'account', 'collection/:collectionID/cover', 'collection/:collectionID/introduction',
+        'collection/:collectionID/text', 'forgot-password', 'index/:type', 'media-collection', 'search'
+      ];
+
+      assert.deepStrictEqual(protectedPaths, expectedProtectedPaths);
+      assert.strictEqual(plan.unknownRoutePaths.size, 0);
+      assert.deepStrictEqual(
+        getAuthProtectedRoutePaths(extractRouteBlocks(plan.routesFileContent), authEnabled),
+        expectedProtectedPaths
+      );
+      assert.deepStrictEqual(
+        createRouteGenerationPlan(source, config).routesFileContent,
+        plan.routesFileContent
+      );
+      if (featureBasedRoutes) {
+        const paths = plan.routeBlocks.map(getRoutePath);
+        assert.ok(paths.includes(''));
+        assert.ok(paths.includes('**'));
+        assert.ok(paths.includes('collection/:collectionID/text'));
+        assert.ok(paths.includes('index/:type'));
+        assert.ok(!paths.includes('collection/:collectionID/cover'));
+        assert.ok(!paths.includes('media-collection'));
+        assert.ok(!paths.includes('search'));
+        assert.strictEqual(paths.includes('account'), authEnabled);
+        assert.strictEqual(paths.includes('forgot-password'), authEnabled);
+      }
+    });
+  }
+}
+
+test('protected lazy routes are included when their feature is enabled from the top menu', () => {
+  const source = `export const routes: Routes = [
+    { path: '', loadComponent: () => import('./home') },
+    { path: 'media-collection', canActivate: [authGuard], loadChildren: () => import('./media.routes') },
+    { path: 'search', canActivate: [authGuard], loadComponent: () => import('./search') },
+    { path: '**', loadComponent: () => import('./not-found') }
+  ];`;
+  const config = createGeneratorConfig(true, true);
+  config.component.mainSideMenu.items.mediaCollections = true;
+  config.component.topMenu.showElasticSearchButton = true;
+  const plan = createRouteGenerationPlan(source, config);
+
+  assert.deepStrictEqual(getAuthProtectedRoutePaths(plan.routeBlocks, true), ['media-collection', 'search']);
+});
+
+test('generation writes reproducible filtered metadata with parameterized paths and no disabled-auth paths', () => {
+  const originalGetConfig = common.getConfig;
+  const originalWrite = fs.writeFileSync;
+  const originalLog = console.log;
+  const config = createGeneratorConfig(true, true);
+  config.collections = { order: [203], frontMatterPages: { introduction: true } };
+  config.component.mainSideMenu.items.collections = true;
+  config.component.mainSideMenu.items.indexPersons = true;
+  const files = new Map();
+
+  try {
+    common.getConfig = () => config;
+    fs.writeFileSync = (filename, content) => files.set(path.basename(filename), content);
+    console.log = () => {};
+    generateRoutes();
+    const metadata = files.get('auth-protected-route-paths.generated.ts');
+    const browserRoutes = files.get('app.routes.generated.ts');
+    const paths = Array.from(metadata.matchAll(/^  ("[^"]+")/gm), match => JSON.parse(match[1]));
+
+    assert.deepStrictEqual(paths, [
+      'account', 'change-password', 'collection/:collectionID/introduction',
+      'collection/:collectionID/text', 'content', 'forgot-password', 'index/:type',
+      'login', 'register', 'reset-password', 'verify-email'
+    ]);
+    assert.doesNotMatch(browserRoutes, /path: 'collection\/:collectionID\/cover'/);
+    assert.doesNotMatch(browserRoutes, /path: 'search'/);
+    assert.doesNotMatch(browserRoutes, /path: 'media-collection'/);
+    generateRoutes();
+    assert.strictEqual(files.get('auth-protected-route-paths.generated.ts'), metadata);
+    assert.strictEqual(files.get('app.routes.generated.ts'), browserRoutes);
+
+    config.app.auth.enabled = false;
+    generateRoutes();
+    assert.match(files.get('auth-protected-route-paths.generated.ts'), /Auth feature enabled: false/);
+    assert.doesNotMatch(files.get('auth-protected-route-paths.generated.ts'), /^  "/m);
+  } finally {
+    common.getConfig = originalGetConfig;
+    fs.writeFileSync = originalWrite;
+    console.log = originalLog;
+  }
 });
 
 test('stripCommentsPreserveLiterals keeps string literals and length stable', () => {

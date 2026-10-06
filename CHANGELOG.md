@@ -8,10 +8,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+### Breaking changes
+
+- Build/SSR: switch to Angular's integrated `application` builder and `AngularNodeAppEngine`. The runtime entry is now `dist/app/server/server.mjs`, and locale browser shells are `index.csr.html`. Remove the legacy proxy launcher, post-build copy, separate server/prerender targets, and server tsconfig. Forks with custom server or build code must adapt to the ESM entry and Angular's Web `REQUEST`/nullable `RESPONSE_INIT` APIs. Stable npm commands, port 4201, the browser volume layout, and configured default-language responses are retained.
+- SSR proxy trust: add `app.ssr.trustedProxyAddresses` with loopback/private-network defaults. Proxy addresses and the existing hop limit now both constrain forwarded client IPs; origin headers are accepted only from trusted immediate peers. Deployments using public proxy IPs must add their actual addresses/CIDRs. See `docs/DEPLOYMENT.md`.
+
 ### Added
 
-- Routes: `generate-routes` now also produces the ignored `src/app/app.routes.server.generated.ts` for the Stage 2 runtime cutover. It uses the feature-filtered canonical routes, preserves parameters, and assigns client rendering to auth-protected parents and their child routes when auth is enabled, followed by a server-rendered wildcard. The existing Express runtime continues to use the auth-protected path artifact until the cutover.
+- Routes: `generate-routes` now also produces the ignored `src/app/app.routes.server.generated.ts`, consumed by Angular's server-rendering provider. It uses the feature-filtered canonical routes, preserves parameters, and assigns client rendering to auth-protected parents and their child routes when auth is enabled, followed by a server-rendered wildcard.
 - Tests: lock SSR/CSR rendering, default-language routing, public/proxy SEO URLs, missing-static-file handling, and parameterized auth-route metadata ahead of the Stage 2 migration. Add `test:build-output` for stable output contracts and `test:ssr:checks` for the smoke runner; `test:ssr:smoke -- --auth-enabled` verifies an auth-enabled build's CSR shells. Prevent regex injection in SSR smoke checks by accepting only literal `includes` checks in JSON case files; regex checks remain available as code-owned literals in the script.
+- Tests: add `test:ssr:server` to verify Express static/probe short-circuits with an Angular-handler spy, cache policies, dynamic limiting, configured locale paths, and proxy trust. Cover Angular Web request adaptation and locale/base-path stripping in the existing Jasmine/Karma suite.
 
 ### Fixed
 
@@ -19,10 +25,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ### Changed
 
-- SSR tooling: Docker and benchmark auto-start now use the canonical `npm run serve:ssr` command, preparing for the Stage 2 server-entry change. The script still starts the existing proxy runtime; benchmark cleanup stops the launcher and its SSR child processes. Add `test:ssr:benchmark` to verify alternate entries, startup failures, and process cleanup on Windows/Linux.
-- SSR: application services now read URL, public origin, and user agent from `APPLICATION_REQUEST_CONTEXT`, supplied by a server-only Express adapter. This prepares the Stage 2 request API migration while preserving routing, SEO URLs, and mobile/desktop rendering. Add context/fallback unit coverage and Swedish/Finnish mobile/desktop SSR smoke cases. Forks with custom services that inject Express `REQUEST` should adopt the application context for these values.
-- SSR source entry: move `server.ts` to `src/server.ts` with mechanical import and build-path updates. Forks with custom server code should follow the rename. The current runtime and emitted paths are unchanged.
-- Build: enable TypeScript `esModuleInterop` and remove the redundant `allowSyntheticDefaultImports` option to prepare package imports for the Stage 2 ESM server build. Strict compiler settings, the current builders, and SSR startup behavior are unchanged.
+- SSR: keep Express app creation, middleware helpers, and Angular handler registration together in `src/server.ts`; reuse the default locale's static router for localized and unprefixed requests. The focused middleware checks build and import the emitted server entry.
+- SSR: narrow the Express forwarding-header middleware to the trusted-peer check for `X-Forwarded-Host` and `X-Forwarded-Proto`. Express retains client-IP trust and Angular filters unsupported forwarding headers, removing the duplicate scan of all request headers.
+- SSR tooling: Docker and benchmark auto-start now use the canonical `npm run serve:ssr` command; benchmark cleanup stops the launcher and its SSR child processes. Add `test:ssr:benchmark` to verify alternate entries, startup failures, and process cleanup on Windows/Linux.
+- SSR: application services now read app-relative URL, public origin, and user agent from `APPLICATION_REQUEST_CONTEXT`, backed by a server-only Angular Web request adapter. Preserve routing, SEO URLs, and mobile/desktop rendering. Forks with custom services that inject Express `REQUEST` should adopt the application context for these values. Generated Angular `RenderMode.Client` routes now supply auth-protected CSR shells; public routes remain server rendered.
+- SSR source entry: move `server.ts` to `src/server.ts`. Forks with custom server code should follow the rename and the runtime adaptation described above.
+- Build: enable TypeScript `esModuleInterop` and remove the redundant `allowSyntheticDefaultImports` option. Merge browser/server TypeScript sources while retaining strict checks and extended diagnostics. Preserve Ionicons registration and disabled critical CSS inlining; keep Jasmine/Karma and root CommonJS helper scripts through this cutover.
 
 
 

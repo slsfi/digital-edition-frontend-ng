@@ -25,6 +25,8 @@ The Docker images built this way are pushed to and stored in the [GitHub Contain
 
 The production build command `npm run build:ssr` runs route generation before compiling Angular. Feature-based route exclusion is disabled by default and can be enabled in [`src/assets/config/config.ts`][config_ts] by setting `app.prebuild.featureBasedRoutes` to `true`.
 
+The integrated application build emits browser files under `dist/app/browser/<locale subPath>` and the ESM runtime at `dist/app/server/server.mjs`. `npm run serve:ssr` starts it on port 4201 (or `PORT`); custom launchers must adopt this entry. Browser CSR shells are named `index.csr.html`. The legacy `proxy-server.js`, `postbuild-copy-files.js`, and separate server Architect target are removed. Docker and benchmarks already use the canonical npm command. Locale `subPath` values replace equivalent `baseHref` entries in `angular.json`; retain each fork's actual locale paths and explicit build locale list.
+
 **Important!** Before creating a new release, push a commit that updates:
 
 1. the image tag in [`compose.yml`][docker_compose_file] to the release tag you are going to use,
@@ -50,8 +52,13 @@ The Node SSR app uses app-level request limiting for dynamic render requests. Li
 The request IP used by the limiter depends on Express proxy trust settings. Configure this in [`src/assets/config/config.ts`][config_ts]:
 
 - `app.ssr.trustProxyHops` (default: `2`): number of trusted proxy hops when resolving `req.ip` for SSR rate limiting. Value `2` is correct when the app runs behind one upstream reverse proxy (for example HAProxy) in front of nginx (`reverse proxy -> nginx -> Node/Express SSR app`). If the app is reached directly through nginx (no extra reverse proxy), set this to `1`. If the app is reached directly by Node/Express (no proxy), set this to `0`. If the proxy chain is longer, increase the value accordingly.
+- `app.ssr.trustedProxyAddresses` (default: `["loopback", "linklocal", "uniquelocal"]`): trusted proxy IPs/subnets, using Express's named ranges, individual addresses, or CIDRs. The hop limit and address allowlist both apply to the forwarded client-IP chain. Set this to the actual trusted proxy addresses for your deployment; include public proxy IPs explicitly when needed. An empty list disables proxy trust. Node accepts `X-Forwarded-Host` and `X-Forwarded-Proto` only from a trusted immediate peer with a nonzero hop limit. The middleware checks only those two origin headers; Express handles client-IP trust and Angular filters unsupported forwarding headers, including `Forwarded` and `X-Forwarded-Prefix`. Direct requests from untrusted addresses cannot override the public origin or limiter client IP with forwarding headers.
+
+In the standard HAProxy -> nginx -> Node deployment, nginx is the only peer connecting to Node. The application peer check is additional protection for alternate deployment paths; trusted proxies must still sanitize incoming headers. It performs an IP/subnet comparison against a trust function compiled at startup, with no scan of all request headers or per-request network lookup.
 
 The nginx config preserves an incoming `X-Forwarded-Proto` header when the app runs behind an upstream TLS-terminating proxy, and falls back to nginx's own `$scheme` when that header is absent. SSR URL generation also treats `app.siteURLOrigin` as authoritative when the request host matches the configured public host, so canonical and Open Graph URLs keep the configured HTTPS origin even if an internal proxy hop uses HTTP.
+
+Angular's host allowlist includes loopback hosts and the hostname from `app.siteURLOrigin`; additional deployment hosts can be supplied through comma-separated `NG_ALLOWED_HOSTS`. Trusted upstream proxies must overwrite client-supplied origin headers before forwarding them to Node.
 
 **Important!** nginx gets access to the static files through a [Docker volume][docker_volume_reference], which is defined in [`compose.yml`][docker_compose_file]. Since volumes persist even if the container itself is deleted, and the content of a volume is not updated when the image is updated, you need to run
 

@@ -355,8 +355,7 @@ function writeServerRoutesFile(serverRoutes, featureBasedRoutes, authEnabled) {
  * Feature-based route filtering: ${featureBasedRoutes}
  * Auth feature enabled: ${authEnabled}
  *
- * Prepared for the application-builder cutover; the current Express runtime
- * still consumes auth-protected-route-paths.generated.ts.
+ * Consumed by provideServerRendering(withRoutes(serverRoutes)).
  */
 export const serverRoutes: ServerRoute[] = [
 ${entries}

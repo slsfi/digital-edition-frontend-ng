@@ -8,12 +8,12 @@
       "@angular/localize"
     ]
   },
-  "files": [
-    "src/main.ts",
-    "src/ionicons-polyfill.ts"
-  ],
   "include": [
-    "src/**/*.d.ts"
+    "src/**/*.ts"
+  ],
+  "exclude": [
+    "src/**/*.spec.ts",
+    "src/test.ts"
   ],
   "angularCompilerOptions": {
     "extendedDiagnostics": {

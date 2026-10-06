@@ -78,7 +78,7 @@ Use this checklist after auth/interceptor/guard changes.
 
 With current token storage strategy (no auth cookies), SSR cannot identify authenticated browser users on initial request.
 
-To avoid SSR/client mismatches on auth-guarded routes, the Express SSR server serves the client-rendered index HTML (CSR shell) for route paths generated in [`src/app/auth-protected-route-paths.generated.ts`](../src/app/auth-protected-route-paths.generated.ts) when `app.auth.enabled` is `true`. Non-protected routes continue to use SSR.
+To avoid SSR/client mismatches on auth-guarded routes, Angular serves CSR shells for the `RenderMode.Client` paths in [`src/app/app.routes.server.generated.ts`](../src/app/app.routes.server.generated.ts) when `app.auth.enabled` is `true`. Protected lazy-route descendants are also client rendered. Public routes retain `RenderMode.Server`. Regenerate routes and rebuild after changing auth or feature flags.
 
 ## Sitemap behavior in auth mode
 

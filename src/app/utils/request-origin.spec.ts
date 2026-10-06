@@ -1,5 +1,3 @@
-import type { Request } from 'express';
-
 import { config } from '../../assets/config/config';
 import {
   getConfiguredSiteHostname,
@@ -7,12 +5,13 @@ import {
   getRequestOrigin,
   getRequestRenderUrl
 } from './request-origin';
+import type { OriginRequest, RenderRequest } from './request-origin';
 
 function createRequest(
-  headers: Request['headers'] = { host: 'localhost:4201' },
+  headers: OriginRequest['headers'] = { host: 'localhost:4201' },
   protocol = 'http',
   originalUrl = '/fi/collection/203/introduction?view=readingtext'
-): Pick<Request, 'headers' | 'protocol' | 'originalUrl'> {
+): RenderRequest {
   return { headers, protocol, originalUrl };
 }
 

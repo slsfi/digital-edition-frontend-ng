@@ -1,12 +1,11 @@
 import { Injectable, LOCALE_ID, OnDestroy, Renderer2, RendererFactory2, DOCUMENT, inject } from '@angular/core';
 import { Meta, Title } from '@angular/platform-browser';
 import { BehaviorSubject, Observable } from 'rxjs';
-import type { Request } from 'express';
 
 import { config } from '@config';
 import { RouteLocalizationService } from '@services/route-localization.service';
-import { REQUEST } from 'src/express.tokens';
-import { getConfiguredSiteOrigin, getRequestOrigin } from '../utils/request-origin';
+import { APPLICATION_REQUEST_CONTEXT } from '@tokens/request-context.token';
+import { getConfiguredSiteOrigin } from '../utils/request-origin';
 
 
 @Injectable({
@@ -19,7 +18,7 @@ export class DocumentHeadService implements OnDestroy {
   private document = inject<Document>(DOCUMENT);
   private activeLocale = inject(LOCALE_ID);
   private routeLocalizationService = inject(RouteLocalizationService);
-  private request = inject<Request>(REQUEST, { optional: true });
+  private requestContext = inject(APPLICATION_REQUEST_CONTEXT, { optional: true });
 
   private readonly languages: any[] = config.app?.i18n?.languages ?? [];
   private readonly openGraphTags: any = config.app?.openGraphMetaTags ?? undefined;
@@ -300,7 +299,7 @@ export class DocumentHeadService implements OnDestroy {
    * @returns Origin string (`scheme://host`).
    */
   private getOrigin(): string {
-    const requestOrigin = getRequestOrigin(this.request);
+    const requestOrigin = this.requestContext?.publicOrigin;
     if (requestOrigin) {
       return requestOrigin;
     }
@@ -312,7 +311,7 @@ export class DocumentHeadService implements OnDestroy {
    * @returns Canonical path without locale prefix.
    */
   private getRequestPathWithoutLocale(): string | undefined {
-    const requestPath = this.request?.url || this.request?.originalUrl;
+    const requestPath = this.requestContext?.url;
     if (!requestPath) {
       return undefined;
     }

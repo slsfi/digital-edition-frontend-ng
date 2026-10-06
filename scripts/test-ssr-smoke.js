@@ -460,6 +460,37 @@ const TEST_CASES = [
       },
     ],
   },
+  ...['sv', 'fi'].flatMap(locale => [false, true].map(mobile => ({
+    name: `${mobile ? 'Mobile' : 'Desktop'} SSR layout ${locale}`,
+    route: `/${locale}/collection/216/text/20280?views=(type:readingtext)`,
+    authProtected: true,
+    headers: {
+      'User-Agent': mobile
+        ? 'Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) Mobile/15E148 Safari/604.1'
+        : 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/154.0.0.0 Safari/537.36',
+    },
+    csrChecks: [
+      { description: 'CSR shell locale', type: 'includes', value: `lang="${locale}"` },
+      { description: 'CSR shell asset base', type: 'includes', value: `<base href="/${locale}/">` },
+    ],
+    checks: [
+      { description: 'Requested HTML locale', type: 'includes', value: `lang="${locale}"` },
+      { description: 'Canonical excludes query parameters', type: 'includes', value: '<link rel="canonical" href="http://localhost:4201/sv/collection/216/text/20280">' },
+      { description: 'og:url uses the requested locale without query parameters', type: 'includes', value: `<meta property="og:url" content="http://localhost:4201/${locale}/collection/216/text/20280">` },
+      {
+        description: 'Side navigation visibility follows the user agent', type: 'regex',
+        value: mobile
+          ? /<nav\b(?=[^>]*\bid="side-navigation")[^>]*\bclass="side-navigation visuallyhidden"[^>]*>/
+          : /<nav\b(?=[^>]*\bid="side-navigation")[^>]*\bclass="side-navigation"[^>]*>/,
+      },
+      {
+        description: 'Text layout follows the user agent', type: 'regex',
+        value: mobile
+          ? /class="[^"]*\bmobile-mode-content\b[^"]*"/
+          : /<text-changer\b[^>]*\bclass="[^"]*\btext-changer-desktop-mode\b[^"]*"/,
+      },
+    ],
+  }))),
 ];
 
 function getTestCases(authEnabled, cases = TEST_CASES) {

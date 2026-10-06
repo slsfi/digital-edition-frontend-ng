@@ -25,6 +25,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ### Changed
 
+- SSR: keep Express app creation, middleware helpers, and Angular handler registration together in `src/server.ts`; reuse the default locale's static router for localized and unprefixed requests. The focused middleware checks build and import the emitted server entry.
+- SSR: narrow the Express forwarding-header middleware to the trusted-peer check for `X-Forwarded-Host` and `X-Forwarded-Proto`. Express retains client-IP trust and Angular filters unsupported forwarding headers, removing the duplicate scan of all request headers.
 - SSR tooling: Docker and benchmark auto-start now use the canonical `npm run serve:ssr` command; benchmark cleanup stops the launcher and its SSR child processes. Add `test:ssr:benchmark` to verify alternate entries, startup failures, and process cleanup on Windows/Linux.
 - SSR: application services now read app-relative URL, public origin, and user agent from `APPLICATION_REQUEST_CONTEXT`, backed by a server-only Angular Web request adapter. Preserve routing, SEO URLs, and mobile/desktop rendering. Forks with custom services that inject Express `REQUEST` should adopt the application context for these values. Generated Angular `RenderMode.Client` routes now supply auth-protected CSR shells; public routes remain server rendered.
 - SSR source entry: move `server.ts` to `src/server.ts`. Forks with custom server code should follow the rename and the runtime adaptation described above.

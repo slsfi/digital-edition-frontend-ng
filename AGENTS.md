@@ -43,7 +43,7 @@ When contributing, changes must be reusable and config-driven; project-specific 
 - `npm run serve:ssr` - run built SSR app from `dist/`.
 - `npm run test:ssr:smoke` - verify key SSR responses against a running SSR app.
 - `npm run test:ssr:checks` - verify SSR smoke-runner rendering and HTTP checks without a running app.
-- `npm run test:ssr:server` - verify Express short-circuits, caching, limiting, locale paths, and proxy trust without bootstrapping Angular.
+- `npm run test:ssr:server` - build SSR, then verify Express middleware from the emitted server entry with a render spy, covering short-circuits, caching, limiting, locale paths, and proxy trust.
 - `npm run test:ssr:benchmark` - verify benchmark auto-start, alternate runtime entries, and process cleanup.
 - `npm run test:build-output` - verify configured locale browser directories and the runtime entry after building.
 - `npm run ssr-start` - build SSR and serve in one command.

@@ -1,16 +1,18 @@
 #!/usr/bin/env node
 
 const assert = require('node:assert/strict');
+const express = require('express');
 const fs = require('node:fs');
 const http = require('node:http');
 const os = require('node:os');
 const path = require('node:path');
 const { pathToFileURL } = require('node:url');
 
-// Node 24 loads erasable TypeScript directly. These server helpers do not bootstrap Angular.
-/** Runs isolated middleware/locale checks with test-owned static files and local HTTP servers. */
+// Import the built server to check the middleware shipped in production without rendering Angular.
+// Its main-module guard prevents a listener; each test creates its own app and render spy.
+/** Runs built-server middleware and locale checks with test-owned files and local HTTP servers. */
 async function main() {
-  const { createSsrApp } = await import(pathToFileURL(path.resolve(__dirname, '../src/ssr/express-app.ts')));
+  const { configureSsrMiddleware } = await import(pathToFileURL(path.resolve(__dirname, '../dist/app/server/server.mjs')));
   const { getServerLocales, getDefaultServerLocale, localizeRequestUrl } =
     await import(pathToFileURL(path.resolve(__dirname, '../src/ssr/server-locales.ts')));
   const fixture = fs.mkdtempSync(path.join(os.tmpdir(), 'ssr-server-'));
@@ -51,10 +53,14 @@ async function main() {
    */
   async function withServer(overrides, test) {
     const calls = [];
-    const app = createSsrApp({ ...options, ...overrides, render: (req, res) => {
+    const app = express();
+    configureSsrMiddleware(app, { ...options, ...overrides });
+    // The server entry owns rendering and dynamic response headers after the shared middleware.
+    app.use((req, res) => {
       calls.push({ url: req.originalUrl, headers: { ...req.headers }, ip: req.ip });
+      res.vary('User-Agent');
       res.type('html').send('<app-root>Dynamic response</app-root>');
-    } });
+    });
     const server = http.createServer((req, res) => {
       // Simulate a public peer so local HTTP tests exercise the proxy boundary.
       Object.defineProperty(req.socket, 'remoteAddress', {
@@ -213,19 +219,24 @@ async function main() {
         'x-forwarded-for': '192.0.2.45, 10.0.0.4', 'x-forwarded-prefix': '/spoof',
         forwarded: 'host=attacker.example;proto=http'
       };
-      await check('trusted proxy peers preserve only the deployed forwarding headers and client IP', async () => {
+      await check('trusted proxy origin headers and client IP pass through without duplicating Angular header filtering', async () => {
         assert.equal((await request('/francais/about', forwarding)).status, 200);
         const call = calls.at(-1);
         assert.equal(call.headers['x-forwarded-host'], 'edition.example');
         assert.equal(call.headers['x-forwarded-proto'], 'https');
         assert.equal(call.ip, '192.0.2.45');
-        assert.equal(call.headers.forwarded, undefined);
-        assert.equal(call.headers['x-forwarded-prefix'], undefined);
+        assert.equal(call.headers.forwarded, forwarding.forwarded);
+        assert.equal(call.headers['x-forwarded-prefix'], forwarding['x-forwarded-prefix']);
       });
       await check('direct untrusted peers cannot spoof the origin or limiter client IP', async () => {
         assert.equal((await request('/francais/about', { ...forwarding, 'x-test-remote-address': '198.51.100.10' })).status, 200);
         const call = calls.at(-1);
-        for (const name of Object.keys(forwarding)) assert.equal(call.headers[name], undefined);
+        assert.equal(call.headers['x-forwarded-host'], undefined);
+        assert.equal(call.headers['x-forwarded-proto'], undefined);
+        // Express ignores this untrusted IP chain; Angular owns filtering of the other headers.
+        assert.equal(call.headers['x-forwarded-for'], forwarding['x-forwarded-for']);
+        assert.equal(call.headers.forwarded, forwarding.forwarded);
+        assert.equal(call.headers['x-forwarded-prefix'], forwarding['x-forwarded-prefix']);
         assert.equal(call.ip, '198.51.100.10');
       });
     });

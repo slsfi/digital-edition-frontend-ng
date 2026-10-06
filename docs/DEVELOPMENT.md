@@ -2,6 +2,16 @@
 
 This document contains notes and tips on the development of the app.
 
+## Angular development server
+
+`npm start` serves Swedish and `npm run start:fi` serves Finnish on port 4200. Both commands generate route metadata before starting Angular's development server, so they work without pre-existing ignored route outputs. To run both locales at once, choose another port for one server, for example `npm run start:fi -- --port 4202`.
+
+The development server renders through SSR and then starts the browser application. Each server uses one locale with a `/` base href; production's locale-prefixed dispatch is verified separately with `npm run serve:ssr`. Development source maps include TypeScript and SCSS source content.
+
+Angular applies hot updates to component templates/styles and global styles where supported. TypeScript logic changes reload the page. Edits to `src/assets/custom_css/custom.scss` also reload the page because this file is both a global stylesheet and a copied asset; its styles are updated after that reload. A full reload clears unsaved component state, such as an index search term. See [Angular's HMR guidance](https://angular.dev/tools/cli/build-system-migration#hot-module-replacement).
+
+The browser router uses the canonical `app.routes.ts` during development. Development SSR also consumes generated server-rendering metadata, so run `npm run generate-routes` after changing auth/feature-route configuration or route declarations while a server is running. When invoking `ng serve` directly instead of the npm start commands, generate routes first.
+
 
 ## Run Docker images locally on Windows
 
@@ -401,10 +411,11 @@ Feature toggle in config:
 Build behavior:
 
 - development builds/serve use `src/app/app.routes.ts` directly (all routes enabled)
+- `npm start` and `npm run start:fi` generate the server-rendering route metadata before starting development SSR
 - production builds replace `src/app/app.routes.ts` with `src/app/app.routes.generated.ts` using Angular `fileReplacements`
 - `build:ssr` runs `generate-routes` explicitly before the production build
 
-If you run production Angular CLI commands directly, run `npm run generate-routes` first.
+If you run Angular CLI build or serve commands directly, run `npm run generate-routes` first.
 
 Parser smoke tests:
 

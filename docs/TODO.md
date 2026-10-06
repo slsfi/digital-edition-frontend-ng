@@ -8,10 +8,11 @@ Current status:
 
 - The standalone/zoneless application now uses the integrated application builder and `AngularNodeAppEngine`.
 - Generated Angular server routes own auth-protected CSR shells through `RenderMode.Client`; the manual Express CSR workaround has been removed.
+- i18n extraction now delegates to `@angular/build:extract-i18n` through the existing merge wrapper.
 
 See the [application-builder and Vitest migration plan](migrations/STAGE-2-APPLICATION-BUILDER.md) for the remaining checkpoints:
 
-- Move i18n extraction to the modern toolchain and complete the localization/deployment checkpoints.
+- Complete the localization/deployment checkpoints.
 - Migrate Jasmine/Karma to Vitest in its dedicated phases; retain the existing test builder and plugins until then.
 
 ## nginx rate limiting for SSR backend

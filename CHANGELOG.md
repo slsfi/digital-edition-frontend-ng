@@ -31,6 +31,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - SSR: application services now read app-relative URL, public origin, and user agent from `APPLICATION_REQUEST_CONTEXT`, backed by a server-only Angular Web request adapter. Preserve routing, SEO URLs, and mobile/desktop rendering. Forks with custom services that inject Express `REQUEST` should adopt the application context for these values. Generated Angular `RenderMode.Client` routes now supply auth-protected CSR shells; public routes remain server rendered.
 - SSR source entry: move `server.ts` to `src/server.ts`. Forks with custom server code should follow the rename and the runtime adaptation described above.
 - Build: enable TypeScript `esModuleInterop` and remove the redundant `allowSyntheticDefaultImports` option. Merge browser/server TypeScript sources while retaining strict checks and extended diagnostics. Preserve Ionicons registration and disabled critical CSS inlining; keep Jasmine/Karma and root CommonJS helper scripts through this cutover.
+- i18n tooling: delegate `ng-extract-i18n-merge` extraction to `@angular/build:extract-i18n`, preserving XLIFF 2 output, ID sorting, target-file merging, and source-language behavior.
 
 
 

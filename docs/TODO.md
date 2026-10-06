@@ -11,6 +11,7 @@ Current status:
 - i18n extraction now delegates to `@angular/build:extract-i18n` through the existing merge wrapper.
 - Swedish/Finnish locale routing and Swedish-default unprefixed serving are verified in Node, the production Docker image, nginx, and browser navigation; no additional compatibility changes were needed in phase 11.
 - Development SSR/HMR, source maps, startup route generation, nginx output caching, and the CI configuration are verified in phase 12. Both start commands now generate routes, and nginx caches emitted `media/` fonts immutably.
+- The phase 13 Vitest rehearsal preserves all 267 tests across 44 spec files. The plan records the required typed-fake, signal, timer, locale, route-identity, and spy-cleanup conversions; the active runner remains Jasmine/Karma.
 
 See the [application-builder and Vitest migration plan](migrations/STAGE-2-APPLICATION-BUILDER.md) for the remaining checkpoints:
 

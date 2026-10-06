@@ -1197,7 +1197,7 @@ The default auth-disabled configuration is restored after the auth gate. Docker/
 
 ## 10. Migrate i18n extraction to the @angular/build toolchain
 
-The current `ng-extract-i18n-merge` configuration explicitly delegates to:
+Before phase 10, the `ng-extract-i18n-merge` configuration explicitly delegated to:
 
 ~~~text
 @angular-devkit/build-angular:extract-i18n
@@ -1237,6 +1237,16 @@ build(i18n): use application-builder extraction tooling
 ~~~
 
 This removes one reason to retain `@angular-devkit/build-angular` after Karma is removed.
+
+### Phase 10 implementation checkpoint — 2026-10-06
+
+`builderI18n` now explicitly selects `@angular/build:extract-i18n`. The merge wrapper, application build target, XLIFF 2 format, output path, ID sorting, target files, and source-language behavior are retained. `@angular-devkit/build-angular` remains installed for the legacy Karma target.
+
+Verification completed:
+
+- `npm run extract-i18n` succeeds through the modern extraction builder.
+- All four catalogs retain the same 443 message IDs in the same order, with unchanged source text, targets, translation states, descriptions, meanings, and context. Extracted files differ from the baseline only in CRLF/LF line endings; the original catalog bytes were restored, leaving no XLF diff.
+- The pre-Vitest fast gate passes: source encoding (351 files), all 24 route-parser checks, all 267 Jasmine/Karma tests, route generation, and the `development,sv` build.
 
 ---
 

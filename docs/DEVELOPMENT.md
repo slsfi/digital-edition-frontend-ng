@@ -225,6 +225,8 @@ Library for compressing files. Used in `Dockerfile` in a post-build step to crea
 
 Library for extracting and merging i18n xliff translation files for Angular projects. This library extends the default Angular CLI, and is used to sort the keys in the xliff translation files. Used when running the `extract-i18n` script in `package.json` to create the xliff translation files for the app.
 
+The wrapper delegates extraction to `@angular/build:extract-i18n` using the application's build target. `npm run extract-i18n` retains XLIFF 2 output in `src/locale`, sorts units by ID, and merges the Finnish, Swedish, and English target files. The technical source locale remains `aa`; extraction does not change which locales are emitted by application builds. `@angular-devkit/build-angular` remains installed for the legacy Karma test target until the dedicated test-runner migration.
+
 
 ### `jasmine` and `karma`
 

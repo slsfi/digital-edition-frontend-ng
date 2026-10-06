@@ -770,6 +770,40 @@ Commit:
 docs(migration): update Stage 2 plan for current Angular CLI
 ~~~
 
+### 6.3 Rehearsal results (2026-10-06)
+
+The rehearsal used application commit `0b24937` (the merged phase 5), the locked Angular CLI/schematics/build/SSR version `22.2.1`, and an isolated worktree. The reference starter's current `main` was still `d012cb4a9c8942ded25b95de37b6ceede87edfa9`; there was no divergence from the recorded snapshot.
+
+The exact command in step 6.2 completed successfully, including its package-install tasks. Its output is a starting point for review, not a runnable drop-in migration:
+
+| Surface | Observed schematic output | Required cutover decision |
+| --- | --- | --- |
+| Build targets | `@angular/build:application` and `@angular/build:dev-server`; `main` becomes `browser`; integrates `src/main.server.ts` and `ssr.entry: src/server.ts`; sets `outputMode: server`; removes the separate `server`, `serve-ssr`, and `prerender` targets | Keep this integrated structure, with the server relocation already committed separately in step 7 |
+| Output/options | Changes `dist/app/browser` to `outputPath: { base: "dist/app" }`; removes `buildOptimizer`/`vendorChunk`; retains assets, styles, budgets, file replacements, translation policy, and `inlineCritical: false` | Preserve these repository inputs; verify the emitted tree before updating runtime consumers |
+| TypeScript | Merges server entries into `tsconfig.app.json`, deletes `tsconfig.server.json`, adds `esModuleInterop`, removes `allowSyntheticDefaultImports`; leaves `module: ES2022` and `moduleResolution: bundler` | Preserve strictness, path aliases, localization/Node types, and extended diagnostics; no wholesale starter-tsconfig replacement is needed |
+| Custom server | Deletes root `server.ts` and creates the generic ESM Express/`AngularNodeAppEngine` template at `src/server.ts`, listening on port 4000 by default | Reapply this application's middleware, port 4201, proxy/origin, rate-limit, static-cache, and unprefixed-default-locale contracts in step 9 |
+| Server providers | Leaves `app.config.server.ts` and `src/main.server.ts` unchanged; does not wire the generated server routes | Import `provideServerRendering`/`withRoutes` from `@angular/ssr` and consume the phase 5 metadata before the first integrated build; retain the Ionic bridge and service overrides |
+| Security | Adds `security.allowedHosts: []`; the generated engine has no custom host/proxy options | Explicitly restore configuration-derived allowed hosts and trusted proxy-header handling; this is not equivalent to either this application's policy or the starter's loopback allowlist |
+| Scripts/dependencies | Removes `build:ssr`/`serve:ssr`, adds `serve:ssr:app`, leaves dependent scripts referring to the removed names; removes `@angular-devkit/build-angular`; lowers Express/type dependency ranges to template defaults | Restore the stable script names and keep existing dependency ranges unless a separate change is justified; retain build-angular while legacy Karma and the extraction wrapper require it |
+| Unit testing/extraction | Changes the test builder to `@angular/build:karma` and removes its old Karma plugin, but leaves the old framework name and test bootstrap; leaves `ng-extract-i18n-merge`'s nested `builderI18n` pointing to build-angular | Keep the complete legacy Karma setup until the separate Vitest cutover; update the extraction wrapper explicitly in step 10 |
+| Localization | Preserves technical source locale `aa`, explicit translated production locales `sv`/`fi`, their XLF paths, and the old `baseHref` properties | Convert equivalent locale paths to `subPath` during the builder cutover, preserving each fork's actual paths and locale set |
+
+The unmodified schematic output failed its production build with `Could not resolve "zone.js/node"`. Angular 22.2.1's application builder uses a polyfill-name heuristic: any polyfill entry ending in `.ts`/`.js` is treated as potentially Zone-based. This includes the existing `src/ionicons-polyfill.ts`, even though it does not import Zone.js. An extensionless `src/ionicons-polyfill` entry resolved the same file and avoided the implicit Zone.js server import. Retain the file and its early registration behavior; do not install Zone.js or remove Ionicons to bypass this failure.
+
+With extensionless Ionicons and explicit `@angular/localize/init` polyfills, the next build failed because routes without server-route metadata defaulted to prerendering, including parameterized routes without `getPrerenderParams`. `outputMode: server` alone does not mean every route uses runtime SSR. The generated `RenderMode.Server`/`RenderMode.Client` metadata must be wired as part of the atomic cutover.
+
+The schematic's Karma configuration also failed: it executed only 132 of 265 tests, reported 40 failures including `$localize is not a function`, then disconnected. This confirms that its automatic test-builder/plugin changes must not be accepted while preserving the pre-Vitest test gate.
+
+A controlled production-build probe then passed with only these additional changes in the disposable worktree:
+
+- `polyfills: ["@angular/localize/init", "src/ionicons-polyfill"]`, retaining the existing TypeScript file;
+- the phase 5 `serverRoutes` supplied through `provideServerRendering(withRoutes(serverRoutes))` from `@angular/ssr`;
+- locale `baseHref: "sv/"`/`"fi/"` replaced by equivalent `subPath: "sv"`/`"fi"` values.
+
+The probe emitted zero prerendered routes, browser files under `dist/app/browser/{sv,fi}`, localized server bundles under `dist/app/server/{sv,fi}`, and the shared runtime entry `dist/app/server/server.mjs`. No `aa` production directory was emitted. The browser CSR shells are named `index.csr.html`; deployment/output checks must account for that rather than assuming `index.html` is present.
+
+This successful build validates the configuration direction only. The template server still lacks the application's required runtime behavior, and the request-context adapter and HTTP status handling still need the step 9 migration. It is not an SSR/auth/container parity result. No schematic or probe changes should be merged into production. The rehearsal log, original schematic patch, probe configuration, and output inventory are retained locally under ignored `tmp/stage-2-phase-6/`.
+
 ---
 
 
@@ -888,7 +922,7 @@ Translate existing options rather than re-creating configuration from scratch.
 Retain:
 
 - `index`,
-- polyfills including `src/ionicons-polyfill.ts`; this file is required for app-owned Ionicons and must not be dropped when matching the starter's `angular.json`,
+- polyfills including the existing `src/ionicons-polyfill.ts` file; with the rehearsed Angular 22.2.1 builder, use its extensionless `src/ionicons-polyfill` entry plus `@angular/localize/init` so the builder does not implicitly add Zone.js server polyfills (see step 6.3). Keep the file, early registration order, and test initialization when matching the starter,
 - assets,
 - styles,
 - localization,
@@ -912,6 +946,8 @@ Prefer preserving:
 
 so Docker/nginx need fewer changes.
 
+Use locale `subPath` values for the integrated localized SSR build rather than carrying over equivalent legacy `baseHref` properties, which Angular 22.2.1 warns may cause undefined SSR behavior. For the base app, `baseHref: "sv/"` maps to `subPath: "sv"` and `baseHref: "fi/"` maps to `subPath: "fi"`. Review fork-specific paths individually; preserve `sourceLocale: "aa"`, translation files, and the explicit production locale list.
+
 The reference starter emits a production runtime at `server/server.mjs`. Expect this application to move toward `dist/app/server/server.mjs`, but verify the actual emitted tree before changing `serve:ssr`.
 
 ### 9.2 Remove legacy application Architect targets
@@ -927,6 +963,8 @@ Remove obsolete dedicated application targets after their behavior is represente
 Keep the normal `serve` target using `@angular/build:dev-server` and point its configurations at the application build target.
 
 Do not remove the legacy Karma test target yet.
+
+Retain `@angular-devkit/build-angular:karma`, the build-angular dependency, and the existing `karma.conf.js` framework/plugin configuration through this cutover. Undo the schematic's automatic `@angular/build:karma` conversion and plugin removal; the phase 6 rehearsal demonstrated failures with that partial test-infrastructure migration. Jasmine test conversion and runner changes belong to the later Vitest phases.
 
 ### 9.3 Merge server TypeScript configuration
 
@@ -954,6 +992,8 @@ provideServerRendering(
 ~~~
 
 Use the generated server-route artifact from step 5.
+
+Import `provideServerRendering` and `withRoutes` from `@angular/ssr`, replacing the old `@angular/platform-server` provider import. Wire the routes before attempting the integrated production build: `outputMode: "server"` does not by itself prevent Angular's default prerender route extraction from rejecting parameterized application routes.
 
 Retain:
 
@@ -1077,6 +1117,8 @@ Verify:
 - forwarded host/protocol behavior.
 
 After this works, repository-owned Express request injection should no longer be needed by application services.
+
+Also replace `PageNotFoundPage`'s repository-owned Express `RESPONSE` token with Angular's nullable `RESPONSE_INIT` token from `@angular/core`, setting the response status through its `ResponseInit` object. Preserve browser/build-time null handling and verify actual HTTP 404 responses; the new engine does not supply the old Express response provider.
 
 ### 9.8 Replace auth CSR middleware with RenderMode.Client
 

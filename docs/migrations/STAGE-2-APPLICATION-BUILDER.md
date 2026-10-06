@@ -1,7 +1,7 @@
 # Angular 22 modernization — Stage 2: application builder and Vitest migration
 
 > [!IMPORTANT]
-> **Status: In progress; phases 1–13 complete.** The application-builder/SSR cutover and development/deployment checkpoints are verified. The Vitest rehearsal passes with the existing suite's coverage; dependency installation and the production test-runner cutover remain pending. Revalidate Angular's guidance and APIs before each remaining migration.
+> **Status: In progress; phases 1–14 complete.** The application-builder/SSR cutover and development/deployment checkpoints are verified. The Vitest rehearsal passes with the existing suite's coverage, and its dependencies are installed alongside Jasmine/Karma. The test-runner cutover remains pending. Revalidate Angular's guidance and APIs before each remaining migration.
 
 This is the second stage of the repository's [two-stage Angular modernization](README.md). It migrates the application from Angular's deprecated Webpack-based `browser`/`server` build pipeline to the integrated `application` builder and migrates unit testing from Jasmine/Karma to Vitest.
 
@@ -1573,6 +1573,20 @@ test: add Vitest migration dependencies
 ~~~
 
 This gives a small reversible checkpoint before the test-runner cutover.
+
+### Phase 14 dependency checkpoint (2026-10-06)
+
+Added `vitest: ^5.0.3` and `jsdom: ^30.1.2` as development dependencies, matching the versions verified in phase 13. Their Node requirements are compatible with the repository's declared Node 24.15 minimum. The updated lockfile adds 44 development-only package entries without changing existing package versions or removing entries. None of the new entries requires a lifecycle script, so `allowScripts` is unchanged.
+
+The active test target remains `@angular-devkit/build-angular:karma`. Jasmine types, manual TestBed bootstrap, Karma configuration/plugins, npm test commands, and all test files are unchanged.
+
+Verification after the updated lockfile's clean `npm ci`:
+
+- Dependency installation succeeds with Node 24.20.0 and npm 11.19.0; the installed versions are Vitest 5.0.3 and jsdom 30.1.2.
+- All 267 Jasmine/Karma tests across the existing 44 spec files pass.
+- The pre-Vitest fast gate passes: source encoding (351 files), all 24 route-parser checks, route generation, and the `development,sv` browser/server build. No Angular prerender routes are introduced.
+
+The dependencies are ready for phase 15's atomic test-runner and test-API cutover.
 
 ---
 

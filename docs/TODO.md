@@ -12,6 +12,7 @@ Current status:
 - Swedish/Finnish locale routing and Swedish-default unprefixed serving are verified in Node, the production Docker image, nginx, and browser navigation; no additional compatibility changes were needed in phase 11.
 - Development SSR/HMR, source maps, startup route generation, nginx output caching, and the CI configuration are verified in phase 12. Both start commands now generate routes, and nginx caches emitted `media/` fonts immutably.
 - The phase 13 Vitest rehearsal preserves all 267 tests across 44 spec files. The plan records the required typed-fake, signal, timer, locale, route-identity, and spy-cleanup conversions; the active runner remains Jasmine/Karma.
+- Phase 14 adds the rehearsed Vitest/jsdom development dependencies. Clean installation and the pre-Vitest fast gate pass; the runner and test APIs remain unchanged for phase 15's atomic cutover.
 
 See the [application-builder and Vitest migration plan](migrations/STAGE-2-APPLICATION-BUILDER.md) for the remaining checkpoints:
 

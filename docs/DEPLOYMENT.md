@@ -42,7 +42,7 @@ The Docker runtime starts SSR through `npm run serve:ssr`. Keep that script alig
 
 However, for easier configuration and better performance it is recommended to use [Docker Compose][docker_compose_reference] and the provided Compose file [`compose.yml`][docker_compose_file]. The Compose file defines an [nginx][nginx] web server to be used for serving static files in front of Node ([`nginx.conf`][nginx_conf]). This increases performance.
 
-The Node SSR app uses app-level request limiting for dynamic render requests. Limits can be tuned with environment variables (or by modifying in [`server.ts`](../server.ts)):
+The Node SSR app uses app-level request limiting for dynamic render requests. Limits can be tuned with environment variables (or by modifying in [`src/server.ts`](../src/server.ts)):
 
 - `SSR_RATE_LIMIT_WINDOW_MS` (default: `60000`): length of one rate-limit window in milliseconds (60 seconds by default).
 - `SSR_RATE_LIMIT_LIMIT` (default: `1200`): maximum number of dynamic render requests allowed per resolved request IP (`req.ip`) during one window (default: 1200 requests per 60 seconds, after which requests are answered with HTTP `429` until the window resets).

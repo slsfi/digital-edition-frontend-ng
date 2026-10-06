@@ -6,7 +6,7 @@ This document tracks cross-cutting TODOs that should stay visible outside local 
 
 Current status:
 
-- Auth-protected routes are currently forced to client rendering in Express middleware in [`server.ts`](../server.ts), based on generated route-path metadata from [`src/app/auth-protected-route-paths.generated.ts`](../src/app/auth-protected-route-paths.generated.ts).
+- Auth-protected routes are currently forced to client rendering in Express middleware in [`src/server.ts`](../src/server.ts), based on generated route-path metadata from [`src/app/auth-protected-route-paths.generated.ts`](../src/app/auth-protected-route-paths.generated.ts).
 - This is an implementation workaround for the current webpack-based SSR build setup.
 
 The standalone and zoneless migrations are complete while the legacy builders and `CommonEngine` remain in use. A future migration will evaluate their replacement with Angular's `application` builder (`@angular/build:application`), which is expected to introduce breaking changes. See the detailed [application-builder and Vitest migration plan](migrations/STAGE-2-APPLICATION-BUILDER.md). During that migration:
@@ -16,7 +16,7 @@ The standalone and zoneless migrations are complete while the legacy builders an
 
 ## nginx rate limiting for SSR backend
 
-- nginx rate limiting is currently not enabled; app-level limiting is handled in `server.ts` (`express-rate-limit`).
+- nginx rate limiting is currently not enabled; app-level limiting is handled in `src/server.ts` (`express-rate-limit`).
 - Consider re-enabling nginx edge rate limiting later for defense in depth.
 - Why postponed: correct per-user limiting in nginx depends on verified real client IP forwarding/trust configuration across proxy chain(s) (for example LB/HAProxy/nginx). A wrong config can collapse many users into one bucket or trust spoofable headers.
 

@@ -6,6 +6,7 @@ When contributing, changes must be reusable and config-driven; project-specific 
 
 ## Project Structure & Module Organization
 - Browser and server entry points are `src/main.ts` and `src/main.server.ts`.
+- The custom Express SSR entry is `src/server.ts`.
 - Shared application providers live in `src/app/app.config.ts`; server-specific providers and overrides live in `src/app/app.config.server.ts`.
 - `src/app/` contains application code:
   - `components/` reusable UI components.

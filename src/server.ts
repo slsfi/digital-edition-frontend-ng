@@ -10,12 +10,12 @@ import { existsSync, readFileSync } from 'node:fs';
 import rateLimit from 'express-rate-limit';
 import { join } from 'node:path';
 
-import bootstrap from './src/main.server';
-import { environment } from './src/environments/environment';
-import { REQUEST, RESPONSE } from './src/express.tokens';
-import { config } from './src/assets/config/config';
-import { authProtectedRoutePaths } from './src/app/auth-protected-route-paths.generated';
-import { getConfiguredSiteHostname, getRequestRenderUrl } from './src/app/utils/request-origin';
+import bootstrap from './main.server';
+import { environment } from './environments/environment';
+import { REQUEST, RESPONSE } from './express.tokens';
+import { config } from './assets/config/config';
+import { authProtectedRoutePaths } from './app/auth-protected-route-paths.generated';
+import { getConfiguredSiteHostname, getRequestRenderUrl } from './app/utils/request-origin';
 
 const LOOPBACK_ALLOWED_HOSTS = ['localhost', '127.0.0.1', '[::1]'] as const;
 
@@ -261,4 +261,4 @@ if (
   runDev();
 }
 
-export * from './src/main.server';
+export * from './main.server';

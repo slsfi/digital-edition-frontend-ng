@@ -44,6 +44,8 @@ The Docker runtime starts SSR through `npm run serve:ssr`. Keep that script alig
 
 However, for easier configuration and better performance it is recommended to use [Docker Compose][docker_compose_reference] and the provided Compose file [`compose.yml`][docker_compose_file]. The Compose file defines an [nginx][nginx] web server to be used for serving static files in front of Node ([`nginx.conf`][nginx_conf]). This increases performance.
 
+The application builder emits hashed fonts under `dist/app/browser/<locale subPath>/media/`. nginx gives those fonts the same one-year immutable caching as emitted JS/CSS bundles. Locale assets and generated `static-html` menus retain one-day caching; `npm run compress` creates gzip siblings throughout the browser output for nginx's `gzip_static` delivery.
+
 The Node SSR app uses app-level request limiting for dynamic render requests. Limits can be tuned with environment variables (or by modifying in [`src/server.ts`](../src/server.ts)):
 
 - `SSR_RATE_LIMIT_WINDOW_MS` (default: `60000`): length of one rate-limit window in milliseconds (60 seconds by default).

@@ -10,10 +10,10 @@ Current status:
 - Generated Angular server routes own auth-protected CSR shells through `RenderMode.Client`; the manual Express CSR workaround has been removed.
 - i18n extraction now delegates to `@angular/build:extract-i18n` through the existing merge wrapper.
 - Swedish/Finnish locale routing and Swedish-default unprefixed serving are verified in Node, the production Docker image, nginx, and browser navigation; no additional compatibility changes were needed in phase 11.
+- Development SSR/HMR, source maps, startup route generation, nginx output caching, and the CI configuration are verified in phase 12. Both start commands now generate routes, and nginx caches emitted `media/` fonts immutably.
 
 See the [application-builder and Vitest migration plan](migrations/STAGE-2-APPLICATION-BUILDER.md) for the remaining checkpoints:
 
-- Complete the development-server, output/deployment, and CI checkpoint.
 - Migrate Jasmine/Karma to Vitest in its dedicated phases; retain the existing test builder and plugins until then.
 
 ## nginx rate limiting for SSR backend

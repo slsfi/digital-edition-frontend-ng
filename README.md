@@ -77,29 +77,29 @@ The local Angular CLI from `node_modules` is used by the npm scripts.
 
 #### Development Server
 
-To build and serve the application on a development server as a client-side app only, run:
+To generate route metadata and serve the Swedish application with development SSR and automatic source updates, run:
 
 ```
 npm run start
 ```
 
-Open your browser on http://localhost:4200/. The app will automatically rebuild and reload if you change any of the source files.
+Open your browser on http://localhost:4200/. Use `npm run start:fi` for Finnish. Each development server serves one locale at `/`; production serves the configured locale prefixes. Template and component/global style edits use hot updates where supported, while other source edits reload the page. See [development-server behavior](docs/DEVELOPMENT.md#angular-development-server).
 
-#### Server-Side Rendered App
+#### Production Server-Side Rendered App
 
-To build the server-side rendered application, run:
+To generate route metadata and build the production browser and server bundles for the configured locales, run:
 
 ```
 npm run build:ssr
 ```
 
-Then, to serve the app, run:
+Then, to start the built production SSR server, run:
 
 ```
 npm run serve:ssr
 ```
 
-Open your browser on http://localhost:4201/. You need to manually run the build and serve commands again for changes in the source files to take effect.
+Open your browser on http://localhost:4201/. This server runs the compiled output from `dist/app/`. After changing source files, stop the server, rebuild, and start it again for the changes to take effect.
 
 
 ## Earlier version

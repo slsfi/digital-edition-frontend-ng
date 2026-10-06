@@ -21,6 +21,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ### Fixed
 
+- Development startup: generate route metadata before the Swedish and Finnish start commands so development SSR works without pre-existing ignored route outputs.
+- nginx: apply one-year immutable caching to hashed fonts emitted in locale `media/` directories by the application builder.
 - Pdf-viewer: broaden error message if the PDF can't be displayed.
 
 ### Changed

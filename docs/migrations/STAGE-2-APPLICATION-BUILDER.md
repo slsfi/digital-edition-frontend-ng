@@ -1,7 +1,7 @@
 # Angular 22 modernization — Stage 2: application builder and Vitest migration
 
 > [!IMPORTANT]
-> **Status: In progress; phases 1–11 complete.** The application-builder/SSR cutover, modern i18n extraction, and localization/default-language checkpoint are verified. The remaining development/deployment and Vitest checkpoints are still pending. Revalidate Angular's guidance and APIs before each remaining migration.
+> **Status: In progress; phases 1–12 complete.** The application-builder/SSR cutover, modern i18n extraction, localization/default-language serving, and development/deployment checkpoint are verified. The Vitest migration remains pending. Revalidate Angular's guidance and APIs before each remaining migration.
 
 This is the second stage of the repository's [two-stage Angular modernization](README.md). It migrates the application from Angular's deprecated Webpack-based `browser`/`server` build pipeline to the integrated `application` builder and migrates unit testing from Jasmine/Karma to Vitest.
 
@@ -1379,6 +1379,26 @@ build(docker): align deployment with application builder
 ~~~
 
 Keep development and deployment fixes separate when practical.
+
+### Phase 12 implementation checkpoint — 2026-10-06
+
+This checkpoint reuses phase 11's production build, emitted-output checks, 267 Jasmine/Karma tests, focused server checks, Docker build with production-only dependencies, full SSR/locale matrices, forwarded HTTPS, and gzip JavaScript results. Application sources, dependency versions, Dockerfile, and production build commands are unchanged, so those suites and the Docker build were not repeated.
+
+Two gaps required fixes:
+
+- Both npm start commands now run route generation through `prestart`/`prestart:fi`. Development SSR imports the ignored server-route artifact even though its browser router uses canonical routes. Removing the three generated outputs reproduced a missing-module error; startup now regenerates all three with identical bytes before compiling successfully.
+- nginx's immutable cache rule now includes the application builder's locale `media/` directory. Previously a hashed font returned HTTP 200 without `Cache-Control`; it now receives the same one-year immutable policy as hashed JS/CSS. The existing one-day asset/static-menu policy is retained.
+
+Additional verification completed:
+
+- Both locale development servers render backend content with the correct HTML language and `/` base href. Lazy index/article routes render and refresh successfully; representative registered Ionicons retain their SVGs after browser startup.
+- Reversible source probes verify global SCSS, custom SCSS, component SCSS, template, and TypeScript updates. Global style and template HMR preserve a typed index search term; component styles receive component updates. Custom SCSS edits trigger a full reload because the file is also copied as an asset, and TypeScript changes trigger a full reload. All five probe sources were restored byte-for-byte.
+- Development JavaScript/SCSS maps contain source content, and the browser map identifies canonical `app.routes.ts`. The retained production server contains the enabled production-environment replacement.
+- Eleven additional HTTP probes pass through nginx using the retained phase 11 image: Swedish/Finnish CSS, hashed fonts, and generated collection menus have correct MIME/cache policies; CSS/menus use gzip-static. A temporary two-request SSR quota produces `200`, `200`, `429`, while fonts/menus remain available after quota exhaustion. `nginx -t` passes before reloading the test configuration.
+- The GitHub Actions workflow still builds the same Dockerfile with Buildx and `NODE_IMAGE_TAG=24-alpine`; it has no legacy builder/output/runtime references requiring changes. This was a configuration audit; no workflow was triggered or image published.
+- TypeScript checking and source encoding (351 files) pass after source restoration and route regeneration.
+
+Development SSR/HMR and route-generation expectations are documented in `README.md` and `docs/DEVELOPMENT.md`; deployment caching is documented in `docs/DEPLOYMENT.md`. No additional application-builder deployment changes are required before the Vitest rehearsal.
 
 ---
 

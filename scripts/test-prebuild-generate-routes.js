@@ -1,6 +1,7 @@
 const assert = require('assert');
 const fs = require('fs');
 const path = require('path');
+const ts = require('typescript');
 const common = require('../prebuild-common-fns');
 const {
   generateRoutes,
@@ -8,6 +9,7 @@ const {
   extractRouteBlocks,
   extractRoutesArrayBody,
   getAuthProtectedRoutePaths,
+  getServerRoutes,
   extractAuthProtectedRoutePaths,
   getRoutePath,
   isAuthProtectedRouteBlock,
@@ -40,6 +42,34 @@ const tests = [];
 
 function test(name, fn) {
   tests.push({ name, fn });
+}
+
+function readServerRoutes(content) {
+  return Array.from(content.matchAll(/\{ path: ("(?:[^"\\]|\\.)*"), renderMode: RenderMode\.(Client|Server) \}/g), match => ({
+    path: JSON.parse(match[1]), renderMode: match[2]
+  }));
+}
+
+function assertServerRouteTypes(content) {
+  const filename = path.resolve(__dirname, '../src/app/app.routes.server.generated.ts');
+  const options = {
+    target: ts.ScriptTarget.ES2022,
+    module: ts.ModuleKind.ESNext,
+    moduleResolution: ts.ModuleResolutionKind.Bundler,
+    noEmit: true,
+    skipLibCheck: true,
+    types: []
+  };
+  const host = ts.createCompilerHost(options);
+  const readFile = host.readFile;
+  host.readFile = file => path.resolve(file) === filename ? content : readFile(file);
+  const program = ts.createProgram([filename], options, host);
+  const errors = ts.getPreEmitDiagnostics(program).filter(diagnostic => diagnostic.category === ts.DiagnosticCategory.Error);
+  assert.strictEqual(errors.length, 0, ts.formatDiagnostics(errors, {
+    getCanonicalFileName: file => file,
+    getCurrentDirectory: () => process.cwd(),
+    getNewLine: () => '\n'
+  }));
 }
 
 const standaloneRoutesSource = `
@@ -239,6 +269,73 @@ test('getAuthProtectedRoutePaths returns empty list when auth is disabled', () =
   assert.deepStrictEqual(paths, []);
 });
 
+test('auth-disabled server metadata contains only the server-rendered wildcard', () => {
+  assert.deepStrictEqual(getServerRoutes(extractRouteBlocks(standaloneRoutesSource), false), [
+    { path: '**', renderMode: 'Server' }
+  ]);
+});
+
+test('auth-enabled server metadata covers parameterized and lazy top-level paths before the wildcard', () => {
+  const source = `export const routes: Routes = [
+    { path: '', loadComponent: () => import('./home') },
+    { path: 'collection/:collectionID/introduction', canActivate: [authGuard] },
+    { path: 'collection/:collectionID/text', canActivate: [authGuard], loadChildren: () => import('./text.routes') },
+    { path: 'index/:type', canActivate: [authGuard] },
+    { path: 'media-collection', canActivate: [authGuard], loadChildren: () => import('./media.routes') },
+    { path: 'forgot-password', canMatch: [authFeatureEnabledMatchGuard] },
+    { path: 'about', loadChildren: () => import('./about.routes') },
+    { path: '**', loadComponent: () => import('./not-found') }
+  ];`;
+  assert.deepStrictEqual(getServerRoutes(extractRouteBlocks(source), true), [
+    { path: 'collection/:collectionID/introduction', renderMode: 'Client' },
+    { path: 'collection/:collectionID/text', renderMode: 'Client' },
+    { path: 'collection/:collectionID/text/**', renderMode: 'Client' },
+    { path: 'forgot-password', renderMode: 'Client' },
+    { path: 'index/:type', renderMode: 'Client' },
+    { path: 'media-collection', renderMode: 'Client' },
+    { path: 'media-collection/**', renderMode: 'Client' },
+    { path: '**', renderMode: 'Server' }
+  ]);
+});
+
+test('server metadata covers protected inline children and deduplicates repeated parents', () => {
+  const source = `export const routes: Routes = [
+    { path: 'members', canActivate: [authGuard], children: [{ path: ':id' }] },
+    { path: 'members', canActivate: [authGuard] },
+    { path: 'public', data: { note: 'no children' }, /* loadChildren: ignored */ loadComponent: () => import('./public') },
+    { path: '**' }
+  ];`;
+  assert.deepStrictEqual(getServerRoutes(extractRouteBlocks(source), true), [
+    { path: 'members', renderMode: 'Client' },
+    { path: 'members/**', renderMode: 'Client' },
+    { path: '**', renderMode: 'Server' }
+  ]);
+});
+
+test('server metadata keeps fork-specific protected paths independent of locales and base-app features', () => {
+  const source = `export const routes: Routes = [
+    { path: '', loadComponent: () => import('./home') },
+    { path: 'edition/:editionID/documents', canActivate: [authGuard], loadChildren: () => import('./documents.routes') },
+    { path: '**' }
+  ];`;
+  const plan = createRouteGenerationPlan(source, createGeneratorConfig(true, true));
+  assert.deepStrictEqual(Array.from(plan.unknownRoutePaths), ['edition/:editionID/documents']);
+  assert.deepStrictEqual(plan.serverRoutes, [
+    { path: 'edition/:editionID/documents', renderMode: 'Client' },
+    { path: 'edition/:editionID/documents/**', renderMode: 'Client' },
+    { path: '**', renderMode: 'Server' }
+  ]);
+});
+
+test('server metadata rejects protected catch-all paths instead of overriding their client mode with SSR', () => {
+  for (const route of [
+    `{ path: '**', canActivate: [authGuard] }`,
+    `{ path: '', canActivate: [authGuard], loadChildren: () => import('./children.routes') }`
+  ]) {
+    assert.throws(() => getServerRoutes([route], true), /Auth-protected catch-all routes conflict/);
+  }
+});
+
 for (const featureBasedRoutes of [false, true]) {
   for (const authEnabled of [false, true]) {
     test(`protected metadata follows filtered routes (features: ${featureBasedRoutes}, auth: ${authEnabled})`, () => {
@@ -271,14 +368,22 @@ for (const featureBasedRoutes of [false, true]) {
       ];
 
       assert.deepStrictEqual(protectedPaths, expectedProtectedPaths);
+      const expectedServerPaths = expectedProtectedPaths.flatMap(routePath =>
+        ['collection/:collectionID/text', 'media-collection'].includes(routePath)
+          ? [routePath, `${routePath}/**`] : [routePath]
+      ).sort();
+      assert.deepStrictEqual(plan.serverRoutes, [
+        ...expectedServerPaths.map(routePath => ({ path: routePath, renderMode: 'Client' })),
+        { path: '**', renderMode: 'Server' }
+      ]);
       assert.strictEqual(plan.unknownRoutePaths.size, 0);
       assert.deepStrictEqual(
         getAuthProtectedRoutePaths(extractRouteBlocks(plan.routesFileContent), authEnabled),
         expectedProtectedPaths
       );
       assert.deepStrictEqual(
-        createRouteGenerationPlan(source, config).routesFileContent,
-        plan.routesFileContent
+        createRouteGenerationPlan(source, config),
+        plan
       );
       if (featureBasedRoutes) {
         const paths = plan.routeBlocks.map(getRoutePath);
@@ -309,6 +414,12 @@ test('protected lazy routes are included when their feature is enabled from the 
   const plan = createRouteGenerationPlan(source, config);
 
   assert.deepStrictEqual(getAuthProtectedRoutePaths(plan.routeBlocks, true), ['media-collection', 'search']);
+  assert.deepStrictEqual(plan.serverRoutes, [
+    { path: 'media-collection', renderMode: 'Client' },
+    { path: 'media-collection/**', renderMode: 'Client' },
+    { path: 'search', renderMode: 'Client' },
+    { path: '**', renderMode: 'Server' }
+  ]);
 });
 
 test('generation writes reproducible filtered metadata with parameterized paths and no disabled-auth paths', () => {
@@ -328,6 +439,7 @@ test('generation writes reproducible filtered metadata with parameterized paths 
     generateRoutes();
     const metadata = files.get('auth-protected-route-paths.generated.ts');
     const browserRoutes = files.get('app.routes.generated.ts');
+    const serverRoutes = files.get('app.routes.server.generated.ts');
     const paths = Array.from(metadata.matchAll(/^  ("[^"]+")/gm), match => JSON.parse(match[1]));
 
     assert.deepStrictEqual(paths, [
@@ -338,14 +450,44 @@ test('generation writes reproducible filtered metadata with parameterized paths 
     assert.doesNotMatch(browserRoutes, /path: 'collection\/:collectionID\/cover'/);
     assert.doesNotMatch(browserRoutes, /path: 'search'/);
     assert.doesNotMatch(browserRoutes, /path: 'media-collection'/);
+    assert.deepStrictEqual(Array.from(files.keys()).sort(), [
+      'app.routes.generated.ts', 'app.routes.server.generated.ts', 'auth-protected-route-paths.generated.ts'
+    ]);
+    assert.deepStrictEqual(readServerRoutes(serverRoutes), [
+      { path: 'account', renderMode: 'Client' },
+      { path: 'change-password', renderMode: 'Client' },
+      { path: 'collection/:collectionID/introduction', renderMode: 'Client' },
+      { path: 'collection/:collectionID/text', renderMode: 'Client' },
+      { path: 'collection/:collectionID/text/**', renderMode: 'Client' },
+      { path: 'content', renderMode: 'Client' },
+      { path: 'forgot-password', renderMode: 'Client' },
+      { path: 'index/:type', renderMode: 'Client' },
+      { path: 'login', renderMode: 'Client' },
+      { path: 'register', renderMode: 'Client' },
+      { path: 'reset-password', renderMode: 'Client' },
+      { path: 'verify-email', renderMode: 'Client' },
+      { path: '**', renderMode: 'Server' }
+    ]);
+    assert.match(serverRoutes, /Feature-based route filtering: true/);
+    assert.match(serverRoutes, /Auth feature enabled: true/);
+    assert.doesNotMatch(serverRoutes, /RenderMode\.Prerender/);
+    assertServerRouteTypes(serverRoutes);
     generateRoutes();
     assert.strictEqual(files.get('auth-protected-route-paths.generated.ts'), metadata);
     assert.strictEqual(files.get('app.routes.generated.ts'), browserRoutes);
+    assert.strictEqual(files.get('app.routes.server.generated.ts'), serverRoutes);
 
     config.app.auth.enabled = false;
     generateRoutes();
     assert.match(files.get('auth-protected-route-paths.generated.ts'), /Auth feature enabled: false/);
     assert.doesNotMatch(files.get('auth-protected-route-paths.generated.ts'), /^  "/m);
+    const disabledServerRoutes = files.get('app.routes.server.generated.ts');
+    assert.match(disabledServerRoutes, /Auth feature enabled: false/);
+    assert.deepStrictEqual(readServerRoutes(disabledServerRoutes), [{ path: '**', renderMode: 'Server' }]);
+    assert.doesNotMatch(disabledServerRoutes, /RenderMode\.(Client|Prerender)/);
+    assertServerRouteTypes(disabledServerRoutes);
+    generateRoutes();
+    assert.strictEqual(files.get('app.routes.server.generated.ts'), disabledServerRoutes);
   } finally {
     common.getConfig = originalGetConfig;
     fs.writeFileSync = originalWrite;
@@ -391,6 +533,7 @@ test('current app.routes.ts yields no protected paths when auth is disabled', ()
   const paths = getAuthProtectedRoutePaths(blocks, false);
 
   assert.deepStrictEqual(paths, []);
+  assert.deepStrictEqual(getServerRoutes(blocks, false), [{ path: '**', renderMode: 'Server' }]);
 });
 
 test('current app.routes.ts preserves the complete protected path list when auth is enabled', () => {

@@ -16,6 +16,7 @@ When contributing, changes must be reusable and config-driven; project-specific 
   - canonical developer-edited routes: `src/app/app.routes.ts`
   - generated production routes: `src/app/app.routes.generated.ts`
   - generated auth-protected paths: `src/app/auth-protected-route-paths.generated.ts`
+  - generated Angular server-rendering modes: `src/app/app.routes.server.generated.ts` (prepared for the Stage 2 runtime cutover)
 - Build/helper scripts live in repo root (`prebuild-*.js`, `postbuild-copy-files.js`).
 - Operational and architecture notes are in `docs/` (especially `DEVELOPMENT.md`, `DEPLOYMENT.md`).
 
@@ -75,4 +76,4 @@ When contributing, changes must be reusable and config-driven; project-specific 
 ## Security & Configuration Tips
 - Do not commit secrets in config or environment files.
 - Auth is optional and disabled by default; forks enabling auth must validate SSR/auth behavior explicitly.
-- Edit `src/app/app.routes.ts` as the canonical route source. Do not manually edit `src/app/app.routes.generated.ts` or `src/app/auth-protected-route-paths.generated.ts`; regenerate them with the repository scripts.
+- Edit `src/app/app.routes.ts` as the canonical route source. Do not manually edit `src/app/app.routes.generated.ts`, `src/app/auth-protected-route-paths.generated.ts`, or `src/app/app.routes.server.generated.ts`; regenerate them with the repository scripts.

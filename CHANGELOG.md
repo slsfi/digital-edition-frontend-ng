@@ -10,6 +10,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ### Added
 
+- Routes: `generate-routes` now also produces the ignored `src/app/app.routes.server.generated.ts` for the Stage 2 runtime cutover. It uses the feature-filtered canonical routes, preserves parameters, and assigns client rendering to auth-protected parents and their child routes when auth is enabled, followed by a server-rendered wildcard. The existing Express runtime continues to use the auth-protected path artifact until the cutover.
 - Tests: lock SSR/CSR rendering, default-language routing, public/proxy SEO URLs, missing-static-file handling, and parameterized auth-route metadata ahead of the Stage 2 migration. Add `test:build-output` for stable output contracts and `test:ssr:checks` for the smoke runner; `test:ssr:smoke -- --auth-enabled` verifies an auth-enabled build's CSR shells. Prevent regex injection in SSR smoke checks by accepting only literal `includes` checks in JSON case files; regex checks remain available as code-owned literals in the script.
 
 ### Fixed

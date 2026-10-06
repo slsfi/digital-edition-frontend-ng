@@ -375,12 +375,17 @@ The app can generate its top-level production routes at build time based on valu
 - Canonical top-level routes source (edited by developers): [`src/app/app.routes.ts`](../src/app/app.routes.ts)
 - Generated file: [`src/app/app.routes.generated.ts`](../src/app/app.routes.generated.ts)
 - Generated auth-guarded route paths: [`src/app/auth-protected-route-paths.generated.ts`](../src/app/auth-protected-route-paths.generated.ts)
+- Generated Angular server-rendering modes: [`src/app/app.routes.server.generated.ts`](../src/app/app.routes.server.generated.ts)
 - Generator script: [`prebuild-generate-routes.js`](../prebuild-generate-routes.js)
 - npm command: `npm run generate-routes`
 
 Simple routes use `loadComponent` directly in `app.routes.ts`. Routes with multiple URL shapes, child paths, or observable parent-route behavior use a top-level `loadChildren` entry that loads a standalone `Routes` array from the corresponding `*.routes.ts` file under `src/app/pages/`.
 
 The generator parses and filters only the top-level route blocks in `app.routes.ts`. It copies their references to lazy route arrays unchanged; it does not parse, duplicate, or independently feature-filter the child routes in those files. A child route is available in production whenever its top-level parent route is included.
+
+All three artifacts use that same filtered route set. With auth disabled, the server-route file contains only a final `**` route with `RenderMode.Server`. With auth enabled, included paths protected by `authGuard` or `authFeatureEnabledMatchGuard` receive `RenderMode.Client` entries before that fallback. Protected parents with `loadChildren` or inline `children` also receive a `parent/**` entry so their descendants remain client rendered; route parameters stay parameterized and locale prefixes are not added. A protected catch-all is rejected because it conflicts with the required server-rendered fallback. The generator emits no prerender routes, and repeated generation produces identical content.
+
+The server-route file is preparation for the Stage 2 application-builder cutover and is currently unused by production. The existing Express runtime continues to use `auth-protected-route-paths.generated.ts` for its CSR-shell handling. All generated route artifacts are ignored by Git; edit the canonical source and regenerate them with `npm run generate-routes`.
 
 Feature toggle in config:
 
@@ -403,6 +408,7 @@ Parser smoke tests:
 - npm command: `npm run test:routes-parser`
 - run these tests after changes to `prebuild-generate-routes.js` and after generator-facing route syntax changes in `src/app/app.routes.ts`
 - run the Angular route-recognition tests after changes to either `app.routes.ts` or a lazy `*.routes.ts` file
+- the parser checks cover auth/feature-filter combinations, parameterized and lazy server paths, deterministic output, and generated `ServerRoute[]` compatibility with the installed Angular SSR types
 
 
 

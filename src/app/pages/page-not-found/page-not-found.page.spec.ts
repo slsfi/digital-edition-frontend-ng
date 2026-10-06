@@ -1,9 +1,8 @@
-import { LOCALE_ID } from '@angular/core';
+import { LOCALE_ID, RESPONSE_INIT } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { BehaviorSubject } from 'rxjs';
 
 import { MarkdownService } from '@services/markdown.service';
-import { RESPONSE } from 'src/express.tokens';
 import { PageNotFoundPage } from './page-not-found.page';
 
 describe('PageNotFoundPage', () => {
@@ -46,14 +45,14 @@ describe('PageNotFoundPage', () => {
     markdownService.getParsedMdContent.and.returnValue(
       new BehaviorSubject<string | null>('<p>Not found</p>')
     );
-    const response = jasmine.createSpyObj('Response', ['status']);
+    const response: ResponseInit = {};
 
     await TestBed.configureTestingModule({
       imports: [PageNotFoundPage],
       providers: [
         { provide: LOCALE_ID, useValue: 'sv' },
         { provide: MarkdownService, useValue: markdownService },
-        { provide: RESPONSE, useValue: response }
+        { provide: RESPONSE_INIT, useValue: response }
       ]
     })
       .overrideTemplate(PageNotFoundPage, '')
@@ -62,6 +61,6 @@ describe('PageNotFoundPage', () => {
     const fixture = TestBed.createComponent(PageNotFoundPage);
     fixture.detectChanges();
 
-    expect(response.status).toHaveBeenCalledOnceWith(404);
+    expect(response.status).toBe(404);
   });
 });

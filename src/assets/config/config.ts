@@ -42,6 +42,7 @@ export const config: Config = {
     },
     ssr: {
       trustProxyHops: 2,
+      trustedProxyAddresses: ["loopback", "linklocal", "uniquelocal"],
       collectionSideMenu: false
     }
   },

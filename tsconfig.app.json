@@ -10,10 +10,16 @@
   },
   "files": [
     "src/main.ts",
+    "src/main.server.ts",
+    "src/server.ts",
     "src/ionicons-polyfill.ts"
   ],
   "include": [
-    "src/**/*.d.ts"
+    "src/**/*.ts"
+  ],
+  "exclude": [
+    "src/**/*.spec.ts",
+    "src/test.ts"
   ],
   "angularCompilerOptions": {
     "extendedDiagnostics": {

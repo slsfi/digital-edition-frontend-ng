@@ -2,17 +2,17 @@
 
 This document tracks cross-cutting TODOs that should stay visible outside local code comments.
 
-## SSR route mode migration
+## Remaining Stage 2 checkpoints
 
 Current status:
 
-- Auth-protected routes are currently forced to client rendering in Express middleware in [`src/server.ts`](../src/server.ts), based on generated route-path metadata from [`src/app/auth-protected-route-paths.generated.ts`](../src/app/auth-protected-route-paths.generated.ts).
-- This is an implementation workaround for the current webpack-based SSR build setup.
+- The standalone/zoneless application now uses the integrated application builder and `AngularNodeAppEngine`.
+- Generated Angular server routes own auth-protected CSR shells through `RenderMode.Client`; the manual Express CSR workaround has been removed.
 
-The standalone and zoneless migrations are complete while the legacy builders and `CommonEngine` remain in use. A future migration will evaluate their replacement with Angular's `application` builder (`@angular/build:application`), which is expected to introduce breaking changes. See the detailed [application-builder and Vitest migration plan](migrations/STAGE-2-APPLICATION-BUILDER.md). During that migration:
+See the [application-builder and Vitest migration plan](migrations/STAGE-2-APPLICATION-BUILDER.md) for the remaining checkpoints:
 
-- Investigate replacing the current middleware-based implementation with Angular server-routes configuration (`withRoutes` / `RenderMode.Client`) for auth-protected routes.
-- Validate compatibility with feature-based route generation before removing the current workaround.
+- Move i18n extraction to the modern toolchain and complete the localization/deployment checkpoints.
+- Migrate Jasmine/Karma to Vitest in its dedicated phases; retain the existing test builder and plugins until then.
 
 ## nginx rate limiting for SSR backend
 

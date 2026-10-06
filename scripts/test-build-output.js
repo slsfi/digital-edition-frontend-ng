@@ -35,6 +35,10 @@ for (const locale of locales) {
   const subPath = project.i18n.locales[locale]?.subPath ?? locale;
   const directory = path.join(browserRoot, subPath);
   assert.ok(fs.existsSync(directory) && fs.statSync(directory).isDirectory(), `Missing ${locale} browser directory: ${directory}`);
+  if (build.builder === '@angular/build:application') {
+    assert.ok(fs.existsSync(path.join(directory, 'index.csr.html')), `Missing ${locale} CSR shell`);
+    assert.ok(fs.existsSync(path.join(distRoot, 'server', subPath, 'main.server.mjs')), `Missing ${locale} server bundle`);
+  }
 }
 
 // Follow the canonical launch script so changing the production entry only

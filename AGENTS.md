@@ -17,17 +17,17 @@ When contributing, changes must be reusable and config-driven; project-specific 
   - canonical developer-edited routes: `src/app/app.routes.ts`
   - generated production routes: `src/app/app.routes.generated.ts`
   - generated auth-protected paths: `src/app/auth-protected-route-paths.generated.ts`
-  - generated Angular server-rendering modes: `src/app/app.routes.server.generated.ts` (prepared for the Stage 2 runtime cutover)
-- Build/helper scripts live in repo root (`prebuild-*.js`, `postbuild-copy-files.js`).
+- generated Angular server-rendering modes: `src/app/app.routes.server.generated.ts` (consumed by the server providers)
+- Build/helper scripts live in repo root (`prebuild-*.js`).
 - Operational and architecture notes are in `docs/` (especially `DEVELOPMENT.md`, `DEPLOYMENT.md`).
 
 ## Architecture Guardrails
 - Keep the application standalone. Do not introduce application, server, page, or routing NgModules.
 - Import Ionic components as standalone components rather than through `IonicModule`. `importProvidersFrom(IonicServerModule)` in the server configuration is the intentional application-level NgModule bridge.
 - Keep the application zoneless. Do not add Zone.js, `provideZoneChangeDetection()`, or another compatibility provider as a workaround; expose asynchronous template state through signals, inputs, the `async` pipe, or another Angular notification mechanism.
-- Preserve the current SSR architecture unless the task is explicitly a dedicated migration: `CommonEngine`, separate `browser`/`server` builders, and the `dist/app` output contract are intentional.
-- Application services consume `APPLICATION_REQUEST_CONTEXT` for request URL, public origin, and user agent. Keep server-specific request adapters under `src/ssr/` rather than injecting Express requests into application services.
-- Do not enable client hydration or migrate to Angular's `application` builder as part of unrelated work.
+- Preserve the integrated application builder, `AngularNodeAppEngine`, and the `dist/app` output contract. Keep the Express static/probe short-circuits before the SSR limiter and dynamic handler; use the fork's configured locale paths and default language.
+- Application services consume `APPLICATION_REQUEST_CONTEXT` for app-relative request URL, public origin, and user agent. Keep Angular Web `REQUEST` adapters under `src/ssr/` rather than injecting Express requests into application services. HTTP status changes use Angular's nullable `RESPONSE_INIT`.
+- Do not enable client hydration as part of unrelated work. Retain the legacy Jasmine/Karma test target until the dedicated Vitest migration.
 - Register application-owned Ionicons centrally in `src/ionicons-polyfill.ts`; do not add component-local `addIcons()` registrations.
 - See `docs/DEVELOPMENT.md` for the detailed architecture rationale and migration notes.
 
@@ -39,10 +39,11 @@ When contributing, changes must be reusable and config-driven; project-specific 
 - `npm run test:source-encoding` - validate source-file encoding and BOM usage.
 - `npm run test:routes-parser` - smoke tests for route parser/generator logic.
 - `npm run test:static-collection-menus` - verify static collection-menu generation and shared prebuild fetch retry behavior.
-- `npm run build:ssr` - generate routes + browser/server production build.
+- `npm run build:ssr` - generate routes + integrated browser/server production build.
 - `npm run serve:ssr` - run built SSR app from `dist/`.
 - `npm run test:ssr:smoke` - verify key SSR responses against a running SSR app.
 - `npm run test:ssr:checks` - verify SSR smoke-runner rendering and HTTP checks without a running app.
+- `npm run test:ssr:server` - verify Express short-circuits, caching, limiting, locale paths, and proxy trust without bootstrapping Angular.
 - `npm run test:ssr:benchmark` - verify benchmark auto-start, alternate runtime entries, and process cleanup.
 - `npm run test:build-output` - verify configured locale browser directories and the runtime entry after building.
 - `npm run ssr-start` - build SSR and serve in one command.
@@ -51,6 +52,7 @@ When contributing, changes must be reusable and config-driven; project-specific 
 
 ## Coding Style & Naming Conventions
 - Use TypeScript + Angular templates/SCSS; follow existing style (2-space indentation, concise comments).
+- Use braces for `if` blocks. A one-line `if` is allowed only when its body is a `return` statement.
 - Keep files and selectors in kebab-case; classes/interfaces in PascalCase.
 - Use established suffixes (`*.service.ts`, `*.guard.ts`, `*.interceptor.ts`).
 - Prefer existing path aliases (for example `@services`, `@components`, `@config`).

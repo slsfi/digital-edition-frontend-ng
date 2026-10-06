@@ -1,11 +1,10 @@
 import { AsyncPipe } from '@angular/common';
-import { Component, LOCALE_ID, OnInit, inject } from '@angular/core';
+import { Component, LOCALE_ID, OnInit, RESPONSE_INIT, inject } from '@angular/core';
 import { IonContent, IonIcon } from '@ionic/angular';
 import { Observable } from 'rxjs';
 
 import { TrustHtmlPipe } from '@pipes/trust-html.pipe';
 import { MarkdownService } from '@services/markdown.service';
-import { RESPONSE } from 'src/express.tokens';
 
 
 @Component({
@@ -17,12 +16,14 @@ import { RESPONSE } from 'src/express.tokens';
 export class PageNotFoundPage implements OnInit {
   private mdService = inject(MarkdownService);
   private activeLocale = inject(LOCALE_ID);
-  private response = inject(RESPONSE, { optional: true });
+  private response = inject(RESPONSE_INIT, { optional: true });
 
   markdownText$: Observable<string | null>;
 
   ngOnInit() {
-    this.response?.status(404);
+    if (this.response) {
+      this.response.status = 404;
+    }
     this.markdownText$ = this.mdService.getParsedMdContent(
       this.activeLocale + '-404',
       '<p>'

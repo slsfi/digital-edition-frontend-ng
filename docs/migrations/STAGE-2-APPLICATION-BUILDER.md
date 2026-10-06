@@ -1,7 +1,7 @@
 # Angular 22 modernization — Stage 2: application builder and Vitest migration
 
 > [!IMPORTANT]
-> **Status: Planned; not yet implemented.** Revalidate Angular's migration guidance, schematics, SSR APIs, and test APIs immediately before implementation.
+> **Status: In progress; phases 1–9 implemented.** The application-builder/SSR cutover is verified locally. The remaining toolchain, localization/deployment, and Vitest checkpoints are still pending. Revalidate Angular's guidance and APIs before each remaining migration.
 
 This is the second stage of the repository's [two-stage Angular modernization](README.md). It migrates the application from Angular's deprecated Webpack-based `browser`/`server` build pipeline to the integrated `application` builder and migrates unit testing from Jasmine/Karma to Vitest.
 
@@ -1176,6 +1176,22 @@ build(ssr): migrate to Angular application builder
 ~~~
 
 Do not proceed if the production SSR workflow or existing unit suite is not fully usable at this commit.
+
+### Phase 9 implementation checkpoint — 2026-10-06
+
+The integrated builder now emits `dist/app/server/server.mjs` and Swedish/Finnish browser and server applications, with no technical `aa` output. The legacy proxy, post-build copy, separate server targets, and server tsconfig are removed. Generated server routes own auth-protected CSR rendering; Angular Web `REQUEST` and nullable `RESPONSE_INIT` replace repository-owned Express tokens. Jasmine/Karma, non-hydrated SSR, and `inlineCritical: false` are retained.
+
+Locale dispatch and static middleware use the fork's configured subpaths and emitted locales. Unprefixed requests retain the configured default language without redirects. The CLI's single-locale in-memory development app uses its own base path. Proxy trust now requires both the configured hop limit and `app.ssr.trustedProxyAddresses`; deployments with public proxy addresses must configure their actual IPs/CIDRs. See [deployment notes](../DEPLOYMENT.md).
+
+Verified with Node 24.20.0 and the locked Angular 22.2.1 toolchain:
+
+- Pre-Vitest fast gate: source encoding, all 24 route-parser checks, all 267 Jasmine/Karma tests across 44 spec files, route generation, and `development,sv` build.
+- Two consecutive generations produce identical browser, auth-path, and server-route artifacts.
+- Production build and emitted-output check; all 32 SSR smoke cases pass with auth disabled and enabled. An additional auth-enabled HTTP matrix covers all 16 generated protected paths, public SSR, Finnish CSR, and unprefixed protected routes (43 responses, no rendering failures).
+- All 17 focused server checks, 5 smoke-runner checks, and 4 benchmark startup/cleanup checks pass.
+- Swedish and Finnish live development servers render the correct home content and SEO URLs. Representative application-owned Ionicons retain SVGs after production client bootstrap, with no browser console errors.
+
+The default auth-disabled configuration is restored after the auth gate. Docker/nginx validation and the broader fork-localization matrix remain their dedicated later checkpoints.
 
 ---
 

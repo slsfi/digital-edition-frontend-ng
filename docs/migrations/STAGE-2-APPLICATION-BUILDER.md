@@ -1,7 +1,7 @@
 # Angular 22 modernization — Stage 2: application builder and Vitest migration
 
 > [!IMPORTANT]
-> **Status: In progress; phases 1–9 implemented.** The application-builder/SSR cutover is verified locally. The remaining toolchain, localization/deployment, and Vitest checkpoints are still pending. Revalidate Angular's guidance and APIs before each remaining migration.
+> **Status: In progress; phases 1–11 complete.** The application-builder/SSR cutover, modern i18n extraction, and localization/default-language checkpoint are verified. The remaining development/deployment and Vitest checkpoints are still pending. Revalidate Angular's guidance and APIs before each remaining migration.
 
 This is the second stage of the repository's [two-stage Angular modernization](README.md). It migrates the application from Angular's deprecated Webpack-based `browser`/`server` build pipeline to the integrated `application` builder and migrates unit testing from Jasmine/Karma to Vitest.
 
@@ -1296,6 +1296,23 @@ fix(i18n): preserve locale routing with application builder
 ~~~
 
 If no changes are required, record the verification and continue without a commit.
+
+### Phase 11 verification checkpoint — 2026-10-06
+
+The compatibility layer introduced in phase 9 already preserves the locale contract; no additional runtime or configuration changes are required. Unlike the reference starter's root language negotiation, this app internally dispatches unprefixed requests to the configured default locale. Swedish remains the default even with Finnish `Accept-Language` preferences, and the HTTP response has no language redirect or `Location` header.
+
+Production emits browser directories for `sv` and `fi`, localized server applications, and the shared `server.mjs` entry. The technical source locale `aa` is not emitted. The existing SEO contract is preserved: canonical and `x-default` URLs use the configured default language (Swedish here), alternate links include Swedish and Finnish, and `og:url` uses the active locale. Forwarded HTTPS produces HTTPS URLs. Browser bootstrap normalizes an unprefixed address to its Swedish-prefixed route while retaining the query string; this is separate from HTTP language negotiation.
+
+Verification completed:
+
+- `npm run build:ssr`, `npm run test:build-output`, all 267 Jasmine/Karma tests, and all 17 focused emitted-server checks pass. The latter also cover configurable locale subpaths, single-locale fallback, disabled localization, deployment base paths, and static mounts.
+- All 32 existing SSR smoke cases pass against the local Node server, the production Docker image directly, and Docker Compose/nginx.
+- An additional temporary matrix passes in each of those three environments: 16 HTML cases cover root, nested lazy article, collection introduction, person index, and missing/404 routes with `/sv`, `/fi`, and no prefix, plus an escaped query string. Checks include status, HTML language, base href, canonical/Open Graph/alternate links, opposing language preferences, and absence of redirects.
+- A separate 15-case static matrix passes in each environment: `robots.txt`, `sitemap.txt`, favicon, Ionicons SVG, and emitted JavaScript with both locale prefixes and no prefix. Responses have the expected MIME types, nonempty bodies, and no redirect or SSR rate-limit headers.
+- The actual Dockerfile builds and starts with production-only dependencies. Two forwarded-HTTPS cases pass through nginx, and both locale JavaScript bundles are served compressed with immutable caching.
+- Desktop and mobile-width browser checks confirm Swedish/Finnish language switching, lazy-route direct navigation and refresh, preserved locale during history navigation, index filters, collection text rendering, Swedish search results, media thumbnails/image-viewer controls, and the Finnish 404 page. Ebook navigation retains the Swedish prefix and localized download UI; native PDF rendering was not verified in the in-app browser.
+
+These checks use the default auth-disabled configuration; the phase 9 auth-rendering checkpoint remains applicable. The broader development-server/HMR and CI audit remains phase 12.
 
 ---
 

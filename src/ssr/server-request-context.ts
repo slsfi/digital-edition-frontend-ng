@@ -19,7 +19,10 @@ export function createServerRequestContext(request?: Request | null, baseHref = 
   if (!request) return null;
 
   const url = new URL(request.url);
-  const basePath = baseHref ? new URL(baseHref, url).pathname.replace(/\/$/, '') : '';
+  let basePath = baseHref ? new URL(baseHref, url).pathname : '';
+  if (basePath.endsWith('/')) {
+    basePath = basePath.slice(0, -1);
+  }
   const pathname = basePath && (url.pathname === basePath || url.pathname.startsWith(basePath + '/'))
     ? url.pathname.slice(basePath.length) || '/' : url.pathname;
   return {

@@ -34,6 +34,10 @@ interface LocalizedProject {
  * When browser output is available, only locales with an index.csr.html are retained.
  * If none exist yet, retain the configured list for CLI in-memory builds.
  *
+ * The base app omits build.options.baseHref, so its deployment base path is empty.
+ * Forks deployed under a subdirectory can set it (e.g. '/edition/') to prefix
+ * locale URLs with that path.
+ *
  * @param project Angular project configuration containing i18n and application build options.
  * @param browserFolder Browser output root before locale subdirectories are appended.
  * @param useEmittedLocales Whether to inspect emitted CSR shells; false ignores stale disk output.
@@ -47,7 +51,17 @@ export function getServerLocales(project: LocalizedProject, browserFolder: strin
   const localizationEnabled = localize === true || (Array.isArray(localize) && localize.length > 0);
   const codes = Array.isArray(localize) && localize.length ? localize
     : localize === true ? [sourceCode, ...Object.keys(project.i18n.locales)] : [sourceCode];
-  const basePath = (build.options.baseHref ?? '').replace(/^\/+|\/+$/g, '');
+  // Trim surrounding slashes while preserving separators inside the deployment path.
+  const baseHref = build.options.baseHref ?? '';
+  let baseStart = 0;
+  let baseEnd = baseHref.length;
+  while (baseStart < baseEnd && baseHref[baseStart] === '/') {
+    baseStart++;
+  }
+  while (baseEnd > baseStart && baseHref[baseEnd - 1] === '/') {
+    baseEnd--;
+  }
+  const basePath = baseHref.slice(baseStart, baseEnd);
   const locales = codes.map(code => {
     const locale = code === sourceCode ? source : project.i18n.locales[code];
     const subPath = localizationEnabled ? (typeof locale === 'object' ? locale.subPath ?? code : code) : '';

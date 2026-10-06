@@ -22,6 +22,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - SSR tooling: Docker and benchmark auto-start now use the canonical `npm run serve:ssr` command, preparing for the Stage 2 server-entry change. The script still starts the existing proxy runtime; benchmark cleanup stops the launcher and its SSR child processes. Add `test:ssr:benchmark` to verify alternate entries, startup failures, and process cleanup on Windows/Linux.
 - SSR: application services now read URL, public origin, and user agent from `APPLICATION_REQUEST_CONTEXT`, supplied by a server-only Express adapter. This prepares the Stage 2 request API migration while preserving routing, SEO URLs, and mobile/desktop rendering. Add context/fallback unit coverage and Swedish/Finnish mobile/desktop SSR smoke cases. Forks with custom services that inject Express `REQUEST` should adopt the application context for these values.
 - SSR source entry: move `server.ts` to `src/server.ts` with mechanical import and build-path updates. Forks with custom server code should follow the rename. The current runtime and emitted paths are unchanged.
+- Build: enable TypeScript `esModuleInterop` and remove the redundant `allowSyntheticDefaultImports` option to prepare package imports for the Stage 2 ESM server build. Strict compiler settings, the current builders, and SSR startup behavior are unchanged.
 
 
 

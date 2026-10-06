@@ -12,12 +12,12 @@
     "sourceMap": true,
     "declaration": false,
     "experimentalDecorators": true,
+    "esModuleInterop": true,
     "moduleResolution": "bundler",
     "importHelpers": true,
     "target": "ES2022",
     "module": "ES2022",
     "useDefineForClassFields": false,
-    "allowSyntheticDefaultImports": true,
     "strictPropertyInitialization": false,
     "paths": {
       "@components/*": [

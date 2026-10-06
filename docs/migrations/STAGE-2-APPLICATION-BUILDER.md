@@ -1,7 +1,7 @@
 # Angular 22 modernization — Stage 2: application builder and Vitest migration
 
 > [!IMPORTANT]
-> **Status: In progress; phases 1–12 complete.** The application-builder/SSR cutover, modern i18n extraction, localization/default-language serving, and development/deployment checkpoint are verified. The Vitest migration remains pending. Revalidate Angular's guidance and APIs before each remaining migration.
+> **Status: In progress; phases 1–13 complete.** The application-builder/SSR cutover and development/deployment checkpoints are verified. The Vitest rehearsal passes with the existing suite's coverage; dependency installation and the production test-runner cutover remain pending. Revalidate Angular's guidance and APIs before each remaining migration.
 
 This is the second stage of the repository's [two-stage Angular modernization](README.md). It migrates the application from Angular's deprecated Webpack-based `browser`/`server` build pipeline to the integrated `application` builder and migrates unit testing from Jasmine/Karma to Vitest.
 
@@ -1488,7 +1488,7 @@ The current `src/test.ts` performs two jobs:
 
 The `@angular/build:unit-test` builder initializes Angular TestBed automatically, so the manual TestBed initialization must go away. The Ionicons registration must **not** go away.
 
-Because `ionicons-polyfill.ts` remains an application polyfill, first verify that Angular's unit-test builder loads it through the application build configuration. If it does, no test setup file is needed.
+Because `ionicons-polyfill.ts` remains an application polyfill, first verify that Angular's unit-test builder loads it through the application build configuration. If it does, no additional Ionicons import is needed. A setup file can still be required for test cleanup, as verified in the rehearsal below.
 
 If the unit-test builder does not load that application polyfill in this configuration, use the test target's `setupFiles` option and a minimal setup file that imports `src/ionicons-polyfill.ts` exactly once. Do not duplicate the icon list or reintroduce component-local `addIcons()` calls.
 
@@ -1502,6 +1502,49 @@ Commit:
 ~~~text
 docs(migration): refine Vitest conversion plan
 ~~~
+
+### Phase 13 rehearsal checkpoint (2026-10-06)
+
+The conversion was rehearsed from `546443b` in an isolated worktree using Angular CLI/build/schematics 22.2.1, Vitest 5.0.3, jsdom 30.1.2, Node 24.20.0, and npm 11.19.0. Angular's current migration guidance was reviewed again; the installed builder accepts Vitest 4 or 5. The reference starter's current `main` remains the recorded `d012cb4`; its minimal target, Vitest globals, jsdom environment, and automatic TestBed initialization remain the infrastructure model. Its older Vitest 4/jsdom 28 versions are not required by this project.
+
+The baseline passes all **267 Jasmine/Karma tests across 44 spec files**, with no skipped or focused tests. The inventory includes 49 `SpyObj` annotations, 60 `createSpyObj` calls, 24 standalone `createSpy` calls, 12 method spies, four property spies, five clock install/uninstall pairs, 17 clock advances, and four `clock().withMock()` blocks. It also covers call-history inspection/reset, sequential return values, asymmetric matchers, and assertion context messages. There are no Angular `fakeAsync`, `tick`, or `waitForAsync` wrappers.
+
+After installing the rehearsal dependencies, selecting `@angular/build:unit-test`, retaining extended diagnostics, exposing Vitest globals, and generating routes, the schematic was run with:
+
+~~~powershell
+ng g @schematics/angular:refactor-jasmine-vitest --project app --verbose
+~~~
+
+It scanned 44 files, transformed 42, and left the two already compatible files unchanged. Its report contains four TODOs, all for `AuthService`'s `clock().withMock()` blocks. Review must also cover problems that receive no TODO: the first compile reported 55 errors, and the first runnable conversion passed 255 tests with 12 failures. The schematic also reprints converted files with four-space indentation and mixed quote styles; retain the repository's two-space style and existing formatting when applying the final conversion.
+
+The following manual changes were verified in the rehearsal and belong in phase 15:
+
+| Area | Required conversion |
+| --- | --- |
+| Typed service fakes | Narrow `MockedObject` to the methods actually provided, using `MockedObject<Pick<Service, 'method'>>`. Preserve real Angular signal properties separately with `Pick<Service, 'signal'>`; signals are callable but are not Vitest mocks. Do not cast incomplete fakes to full service types. |
+| Timer blocks | Replace the four `clock().withMock()` blocks with `vi.useFakeTimers()` and `try/finally` cleanup. Keep the existing loading-bar deadlines and cancellation assertions; advance Angular's newly scheduled rendering asynchronously before `fixture.whenStable()`. |
+| Spy cleanup | Use a minimal `src/test-setup.ts` registered through `setupFiles` to restore method/property spies and real timers after each test. Include that file in `tsconfig.spec.json`. Storage-spec cleanup must restore its throwing spy before clearing storage. |
+| Mid-test call-through | The schematic turns `removeItemSpy.and.callThrough()` into a bare `removeItemSpy;` expression after an earlier throwing implementation. Replace that expression with `mockRestore()` so the original storage method runs again. |
+| Request locale | Provide `LOCALE_ID: 'en'` explicitly in `AuthService` tests that assert English request payloads. The new runner inherits the workspace's technical source locale `aa`; do not change application i18n configuration or silently change the payload assertions. |
+| Route recognition | Compare the recognized component with the imported component class, preserving every URL, parameter, parent-route, data, and guard assertion. esbuild can rename constructors (for example `_HomePage`), so `.name` is not a stable identity assertion. |
+| Timer handles | Preserve the retry-cancellation assertion without requiring a numeric handle: Node fake timers return an object whereas Chrome returns a number. |
+| Strict TypeScript | Handle the possibly absent `mock.lastCall` explicitly, and replace the unsupported `vi.spyOn<any>` conversion with a narrow typed view of the private method. |
+
+The verified setup file contains only runner cleanup:
+
+~~~typescript
+// Restore method/property spies between tests, matching Jasmine's automatic cleanup.
+afterEach(() => {
+  vi.restoreAllMocks();
+  vi.useRealTimers();
+});
+~~~
+
+It does not initialize TestBed or import Ionicons. A temporary two-test environment probe verifies both the absence of Zone.js and inherited localization/centralized registration of `filter-outline`, `language-sharp`, and `refresh`. `npm test` watch mode passes the probe initially and reruns it after a source edit. The probe is then removed, preserving the suite's original test count. No real-browser provider, Zone.js compatibility layer, custom Vitest configuration, or global DOM API shims are needed for the existing suite.
+
+The completed rehearsal passes all **267 tests in the same 44 files**, with no skipped tests. All 254 source-level test declarations remain (parameterized declarations expand to 267 executed tests). The schematic splits 18 `toHaveBeenCalledOnceWith` assertions into count and argument checks, accounting for the increase from 682 to 700 source-level `expect` calls. Successful Vitest JSON runs span approximately 10–17 seconds after 10–11-second bundle builds; Karma reports approximately 1.5 seconds of Chrome execution, excluding its Webpack build. These are different timing scopes; measure comparable command durations in the later benchmark checkpoint.
+
+Logs, API inventories, the original schematic patch, and the verified conversion are retained locally for the final cutover. The active checkout still uses Jasmine/Karma: no application sources, test APIs, dependencies, lockfile, or runner configuration are changed by phase 13.
 
 ---
 
@@ -1545,11 +1588,14 @@ Follow the reference starter:
 
 ~~~json
 "test": {
-  "builder": "@angular/build:unit-test"
+  "builder": "@angular/build:unit-test",
+  "options": {
+    "setupFiles": ["src/test-setup.ts"]
+  }
 }
 ~~~
 
-Prefer the minimal target first. The builder defaults to the project's development build configuration and `tsconfig.spec.json`.
+Use the minimal target plus the runner-cleanup setup verified in phase 13. The builder defaults to the project's development build configuration and `tsconfig.spec.json`; application polyfills supply Ionicons and localization without another setup import.
 
 If repository-specific options are required, add them explicitly rather than copying legacy Karma options.
 
@@ -1602,11 +1648,12 @@ Typical mappings:
 - `.and.returnValue(...)` -> `.mockReturnValue(...)`
 - `.and.resolveTo(...)` -> `.mockResolvedValue(...)`
 - `.and.callFake(...)` -> `.mockImplementation(...)`
-- `.calls.reset()` -> `.mockReset()` or `.mockClear()` depending on intended semantics
+- `.calls.reset()` -> `.mockClear()` to preserve the configured implementation; use `.mockReset()` only when intentionally resetting that implementation too
 - `.calls.mostRecent().args` -> inspect `mock.calls`
 - `jasmine.clock().install()` -> `vi.useFakeTimers()`
 - `jasmine.clock().tick(ms)` -> `vi.advanceTimersByTime(ms)` or `await vi.advanceTimersByTimeAsync(ms)`
 - `jasmine.clock().uninstall()` -> `vi.useRealTimers()`
+- `jasmine.clock().withMock(...)` -> a fake-timer block with guaranteed real-timer cleanup
 
 For timer-heavy specs:
 

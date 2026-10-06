@@ -8,12 +8,6 @@
       "@angular/localize"
     ]
   },
-  "files": [
-    "src/main.ts",
-    "src/main.server.ts",
-    "src/server.ts",
-    "src/ionicons-polyfill.ts"
-  ],
   "include": [
     "src/**/*.ts"
   ],

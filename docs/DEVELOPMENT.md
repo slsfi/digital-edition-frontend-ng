@@ -221,11 +221,6 @@ Reactive extensions library. Used internally by Angular and heavily in the app f
 Runtime library for TypeScript containing all of the TypeScript helper functions. Required by Angular.
 
 
-### [`browser-sync`][npm_browser-sync] (devDependency)
-
-Required by the Angular builders.
-
-
 ### [`gzipper`][npm_gzipper] (devDependency)
 
 Library for compressing files. Used in `Dockerfile` in a post-build step to create compressed (gzip) versions of static files. It’s configured in the `compress` script in `package.json`.
@@ -235,7 +230,7 @@ Library for compressing files. Used in `Dockerfile` in a post-build step to crea
 
 Library for extracting and merging i18n xliff translation files for Angular projects. This library extends the default Angular CLI, and is used to sort the keys in the xliff translation files. Used when running the `extract-i18n` script in `package.json` to create the xliff translation files for the app.
 
-The wrapper delegates extraction to `@angular/build:extract-i18n` using the application's build target. `npm run extract-i18n` retains XLIFF 2 output in `src/locale`, sorts units by ID, and merges the Finnish, Swedish, and English target files. The technical source locale remains `aa`; extraction does not change which locales are emitted by application builds. Removal of the remaining `@angular-devkit/build-angular` dependency is tracked in Stage 2 phase 16.
+The wrapper delegates extraction to `@angular/build:extract-i18n` using the application's build target. `npm run extract-i18n` retains XLIFF 2 output in `src/locale`, sorts units by ID, and merges the Finnish, Swedish, and English target files. The technical source locale remains `aa`; extraction does not change which locales are emitted by application builds. Application builds, development serving, unit tests, and extraction all use `@angular/build`.
 
 
 ### `vitest` and `jsdom`
@@ -387,7 +382,6 @@ The app can generate its top-level production routes at build time based on valu
 
 - Canonical top-level routes source (edited by developers): [`src/app/app.routes.ts`](../src/app/app.routes.ts)
 - Generated file: [`src/app/app.routes.generated.ts`](../src/app/app.routes.generated.ts)
-- Generated auth-guarded route paths: [`src/app/auth-protected-route-paths.generated.ts`](../src/app/auth-protected-route-paths.generated.ts)
 - Generated Angular server-rendering modes: [`src/app/app.routes.server.generated.ts`](../src/app/app.routes.server.generated.ts)
 - Generator script: [`prebuild-generate-routes.js`](../prebuild-generate-routes.js)
 - npm command: `npm run generate-routes`
@@ -396,9 +390,9 @@ Simple routes use `loadComponent` directly in `app.routes.ts`. Routes with multi
 
 The generator parses and filters only the top-level route blocks in `app.routes.ts`. It copies their references to lazy route arrays unchanged; it does not parse, duplicate, or independently feature-filter the child routes in those files. A child route is available in production whenever its top-level parent route is included.
 
-All three artifacts use that same filtered route set. With auth disabled, the server-route file contains only a final `**` route with `RenderMode.Server`. With auth enabled, included paths protected by `authGuard` or `authFeatureEnabledMatchGuard` receive `RenderMode.Client` entries before that fallback. Protected parents with `loadChildren` or inline `children` also receive a `parent/**` entry so their descendants remain client rendered; route parameters stay parameterized and locale prefixes are not added. A protected catch-all is rejected because it conflicts with the required server-rendered fallback. The generator emits no prerender routes, and repeated generation produces identical content.
+Both generated artifacts use that same filtered route set. With auth disabled, the server-route file contains only a final `**` route with `RenderMode.Server`. With auth enabled, included paths protected by `authGuard` or `authFeatureEnabledMatchGuard` receive `RenderMode.Client` entries before that fallback. Protected parents with `loadChildren` or inline `children` also receive a `parent/**` entry so their descendants remain client rendered; route parameters stay parameterized and locale prefixes are not added. A protected catch-all is rejected because it conflicts with the required server-rendered fallback. The generator emits no prerender routes, and repeated generation produces identical content.
 
-The server configuration consumes `app.routes.server.generated.ts` through `provideServerRendering(withRoutes(serverRoutes))`. Angular now owns auth-protected CSR shells; the server no longer reads or sends an index file manually. The auth-protected path artifact remains available for tooling. All generated route artifacts are ignored by Git; edit the canonical source and regenerate them with `npm run generate-routes`.
+The server configuration consumes `app.routes.server.generated.ts` through `provideServerRendering(withRoutes(serverRoutes))`. Angular owns auth-protected CSR shells. Sitemap generation uses the shared protected-route parser directly against the canonical route source. Both generated route artifacts are ignored by Git; edit the canonical source and regenerate them with `npm run generate-routes`.
 
 Feature toggle in config:
 
@@ -565,6 +559,5 @@ Cross-cutting future work that should stay visible outside local code comments i
 [npm_marked-footnote]: https://www.npmjs.com/package/marked-footnote
 [npm_rxjs]: https://www.npmjs.com/package/rxjs
 [npm_tslib]: https://www.npmjs.com/package/tslib
-[npm_browser-sync]: https://www.npmjs.com/package/browser-sync
 [npm_gzipper]: https://www.npmjs.com/package/gzipper
 [npm_ng-extract-i18n-merge]: https://www.npmjs.com/package/ng-extract-i18n-merge

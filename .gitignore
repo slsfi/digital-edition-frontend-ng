@@ -77,4 +77,3 @@ Thumbs.db
 # Generated route artifacts
 /src/app/app.routes.generated.ts
 /src/app/app.routes.server.generated.ts
-/src/app/auth-protected-route-paths.generated.ts

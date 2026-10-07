@@ -437,21 +437,13 @@ test('generation writes reproducible filtered metadata with parameterized paths 
     fs.writeFileSync = (filename, content) => files.set(path.basename(filename), content);
     console.log = () => {};
     generateRoutes();
-    const metadata = files.get('auth-protected-route-paths.generated.ts');
     const browserRoutes = files.get('app.routes.generated.ts');
     const serverRoutes = files.get('app.routes.server.generated.ts');
-    const paths = Array.from(metadata.matchAll(/^  ("[^"]+")/gm), match => JSON.parse(match[1]));
-
-    assert.deepStrictEqual(paths, [
-      'account', 'change-password', 'collection/:collectionID/introduction',
-      'collection/:collectionID/text', 'content', 'forgot-password', 'index/:type',
-      'login', 'register', 'reset-password', 'verify-email'
-    ]);
     assert.doesNotMatch(browserRoutes, /path: 'collection\/:collectionID\/cover'/);
     assert.doesNotMatch(browserRoutes, /path: 'search'/);
     assert.doesNotMatch(browserRoutes, /path: 'media-collection'/);
     assert.deepStrictEqual(Array.from(files.keys()).sort(), [
-      'app.routes.generated.ts', 'app.routes.server.generated.ts', 'auth-protected-route-paths.generated.ts'
+      'app.routes.generated.ts', 'app.routes.server.generated.ts'
     ]);
     assert.deepStrictEqual(readServerRoutes(serverRoutes), [
       { path: 'account', renderMode: 'Client' },
@@ -473,14 +465,11 @@ test('generation writes reproducible filtered metadata with parameterized paths 
     assert.doesNotMatch(serverRoutes, /RenderMode\.Prerender/);
     assertServerRouteTypes(serverRoutes);
     generateRoutes();
-    assert.strictEqual(files.get('auth-protected-route-paths.generated.ts'), metadata);
     assert.strictEqual(files.get('app.routes.generated.ts'), browserRoutes);
     assert.strictEqual(files.get('app.routes.server.generated.ts'), serverRoutes);
 
     config.app.auth.enabled = false;
     generateRoutes();
-    assert.match(files.get('auth-protected-route-paths.generated.ts'), /Auth feature enabled: false/);
-    assert.doesNotMatch(files.get('auth-protected-route-paths.generated.ts'), /^  "/m);
     const disabledServerRoutes = files.get('app.routes.server.generated.ts');
     assert.match(disabledServerRoutes, /Auth feature enabled: false/);
     assert.deepStrictEqual(readServerRoutes(disabledServerRoutes), [{ path: '**', renderMode: 'Server' }]);

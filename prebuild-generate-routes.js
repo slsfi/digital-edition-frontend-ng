@@ -5,11 +5,11 @@ const common = require('./prebuild-common-fns');
 const configFilepath = 'src/assets/config/config.ts';
 const sourceRoutesFilepath = 'src/app/app.routes.ts';
 const outputFilepath = 'src/app/app.routes.generated.ts';
-const authProtectedOutputFilepath = 'src/app/auth-protected-route-paths.generated.ts';
 const serverRoutesOutputFilepath = 'src/app/app.routes.server.generated.ts';
 
 /**
- * Generates the app routes file consumed by the root router configuration.
+ * Generates browser routes and Angular server-rendering metadata from the same
+ * route set. The server providers consume the generated RenderMode entries.
  *
  * If app.prebuild.featureBasedRoutes is true in config.ts, feature flags
  * in config determine which top-level routes are included in the file.
@@ -33,11 +33,6 @@ function generateRoutes() {
 
   warnUnknownRoutePaths(generationPlan.unknownRoutePaths);
   fs.writeFileSync(path.join(__dirname, outputFilepath), generationPlan.routesFileContent);
-  writeAuthProtectedRoutesFile(
-    generationPlan.routeBlocks,
-    generationPlan.featureBasedRoutes,
-    generationPlan.authEnabled
-  );
   writeServerRoutesFile(
     generationPlan.serverRoutes,
     generationPlan.featureBasedRoutes,
@@ -299,19 +294,6 @@ ${routeEntries}
 `;
 }
 
-function writeAuthProtectedRoutesFile(routeBlocks, featureBasedRoutes, authEnabled) {
-  const authProtectedRoutePaths = getAuthProtectedRoutePaths(routeBlocks, authEnabled);
-  const fileContent = renderAuthProtectedRoutesFile(
-    authProtectedRoutePaths,
-    featureBasedRoutes,
-    authEnabled
-  );
-  fs.writeFileSync(path.join(__dirname, authProtectedOutputFilepath), fileContent);
-  console.log(
-    `Generated auth-protected routes file (${authProtectedRoutePaths.length} route paths, auth enabled: ${authEnabled}, feature-based mode: ${featureBasedRoutes}).`
-  );
-}
-
 function getAuthProtectedRoutePaths(routeBlocks, authEnabled) {
   if (!authEnabled) {
     return [];
@@ -387,28 +369,6 @@ function isAuthProtectedRouteBlock(routeBlock) {
     /canMatch\s*:\s*\[[^\]]*\bauthFeatureEnabledMatchGuard\b[^\]]*\]/s.test(routeBlock);
 
   return usesAuthGuard || usesAuthFeatureEnabledMatchGuard;
-}
-
-function renderAuthProtectedRoutesFile(routePaths, featureBasedRoutes, authEnabled) {
-  const entries = routePaths.length
-    ? routePaths.map((routePath) => `  ${JSON.stringify(routePath)}`).join(',\n')
-    : '  // none';
-
-  return `/**
- * AUTO-GENERATED FILE. DO NOT EDIT MANUALLY.
- * Source: prebuild-generate-routes.js
- * Route definitions source: ${sourceRoutesFilepath}
- * Feature-based route filtering: ${featureBasedRoutes}
- * Auth feature enabled: ${authEnabled}
- *
- * Route paths that should be client-rendered when auth is enabled.
- * Includes paths that use authGuard and/or authFeatureEnabledMatchGuard.
- * This list is intentionally empty when app.auth.enabled is false.
- */
-export const authProtectedRoutePaths: readonly string[] = [
-${entries}
-];
-`;
 }
 
 function indentBlock(value, spaces) {

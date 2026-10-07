@@ -1,3 +1,4 @@
+import type { MockedObject } from 'vitest';
 import { LOCALE_ID, RESPONSE_INIT } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { BehaviorSubject } from 'rxjs';
@@ -8,11 +9,10 @@ import { PageNotFoundPage } from './page-not-found.page';
 describe('PageNotFoundPage', () => {
   it('renders asynchronous Markdown updates without a manual change-detection pass', async () => {
     const markdown$ = new BehaviorSubject<string | null>('<p>Not found</p>');
-    const markdownService = jasmine.createSpyObj<MarkdownService>(
-      'MarkdownService',
-      ['getParsedMdContent']
-    );
-    markdownService.getParsedMdContent.and.returnValue(markdown$);
+    const markdownService: MockedObject<Pick<MarkdownService, 'getParsedMdContent'>> = {
+      getParsedMdContent: vi.fn().mockName('MarkdownService.getParsedMdContent')
+    };
+    markdownService.getParsedMdContent.mockReturnValue(markdown$);
 
     await TestBed.configureTestingModule({
       imports: [PageNotFoundPage],
@@ -28,7 +28,7 @@ describe('PageNotFoundPage', () => {
     fixture.detectChanges();
     expect(markdownService.getParsedMdContent).toHaveBeenCalledWith(
       'sv-404',
-      jasmine.any(String)
+      expect.any(String)
     );
     expect(fixture.nativeElement.textContent).toContain('Not found');
 
@@ -38,11 +38,10 @@ describe('PageNotFoundPage', () => {
   });
 
   it('sets the server response status to 404', async () => {
-    const markdownService = jasmine.createSpyObj<MarkdownService>(
-      'MarkdownService',
-      ['getParsedMdContent']
-    );
-    markdownService.getParsedMdContent.and.returnValue(
+    const markdownService: MockedObject<Pick<MarkdownService, 'getParsedMdContent'>> = {
+      getParsedMdContent: vi.fn().mockName('MarkdownService.getParsedMdContent')
+    };
+    markdownService.getParsedMdContent.mockReturnValue(
       new BehaviorSubject<string | null>('<p>Not found</p>')
     );
     const response: ResponseInit = {};

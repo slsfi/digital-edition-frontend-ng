@@ -28,7 +28,7 @@ describe('MainSideMenuComponent', () => {
         { provide: AUTH_ENABLED, useValue: false },
         { provide: LOCALE_ID, useValue: 'sv' },
         { provide: CollectionsService, useValue: { getCollections: () => of([]) } },
-        { provide: DocumentHeadService, useValue: { setTitle: jasmine.createSpy('setTitle') } },
+        { provide: DocumentHeadService, useValue: { setTitle: vi.fn().mockName('setTitle') } },
         { provide: MarkdownService, useValue: { getMenuTree: () => of(null) } },
         { provide: MediaCollectionService, useValue: { getMediaCollections: () => of([]) } }
       ]

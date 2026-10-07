@@ -1,7 +1,7 @@
 # Angular 22 modernization — Stage 2: application builder and Vitest migration
 
 > [!IMPORTANT]
-> **Status: In progress; phases 1–14 complete.** The application-builder/SSR cutover and development/deployment checkpoints are verified. The Vitest rehearsal passes with the existing suite's coverage, and its dependencies are installed alongside Jasmine/Karma. The test-runner cutover remains pending. Revalidate Angular's guidance and APIs before each remaining migration.
+> **Status: In progress; phases 1–15 complete.** The application-builder/SSR cutover and development/deployment checkpoints are verified. Vitest with jsdom now passes the existing unit suite, and the direct Jasmine/Karma dependencies and bootstrap are removed. Legacy tooling cleanup and later validation remain. Revalidate Angular's guidance and APIs before each remaining migration.
 
 This is the second stage of the repository's [two-stage Angular modernization](README.md). It migrates the application from Angular's deprecated Webpack-based `browser`/`server` build pipeline to the integrated `application` builder and migrates unit testing from Jasmine/Karma to Vitest.
 
@@ -1660,6 +1660,7 @@ Typical mappings:
 - `jasmine.any(Type)` -> `expect.any(Type)`
 - `jasmine.objectContaining(...)` -> `expect.objectContaining(...)`
 - `.and.returnValue(...)` -> `.mockReturnValue(...)`
+- `.and.returnValues(...)` -> a finite `.mockReturnValueOnce(...)` sequence; when replacing setup responses before any calls, use `.mockReset()` first to clear earlier defaults and queued values. Preserve call history if an override occurs mid-test.
 - `.and.resolveTo(...)` -> `.mockResolvedValue(...)`
 - `.and.callFake(...)` -> `.mockImplementation(...)`
 - `.calls.reset()` -> `.mockClear()` to preserve the configured implementation; use `.mockReset()` only when intentionally resetting that implementation too
@@ -1745,6 +1746,30 @@ test: migrate unit tests from Jasmine Karma to Vitest
 ~~~
 
 Do not commit a partially converted suite.
+
+---
+
+### Phase 15 Vitest cutover checkpoint (2026-10-07)
+
+Completed the atomic runner/API cutover from `27392fa` with the versions verified in phases 13–14: Angular CLI/build/schematics 22.2.1, Vitest 5.0.3, jsdom 30.1.2, Node 24.20.0, and npm 11.19.0. [Angular's current migration guidance](https://angular.dev/guide/testing/migrating-to-vitest) and the installed unit-test builder schema were reviewed again.
+
+The test target now uses `@angular/build:unit-test` with only `setupFiles: ["src/test-setup.ts"]`. It inherits development styles, assets, localization, and the centralized Ionicons polyfill. Angular owns TestBed initialization; the setup only restores spies and real timers. `tsconfig.spec.json` supplies Vitest globals and includes the setup, while `tsconfig.app.json` excludes it so test globals cannot enter the application compilation. Both configs retain extended diagnostics. The npm test commands are unchanged.
+
+Ran the installed `refactor-jasmine-vitest` schematic, then applied the manual fixes verified in phase 13: narrow typed method fakes with separate real signal properties, guaranteed fake-timer cleanup, zoneless rendering advancement, storage-spy restoration, explicit English request locale, component-class route assertions, cancellable Node timer handles, and strict last-call/private-method typing. Existing two-space indentation, quote style, and unrelated formatting are preserved.
+
+The final review also retains types previously inferred from generic `createSpyObj` factories, including local constants and provider fakes. The six `returnValues` conversions reset earlier queued/default responses before configuring finite one-time values. All six occur before the fake is called, so resetting call history loses no assertions; ordinary call-history resets use `mockClear()` and retain their implementation.
+
+Removed `src/test.ts`, `karma.conf.js`, and the seven direct Jasmine/Karma dependencies. The lockfile removes 98 package entries without adding entries or changing retained package versions; `allowScripts` is unchanged. `@angular-devkit/build-angular` and the remaining legacy dependency cleanup stay in phase 16.
+
+Verification:
+
+- `npm run test:ci` passes **267 tests across all 44 spec files**, matching the recorded Jasmine/Karma baseline, with no skipped or focused tests.
+- All 254 source-level test declarations and their descriptions remain. Full assertion chains match the verified rehearsal; 682 original `expect` calls become 700 because 18 once-with-arguments assertions now explicitly check both count and arguments.
+- Interactive `npm test` watch mode passes a temporary environment probe and reruns it after an edit. The probe confirms no Zone.js, inherited `$localize`, and the centralized `filter-outline`, `language-sharp`, and `refresh` registrations. It is removed after verification, restoring the original suite count.
+- The post-Vitest fast gate passes: source encoding (351 files), all 24 route-parser checks, route generation, and the `development,sv` browser/server build. The build emits no prerender routes.
+- The legacy API/config audit is clean. `npm ls karma jasmine-core @types/jasmine` reports an empty dependency tree.
+
+No browser provider, Zone.js compatibility layer, custom Vitest configuration, or global DOM shims are needed. Developer/repository guidance and the changelog now describe the active Vitest workflow. Unrelated production SSR, Docker, nginx, and localization integration checks are retained from the previous checkpoints rather than repeated for this test-tooling change.
 
 ---
 

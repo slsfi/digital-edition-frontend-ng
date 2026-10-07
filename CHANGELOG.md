@@ -15,10 +15,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ### Added
 
-- Test tooling: add Vitest and jsdom as development dependencies ahead of the test-runner migration; unit tests continue to use Jasmine/Karma.
 - Routes: `generate-routes` now also produces the ignored `src/app/app.routes.server.generated.ts`, consumed by Angular's server-rendering provider. It uses the feature-filtered canonical routes, preserves parameters, and assigns client rendering to auth-protected parents and their child routes when auth is enabled, followed by a server-rendered wildcard.
 - Tests: lock SSR/CSR rendering, default-language routing, public/proxy SEO URLs, missing-static-file handling, and parameterized auth-route metadata ahead of the Stage 2 migration. Add `test:build-output` for stable output contracts and `test:ssr:checks` for the smoke runner; `test:ssr:smoke -- --auth-enabled` verifies an auth-enabled build's CSR shells. Prevent regex injection in SSR smoke checks by accepting only literal `includes` checks in JSON case files; regex checks remain available as code-owned literals in the script.
-- Tests: add `test:ssr:server` to verify Express static/probe short-circuits with an Angular-handler spy, cache policies, dynamic limiting, configured locale paths, and proxy trust. Cover Angular Web request adaptation and locale/base-path stripping in the existing Jasmine/Karma suite.
+- Tests: add `test:ssr:server` to verify Express static/probe short-circuits with an Angular-handler spy, cache policies, dynamic limiting, configured locale paths, and proxy trust. Cover Angular Web request adaptation and locale/base-path stripping in the unit suite.
 
 ### Fixed
 
@@ -28,6 +27,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ### Changed
 
+- Test tooling: migrate all Angular unit tests to Vitest with jsdom through `@angular/build:unit-test`. Keep `npm test` for interactive watch mode and `npm run test:ci` for a single run. Remove the Karma configuration, manual TestBed bootstrap, and direct Jasmine/Karma dependencies; tests inherit localization and centralized Ionicons registration from the application polyfills.
 - SSR: keep Express app creation, middleware helpers, and Angular handler registration together in `src/server.ts`; reuse the default locale's static router for localized and unprefixed requests. The focused middleware checks build and import the emitted server entry.
 - SSR: narrow the Express forwarding-header middleware to the trusted-peer check for `X-Forwarded-Host` and `X-Forwarded-Proto`. Express retains client-IP trust and Angular filters unsupported forwarding headers, removing the duplicate scan of all request headers.
 - SSR tooling: Docker and benchmark auto-start now use the canonical `npm run serve:ssr` command; benchmark cleanup stops the launcher and its SSR child processes. Add `test:ssr:benchmark` to verify alternate entries, startup failures, and process cleanup on Windows/Linux.

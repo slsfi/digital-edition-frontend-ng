@@ -39,7 +39,7 @@ describe('RouterNavigationSourceService', () => {
     });
 
     expect(emittedUrls).toEqual(['/sv/index/persons?view=full']);
-    expect(completed).toBeTrue();
+    expect(completed).toBe(true);
   });
 
   for (const context of [null, { url: '' }]) {

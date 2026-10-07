@@ -1,7 +1,7 @@
 # Angular 22 modernization — Stage 2: application builder and Vitest migration
 
 > [!IMPORTANT]
-> **Status: In progress; phases 1–18 complete.** The application-builder/SSR cutover, development/deployment checkpoints, and complete route/auth/test/browser matrix are verified. Vitest with jsdom passes the existing unit suite, legacy build/test tooling has been removed, and the public asset/fork customization layout is implemented. Performance comparison and final documentation checkpoints remain. Revalidate Angular's guidance and APIs before each remaining migration.
+> **Status: In progress; phases 1–19 complete.** The application-builder/SSR cutover, development/deployment checkpoints, and complete route/auth/test/browser matrix are verified. Vitest with jsdom passes the existing unit suite, legacy build/test tooling has been removed, and the public asset/fork customization layout is implemented. The performance comparison is recorded below; final documentation remains. Revalidate Angular's guidance and APIs before each remaining migration.
 
 This is the second stage of the repository's [two-stage Angular modernization](README.md). It migrates the application from Angular's deprecated Webpack-based `browser`/`server` build pipeline to the integrated `application` builder and migrates unit testing from Jasmine/Karma to Vitest.
 
@@ -2068,6 +2068,47 @@ Investigate material regressions before finalizing the migration.
 Commit:
 
 - No commit unless a justified optimization or benchmark/test-tool fix is required.
+
+### Phase 19 verification checkpoint (2026-10-07)
+
+Measured the merged phase 18 state `60bf669` against the preserved phase 1 baseline `3f4968b`. Rechecked Angular's [build-system guidance](https://angular.dev/tools/cli/build-system-migration) and [testing guidance](https://angular.dev/guide/testing). The machine, Windows version, Node 24.20.0, npm 11.19.0, Angular/CLI/SSR 22.2.1, Ionic 9.0.6, and TypeScript 6.0.3 match the baseline. Builds, tests, and runtime measurements run sequentially, with existing Angular disk caches retained. Critical CSS inlining remains disabled; hydration, auth, feature filtering, and production locales retain their baseline settings.
+
+| Measurement | Phase 1 baseline | Phase 19 | Change |
+| --- | --- | --- | --- |
+| CLI-reported production compilation | 49.176 s (browser + server) | 22.307 s (integrated) | −54.6% |
+| `npm run bench:ssr:build`, complete command | 75.52 s | 58.23 s | −22.9% |
+| `npm run test:ci`, complete command | 82.54 s; 213 tests / 40 files | 43.91 s; 267 tests / 44 files | −46.8% |
+| Initial browser JS + CSS, Swedish | 1,328,685 bytes | 1,358,529 bytes | +2.2% |
+| Initial browser JS + CSS, Finnish | 1,330,123 bytes | 1,359,967 bytes | +2.2% |
+| Complete emitted production server JS, including launcher | 15,790,830 bytes | 8,859,232 bytes | −43.9% |
+
+The current production build takes 38.74 s from command start through the bundle-generation message, including route generation and CLI startup; phase 1 did not separately capture the equivalent build-only wall time. The 58.23 s command measurement includes SSR requests and server cleanup, so it must not be presented as build time alone. The current unit run reports 9.461 s of compilation and 30.32 s in Vitest; runner-only time is not directly comparable with Karma's browser-only time. All 267 tests pass with no skips. These are observed command timings with caches retained, not repeated clean-build distributions or a test-count-normalized comparison.
+
+Browser initial sizes count the stylesheet, entry scripts, and their transitive static imports/module preloads: nine emitted files per locale, compared with four in the Webpack baseline. Counting only the new `main-*.js` would omit shared chunks. The roughly 30 KB raw increase stays below the existing 2 MB warning budget and does not justify a configuration change. Server sizes count all emitted JavaScript for the two production locales and shared runtime, excluding license text, source maps, and the baseline's unused `aa` server output. Comparing the 1.01 MB `server.mjs` alone with a legacy 5.36 MB `main.js` would omit the new runtime's dependencies and localized bundles. Output validation passes for both locales and `dist/app/server/server.mjs`; the build emits zero prerendered routes.
+
+The required benchmark uses the same four routes and five warm requests per route as phase 1. All 24 measured requests return HTTP 200 without transport errors:
+
+| Route | Baseline first request (ms) | Current first request (ms) | Baseline warm average (ms) | Current warm average (ms) |
+| --- | --- | --- | --- | --- |
+| `/sv/` | 137.74 | 88.92 | 93.93 | 78.66 |
+| `/sv/collection/216/introduction` | 1,596.20 | 1,475.96 | 1,965.87 | 1,480.26 |
+| `/sv/collection/216/text/20280` | 134.32 | 186.94 | 163.45 | 162.48 |
+| `/sv/collection/211/text/20210` | 397.46 | 288.68 | 341.66 | 307.91 |
+
+“First request” is the benchmark's cold measurement: a fresh process has already rendered home for readiness. It is not a process-start or empty-cache measurement. A second fresh-process benchmark produces warm averages of 119.51, 1,951.46, 177.63, and 373.55 ms respectively. This variation prevents a general SSR speedup claim. Requests use the live public API; CPU scheduling, rendering, JIT compilation, garbage collection, and backend responses all affect the result.
+
+Investigated the slower first text request and apparent response-size increase with temporary outgoing-fetch/CPU diagnostics and paired legacy/current runtime runs. The exact retained phase 1 Docker image (`4a4b17b2a458`) supplies the legacy output, verified against its original container inventory. Both runtimes execute sequentially under the same current Windows Node, first legacy/current and then current/legacy. This supplements the original Windows baseline rather than replacing it; the recovered artifact was compiled in Docker. Each run uses the same routes, readiness behavior, and five warm requests. One 86,879-byte HTTP 200 introduction response in the first pair is incomplete and excluded, leaving four valid warm samples for that current introduction average. The reverse-order run checks response completeness and needs no retries.
+
+| Route | Paired legacy warm averages (ms) | Paired current warm averages (ms) |
+| --- | --- | --- |
+| `/sv/` | 76.74 / 77.84 | 77.12 / 75.02 |
+| `/sv/collection/216/introduction` | 1,958.13 / 2,557.54 | 2,294.30 / 2,254.24 |
+| `/sv/collection/216/text/20280` | 223.28 / 198.86 | 200.07 / 212.51 |
+| `/sv/collection/211/text/20210` | 371.16 / 370.02 | 371.06 / 388.93 |
+
+The baseline's original text benchmark returned about 123 KB, while another retained phase 1 HTTP capture returned 212,952 bytes. The recovered legacy runtime returns 212,736 bytes for that route, close to the current 213,410 bytes; the larger response is therefore not introduced by Stage 2. The diagnostic introduction requests finish their upstream reads within roughly 70–141 ms, while total server responses take about 1.6–2.2 s with comparable CPU time, identifying rendering as the dominant cost in those samples. The legacy runtime exhibits the same slow introduction workload. No consistent material latency regression is found across the original, repeated, and paired measurements; no runtime optimization or benchmark/test-tool change is justified by these results.
+
+Only migration documentation changes. The final default production output remains in `dist/app`; no config or permanent test/source changes are made. Temporary runtime listeners and the Docker export container are stopped/removed. Docker Desktop, started to recover the baseline image, remains available. Full logs, exact request timings/bytes, output inventories, environment details, temporary diagnostics, recovered output, and `comparison.json` remain ignored under `tmp/stage-2-phase-19/`; the original baseline is preserved unchanged.
 
 ---
 

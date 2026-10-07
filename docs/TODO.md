@@ -13,10 +13,11 @@ Current status:
 - Development SSR/HMR, source maps, startup route generation, nginx output caching, and the CI configuration are verified in phase 12. Both start commands now generate routes, and nginx caches emitted `media/` fonts immutably.
 - Phase 15 completes the rehearsed Vitest/jsdom cutover, preserving all 267 tests across 44 spec files. Angular initializes TestBed and inherits localization and centralized Ionicons registration; a minimal setup restores spies and timers. The Karma configuration, manual bootstrap, and direct Jasmine/Karma dependencies are removed.
 - Phase 16 removes the old `@angular-devkit/build-angular`, Browser Sync, Istanbul instrumenter, and generated auth-path artifact. Clean installation, unit tests, development/production builds, i18n extraction, output checks, and all 32 production SSR smoke tests pass. Sitemap generation retains the shared protected-route parser.
+- Phase 17 groups configuration and global overrides under `src/project/`, renames the application stylesheet to `src/styles.scss`, and moves static assets and generated public documents under `public/`. Public URLs and locale/default-language serving are preserved; unit, generator, development SSR/HMR, production output, Docker/nginx, compression, and browser checks pass. Fork upgrade paths are documented as breaking changes.
 
 See the [application-builder and Vitest migration plan](migrations/STAGE-2-APPLICATION-BUILDER.md) for the remaining checkpoints:
 
-- Complete the final validation and benchmark checkpoints. The optional static-asset move remains a separate decision.
+- Complete the final validation and benchmark checkpoints.
 
 ## nginx rate limiting for SSR backend
 

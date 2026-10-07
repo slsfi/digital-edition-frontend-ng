@@ -48,14 +48,15 @@
             "i18nDuplicateTranslation": "error",
             "i18nMissingTranslation": "ignore",
             "assets": [
-              "src/assets/icon/favicon.ico",
-              "src/robots.txt",
-              "src/sitemap.txt",
-              "src/static-html/",
               {
                 "glob": "**/*",
-                "input": "src/assets",
-                "output": "assets"
+                "input": "public",
+                "output": "/"
+              },
+              {
+                "glob": "favicon.ico",
+                "input": "public",
+                "output": "assets/icon"
               },
               {
                 "glob": "**/*.svg",
@@ -64,8 +65,8 @@
               }
             ],
             "styles": [
-              "src/global.scss",
-              "src/assets/custom_css/custom.scss"
+              "src/styles.scss",
+              "src/project/global-overrides.scss"
             ],
             "scripts": []
           },

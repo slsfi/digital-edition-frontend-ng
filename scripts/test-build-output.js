@@ -39,6 +39,17 @@ for (const locale of locales) {
     assert.ok(fs.existsSync(path.join(directory, 'index.csr.html')), `Missing ${locale} CSR shell`);
     assert.ok(fs.existsSync(path.join(distRoot, 'server', subPath, 'main.server.mjs')), `Missing ${locale} server bundle`);
   }
+  // Root public documents are copied into each locale and served unprefixed
+  // from the configured default locale by Express/nginx.
+  for (const filename of ['robots.txt', 'sitemap.txt', 'favicon.ico']) {
+    assert.deepStrictEqual(fs.readFileSync(path.join(directory, filename)),
+      fs.readFileSync(path.join(repoRoot, 'public', filename)), `Incorrect ${locale} public file: ${filename}`);
+  }
+  assert.deepStrictEqual(fs.readFileSync(path.join(directory, 'assets/icon/favicon.ico')),
+    fs.readFileSync(path.join(repoRoot, 'public/favicon.ico')), `Missing ${locale} legacy favicon alias`);
+  for (const filename of ['assets/config/config.ts', 'assets/custom_css/custom.scss']) {
+    assert.ok(!fs.existsSync(path.join(directory, filename)), `Copied project source: ${filename}`);
+  }
 }
 
 // Follow the canonical launch script so changing the production entry only

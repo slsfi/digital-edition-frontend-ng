@@ -14,6 +14,8 @@ Set up a forked repository for your app according to the instructions for [setti
 
 It’s recommended not to synchronise unreleased changes from the upstream repository, but to wait for them to be included in a release. The base app uses semantic versioning.
 
+For an upgrade from v3 to v4, follow the dedicated [fork upgrade guide](upgrade-guides/upgrade-to-v4.md) before using these general build and deployment instructions.
+
 
 ## Building
 
@@ -23,9 +25,9 @@ For example, if the base app is on version `1.0.2`, the release targets the `pro
 
 The Docker images built this way are pushed to and stored in the [GitHub Container Registry][ghcr_docs].
 
-The production build command `npm run build:ssr` runs route generation before compiling Angular. Feature-based route exclusion is disabled by default and can be enabled in [`src/assets/config/config.ts`][config_ts] by setting `app.prebuild.featureBasedRoutes` to `true`.
+The production build command `npm run build:ssr` runs route generation before compiling Angular. Feature-based route exclusion is disabled by default and can be enabled in [`src/project/config.ts`][config_ts] by setting `app.prebuild.featureBasedRoutes` to `true`.
 
-The integrated application build emits browser files under `dist/app/browser/<locale subPath>` and the ESM runtime at `dist/app/server/server.mjs`. `npm run serve:ssr` starts it on port 4201 (or `PORT`); custom launchers must adopt this entry. Browser CSR shells are named `index.csr.html`. The legacy `proxy-server.js`, `postbuild-copy-files.js`, and separate server Architect target are removed. Docker and benchmarks already use the canonical npm command. Locale `subPath` values replace equivalent `baseHref` entries in `angular.json`; retain each fork's actual locale paths and explicit build locale list.
+The integrated application build emits browser files under `dist/app/browser/<locale subPath>` and the ESM runtime at `dist/app/server/server.mjs`. `npm run serve:ssr` starts it on port 4201 (or `PORT`). Browser CSR shells are named `index.csr.html`. Docker and benchmarks use the canonical npm command; emitted locales and their URL subpaths are configured in `angular.json`.
 
 **Important!** Before creating a new release, push a commit that updates:
 
@@ -51,7 +53,7 @@ The Node SSR app uses app-level request limiting for dynamic render requests. Li
 - `SSR_RATE_LIMIT_WINDOW_MS` (default: `60000`): length of one rate-limit window in milliseconds (60 seconds by default).
 - `SSR_RATE_LIMIT_LIMIT` (default: `1200`): maximum number of dynamic render requests allowed per resolved request IP (`req.ip`) during one window (default: 1200 requests per 60 seconds, after which requests are answered with HTTP `429` until the window resets).
 
-The request IP used by the limiter depends on Express proxy trust settings. Configure this in [`src/assets/config/config.ts`][config_ts]:
+The request IP used by the limiter depends on Express proxy trust settings. Configure this in [`src/project/config.ts`][config_ts]:
 
 - `app.ssr.trustProxyHops` (default: `2`): number of trusted proxy hops when resolving `req.ip` for SSR rate limiting. Value `2` is correct when the app runs behind one upstream reverse proxy (for example HAProxy) in front of nginx (`reverse proxy -> nginx -> Node/Express SSR app`). If the app is reached directly through nginx (no extra reverse proxy), set this to `1`. If the app is reached directly by Node/Express (no proxy), set this to `0`. If the proxy chain is longer, increase the value accordingly.
 - `app.ssr.trustedProxyAddresses` (default: `["loopback", "linklocal", "uniquelocal"]`): trusted proxy IPs/subnets, using Express's named ranges, individual addresses, or CIDRs. The hop limit and address allowlist both apply to the forwarded client-IP chain. Set this to the actual trusted proxy addresses for your deployment; include public proxy IPs explicitly when needed. An empty list disables proxy trust. Node accepts `X-Forwarded-Host` and `X-Forwarded-Proto` only from a trusted immediate peer with a nonzero hop limit. The middleware checks only those two origin headers; Express handles client-IP trust and Angular filters unsupported forwarding headers, including `Forwarded` and `X-Forwarded-Prefix`. Direct requests from untrusted addresses cannot override the public origin or limiter client IP with forwarding headers.
@@ -86,7 +88,7 @@ Then redeploy the app.
 
 [build_workflow]: ../.github/workflows/docker-build-and-push.yml
 [changelog]: ../CHANGELOG.md
-[config_ts]: ../src/assets/config/config.ts
+[config_ts]: ../src/project/config.ts
 [digital-edition-frontend-ng]: https://github.com/slsfi/digital-edition-frontend-ng
 [docker_compose_file]: ../compose.yml
 [docker_compose_reference]: https://docs.docker.com/compose/

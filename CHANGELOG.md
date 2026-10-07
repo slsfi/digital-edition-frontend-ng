@@ -10,14 +10,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ### Breaking changes
 
-- Build/SSR: switch to Angular's integrated `application` builder and `AngularNodeAppEngine`. The runtime entry is now `dist/app/server/server.mjs`, and locale browser shells are `index.csr.html`. Remove the legacy proxy launcher, post-build copy, separate server/prerender targets, and server tsconfig. Forks with custom server or build code must adapt to the ESM entry and Angular's Web `REQUEST`/nullable `RESPONSE_INIT` APIs. Stable npm commands, port 4201, the browser volume layout, and configured default-language responses are retained.
-- SSR proxy trust: add `app.ssr.trustedProxyAddresses` with loopback/private-network defaults. Proxy addresses and the existing hop limit now both constrain forwarded client IPs; origin headers are accepted only from trusted immediate peers. Deployments using public proxy IPs must add their actual addresses/CIDRs. See `docs/DEPLOYMENT.md`.
+- Build/SSR: adopt the integrated application builder and `AngularNodeAppEngine`, move the Express source entry to `src/server.ts`, and replace legacy launchers with the ESM runtime at `dist/app/server/server.mjs`. Custom SSR services use the application request context and Angular response APIs.
+- Fork file layout: group configuration/global overrides under `src/project/`, rename `src/global.scss` to `src/styles.scss`, and move static assets, crawler documents, and generated HTML to `public/`. Public asset URLs and default-language serving are preserved.
+- Test tooling: replace Jasmine/Karma with Vitest and jsdom; fork-owned specs and CI commands must be converted.
+- SSR proxy trust: add `app.ssr.trustedProxyAddresses`; trusted proxy addresses and the hop limit both apply.
+
+See the [v3-to-v4 fork upgrade guide](docs/upgrade-guides/upgrade-to-v4.md) for file mappings, configuration/API changes, dependency updates, and validation steps.
 
 ### Added
 
-- Routes: `generate-routes` now also produces the ignored `src/app/app.routes.server.generated.ts`, consumed by Angular's server-rendering provider. It uses the feature-filtered canonical routes, preserves parameters, and assigns client rendering to auth-protected parents and their child routes when auth is enabled, followed by a server-rendered wildcard.
-- Tests: lock SSR/CSR rendering, default-language routing, public/proxy SEO URLs, missing-static-file handling, and parameterized auth-route metadata ahead of the Stage 2 migration. Add `test:build-output` for stable output contracts and `test:ssr:checks` for the smoke runner; `test:ssr:smoke -- --auth-enabled` verifies an auth-enabled build's CSR shells. Prevent regex injection in SSR smoke checks by accepting only literal `includes` checks in JSON case files; regex checks remain available as code-owned literals in the script.
-- Tests: add `test:ssr:server` to verify Express static/probe short-circuits with an Angular-handler spy, cache policies, dynamic limiting, configured locale paths, and proxy trust. Cover Angular Web request adaptation and locale/base-path stripping in the unit suite.
+- Routes: generate Angular server-rendering metadata for public SSR and auth-protected CSR routes.
+- Tests: add build-output, SSR rendering/middleware, proxy, locale, and runtime-launch regression checks. JSON smoke-test cases accept literal checks to prevent regex injection.
 
 ### Fixed
 
@@ -27,15 +30,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ### Changed
 
-- Build tooling: remove the obsolete `@angular-devkit/build-angular`, `browser-sync`, and `istanbul-lib-instrument` dependencies. Route generation now emits only browser routes and Angular server-rendering metadata; remove the unused `auth-protected-route-paths.generated.ts` artifact while retaining the protected-route parser used by sitemap generation.
-- Test tooling: migrate all Angular unit tests to Vitest with jsdom through `@angular/build:unit-test`. Keep `npm test` for interactive watch mode and `npm run test:ci` for a single run. Remove the Karma configuration, manual TestBed bootstrap, and direct Jasmine/Karma dependencies; tests inherit localization and centralized Ionicons registration from the application polyfills.
-- SSR: keep Express app creation, middleware helpers, and Angular handler registration together in `src/server.ts`; reuse the default locale's static router for localized and unprefixed requests. The focused middleware checks build and import the emitted server entry.
-- SSR: narrow the Express forwarding-header middleware to the trusted-peer check for `X-Forwarded-Host` and `X-Forwarded-Proto`. Express retains client-IP trust and Angular filters unsupported forwarding headers, removing the duplicate scan of all request headers.
-- SSR tooling: Docker and benchmark auto-start now use the canonical `npm run serve:ssr` command; benchmark cleanup stops the launcher and its SSR child processes. Add `test:ssr:benchmark` to verify alternate entries, startup failures, and process cleanup on Windows/Linux.
-- SSR: application services now read app-relative URL, public origin, and user agent from `APPLICATION_REQUEST_CONTEXT`, backed by a server-only Angular Web request adapter. Preserve routing, SEO URLs, and mobile/desktop rendering. Forks with custom services that inject Express `REQUEST` should adopt the application context for these values. Generated Angular `RenderMode.Client` routes now supply auth-protected CSR shells; public routes remain server rendered.
-- SSR source entry: move `server.ts` to `src/server.ts`. Forks with custom server code should follow the rename and the runtime adaptation described above.
-- Build: enable TypeScript `esModuleInterop` and remove the redundant `allowSyntheticDefaultImports` option. Merge browser/server TypeScript sources while retaining strict checks and extended diagnostics. Preserve Ionicons registration and disabled critical CSS inlining; keep Jasmine/Karma and root CommonJS helper scripts through this cutover.
-- i18n tooling: delegate `ng-extract-i18n-merge` extraction to `@angular/build:extract-i18n`, preserving XLIFF 2 output, ID sorting, target-file merging, and source-language behavior.
+- Build tooling: remove legacy Webpack, Browser Sync, Istanbul, and Jasmine/Karma tooling; merge browser/server TypeScript configuration and remove the unused generated auth-path artifact.
+- SSR tooling: Docker and benchmark auto-start use the canonical `npm run serve:ssr` command.
+- i18n tooling: delegate extraction to `@angular/build`, preserving XLIFF 2 sorting and merging.
 
 
 

@@ -25,7 +25,7 @@
         "./src/app/components/*"
       ],
       "@config": [
-        "./src/assets/config/config"
+        "./src/project/config"
       ],
       "@directives/*": [
         "./src/app/directives/*"

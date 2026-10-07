@@ -1,4 +1,4 @@
-import { config } from '../../assets/config/config';
+import { config } from '../../project/config';
 import {
   getConfiguredSiteHostname,
   getConfiguredSiteOrigin,

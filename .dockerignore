@@ -3,6 +3,7 @@
 dist
 node_modules
 .angular
+tmp
 src/app/app.routes.generated.ts
 src/app/app.routes.server.generated.ts
 

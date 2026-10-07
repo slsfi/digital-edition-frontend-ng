@@ -4,13 +4,13 @@ The app supports optional authentication-guarded routing and a token-based authe
 
 ## Enable in a fork
 
-1. Set `app.auth.enabled` to `true` in [`src/assets/config/config.ts`](../src/assets/config/config.ts).
+1. Set `app.auth.enabled` to `true` in [`src/project/config.ts`](../src/project/config.ts).
 2. Configure auth API base URL by setting `app.auth.backendAuthBaseURL`.
 3. If `app.auth.backendAuthBaseURL` is missing, auth service falls back to the origin of `app.backendBaseURL` (for example `https://api.example.org/digitaledition` becomes `https://api.example.org/`).
 4. Ensure backend exposes auth endpoints expected by frontend: `POST <backendAuthBaseURL>/auth/login`, `POST <backendAuthBaseURL>/auth/refresh`, and `GET <backendAuthBaseURL>/session/validate`.
 5. Protect routes by adding `canActivate: [authGuard]` to the route declaration that owns the protected URL. This is normally the top-level route in [`src/app/app.routes.ts`](../src/app/app.routes.ts); child-specific guards belong in the corresponding lazy `*.routes.ts` file.
 6. For protected routes that do not normally fetch backend data (for example `/account`), add `data: { requiresSessionValidation: true }` so the guard can validate current session state through `GET <backendAuthBaseURL>/session/validate`.
-7. Optional: configure `app.auth.sessionValidationTTLms` in [`src/assets/config/config.ts`](../src/assets/config/config.ts) to control how long a successful session validation is cached in the browser (default: `120000` ms).
+7. Optional: configure `app.auth.sessionValidationTTLms` in [`src/project/config.ts`](../src/project/config.ts) to control how long a successful session validation is cached in the browser (default: `120000` ms).
 8. Keep login route enabled with `canMatch: [authFeatureEnabledMatchGuard]` so `/login` is only matchable when auth feature is enabled.
 9. If using production build with feature-based routes, run `npm run generate-routes` after route/config changes (or use `npm run build:ssr`, which runs it automatically).
 

@@ -2,13 +2,15 @@
 
 This document contains notes and tips on the development of the app.
 
+For an upgrade of an existing v3 fork, use the [v3-to-v4 upgrade guide](upgrade-guides/upgrade-to-v4.md). The notes below describe the current application and development workflow.
+
 ## Angular development server
 
 `npm start` serves Swedish and `npm run start:fi` serves Finnish on port 4200. Both commands generate route metadata before starting Angular's development server, so they work without pre-existing ignored route outputs. To run both locales at once, choose another port for one server, for example `npm run start:fi -- --port 4202`.
 
 The development server renders through SSR and then starts the browser application. Each server uses one locale with a `/` base href; production's locale-prefixed dispatch is verified separately with `npm run serve:ssr`. Development source maps include TypeScript and SCSS source content.
 
-Angular applies hot updates to component templates/styles and global styles where supported. TypeScript logic changes reload the page. Edits to `src/assets/custom_css/custom.scss` also reload the page because this file is both a global stylesheet and a copied asset; its styles are updated after that reload. A full reload clears unsaved component state, such as an index search term. See [Angular's HMR guidance](https://angular.dev/tools/cli/build-system-migration#hot-module-replacement).
+Angular applies hot updates to component templates/styles and global styles where supported, including `src/project/global-overrides.scss`. Project SCSS is compiled as a global stylesheet rather than copied as a public asset. TypeScript logic changes reload the page. A full reload clears unsaved component state, such as an index search term. See [Angular's HMR guidance](https://angular.dev/tools/cli/build-system-migration#hot-module-replacement).
 
 The browser router uses the canonical `app.routes.ts` during development. Development SSR also consumes generated server-rendering metadata, so run `npm run generate-routes` after changing auth/feature-route configuration or route declarations while a server is running. When invoking `ng serve` directly instead of the npm start commands, generate routes first.
 
@@ -114,7 +116,7 @@ The app is a standalone, zoneless Angular application with server-side rendering
 - **Zoneless change detection:** The application uses Angular's zoneless change detection and does not register `provideZoneChangeDetection()` or another change-detection compatibility provider. Components expose asynchronous template state through signals, inputs, the `async` pipe, or other Angular notification mechanisms. Zone.js is absent from browser, server, and test polyfills and from the dependency tree.
 - **SSR via `AngularNodeAppEngine`:** [`src/server.ts`](../src/server.ts) contains Express app creation, middleware setup, the Angular handler, and the CLI's exported Node request handler. Its `configureSsrMiddleware` and `staticFiles` helpers keep proxy handling, static files, fast 404s, and the DevTools probe ahead of the SSR limiter and Angular. The default locale's static router is shared by its locale-prefixed and unprefixed mounts. Locale paths come from `angular.json` and are matched against the emitted browser directories. Unprefixed requests use `app.i18n.defaultLanguage`, falling back to the first emitted locale, without `Accept-Language` redirects.
 - **Application request context:** Application services optionally inject [`APPLICATION_REQUEST_CONTEXT`](../src/app/tokens/request-context.token.ts) for the app-relative request URL, resolved public origin, and user agent. The [server adapter](../src/ssr/server-request-context.ts) reads Angular's nullable Web `REQUEST` and strips the rendered document's base path, preserving query parameters and escaped characters. Proxy headers are resolved at the Express boundary, not reinterpreted in application services. Browser services retain their router, document-location, and navigator fallbacks. Keep adapters under `src/ssr/`. `PageNotFoundPage` sets HTTP 404 through Angular's nullable `RESPONSE_INIT`.
-- **Integrated application builder and `dist/app` contract:** [`angular.json`](../angular.json) uses `@angular/build:application` for one browser/server build, `@angular/build:dev-server` for development, and `@angular/build:unit-test` for Vitest unit tests with jsdom. Production emits `dist/app/browser/<subPath>/index.csr.html`, localized server bundles, and `dist/app/server/server.mjs`; `npm run serve:ssr` starts that ESM entry on port 4201 (or `PORT`). The legacy proxy launcher, split server target, and post-build copy are removed. Production retains `inlineCritical: false`.
+- **Integrated application builder and `dist/app` contract:** [`angular.json`](../angular.json) uses `@angular/build:application` for one browser/server build, `@angular/build:dev-server` for development, and `@angular/build:unit-test` for Vitest unit tests with jsdom. Production emits `dist/app/browser/<subPath>/index.csr.html`, localized server bundles, and `dist/app/server/server.mjs`; `npm run serve:ssr` starts that ESM entry on port 4201 (or `PORT`). Production retains `inlineCritical: false`.
 - **TypeScript interoperability:** [`tsconfig.app.json`](../tsconfig.app.json) includes browser and server sources, excludes specs and the Vitest cleanup setup, and retains Node/localization types and extended diagnostics. [`tsconfig.spec.json`](../tsconfig.spec.json) supplies Vitest globals and localization types while retaining extended diagnostics. [`tsconfig.json`](../tsconfig.json) retains strict checks, `ES2022` modules, `bundler` resolution, and `esModuleInterop`; `resolveJsonModule` lets the bundled server read the fork's build locale configuration. Root helper scripts remain CommonJS.
 - **Hydration intentionally not enabled:** Client hydration is deliberately not configured because Ionic's underlying Stencil components do not currently support SSR hydration with Angular ([ionic-team/ionic-framework#30490](https://github.com/ionic-team/ionic-framework/issues/30490)). Hydration must be handled and tested as a dedicated SSR/deployment migration rather than folded into ordinary component work.
 
@@ -378,7 +380,7 @@ Current route policy:
 
 ## Feature-based route generation
 
-The app can generate its top-level production routes at build time based on values in [`src/assets/config/config.ts`](../src/assets/config/config.ts).
+The app can generate its top-level production routes at build time based on values in [`src/project/config.ts`](../src/project/config.ts).
 
 - Canonical top-level routes source (edited by developers): [`src/app/app.routes.ts`](../src/app/app.routes.ts)
 - Generated file: [`src/app/app.routes.generated.ts`](../src/app/app.routes.generated.ts)
@@ -424,7 +426,7 @@ Parser smoke tests:
 
 Authentication support is optional and config-driven, allowing forks to protect selected routes while the base app remains auth-disabled by default.
 
-- Enable it with `app.auth.enabled` in [`src/assets/config/config.ts`](../src/assets/config/config.ts).
+- Enable it with `app.auth.enabled` in [`src/project/config.ts`](../src/project/config.ts).
 - Protect route declarations with `authGuard`; auth-related production route metadata is generated by `npm run generate-routes`.
 - Because tokens are stored in browser storage rather than cookies, auth-protected routes receive a client-rendered shell instead of SSR when authentication is enabled.
 - Session startup validation, token refresh, redirects, sitemap behavior, static collection menus, and the manual regression checklist are documented in the [authentication guide](AUTHENTICATION.md).

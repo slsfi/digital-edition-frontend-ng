@@ -1,7 +1,7 @@
 # Repository Guidelines
 
 This repository contains the base frontend for SLS digital editions: an Angular web app with server-side rendering (SSR).  
-It is intended to be forked per edition/project, with most behavior controlled through configuration (primarily [`src/assets/config/config.ts`](src/assets/config/config.ts)).  
+It is intended to be forked per edition/project, with most behavior controlled through configuration (primarily [`src/project/config.ts`](src/project/config.ts)).
 When contributing, changes must be reusable and config-driven; project-specific hardcoding is not allowed in this base repository.
 
 ## Project Structure & Module Organization
@@ -12,7 +12,8 @@ When contributing, changes must be reusable and config-driven; project-specific 
   - `components/` reusable UI components.
   - `pages/` route entry pages and lazy standalone `Routes` arrays (`*.routes.ts`) where needed.
   - `services/`, `guards/`, `interceptors/`, `tokens/`, `models/`.
-- `src/assets/config/config.ts` is the main feature/config switchboard (auth, SSR, prebuild flags, menus, etc.).
+- `src/project/config.ts` is the main feature/config switchboard (auth, SSR, prebuild flags, menus, etc.); `src/project/global-overrides.scss` contains fork-specific styles. `src/styles.scss` selects shared global style/font bundles.
+- `public/` contains copied static assets, root crawler documents, and generated static HTML. Keep public URLs independent of source file paths; generators write sitemap/menu outputs here before building.
 - Route artifacts are generated at build time:
   - canonical developer-edited routes: `src/app/app.routes.ts`
   - generated production routes: `src/app/app.routes.generated.ts`
@@ -70,7 +71,7 @@ When contributing, changes must be reusable and config-driven; project-specific 
 - Keep commits focused to one logical change.
 - PRs should include:
   - summary of behavior change and rationale,
-  - config/deployment impact (especially `src/assets/config/config.ts` and SSR/auth flags),
+  - config/deployment impact (especially `src/project/config.ts` and SSR/auth flags),
   - verification steps and commands run,
   - screenshots for UI changes when relevant.
 - Update `CHANGELOG.md` and docs for user-visible or operational changes.

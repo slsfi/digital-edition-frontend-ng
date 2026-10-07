@@ -35,7 +35,7 @@ The app is built on [Angular][angular] and uses [Ionic][ionic] web components.
 
 3. Create a new branch in the forked repository and name it `production`, `prod` or something similar.
 
-4. Configure your project app by editing [`src/assets/config/config.ts`](src/assets/config/config.ts). The [development notes](docs/DEVELOPMENT.md) document selected configuration-dependent features, but a complete reference for all configuration options is not yet available.
+4. Configure your project app by editing [`src/project/config.ts`](src/project/config.ts). The [development notes](docs/DEVELOPMENT.md) document selected configuration-dependent features, but a complete reference for all configuration options is not yet available.
 
 The `base` branch of the forked repository must **never** be manually modified. It must be kept as a clone of the original ”upstream” `main` branch in [`digital-edition-frontend-ng`][digital-edition-frontend-ng]. When the upstream `main` branch is updated, you can sync the updates to the `base` branch in your forked repository. You can then merge the `base` branch into your `production` branch.
 
@@ -43,9 +43,29 @@ This workflow enables updates to the app in the original, upstream repository to
 
 By default, the app has Swedish and Finnish language versions enabled. See the [theming guide](docs/THEMING.md), [updating, building and deployment](docs/DEPLOYMENT.md), and the [development notes](docs/DEVELOPMENT.md) for the currently available guidance. Complete documentation for internationalization and other app customization is not yet available.
 
+### Project customization files
+
+Keep a fork's settings and styles in `src/project/`, and its static files in `public/`. The usual customization points are:
+
+| Location | What a project fork changes |
+| --- | --- |
+| [`src/project/config.ts`](src/project/config.ts) | Edition settings, enabled features, menus, authentication, SSR options, and public/backend origins. Application imports continue to use `@config`. |
+| [`src/project/global-overrides.scss`](src/project/global-overrides.scss) | Additional global styles and overrides to base CSS variables and page/component styles. Loaded after the base styles. |
+| [`src/styles.scss`](src/styles.scss) | Comment out unused shared style/font bundles. |
+| [`src/theme/_inc-global-tei.scss`](src/theme/_inc-global-tei.scss) | Select the TEI feature styles required by the edition; see [theming](docs/THEMING.md#tei-styles) for the alternate v2 entry. |
+| `public/assets/{images,files,ebooks,fonts}/` | Add or replace public edition assets. Keep URLs such as `assets/images/...` in configuration and templates. |
+| [`public/favicon.ico`](public/favicon.ico) | Replace the favicon. The former `assets/icon/favicon.ico` URL remains available as a build-time alias. |
+| [`src/index.html`](src/index.html) | Document-level resources, such as external font-provider snippets. |
+| [`angular.json`](angular.json) | Configure the edition's build locales. |
+| [`src/locale/`](src/locale/) | Edit translations for enabled locales. |
+| [`public/robots.txt`](public/robots.txt) | Adjust crawler instructions when needed; it is served at `/robots.txt`. |
+
+`public/sitemap.txt` and `public/static-html/collection-toc/` are generator outputs. Run `npm run generate-sitemap` and `npm run generate-static-collection-menus` before building when their corresponding prebuild flags are enabled; Docker does this automatically. The sitemap is served at `/sitemap.txt` even though it lists localized page URLs. Generated collection menus remain ignored by Git. See the [v3-to-v4 fork upgrade guide](docs/upgrade-guides/upgrade-to-v4.md) when upgrading an existing edition.
+
 
 ## Documentation
 
+- [Upgrade a project fork from v3 to v4](docs/upgrade-guides/upgrade-to-v4.md).
 - [Authentication](docs/AUTHENTICATION.md).
 - [Theming](docs/THEMING.md).
 - [Updating, building and deployment](docs/DEPLOYMENT.md).

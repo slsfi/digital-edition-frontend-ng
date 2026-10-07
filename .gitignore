@@ -68,11 +68,11 @@ testem.log
 Thumbs.db
 
 # Dev config files
-/src/assets/config/config-*.ts
+/src/project/config-*.ts
 
 # Static html files
-/src/static-html/collection-toc/*
-!/src/static-html/collection-toc/.gitkeep
+/public/static-html/collection-toc/*
+!/public/static-html/collection-toc/.gitkeep
 
 # Generated route artifacts
 /src/app/app.routes.generated.ts

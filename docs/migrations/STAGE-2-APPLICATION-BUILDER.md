@@ -1,7 +1,7 @@
 # Angular 22 modernization — Stage 2: application builder and Vitest migration
 
 > [!IMPORTANT]
-> **Status: In progress; phases 1–15 complete.** The application-builder/SSR cutover and development/deployment checkpoints are verified. Vitest with jsdom now passes the existing unit suite, and the direct Jasmine/Karma dependencies and bootstrap are removed. Legacy tooling cleanup and later validation remain. Revalidate Angular's guidance and APIs before each remaining migration.
+> **Status: In progress; phases 1–16 complete.** The application-builder/SSR cutover and development/deployment checkpoints are verified. Vitest with jsdom now passes the existing unit suite, and legacy build/test tooling has been removed. The optional static-asset move, final validation, and benchmark checkpoints remain. Revalidate Angular's guidance and APIs before each remaining migration.
 
 This is the second stage of the repository's [two-stage Angular modernization](README.md). It migrates the application from Angular's deprecated Webpack-based `browser`/`server` build pipeline to the integrated `application` builder and migrates unit testing from Jasmine/Karma to Vitest.
 
@@ -1826,6 +1826,28 @@ build: remove legacy Webpack and Karma tooling
 
 ---
 
+
+### Phase 16 legacy tooling cleanup checkpoint (2026-10-07)
+
+Completed the cleanup from `0931896` after the merged Vitest cutover. [Angular's current build-system migration guidance](https://angular.dev/tools/cli/build-system-migration) and the installed package/configuration were reviewed again. Application builds, development serving, unit tests, and i18n extraction all use `@angular/build`; the extraction merge wrapper has no dependency on the retired builder.
+
+Removed the direct `@angular-devkit/build-angular`, `browser-sync`, and `istanbul-lib-instrument` dependencies. Browser Sync was only used by the old builder, and the old coverage dependency is unused by the Vitest suite. The lockfile removes 458 package entries without adding entries or changing retained package versions. npm scripts and `allowScripts` are unchanged. A clean `npm ci` installs 380 packages with Angular 22.2.1, Vitest 5.0.3, and jsdom 30.1.2 on Node 24.20.0/npm 11.19.0.
+
+Route generation now writes only `app.routes.generated.ts` and `app.routes.server.generated.ts`. Removed the obsolete auth-protected-path writer and generated file, updated ignore rules, and adjusted the generation assertions while retaining the full auth/feature/render-mode matrix. The shared protected-route parser remains because sitemap generation reads the canonical route source through it. Existing fork checkouts can delete any stale `src/app/auth-protected-route-paths.generated.ts` copy once; generation no longer recreates it.
+
+The old launcher, copy script, server TypeScript config, Express tokens, and runtime Webpack/CommonEngine assumptions were already removed in earlier phases. The active-source/configuration audit is clean. `npm ls` confirms that the old builder, Browser Sync, Istanbul instrumenter, Webpack, Karma, and Jasmine are absent. The lockfile retains only upstream optional-peer declarations for Karma and the Istanbul instrumenter; these do not install either package.
+
+Verification:
+
+- Clean `npm ci` succeeds with the updated lockfile.
+- The post-Vitest fast gate passes: source encoding (350 files), all 24 route-parser checks, route generation, all 267 unit tests across 44 spec files, and the `development,sv` browser/server build.
+- `npm run extract-i18n` succeeds. All four catalogs retain their units and translations; extraction's line-ending-only changes were restored so the catalog bytes are unchanged.
+- `npm run build:ssr` succeeds with Swedish/Finnish output and no prerender routes. `npm run test:build-output` verifies both locale directories and `dist/app/server/server.mjs`.
+- `npm run serve:ssr` starts the built production app, and all 32 SSR smoke tests pass, including Swedish home/introduction/persons, Finnish routes, SEO/proxy origins, unprefixed default-language serving, mobile/desktop markup, and expected 404 responses. The test server is stopped afterward.
+
+No runtime, locale, output-path, or deployment configuration changes are required. Docker/nginx behavior retains the earlier phase 11–12 checkpoints; this cleanup does not repeat those container/browser tests.
+
+---
 
 ## 17. Optional: move true static assets to `public/`
 

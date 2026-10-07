@@ -27,6 +27,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ### Changed
 
+- Build tooling: remove the obsolete `@angular-devkit/build-angular`, `browser-sync`, and `istanbul-lib-instrument` dependencies. Route generation now emits only browser routes and Angular server-rendering metadata; remove the unused `auth-protected-route-paths.generated.ts` artifact while retaining the protected-route parser used by sitemap generation.
 - Test tooling: migrate all Angular unit tests to Vitest with jsdom through `@angular/build:unit-test`. Keep `npm test` for interactive watch mode and `npm run test:ci` for a single run. Remove the Karma configuration, manual TestBed bootstrap, and direct Jasmine/Karma dependencies; tests inherit localization and centralized Ionicons registration from the application polyfills.
 - SSR: keep Express app creation, middleware helpers, and Angular handler registration together in `src/server.ts`; reuse the default locale's static router for localized and unprefixed requests. The focused middleware checks build and import the emitted server entry.
 - SSR: narrow the Express forwarding-header middleware to the trusted-peer check for `X-Forwarded-Host` and `X-Forwarded-Proto`. Express retains client-IP trust and Angular filters unsupported forwarding headers, removing the duplicate scan of all request headers.

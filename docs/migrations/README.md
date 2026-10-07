@@ -8,3 +8,5 @@ These plans document a two-stage effort to bring the application from an Angular
 | 2 | In progress; phases 1–17 complete | The application builder and development/deployment checkpoints are verified. Vitest with jsdom passes all 267 tests across 44 spec files, legacy build/test tooling is removed, and the public asset/fork customization layout is implemented. Final validation and benchmarks remain. | [Application builder and Vitest migration](STAGE-2-APPLICATION-BUILDER.md) |
 
 See the [application architecture](../DEVELOPMENT.md#application-architecture) for the current implemented state. Active deferred work remains tracked in the [cross-cutting TODOs](../TODO.md).
+
+These plans record implementation work in the base app. Fork maintainers upgrading releases should follow the [v3-to-v4 upgrade guide](../upgrade-guides/upgrade-to-v4.md).

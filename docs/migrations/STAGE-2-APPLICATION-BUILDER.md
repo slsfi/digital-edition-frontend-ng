@@ -1902,7 +1902,7 @@ Verification after each move:
 - manual image/font/icon/file checks.
 - Docker/nginx container gate.
 
-The file-by-file fork upgrade mapping is documented in [deployment guidance](../DEPLOYMENT.md#upgrade-forks-to-the-public-asset-layout), the customization entry points in [README](../../README.md#project-customization-files), and the source-path breaking changes in [CHANGELOG](../../CHANGELOG.md#unreleased).
+The file-by-file fork upgrade mapping is documented in the [v3-to-v4 upgrade guide](../upgrade-guides/upgrade-to-v4.md#2-relocate-configuration-styles-and-public-files), the customization entry points in [README](../../README.md#project-customization-files), and the source-path breaking changes in [CHANGELOG](../../CHANGELOG.md#unreleased).
 
 ### Phase 17 implementation checkpoint (2026-10-07)
 
@@ -2093,13 +2093,13 @@ Update:
 
 Update only if developer setup/build/test commands or output assumptions changed.
 
-### CHANGELOG.md
+### CHANGELOG.md and the v3-to-v4 upgrade guide
 
-Treat the changelog as a **fork migration guide**, not merely a release summary.
+Keep `CHANGELOG.md` as a concise release summary with an explicit breaking-change section and a link to `docs/upgrade-guides/upgrade-to-v4.md`. Put detailed conflict-resolution instructions, mappings, and the fork validation checklist in that dedicated guide. Published release notes remain unchanged, including their historical file references.
 
-Stage 2 must add an explicit `### BREAKING CHANGES` section under the relevant release/`Unreleased` entry. The breaking-change notes should be concrete enough that a fork maintainer can resolve upstream conflicts without having to reconstruct the migration from commit history.
+The guide assumes an upgrade from v3 to v4; it does not cover v1/v2 directly to v4. General development, theming, and deployment guides describe current behavior and link to version-specific guidance rather than carrying major-version upgrade instructions.
 
-At minimum document the following.
+At minimum document the following in the upgrade guide and summarize the breaking changes in the relevant release/`Unreleased` entry.
 
 #### Build configuration
 
@@ -2155,7 +2155,7 @@ List every user-visible command or path change, including the final values after
 - Docker start-command changes,
 - nginx/static-volume changes if any.
 
-Do not describe expected paths from the plan if the actual application-builder output differs; write the changelog from the verified final implementation.
+Do not describe expected paths from the plan if the actual application-builder output differs; write the guide and release summary from the verified final implementation.
 
 #### TypeScript/configuration files
 
@@ -2192,7 +2192,7 @@ List important direct dependency/tooling changes relevant to fork merges, especi
 - removal of `@angular-devkit/build-angular` if the final implementation no longer needs it,
 - continued use of `@angular/build`.
 
-Do not turn the changelog into a full lockfile diff; mention only dependencies fork maintainers may need to reconcile manually.
+Keep the release summary concise; list the dependency changes fork maintainers must reconcile in the upgrade guide, without reproducing the full lockfile diff.
 
 #### Optional file-layout changes
 
@@ -2207,7 +2207,7 @@ If the `public/` migration was deferred, say nothing about it as a completed bre
 
 #### Fork migration checklist
 
-End the breaking-change section with a concise checklist specifically for downstream forks. It should instruct maintainers to:
+Include a validation checklist in the upgrade guide specifically for downstream forks. It should instruct maintainers to:
 
 1. merge/rebase the Stage 2 changes rather than replacing the fork's `angular.json`,
 2. resolve `angular.json` by combining the new builder/test structure with the fork's own locale configuration,
@@ -2218,7 +2218,7 @@ End the breaking-change section with a concise checklist specifically for downst
 7. regenerate route/server-route artifacts,
 8. run the fork's unit, SSR, locale, auth, Docker/nginx, and manual browser verification.
 
-Where a breaking change has a straightforward old -> new mapping, show it directly in the changelog. For example:
+Where a breaking change has a straightforward old -> new mapping, show it directly in the upgrade guide. For example:
 
 ~~~text
 server.ts                         -> src/server.ts
@@ -2227,7 +2227,7 @@ Karma/Jasmine                     -> Vitest + jsdom
 @angular-devkit/build-angular:*   -> @angular/build:* where applicable
 ~~~
 
-Keep the changelog concise enough to scan, but err on the side of explicitness for fork-impacting changes. The detailed implementation rationale remains in this Stage 2 plan and `docs/DEVELOPMENT.md`; the changelog should focus on **what changed, what can conflict, and what a fork maintainer must do**.
+Keep the changelog concise enough to scan. The upgrade guide explains **what can conflict and what a fork maintainer must do**. Detailed implementation rationale remains in this Stage 2 plan; `docs/DEVELOPMENT.md` explains the current architecture.
 
 Commit:
 

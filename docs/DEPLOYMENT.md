@@ -14,6 +14,8 @@ Set up a forked repository for your app according to the instructions for [setti
 
 It’s recommended not to synchronise unreleased changes from the upstream repository, but to wait for them to be included in a release. The base app uses semantic versioning.
 
+For an upgrade from v3 to v4, follow the dedicated [fork upgrade guide](upgrade-guides/upgrade-to-v4.md) before using these general build and deployment instructions.
+
 
 ## Building
 
@@ -25,7 +27,7 @@ The Docker images built this way are pushed to and stored in the [GitHub Contain
 
 The production build command `npm run build:ssr` runs route generation before compiling Angular. Feature-based route exclusion is disabled by default and can be enabled in [`src/project/config.ts`][config_ts] by setting `app.prebuild.featureBasedRoutes` to `true`.
 
-The integrated application build emits browser files under `dist/app/browser/<locale subPath>` and the ESM runtime at `dist/app/server/server.mjs`. `npm run serve:ssr` starts it on port 4201 (or `PORT`); custom launchers must adopt this entry. Browser CSR shells are named `index.csr.html`. The legacy `proxy-server.js`, `postbuild-copy-files.js`, and separate server Architect target are removed. Docker and benchmarks already use the canonical npm command. Locale `subPath` values replace equivalent `baseHref` entries in `angular.json`; retain each fork's actual locale paths and explicit build locale list.
+The integrated application build emits browser files under `dist/app/browser/<locale subPath>` and the ESM runtime at `dist/app/server/server.mjs`. `npm run serve:ssr` starts it on port 4201 (or `PORT`). Browser CSR shells are named `index.csr.html`. Docker and benchmarks use the canonical npm command; emitted locales and their URL subpaths are configured in `angular.json`.
 
 **Important!** Before creating a new release, push a commit that updates:
 
@@ -83,34 +85,6 @@ Then redeploy the app.
 **Important!** Do not create a new release when rolling back to an earlier version.
 
 
-
-## Upgrade forks to the public asset layout
-
-This is a source-path breaking change. Preserve the edition's versions of these files when merging upstream; the main configuration and styling extension points now share `src/project/`.
-
-| Previous location | New location |
-| --- | --- |
-| `src/assets/config/config.ts` | `src/project/config.ts` |
-| `src/assets/custom_css/custom.scss` | `src/project/global-overrides.scss` |
-| `src/global.scss` | `src/styles.scss` |
-| `src/assets/fonts/` | `public/assets/fonts/` |
-| `src/assets/images/` | `public/assets/images/` |
-| `src/assets/ebooks/` | `public/assets/ebooks/` |
-| `src/assets/files/` | `public/assets/files/` |
-| `src/assets/icon/favicon.ico` | `public/favicon.ico` |
-| `src/robots.txt` | `public/robots.txt` |
-| `src/sitemap.txt` | `public/sitemap.txt` |
-| `src/static-html/` | `public/static-html/` |
-
-1. Carry over the fork's configuration, global overrides, assets, and commented-out inclusions in `styles.scss`. Relocate any extra files the fork added under the old asset folders. Keep `src/index.html`, `angular.json`, `src/theme/`, and translations in their existing locations.
-2. Merge the `@config` alias and prebuild script path updates. The alias, exported `config` object, and setting names are unchanged. Update any fork-owned direct imports or custom generator/CI scripts that refer to the old filesystem paths. Ignored development configuration variants now use `src/project/config-*.ts`.
-3. Keep `src/styles.scss` before `src/project/global-overrides.scss` in the global `styles` array. Update relative Sass font references: files under `src/theme/font-face/` now reference `../../../public/assets/fonts/...`. Angular still emits these CSS resources as hashed files under locale `media/` directories.
-4. Merge the `public/` asset rule, favicon alias rule, and new generated-menu ignore rules. `public/` is copied unchanged; project TypeScript/SCSS are compiled and are no longer copied as raw public files. Move ignored generated menus in a local checkout, or regenerate them at the new path.
-5. Regenerate sitemap, collection menus, and routes as appropriate for the fork's prebuild flags, then run the unit suite, production build, build-output check, and SSR smoke checks. Verify edition-specific assets and crawler documents through the deployed nginx configuration.
-
-Public `assets/...`, `static-html/...`, and hashed `media/...` URLs retain their existing behavior. The document now links to `favicon.ico`, and the old `assets/icon/favicon.ico` address remains available from the same source file. The `dist/app/browser/<locale>` output and Docker browser volume contract are unchanged.
-
-`public/robots.txt` and `public/sitemap.txt` are source locations, not locale URL declarations. Localized builds copy them into each locale's browser output. The existing nginx root-file rule and Express unprefixed static router serve `/robots.txt` and `/sitemap.txt` from the configured default locale without redirecting to a locale prefix. Retain these rules when adapting a fork's deployment.
 
 [build_workflow]: ../.github/workflows/docker-build-and-push.yml
 [changelog]: ../CHANGELOG.md

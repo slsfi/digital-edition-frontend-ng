@@ -60,11 +60,12 @@ Keep a fork's settings and styles in `src/project/`, and its static files in `pu
 | [`src/locale/`](src/locale/) | Edit translations for enabled locales. |
 | [`public/robots.txt`](public/robots.txt) | Adjust crawler instructions when needed; it is served at `/robots.txt`. |
 
-`public/sitemap.txt` and `public/static-html/collection-toc/` are generator outputs. Run `npm run generate-sitemap` and `npm run generate-static-collection-menus` before building when their corresponding prebuild flags are enabled; Docker does this automatically. The sitemap is served at `/sitemap.txt` even though it lists localized page URLs. Generated collection menus remain ignored by Git. See [fork upgrade guidance](docs/DEPLOYMENT.md#upgrade-forks-to-the-public-asset-layout) when merging this layout into an existing edition.
+`public/sitemap.txt` and `public/static-html/collection-toc/` are generator outputs. Run `npm run generate-sitemap` and `npm run generate-static-collection-menus` before building when their corresponding prebuild flags are enabled; Docker does this automatically. The sitemap is served at `/sitemap.txt` even though it lists localized page URLs. Generated collection menus remain ignored by Git. See the [v3-to-v4 fork upgrade guide](docs/upgrade-guides/upgrade-to-v4.md) when upgrading an existing edition.
 
 
 ## Documentation
 
+- [Upgrade a project fork from v3 to v4](docs/upgrade-guides/upgrade-to-v4.md).
 - [Authentication](docs/AUTHENTICATION.md).
 - [Theming](docs/THEMING.md).
 - [Updating, building and deployment](docs/DEPLOYMENT.md).

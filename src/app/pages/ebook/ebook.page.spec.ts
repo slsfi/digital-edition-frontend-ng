@@ -1,3 +1,4 @@
+import type { MockedObject } from 'vitest';
 import { TestBed } from '@angular/core/testing';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { BehaviorSubject } from 'rxjs';
@@ -9,7 +10,7 @@ import { EbookPage } from './ebook.page';
 describe('EbookPage', () => {
   let originalEbooks: Ebook[];
   let routeParams$: BehaviorSubject<Params>;
-  let router: jasmine.SpyObj<Router>;
+  let router: MockedObject<Pick<Router, 'navigate'>>;
 
   beforeEach(async () => {
     originalEbooks = config.ebooks ?? [];
@@ -18,8 +19,10 @@ describe('EbookPage', () => {
       { title: 'Book two', filename: 'book-two.epub' }
     ];
     routeParams$ = new BehaviorSubject<Params>({ type: 'pdf', name: 'book-one' });
-    router = jasmine.createSpyObj<Router>('Router', ['navigate']);
-    router.navigate.and.resolveTo(true);
+    router = {
+      navigate: vi.fn().mockName('Router.navigate')
+    };
+    router.navigate.mockResolvedValue(true);
 
     await TestBed.configureTestingModule({
       imports: [EbookPage],
@@ -59,13 +62,15 @@ describe('EbookPage', () => {
     const fixture = TestBed.createComponent(EbookPage);
     fixture.detectChanges();
 
-    expect(router.navigate).toHaveBeenCalledOnceWith(
+    expect(router.navigate).toHaveBeenCalledTimes(1);
+
+    expect(router.navigate).toHaveBeenCalledWith(
       ['/ebook', 'pdf', 'book-one'],
       { replaceUrl: true }
     );
 
     fixture.destroy();
-    router.navigate.calls.reset();
+    router.navigate.mockClear();
     routeParams$.next({ filename: 'book-two.epub' });
     expect(router.navigate).not.toHaveBeenCalled();
   });

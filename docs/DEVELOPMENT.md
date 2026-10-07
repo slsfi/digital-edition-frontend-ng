@@ -114,11 +114,11 @@ The app is a standalone, zoneless Angular application with server-side rendering
 - **Zoneless change detection:** The application uses Angular's zoneless change detection and does not register `provideZoneChangeDetection()` or another change-detection compatibility provider. Components expose asynchronous template state through signals, inputs, the `async` pipe, or other Angular notification mechanisms. Zone.js is absent from browser, server, and test polyfills and from the dependency tree.
 - **SSR via `AngularNodeAppEngine`:** [`src/server.ts`](../src/server.ts) contains Express app creation, middleware setup, the Angular handler, and the CLI's exported Node request handler. Its `configureSsrMiddleware` and `staticFiles` helpers keep proxy handling, static files, fast 404s, and the DevTools probe ahead of the SSR limiter and Angular. The default locale's static router is shared by its locale-prefixed and unprefixed mounts. Locale paths come from `angular.json` and are matched against the emitted browser directories. Unprefixed requests use `app.i18n.defaultLanguage`, falling back to the first emitted locale, without `Accept-Language` redirects.
 - **Application request context:** Application services optionally inject [`APPLICATION_REQUEST_CONTEXT`](../src/app/tokens/request-context.token.ts) for the app-relative request URL, resolved public origin, and user agent. The [server adapter](../src/ssr/server-request-context.ts) reads Angular's nullable Web `REQUEST` and strips the rendered document's base path, preserving query parameters and escaped characters. Proxy headers are resolved at the Express boundary, not reinterpreted in application services. Browser services retain their router, document-location, and navigator fallbacks. Keep adapters under `src/ssr/`. `PageNotFoundPage` sets HTTP 404 through Angular's nullable `RESPONSE_INIT`.
-- **Integrated application builder and `dist/app` contract:** [`angular.json`](../angular.json) uses `@angular/build:application` for one browser/server build and `@angular/build:dev-server` for development. Production emits `dist/app/browser/<subPath>/index.csr.html`, localized server bundles, and `dist/app/server/server.mjs`; `npm run serve:ssr` starts that ESM entry on port 4201 (or `PORT`). The legacy proxy launcher, split server target, and post-build copy are removed. Production retains `inlineCritical: false`. Jasmine/Karma still uses its existing Webpack test builder until the dedicated Vitest migration.
-- **TypeScript interoperability:** [`tsconfig.app.json`](../tsconfig.app.json) includes browser and server sources, excludes specs and the Karma bootstrap, and retains Node/localization types and extended diagnostics. [`tsconfig.json`](../tsconfig.json) retains strict checks, `ES2022` modules, `bundler` resolution, and `esModuleInterop`; `resolveJsonModule` lets the bundled server read the fork's build locale configuration. Root helper scripts remain CommonJS.
+- **Integrated application builder and `dist/app` contract:** [`angular.json`](../angular.json) uses `@angular/build:application` for one browser/server build, `@angular/build:dev-server` for development, and `@angular/build:unit-test` for Vitest unit tests with jsdom. Production emits `dist/app/browser/<subPath>/index.csr.html`, localized server bundles, and `dist/app/server/server.mjs`; `npm run serve:ssr` starts that ESM entry on port 4201 (or `PORT`). The legacy proxy launcher, split server target, and post-build copy are removed. Production retains `inlineCritical: false`.
+- **TypeScript interoperability:** [`tsconfig.app.json`](../tsconfig.app.json) includes browser and server sources, excludes specs and the Vitest cleanup setup, and retains Node/localization types and extended diagnostics. [`tsconfig.spec.json`](../tsconfig.spec.json) supplies Vitest globals and localization types while retaining extended diagnostics. [`tsconfig.json`](../tsconfig.json) retains strict checks, `ES2022` modules, `bundler` resolution, and `esModuleInterop`; `resolveJsonModule` lets the bundled server read the fork's build locale configuration. Root helper scripts remain CommonJS.
 - **Hydration intentionally not enabled:** Client hydration is deliberately not configured because Ionic's underlying Stencil components do not currently support SSR hydration with Angular ([ionic-team/ionic-framework#30490](https://github.com/ionic-team/ionic-framework/issues/30490)). Hydration must be handled and tested as a dedicated SSR/deployment migration rather than folded into ordinary component work.
 
-The current architecture resulted from the completed standalone and zoneless phase of a [two-stage Angular modernization](migrations/README.md) and the Stage 2 application-builder cutover. The Stage 2 plan records the remaining toolchain and Vitest checkpoints.
+The current architecture resulted from the completed standalone and zoneless phase of a [two-stage Angular modernization](migrations/README.md) and the Stage 2 application-builder and Vitest cutovers. The Stage 2 plan records the remaining cleanup and validation checkpoints.
 
 
 
@@ -235,15 +235,14 @@ Library for compressing files. Used in `Dockerfile` in a post-build step to crea
 
 Library for extracting and merging i18n xliff translation files for Angular projects. This library extends the default Angular CLI, and is used to sort the keys in the xliff translation files. Used when running the `extract-i18n` script in `package.json` to create the xliff translation files for the app.
 
-The wrapper delegates extraction to `@angular/build:extract-i18n` using the application's build target. `npm run extract-i18n` retains XLIFF 2 output in `src/locale`, sorts units by ID, and merges the Finnish, Swedish, and English target files. The technical source locale remains `aa`; extraction does not change which locales are emitted by application builds. `@angular-devkit/build-angular` remains installed for the legacy Karma test target until the dedicated test-runner migration.
+The wrapper delegates extraction to `@angular/build:extract-i18n` using the application's build target. `npm run extract-i18n` retains XLIFF 2 output in `src/locale`, sorts units by ID, and merges the Finnish, Swedish, and English target files. The technical source locale remains `aa`; extraction does not change which locales are emitted by application builds. Removal of the remaining `@angular-devkit/build-angular` dependency is tracked in Stage 2 phase 16.
 
 
-### `jasmine` and `karma`
+### `vitest` and `jsdom`
 
-Unit-testing framework and test runner. Use `npm test` for watch mode or
-`npm run test:ci` for a single run. Karma uses a headless Chrome launcher with
-GPU acceleration disabled by default because the regular Chrome launcher is
-not reliable in the supported development environment.
+Angular unit tests run through `@angular/build:unit-test` with Vitest and jsdom. Use `npm test` for watch mode in an interactive terminal or `npm run test:ci` for a single run. A Chrome installation is no longer required for the unit suite.
+
+The builder initializes TestBed and inherits the application's development build options, including styles, assets, localization, and the centralized Ionicons polyfill. [`src/test-setup.ts`](../src/test-setup.ts) restores method/property spies and real timers after each test. Use `vi.fn()` and `vi.spyOn()` for mocks; type partial service fakes with `MockedObject<Pick<Service, 'method'>>`, preserving real signal properties separately. Use native async tests and Vitest fake timers, advancing scheduled rendering before `fixture.whenStable()` when timers are mocked.
 
 
 ### Updating transitive dependencies
@@ -297,10 +296,10 @@ npm run test:ssr:smoke
 
 ## Testing
 
-Use the Angular/Jasmine unit suite as the primary automated check, with the script-based checks for the areas they specifically cover:
+Use the Angular/Vitest unit suite as the primary automated check, with the script-based checks for the areas they specifically cover:
 
-- `npm test`: run Angular/Jasmine unit tests in Karma watch mode while developing.
-- `npm run test:ci`: run the full Angular/Jasmine unit suite once in headless Chrome; use this for pre-PR verification.
+- `npm test`: run Angular/Vitest unit tests in watch mode in an interactive terminal while developing.
+- `npm run test:ci`: run the full Angular/Vitest unit suite once with jsdom; use this for pre-PR verification.
 - `npm run test:source-encoding`: validate source-file encoding and BOM usage.
 - `npm run test:routes-parser`: verify route parser/generator behavior; run it after changes to `prebuild-generate-routes.js` or generator-facing route syntax in `src/app/app.routes.ts`.
 - `npm run test:static-collection-menus`: verify that shared non-multilingual TOCs are fetched once, per-locale menu files are generated, and fetch retries back off as expected; run it after changes to `prebuild-generate-static-collection-menus.js` or shared fetch retry behavior in `prebuild-common-fns.js`.
@@ -316,7 +315,7 @@ When changing `app.routes.ts` or a lazy `*.routes.ts` file, also update and run 
 
 ## Registering icons
 
-Application icons referenced by name are registered centrally in [`src/ionicons-polyfill.ts`](../src/ionicons-polyfill.ts). The browser build loads this file as a polyfill before `main.ts`, and the Karma bootstrap imports the same registry from [`src/test.ts`](../src/test.ts).
+Application icons referenced by name are registered centrally in [`src/ionicons-polyfill.ts`](../src/ionicons-polyfill.ts). The browser build loads this file as a polyfill before `main.ts`, and Angular's unit-test builder inherits the same polyfill for Vitest.
 
 The early browser registration is required for SSR. When the client starts, the `ion-icon` custom element upgrades the icon elements already present in the server-rendered HTML before Angular creates the page components. Registering icons only in component constructors is therefore too late and produces Ionicons `Invalid base URL` warnings during client bootstrap.
 

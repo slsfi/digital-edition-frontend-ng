@@ -29,21 +29,21 @@ describe('PlatformService request context', () => {
   }
 
   it('defaults to desktop without a server context even if the browser user agent is mobile', () => {
-    spyOnProperty(window.navigator, 'userAgent', 'get').and.returnValue('iPhone Mobile');
-    expect(createService('server').isMobile()).toBeFalse();
+    vi.spyOn(window.navigator, 'userAgent', 'get').mockReturnValue('iPhone Mobile');
+    expect(createService('server').isMobile()).toBe(false);
   });
 
   it('defaults to desktop when the server context has no user agent', () => {
-    expect(createService('server', { url: '/sv/' }).isMobile()).toBeFalse();
+    expect(createService('server', { url: '/sv/' }).isMobile()).toBe(false);
   });
 
   it('uses the browser navigator when no server context is provided', () => {
-    spyOnProperty(window.navigator, 'userAgent', 'get').and.returnValue('Android Mobile');
-    expect(createService('browser').isMobile()).toBeTrue();
+    vi.spyOn(window.navigator, 'userAgent', 'get').mockReturnValue('Android Mobile');
+    expect(createService('browser').isMobile()).toBe(true);
   });
 
   it('uses the browser navigator even if a server context is accidentally present', () => {
-    spyOnProperty(window.navigator, 'userAgent', 'get').and.returnValue('Desktop browser');
-    expect(createService('browser', { url: '/sv/', userAgent: 'iPhone Mobile' }).isMobile()).toBeFalse();
+    vi.spyOn(window.navigator, 'userAgent', 'get').mockReturnValue('Desktop browser');
+    expect(createService('browser', { url: '/sv/', userAgent: 'iPhone Mobile' }).isMobile()).toBe(false);
   });
 });

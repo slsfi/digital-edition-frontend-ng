@@ -11,12 +11,11 @@ Current status:
 - i18n extraction now delegates to `@angular/build:extract-i18n` through the existing merge wrapper.
 - Swedish/Finnish locale routing and Swedish-default unprefixed serving are verified in Node, the production Docker image, nginx, and browser navigation; no additional compatibility changes were needed in phase 11.
 - Development SSR/HMR, source maps, startup route generation, nginx output caching, and the CI configuration are verified in phase 12. Both start commands now generate routes, and nginx caches emitted `media/` fonts immutably.
-- The phase 13 Vitest rehearsal preserves all 267 tests across 44 spec files. The plan records the required typed-fake, signal, timer, locale, route-identity, and spy-cleanup conversions; the active runner remains Jasmine/Karma.
-- Phase 14 adds the rehearsed Vitest/jsdom development dependencies. Clean installation and the pre-Vitest fast gate pass; the runner and test APIs remain unchanged for phase 15's atomic cutover.
+- Phase 15 completes the rehearsed Vitest/jsdom cutover, preserving all 267 tests across 44 spec files. Angular initializes TestBed and inherits localization and centralized Ionicons registration; a minimal setup restores spies and timers. The Karma configuration, manual bootstrap, and direct Jasmine/Karma dependencies are removed.
 
 See the [application-builder and Vitest migration plan](migrations/STAGE-2-APPLICATION-BUILDER.md) for the remaining checkpoints:
 
-- Migrate Jasmine/Karma to Vitest in its dedicated phases; retain the existing test builder and plugins until then.
+- Remove remaining legacy build tooling in phase 16, then complete the later validation and benchmark checkpoints. The optional static-asset move remains a separate decision.
 
 ## nginx rate limiting for SSR backend
 

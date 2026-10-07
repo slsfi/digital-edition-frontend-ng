@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const common = require('./prebuild-common-fns');
 
-const configFilepath = 'src/assets/config/config.ts';
+const configFilepath = 'src/project/config.ts';
 const sourceRoutesFilepath = 'src/app/app.routes.ts';
 const outputFilepath = 'src/app/app.routes.generated.ts';
 const serverRoutesOutputFilepath = 'src/app/app.routes.server.generated.ts';

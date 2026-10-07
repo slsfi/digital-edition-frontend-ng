@@ -11,7 +11,7 @@ import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import angularConfig from '../angular.json';
-import { config } from './assets/config/config';
+import { config } from './project/config';
 import { environment } from './environments/environment';
 import { getConfiguredSiteHostname, getRequestOrigin } from './app/utils/request-origin';
 import { getDefaultServerLocale, getServerLocales, localizeRequestUrl, type ServerLocale } from './ssr/server-locales';

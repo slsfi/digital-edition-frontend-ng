@@ -1,7 +1,7 @@
 import { DOCUMENT, Injector, REQUEST } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
-import { config } from '../assets/config/config';
+import { config } from '../project/config';
 import { APPLICATION_REQUEST_CONTEXT } from '../app/tokens/request-context.token';
 import { createServerRequestContext, provideServerRequestContext } from './server-request-context';
 

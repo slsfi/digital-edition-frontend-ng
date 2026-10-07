@@ -1,7 +1,7 @@
 # Angular 22 modernization — Stage 2: application builder and Vitest migration
 
 > [!IMPORTANT]
-> **Status: In progress; phases 1–16 complete.** The application-builder/SSR cutover and development/deployment checkpoints are verified. Vitest with jsdom now passes the existing unit suite, and legacy build/test tooling has been removed. The optional static-asset move, final validation, and benchmark checkpoints remain. Revalidate Angular's guidance and APIs before each remaining migration.
+> **Status: In progress; phases 1–17 complete.** The application-builder/SSR cutover and development/deployment checkpoints are verified. Vitest with jsdom passes the existing unit suite, legacy build/test tooling has been removed, and the public asset/fork customization layout is implemented. Final validation and benchmark checkpoints remain. Revalidate Angular's guidance and APIs before each remaining migration.
 
 This is the second stage of the repository's [two-stage Angular modernization](README.md). It migrates the application from Angular's deprecated Webpack-based `browser`/`server` build pipeline to the integrated `application` builder and migrates unit testing from Jasmine/Karma to Vitest.
 
@@ -131,7 +131,7 @@ matching the modern Angular CLI/reference-app structure.
 
 #### Public assets require a narrower migration
 
-A fresh Angular application uses a top-level `public/` directory for files copied as public static assets. This repository's `src/assets/` directory mixes two different kinds of content.
+A fresh Angular application uses a top-level `public/` directory for files copied as public static assets. At the Stage 2 baseline, this repository's `src/assets/` directory mixed two different kinds of content. Phase 17 relocates these as recorded in its implementation checkpoint below.
 
 Source/build inputs that should stay under `src/`:
 
@@ -1851,7 +1851,7 @@ No runtime, locale, output-path, or deployment configuration changes are require
 
 ## 17. Optional: move true static assets to `public/`
 
-This checkpoint modernizes static-asset layout only. It is optional because it is not required by the application builder or Vitest and has high downstream merge-conflict cost.
+This checkpoint is optional because it is not required by the application builder or Vitest and has high downstream merge-conflict cost. The project owner approved it after phase 16 and expanded its scope to clarify the files that forks customize: group configuration and global style overrides under `src/project/`, rename the application-wide stylesheet to `styles.scss`, and move public documents and generated static HTML with the other public assets.
 
 Do this only after:
 
@@ -1860,14 +1860,7 @@ Do this only after:
 - Docker/nginx behavior is stable,
 - Vitest migration is complete.
 
-Do **not** move:
-
-- `src/assets/config/config.ts`,
-- `src/assets/custom_css/custom.scss`.
-
-Those remain source/build inputs under `src/`.
-
-Candidate static moves include:
+Configuration and styles remain source/build inputs under `src/`; they are compiled rather than copied as raw public files. Approved moves:
 
 ~~~text
 src/assets/fonts/   -> public/assets/fonts/
@@ -1875,19 +1868,30 @@ src/assets/images/  -> public/assets/images/
 src/assets/ebooks/  -> public/assets/ebooks/
 src/assets/files/   -> public/assets/files/
 src/assets/icon/favicon.ico -> public/favicon.ico
+src/assets/config/config.ts -> src/project/config.ts
+src/assets/custom_css/custom.scss -> src/project/global-overrides.scss
+src/global.scss -> src/styles.scss
+src/robots.txt -> public/robots.txt
+src/sitemap.txt -> public/sitemap.txt
+src/static-html/ -> public/static-html/
 ~~~
 
-Evaluate `src/robots.txt`, `src/sitemap.txt`, and `src/static-html/` separately because repository scripts generate or update some of them.
+Implement in three separately verified steps:
+
+1. Relocate project configuration and global style overrides, rename the application stylesheet, and update aliases, imports, prebuild configuration paths, style entries, and documentation. Preserve stylesheet order and all fork settings.
+2. Move static assets, update Sass font source paths, and copy `public/` through Angular's asset rule. Link to `favicon.ico` while retaining the previous `assets/icon/favicon.ico` address as an alias of the same file.
+3. Move robots, sitemap, and static HTML; update generator destinations and generated-menu ignores. Verify default-language root document serving through Express and nginx.
 
 Rules:
 
 - Keep public request URLs unchanged.
 - Make only path/location changes and the minimum required build/script references.
-- Do not refactor asset consumers in the same commit.
+- Do not refactor asset consumers as part of these moves.
 - Do not rename assets while moving them.
 - Avoid unrelated reformatting of `angular.json` or generator scripts.
-- If generated public files are moved, use a separate commit from the bulk static-asset move when that makes downstream conflict resolution clearer.
-- Review the commit from a fork-sync perspective: it should be easy to resolve when a fork has extra or replaced assets.
+- Keep generated public file changes separate from the bulk static-asset move during implementation and validation.
+- Review the diff from a fork-sync perspective: it should be easy to resolve when a fork has extra or replaced assets.
+- Leave changes uncommitted for the project owner to review, commit, and submit as a PR, as requested.
 
 Verification after each move:
 
@@ -1898,14 +1902,21 @@ Verification after each move:
 - manual image/font/icon/file checks.
 - Docker/nginx container gate.
 
-Suggested commits:
+The file-by-file fork upgrade mapping is documented in [deployment guidance](../DEPLOYMENT.md#upgrade-forks-to-the-public-asset-layout), the customization entry points in [README](../../README.md#project-customization-files), and the source-path breaking changes in [CHANGELOG](../../CHANGELOG.md#unreleased).
 
-~~~text
-chore(assets): move static public assets under public
-chore(assets): move generated public files under public
-~~~
+### Phase 17 implementation checkpoint (2026-10-07)
 
-If the conflict cost is judged too high during implementation, defer this checkpoint without blocking Stage 2 completion. Record that decision in the Stage 2 implementation notes.
+Started from the merged phase 16 baseline `1fe50d2` on the owner's `refactor-move-assets-and-configuration-files` branch. Implemented the three steps above without commits. The `@config` alias and exported settings are unchanged. Application-wide styles load before project overrides; the shared TEI inclusion files remain under `src/theme/`. Public asset URLs and the `dist/app/browser/<locale>` contract are preserved.
+
+Angular now copies `public/` plus the favicon alias and the existing Ionicons SVG rule. Sass references the relocated font files and still emits hashed resources under `media/`. Project TypeScript/SCSS are no longer copied into public output. Sitemap and static-menu generators retain their flags and behavior while writing into `public/`; ignored generated collection menus can be carried over or regenerated. Docker still runs both generators before the production build and compression.
+
+Verification is performed at each move boundary. The final unit suite passes all 267 tests across 44 files; route-parser checks pass 24 cases, source encoding checks cover 350 files, and static-menu fixture checks pass. Real generator runs produce 4,450 sitemap URLs and 46 menus in two languages with 11,602 links. The tracked sitemap placeholder is restored after this verification so the diff remains a file move rather than a backend-content refresh.
+
+Development SSR and stylesheet HMR from `src/project/global-overrides.scss` are verified with a headless browser, including loaded repository images, fonts, Ionicons, root crawler documents, and both favicon URLs. The API home-page content also references a UNESCO logo that was already absent from the repository; this unrelated missing-content reference is unchanged.
+
+Production builds preserve Swedish/Finnish locale directories, the canonical server entry, zero prerendered routes, and the configured default language. The build-output check verifies crawler documents and both favicon paths against their public sources, and rejects raw project source in output. All 17 emitted-server checks pass, including single-locale and nested-base-path static routing.
+
+The production Docker image runs sitemap/menu generation, the integrated build, and compression successfully. All 32 SSR smoke tests pass through nginx. Byte checks verify 356 copied files across both locales and 288 static HTTP responses through Node and nginx. Production browser checks at `/`, `/sv/`, and `/fi/` verify repository images and fonts. All 456 gzip sidecars decompress to their originals; nginx serves compressed CSS, keeps WOFF/WOFF2 uncompressed, and preserves root-document, unversioned-asset, and immutable hashed-font cache policies. Temporary servers, containers, and test volumes are stopped/removed after verification; local evidence helpers remain ignored under `tmp/stage-2-phase-17/`.
 
 ---
 
@@ -2188,7 +2199,7 @@ Do not turn the changelog into a full lockfile diff; mention only dependencies f
 If the optional `public/` migration was performed, give it its own breaking-change item and explicitly list:
 
 - which paths moved,
-- which source/build inputs deliberately stayed under `src/assets`,
+- which source/build inputs deliberately stayed under `src/` (`src/project/config.ts`, `src/project/global-overrides.scss`, and `src/styles.scss`),
 - confirmation that public request URLs did not change,
 - likely conflict areas for forks with custom images, fonts, ebooks, files, sitemap/static HTML, or asset declarations.
 
@@ -2242,7 +2253,7 @@ Stage 2 is complete only when all of the following are true.
 - SSR source entry lives at `src/server.ts`.
 - The `server.ts` relocation was committed independently from SSR/API behavior changes.
 - Application feature-folder organization was not changed merely to imitate a fresh CLI app.
-- `src/assets/config/config.ts` and `src/assets/custom_css/custom.scss` remain under `src/` because they are source/build inputs.
+- Project configuration and global overrides remain source/build inputs under `src/project/`; application-wide stylesheet inclusions live in `src/styles.scss`.
 - If the optional `public/` migration was performed, static public URLs are unchanged and the move was isolated from behavioral changes.
 - If the optional `public/` migration was deferred, that does not block Stage 2 completion.
 

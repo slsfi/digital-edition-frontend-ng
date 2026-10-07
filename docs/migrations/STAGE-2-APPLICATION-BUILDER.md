@@ -1,7 +1,7 @@
 # Angular 22 modernization — Stage 2: application builder and Vitest migration
 
 > [!IMPORTANT]
-> **Status: In progress; phases 1–17 complete.** The application-builder/SSR cutover and development/deployment checkpoints are verified. Vitest with jsdom passes the existing unit suite, legacy build/test tooling has been removed, and the public asset/fork customization layout is implemented. Final validation and benchmark checkpoints remain. Revalidate Angular's guidance and APIs before each remaining migration.
+> **Status: In progress; phases 1–18 complete.** The application-builder/SSR cutover, development/deployment checkpoints, and complete route/auth/test/browser matrix are verified. Vitest with jsdom passes the existing unit suite, legacy build/test tooling has been removed, and the public asset/fork customization layout is implemented. Performance comparison and final documentation checkpoints remain. Revalidate Angular's guidance and APIs before each remaining migration.
 
 This is the second stage of the repository's [two-stage Angular modernization](README.md). It migrates the application from Angular's deprecated Webpack-based `browser`/`server` build pipeline to the integrated `application` builder and migrates unit testing from Jasmine/Karma to Vitest.
 
@@ -2003,6 +2003,40 @@ fix(i18n): preserve default-language routing
 test(auth): stabilize Vitest auth specs
 test(ui): stabilize Vitest DOM mocks
 ~~~
+
+---
+
+### Phase 18 verification checkpoint (2026-10-07)
+
+Validated the merged phase 17 and upgrade-guide baseline `ec33708`. Rechecked Angular's [SSR rendering-mode guidance](https://angular.dev/best-practices/performance/ssr) and [Vitest/jsdom testing guidance](https://angular.dev/guide/testing). No application or test-suite fixes were required.
+
+Built and ran all four production configuration combinations using the actual canonical route source and relocated project configuration:
+
+| `featureBasedRoutes` | Auth enabled | Generated browser routes | Client-rendering entries | Additional HTTP checks | SSR smoke checks |
+| --- | --- | --- | --- | --- | --- |
+| `true` | `false` | 14 | 0 | 58 | 32 |
+| `true` | `true` | 21 | 18 | 58 | 32 |
+| `false` | `true` | 26 | 18 | 58 | 32 |
+| `false` | `false` | 26 | 0 | 58 | 32 |
+
+Generation is reproducible in each combination. Browser/server metadata stays aligned, unknown fork routes are retained, the final wildcard is preserved, and no prerender mode is emitted. The 18 CSR entries cover 16 protected top-level paths plus descendants of the two lazy protected routes. HTTP checks cover those paths in Swedish, Finnish, and without a locale prefix, including account, auth-only pages, collection pages, search, index, and media. Public pages remain SSR; protected pages return empty CSR shells when auth is enabled; auth-only pages return application 404s when auth is disabled. Invalid hosts receive HTTP 400 without an Angular document. Each build passes the emitted-output check and produces zero prerendered routes.
+
+Verification also passes:
+
+- All 267 Vitest tests across 44 files, 24 route-parser/generator checks, source encoding for 350 files, and static-menu generator fixtures.
+- All five smoke-runner checks and four benchmark-launch/cleanup checks. The latter validate tooling behavior; the performance comparison remains phase 19.
+- All 17 emitted-server middleware checks: configured/single/nested locale paths, static/probe short-circuits, missing assets and `/static-html`, caching, rate limiting, ebook exceptions, proxy trust, and spoofed-header rejection. The four smoke suites also cover forwarded HTTPS, canonical/Open Graph URLs, hreflang, and mobile/desktop SSR output.
+- A further 16 locale/SEO cases and 15 static HTTP cases against the final default production runtime, including opposing language preferences, escaped queries, MIME types, and absence of redirects or static-response limiter headers.
+- `npm run extract-i18n` succeeds with all four XLF files unchanged; extraction-only line-ending changes are restored to the repository convention.
+- Interactive `npm test` watch mode reruns after an edit and after restoration. A temporary two-test probe proves that the shared setup restores spies and real timers between tests; the probe is removed afterward. Coverage remains optional and is not enabled by the repository's maintained commands, so no coverage dependency or configuration is added.
+
+The production browser gate passes 36 interaction scenarios in Chrome at desktop and mobile sizes across both locales. It covers startup/assets/Ionicons, idle route preloading, side menus, client navigation and the loading bar, direct lazy routes and refresh, collection navigation and added text views, settings/reference overlays, index filters, Ionic outlet history, search, media image viewers, ebook download options, and language switching. Representative desktop/mobile screenshots are reviewed. Four additional browser checks cover unprefixed home and lazy-route startup/refresh: HTTP returns the default-language page without a redirect; browser bootstrap then normalizes the address to the Swedish `/sv/` base href, which is also present in the retained Stage 2 baseline.
+
+Fourteen auth browser scenarios pass in Swedish and Finnish, covering protected-content redirects, invalid-login feedback and return intent, login/account/session restoration/logout, registration, password recovery/reset, JWT-link guards, and email verification. Auth/session endpoints are intercepted with browser-owned fixtures; no real account, credentials, or email delivery is used. Real backend authentication integration remains a fork deployment check.
+
+Existing behavior observed during the browser gate is retained: index filters reset when returning from another page, while Ionic reuses the cached page element. The same reset logic is present in v3.1.1. The already documented missing UNESCO logo from API-authored home content is unchanged. Ebook checks cover the viewer's configured title and download links; they do not certify the external PDF provider's embedding behavior.
+
+The phase 17 Docker/nginx/gzip checkpoint remains applicable: deployment files and application source have not changed since that checkpoint, so its expensive build/compression/static-byte checks are not duplicated. The final default production output is restored under `dist/app`; the original config and test file are restored byte-for-byte, route artifacts are regenerated for auth-disabled/unfiltered defaults, and temporary listeners are stopped. Local logs, matrix results, fixture helpers, and screenshots remain ignored under `tmp/stage-2-phase-18/`.
 
 ---
 

@@ -5,7 +5,7 @@ These plans document a two-stage effort to bring the application from an Angular
 | Stage | Status | Scope | Plan |
 | --- | --- | --- | --- |
 | 1 | Completed for release 3.1.0 | Migrate the application and Ionic integration to standalone APIs and remove Zone.js-dependent change detection while retaining the existing build, SSR, test, and deployment architecture. | [Standalone and zoneless migration](STAGE-1-STANDALONE-ZONELESS.md) |
-| 2 | In progress; phases 1–17 complete | The application builder and development/deployment checkpoints are verified. Vitest with jsdom passes all 267 tests across 44 spec files, legacy build/test tooling is removed, and the public asset/fork customization layout is implemented. Final validation and benchmarks remain. | [Application builder and Vitest migration](STAGE-2-APPLICATION-BUILDER.md) |
+| 2 | In progress; phases 1–18 complete | The application builder, development/deployment checkpoints, and complete route/auth/test/browser matrix are verified. Vitest with jsdom passes all 267 tests across 44 spec files, legacy build/test tooling is removed, and the public asset/fork customization layout is implemented. Performance comparison and final documentation remain. | [Application builder and Vitest migration](STAGE-2-APPLICATION-BUILDER.md) |
 
 See the [application architecture](../DEVELOPMENT.md#application-architecture) for the current implemented state. Active deferred work remains tracked in the [cross-cutting TODOs](../TODO.md).
 

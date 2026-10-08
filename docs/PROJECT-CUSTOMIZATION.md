@@ -187,7 +187,7 @@ Set `services.web.image` in `compose.yml` to the fork's published image and chos
 
 ### nginx configuration
 
-[`nginx.conf`](../nginx.conf) controls static-file serving and the proxy to the Node SSR server. Compose mounts it into the nginx container. Review the following settings for the edition, and validate changes with `docker compose exec nginx nginx -t` before reloading or restarting nginx. Use [deployment](DEPLOYMENT.md#deployment) for rollout procedures.
+[`nginx.conf`](../nginx.conf) controls static-file serving and the proxy to the Node SSR server. Compose mounts it into the nginx container. Review the following settings for the edition, and validate changes with `docker compose exec nginx nginx -t` before reloading or restarting nginx. See [nginx in production](DEVELOPMENT.md#nginx-in-production) for the architecture and [deployment](DEPLOYMENT.md#deployment) for rollout procedures.
 
 #### Default locale
 
@@ -227,12 +227,6 @@ The `location @backend` block supplies these defaults:
 With response buffering enabled, nginx can write data that exceeds the in-memory buffers to temporary files. These sizes do not cap the size of an SSR response. Increasing `proxy_buffers` can reduce disk buffering for large HTML pages, but increases potential memory use across concurrent requests. Increase `proxy_buffer_size` when headers need more space, rather than solely because the HTML body is large. See the [nginx proxy-buffer documentation](https://nginx.org/en/docs/http/ngx_http_proxy_module.html#proxy_buffering).
 
 The [Topelius fork](https://github.com/slsfi/topelius-frontend/blob/production/nginx.conf) uses `proxy_buffers 32 16k;` (512 KiB) and retains `proxy_buffer_size 16k;`. Choose values based on the edition's response sizes, nginx logs, and expected concurrency.
-
-#### Browser bundles and static-file caching
-
-nginx serves browser bundles directly from the shared `/static` volume, avoiding the Node server. The long-cache location covers `.js` and `.css` files directly under a locale prefix, plus fonts under `media/`. Its `(media/)?` part is optional: both `/sv/chunk-HASH.js` and `/sv/media/font-HASH.woff2` match.
-
-The application builder emits browser JavaScript as `.js`, including lazy-loaded chunks. The `.mjs` files belong to the Node server build under `dist/app/server/`; they are not browser assets. Keep the nginx static locations when merging base-app updates so these browser requests continue to bypass SSR.
 
 ## Public assets and crawler documents
 

@@ -59,7 +59,7 @@ to run the image. If you built the image with a different name and tag in step 3
 
 ### nginx in front of app image
 
-In production, nginx is run in a Docker container in front of the app container so nginx, which is more performant than Node.js, can serve static files. To run the app in this setup locally:
+To run the app locally with the [production nginx setup](#nginx-in-production):
 
 1. Start [Docker Desktop][docker_desktop] and log in with your credentials.
 2. In PowerShell, `cd` into the app repository folder.
@@ -125,6 +125,30 @@ The app is a standalone, zoneless Angular application with server-side rendering
 Both stages of the [Angular modernization](migrations/completed/angular-22-modernization/README.md) are complete. The plans retain the implementation and validation history; current architecture and workflows are documented here, and release-specific fork migration instructions live in the [breaking changes and fork migration notes](breaking-changes/).
 
 When updating Angular, compare `src/server.ts`, bootstrap/provider configuration, and build/test options with the current CLI-generated structure and the [reference starter](https://github.com/SebastianKohler/ng22-ion9-ssr-starter). Reconcile API changes with the configured locales, generated render modes, request-context adapter, and Express middleware ordering described above. The custom server preserves these application contracts, so a generated replacement needs review and the SSR regression checks.
+
+
+
+## nginx in production
+
+[`compose.yml`](../compose.yml) runs nginx in front of the Node Express server. The containers share the `browser-static` volume: the app's `dist/app/browser/` output is available to nginx at `/static`. nginx serves browser bundles and other static files directly from this volume, keeping those requests out of Node and leaving the app server's resources available for SSR.
+
+### Static routing and caching
+
+[`nginx.conf`](../nginx.conf) gives different file types different cache policies:
+
+- Hashed JavaScript, CSS, and fonts receive a one-year cache lifetime with `immutable`. Their filenames change when their content changes.
+- Unversioned files under `/<locale>/assets/`, `/<locale>/static-html/`, and `/<locale>/svg/` receive a one-day cache lifetime.
+- Root `/robots.txt` and `/sitemap.txt` are served from the default locale's browser directory with caching disabled.
+
+The long-cache location covers `.js` and `.css` files directly under a locale prefix, plus fonts under `media/`. Its `(media/)?` part is optional: both `/sv/chunk-HASH.js` and `/sv/media/font-HASH.woff2` match. The application builder emits browser JavaScript as `.js`, including lazy-loaded chunks. The `.mjs` files belong to the Node server build under `dist/app/server/`, outside the shared browser volume.
+
+The dedicated static locations return 404 for missing files. For other requests, `try_files $uri /$default_locale$uri @backend` tries the requested path and then the default locale's path before forwarding to Node. This lets unprefixed static URLs use the default locale while application pages reach the SSR handler.
+
+### Precompressed static files
+
+Docker runs `npm run compress` after building to create `.gz` siblings of eligible browser files. With `gzip_static on`, nginx can answer a request for `/sv/chunk-HASH.js` using `/sv/chunk-HASH.js.gz` when the client accepts gzip and the configured gzip conditions allow it. The URL retains its `.js` extension, so the existing static location and cache policy apply. The location regex does not need to include `.gz`. See [nginx's precompressed-file documentation](https://nginx.org/en/docs/http/ngx_http_gzip_static_module.html).
+
+For the default locale, dynamic HTML compression, and proxy-buffer settings, use [nginx configuration in the project customization guide](PROJECT-CUSTOMIZATION.md#nginx-configuration). Image rollout and volume handling are covered in [deployment](DEPLOYMENT.md#deployment).
 
 
 

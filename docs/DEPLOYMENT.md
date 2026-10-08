@@ -5,6 +5,8 @@
 
 Set up a forked repository for your app according to the instructions for [setting up a new project][set_up_project]. These instructions only apply to forked repositories, and assume that it is the `production` branch which is to be updated, built and deployed. However, the same instructions apply to any other branch, for instance a `dev` branch, – just exchange any mentions of `production` with the target branch name.
 
+Use the [project customization guide](PROJECT-CUSTOMIZATION.md) to configure edition features, assets, languages, and styling before building. This guide covers updating, releasing, and operating the configured fork.
+
 
 ## Updating from the base app, [digital-edition-frontend-ng][digital-edition-frontend-ng]
 
@@ -25,7 +27,7 @@ For example, if the base app is on version `1.0.2`, the release targets the `pro
 
 The Docker images built this way are pushed to and stored in the [GitHub Container Registry][ghcr_docs].
 
-The production build command `npm run build:ssr` runs route generation and one integrated `@angular/build:application` build for the browser and server. Feature-based route exclusion is disabled by default and can be enabled in [`src/project/config.ts`][config_ts] by setting `app.prebuild.featureBasedRoutes` to `true`.
+The production build command `npm run build:ssr` runs route generation and one integrated `@angular/build:application` build for the browser and server. Route filtering follows the settings described in [project customization](PROJECT-CUSTOMIZATION.md#feature-based-route-generation).
 
 The integrated application build emits browser files under `dist/app/browser/<locale subPath>` and the ESM runtime at `dist/app/server/server.mjs`. `npm run serve:ssr` starts it on port 4201 (or `PORT`). Browser CSR shells are named `index.csr.html`. Docker and benchmarks use the canonical npm command; emitted locales and their URL subpaths are configured in `angular.json`.
 

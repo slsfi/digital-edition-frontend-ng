@@ -19,7 +19,7 @@ When contributing, changes must be reusable and config-driven; project-specific 
   - generated production routes: `src/app/app.routes.generated.ts`
   - generated Angular server-rendering modes: `src/app/app.routes.server.generated.ts` (consumed by the server providers)
 - Build/helper scripts live in repo root (`prebuild-*.js`).
-- Operational and architecture notes are in `docs/` (especially `DEVELOPMENT.md`, `DEPLOYMENT.md`).
+- Documentation lives in `docs/`: `PROJECT-CUSTOMIZATION.md` guides edition forks, `THEMING.md` covers styling, `DEPLOYMENT.md` covers operations, and `DEVELOPMENT.md` covers base-app architecture and development. Keep fork configuration instructions out of the development notes.
 
 ## Architecture Guardrails
 - Keep the application standalone. Do not introduce application, server, page, or routing NgModules.

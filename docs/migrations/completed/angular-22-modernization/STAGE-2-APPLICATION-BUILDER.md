@@ -1902,7 +1902,7 @@ Verification after each move:
 - manual image/font/icon/file checks.
 - Docker/nginx container gate.
 
-The file-by-file fork upgrade mapping is documented in the [v3-to-v4 upgrade guide](../../../upgrade-guides/upgrade-to-v4.md#2-relocate-configuration-styles-and-public-files), the customization entry points in [README](../../../../README.md#project-customization-files), and the source-path breaking changes in [CHANGELOG](../../../../CHANGELOG.md#unreleased).
+The file-by-file fork upgrade mapping is documented in the [v3-to-v4 upgrade guide](../../../upgrade-guides/upgrade-to-v4.md#2-relocate-configuration-styles-and-public-files), the customization entry points in [project customization](../../../PROJECT-CUSTOMIZATION.md#project-customization-files), and the source-path breaking changes in [CHANGELOG](../../../../CHANGELOG.md#unreleased).
 
 ### Phase 17 implementation checkpoint (2026-10-07)
 

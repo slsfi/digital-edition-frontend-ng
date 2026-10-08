@@ -2,6 +2,8 @@
 
 The app supports optional authentication-guarded routing and a token-based authentication flow. Authentication is controlled by config so the base app can stay auth-disabled by default, while selected forks can enable it.
 
+For the overall fork configuration workflow and other edition settings, start with the [project customization guide](PROJECT-CUSTOMIZATION.md). This guide covers authentication configuration, behavior, and verification.
+
 ## Enable in a fork
 
 1. Set `app.auth.enabled` to `true` in [`src/project/config.ts`](../src/project/config.ts).

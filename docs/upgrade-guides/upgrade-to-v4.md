@@ -261,4 +261,4 @@ Finally verify the actual deployment shape, including the production image behin
 - nginx cache headers, gzip delivery, and a browser volume populated from the new image.
 - Browser navigation, idle route preloading, and development SSR/hot updates for custom pages and global styles.
 
-Record the fork-specific checks in the upgrade PR before deploying. Current architecture, theming, and operating procedures remain documented in [development](../DEVELOPMENT.md), [theming](../THEMING.md), and [deployment](../DEPLOYMENT.md).
+Record the fork-specific checks in the upgrade PR before deploying. Use [project customization](../PROJECT-CUSTOMIZATION.md) for edition settings and customization files, [theming](../THEMING.md) for styling, and [deployment](../DEPLOYMENT.md) for operating procedures. Base-app implementation and testing details remain in [development](../DEVELOPMENT.md).

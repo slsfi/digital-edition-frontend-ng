@@ -1,8 +1,8 @@
-# Development
+# Base-app development
 
-This document contains notes and tips on the development of the app.
+This guide contains architecture notes, implementation details, and development/testing tips for contributors to the shared base app.
 
-For an upgrade of an existing v3 fork, use the [v3-to-v4 upgrade guide](upgrade-guides/upgrade-to-v4.md). The notes below describe the current application and development workflow.
+For edition settings, feature selection, assets, languages, and styling, use the [project customization guide](PROJECT-CUSTOMIZATION.md). Build/release operations belong in [deployment](DEPLOYMENT.md); release-specific fork migration steps belong in [upgrade guides](upgrade-guides/).
 
 ## Angular development server
 
@@ -92,7 +92,7 @@ docker compose down --volumes
 
 The Node.js Docker-image tag can be passed as a build argument to `Dockerfile` using the argument `NODE_IMAGE_TAG`. `Dockerfile` sets a default value for the argument if it is not passed.
 
-By default the app is built using GitHub Actions according to the workflow defined in `.github/workflows/docker-build-and-push.yml`, but you can also define your own build workflow. The workflow sets up a Docker Buildx builder using `docker/setup-buildx-action` and then runs the build with `docker/build-push-action` (BuildKit), passing `NODE_IMAGE_TAG` to `Dockerfile` and using `pull: true` so base image layers are refreshed by the builder.
+The supplied GitHub Actions build workflow is defined in `.github/workflows/docker-build-and-push.yml`. It sets up a Docker Buildx builder using `docker/setup-buildx-action` and then runs the build with `docker/build-push-action` (BuildKit), passing `NODE_IMAGE_TAG` to `Dockerfile` and using `pull: true` so base image layers are refreshed by the builder.
 
 The workflow also runs `docker pull node:${NODE_IMAGE_TAG}` before the build. This is intentional for explicitness and log visibility.
 
@@ -310,7 +310,7 @@ Use the Angular/Vitest unit suite as the primary automated check, with the scrip
 - `npm run test:ssr:benchmark`: verify benchmark auto-start through `serve:ssr`, including an alternate runtime entry, failed startup, interruption, and child-process cleanup, using local fixtures without building the app.
 - `npm run test:build-output`: verify browser output for the production locales configured in `angular.json` and the runtime entry from `serve:ssr`; run after `npm run build:ssr`. Supports `--dist-root`, `--locales` (comma-separated), and `--server-entry` (relative to the output root) for custom output.
 
-The [unit-test target](../angular.json) lets Angular initialize TestBed and inherits application styles, assets, localization, and the Ionicons polyfill. [`tsconfig.spec.json`](../tsconfig.spec.json) supplies `vitest/globals`; [`src/test-setup.ts`](../src/test-setup.ts) restores spies and real timers after each test. There is no Karma configuration or manual Angular test bootstrap. Prefer Angular CLI test options; the suite does not need a custom Vitest configuration or browser provider. See the [Vitest notes](#vitest-and-jsdom) for mock and timer patterns. The supplied GitHub Actions workflow builds/pushes the Docker image; it does not run the unit suite, so run `test:ci` before a PR or include it in the fork's own CI.
+The [unit-test target](../angular.json) lets Angular initialize TestBed and inherits application styles, assets, localization, and the Ionicons polyfill. [`tsconfig.spec.json`](../tsconfig.spec.json) supplies `vitest/globals`; [`src/test-setup.ts`](../src/test-setup.ts) restores spies and real timers after each test. There is no Karma configuration or manual Angular test bootstrap. Prefer Angular CLI test options; the suite does not need a custom Vitest configuration or browser provider. See the [Vitest notes](#vitest-and-jsdom) for mock and timer patterns. The supplied GitHub Actions workflow builds/pushes the Docker image; it does not run the unit suite, so run `test:ci` before a PR or add a dedicated unit-test CI job.
 
 When changing `app.routes.ts` or a lazy `*.routes.ts` file, also update and run the Angular route-recognition specs. For SSR-specific changes, run `npm run build:ssr`, start the built app with `npm run serve:ssr`, and then run `npm run test:ssr:smoke` in another terminal. The detailed route-parser and SSR smoke-test sections below describe those workflows further.
 
@@ -386,7 +386,7 @@ Current route policy:
 
 ## Feature-based route generation
 
-The app can generate its top-level production routes at build time based on values in [`src/project/config.ts`](../src/project/config.ts).
+The generator derives production routes and Angular rendering modes from the canonical route source and configuration. Fork-facing feature selection and generation commands are documented in [project customization](PROJECT-CUSTOMIZATION.md#feature-based-route-generation); the notes below describe implementation and extension points.
 
 - Canonical top-level routes source (edited by developers): [`src/app/app.routes.ts`](../src/app/app.routes.ts)
 - Generated file: [`src/app/app.routes.generated.ts`](../src/app/app.routes.generated.ts)
@@ -402,12 +402,7 @@ Both generated artifacts use that same filtered route set. With auth disabled, t
 
 The server configuration consumes `app.routes.server.generated.ts` through `provideServerRendering(withRoutes(serverRoutes))`. Angular owns auth-protected CSR shells. Sitemap generation uses the shared protected-route parser directly against the canonical route source. Both generated route artifacts are ignored by Git; edit the canonical source and regenerate them with `npm run generate-routes`.
 
-Feature toggle in config:
-
-- `app.prebuild.featureBasedRoutes` (default: `false`)
-- when `false`, the generated routes include all default lazy routes
-- when `true`, the generated routes include only feature-enabled top-level routes
-- filtering is path-based in `prebuild-generate-routes.js`; any new top-level route not listed in the filter map remains included by default
+Feature inclusion is centralized in `getRouteIncludeByPath()` in [`prebuild-common-fns.js`](../prebuild-common-fns.js). The route generator applies this path-based map when feature filtering is active; new top-level paths without a mapping remain included by default and produce a warning. When adding a configurable feature, update that map and the corresponding parser tests. Lazy child routes are covered by their parent rather than separate filtering rules.
 
 Build behavior:
 
@@ -428,14 +423,13 @@ Parser smoke tests:
 
 
 
-## Authentication-guarded routing and token-based authentication flow
+## Authentication integration
 
-Authentication support is optional and config-driven, allowing forks to protect selected routes while the base app remains auth-disabled by default.
+Authentication is integrated through the shared providers, route guards, HTTP interceptor, and generated server-rendering modes. Keep the disabled configuration working when changing these components: the auth interceptor is not registered, protected routes retain public SSR, and auth-only routes remain unavailable.
 
-- Enable it with `app.auth.enabled` in [`src/project/config.ts`](../src/project/config.ts).
-- Protect route declarations with `authGuard`; auth-related production route metadata is generated by `npm run generate-routes`.
-- Because tokens are stored in browser storage rather than cookies, auth-protected routes receive a client-rendered shell instead of SSR when authentication is enabled.
-- Session startup validation, token refresh, redirects, sitemap behavior, static collection menus, and the manual regression checklist are documented in the [authentication guide](AUTHENTICATION.md).
+The server-route generator recognizes `authGuard` and `authFeatureEnabledMatchGuard`. With auth enabled, it emits `RenderMode.Client` entries for protected routes and their lazy descendants. Tokens are stored in browser storage rather than cookies, so the initial SSR request cannot identify an authenticated browser session. Public routes remain server rendered; Angular owns the protected CSR shells.
+
+When modifying authentication, verify both enabled and disabled configurations, including startup validation, token refresh, redirects, route recognition, and generated rendering modes. The [authentication guide](AUTHENTICATION.md) maintains the behavior contract and manual regression checklist, as well as the fork configuration instructions reached through [project customization](PROJECT-CUSTOMIZATION.md#authentication).
 
 
 ## SSR smoke test (local or remote)
@@ -465,8 +459,8 @@ Optional arguments:
 
 - `--base-url=<url>` to target another host/port (including remote environments).
 - `--timeout-ms=<number>` to change per-request timeout.
-- `--auth-enabled` to expect CSR shells for protected routes in an already built auth-enabled app. It changes test expectations only; set `app.auth.enabled: true`, regenerate/build, and restart the app before using it. Without the flag, protected routes must SSR and auth-only routes must return 404. Restore the normal configuration and rebuild when finished.
-- `--cases-file=<path>` to load a JSON array of test cases for a fork's own routes/locales. The default fixtures use the base app's Swedish/Finnish content. JSON cases use the same fields as `TEST_CASES`, but `checks` and optional `csrChecks` accept only `includes` checks with literal string values (for example, `{ "type": "includes", "value": "lang=\"fi\"" }`). Regex checks require code-owned `RegExp` literals in the script; JSON pattern strings are rejected before requests run. Optional `csrChecks` validate locale/base href in CSR mode.
+- `--auth-enabled` to expect CSR shells for protected routes in an already built auth-enabled app. It changes test expectations only; the built app and running process must match that test configuration. Without the flag, protected routes must SSR and auth-only routes must return 404. Rebuild and restart between auth configurations when verifying both modes.
+- `--cases-file=<path>` to load a JSON array of test cases for custom routes/locales. The default fixtures use the base app's Swedish/Finnish content. JSON cases use the same fields as `TEST_CASES`, but `checks` and optional `csrChecks` accept only `includes` checks with literal string values (for example, `{ "type": "includes", "value": "lang=\"fi\"" }`). Regex checks require code-owned `RegExp` literals in the script; JSON pattern strings are rejected before requests run. Optional `csrChecks` validate locale/base href in CSR mode.
 
 Example:
 

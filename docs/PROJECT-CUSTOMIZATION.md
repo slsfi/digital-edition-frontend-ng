@@ -103,12 +103,19 @@ Choose the edition's interface languages and default language early in setup. Th
 
 Keep the application settings, build locales, translations, and development launchers aligned:
 
-1. **In `src/project/config.ts`**, set `app.i18n.languages` to the edition's language entries, each with a `code`, display `label`, and appropriate `region`. Set `app.i18n.defaultLanguage` to one of those codes. A single-language edition uses one entry.
-2. **In `angular.json`**, include each maintained translation filename, such as `messages.en.xlf`, in `projects.app.architect.extract-i18n.options.targetFiles`. Run `npm run extract-i18n` to create missing files and merge current messages into existing ones under `src/locale/`. Translate and review them as described [below](#translate-interface-messages).
-3. **In `angular.json`**, add each public language under `projects.app.i18n.locales`, with its `translation` file path and `subPath`. For English, use `src/locale/messages.en.xlf` and `en`. Use the language code as the URL subpath so it matches the app's language links. Set `projects.app.architect.build.options.localize` to the emitted language codes, for example `["en"]` for an English-only edition. Include the configured default language in that list.
-4. **In `angular.json`**, add a single-locale configuration under `projects.app.architect.build.configurations` for each development language. An `en` entry uses `"localize": ["en"]`. Add its matching entry under `projects.app.architect.serve.configurations`, with `"buildTarget": "app:build:development,en"`.
-5. **In `package.json`**, update the `start` and `start:<locale>` scripts to use those development configurations, keeping the matching route-generation hooks. See [package identity and start scripts](#package-identity-and-start-scripts) for the launcher example.
-6. **In `nginx.conf`**, set `$default_locale` to the language code of the default language, for example `set $default_locale en;` for an English default. nginx does not read `config.ts`; keep these settings aligned. See [nginx configuration](#nginx-configuration).
+1. **In `src/project/config.ts`**:
+  - Set `app.i18n.languages` to the edition's language entries, each with a `code`, display `label`, and appropriate `region`.
+  - Set `app.i18n.defaultLanguage` to one of those codes. A single-language edition uses one entry.
+2. **In `angular.json`**:
+  - Include each maintained translation filename, such as `messages.en.xlf`, in `projects.app.architect.extract-i18n.options.targetFiles`.
+  - Run `npm run extract-i18n` to create missing files and merge current messages into existing ones under `src/locale/`. Translate and review them as described [below](#translate-interface-messages).
+  - Add each public language under `projects.app.i18n.locales`, with its `translation` file path and `subPath`. For English, use `src/locale/messages.en.xlf` and `en`. Use the language code as the URL subpath so it matches the app's language links.
+  - Set `projects.app.architect.build.options.localize` to the emitted language codes, for example `["en"]` for an English-only edition. Include the configured default language in that list.
+  - Add a single-locale configuration under `projects.app.architect.build.configurations` for each development language. An `en` entry uses `"localize": ["en"]`. Add its matching entry under `projects.app.architect.serve.configurations`, with `"buildTarget": "app:build:development,en"`.
+3. **In `package.json`**:
+  - Update the `start` and `start:<locale>` scripts to use those development configurations, keeping the matching route-generation hooks. See [package identity and start scripts](#package-identity-and-start-scripts) for the launcher example.
+4. **In `nginx.conf`**:
+  - Set `$default_locale` to the language code of the default language, for example `set $default_locale en;` for an English default. nginx does not read `config.ts`; keep these settings aligned. See [nginx configuration](#nginx-configuration).
 
 To remove a public language, remove it from the app's language list, Angular's build locales and `localize` list, and its development configurations and launchers. Change the default language if needed. Remove its extraction `targetFiles` entry only if the fork will stop maintaining that translation; maintaining a file does not require emitting that locale.
 

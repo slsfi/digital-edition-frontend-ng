@@ -105,8 +105,8 @@ Keep the application settings, build locales, translations, and development laun
 
 1. **In `src/project/config.ts`**, set `app.i18n.languages` to the edition's language entries, each with a `code`, display `label`, and appropriate `region`. Set `app.i18n.defaultLanguage` to one of those codes. A single-language edition uses one entry.
 2. **In `angular.json`**, include each maintained translation filename, such as `messages.en.xlf`, in `projects.app.architect.extract-i18n.options.targetFiles`. Run `npm run extract-i18n` to create missing files and merge current messages into existing ones under `src/locale/`. Translate and review them as described [below](#translate-interface-messages).
-3. Add each public language under `projects.app.i18n.locales`, with its `translation` file path and `subPath`. For English, use `src/locale/messages.en.xlf` and `en`. Use the language code as the URL subpath so it matches the app's language links. Set `projects.app.architect.build.options.localize` to the emitted language codes, for example `["en"]` for an English-only edition. Include the configured default language in that list.
-4. Add a single-locale configuration under `projects.app.architect.build.configurations` for each development language. An `en` entry uses `"localize": ["en"]`. Add its matching entry under `projects.app.architect.serve.configurations`, with `"buildTarget": "app:build:development,en"`.
+3. **In `angular.json`**, add each public language under `projects.app.i18n.locales`, with its `translation` file path and `subPath`. For English, use `src/locale/messages.en.xlf` and `en`. Use the language code as the URL subpath so it matches the app's language links. Set `projects.app.architect.build.options.localize` to the emitted language codes, for example `["en"]` for an English-only edition. Include the configured default language in that list.
+4. **In `angular.json`**, add a single-locale configuration under `projects.app.architect.build.configurations` for each development language. An `en` entry uses `"localize": ["en"]`. Add its matching entry under `projects.app.architect.serve.configurations`, with `"buildTarget": "app:build:development,en"`.
 5. **In `package.json`**, update the `start` and `start:<locale>` scripts to use those development configurations, keeping the matching route-generation hooks. See [package identity and start scripts](#package-identity-and-start-scripts) for the launcher example.
 6. **In `nginx.conf`**, set `$default_locale` to the language code of the default language, for example `set $default_locale en;` for an English default. nginx does not read `config.ts`; keep these settings aligned. See [nginx configuration](#nginx-configuration).
 
@@ -148,13 +148,13 @@ Adding an interface locale does not translate backend articles, collection front
 
 ### Navigation and enabled features
 
-Use `component.mainSideMenu.items` to select the main navigation items, and `component.topMenu` to select the top-menu buttons. Review the corresponding content settings as well: for example, articles need entries in `articles`, ebooks need entries in `ebooks`, and collections use `collections.order`. Collection front-matter views are selected with `collections.frontMatterPages`.
+In `src/project/config.ts`, use `component.mainSideMenu.items` to select the main navigation items, and `component.topMenu` to select the top-menu buttons. Review the corresponding content settings as well: for example, articles need entries in `articles`, ebooks need entries in `ebooks`, and collections use `collections.order`. Collection front-matter views are selected with `collections.frontMatterPages`.
 
 With feature-based route filtering disabled, hiding a menu item changes navigation but leaves its route available. Use [feature-based route generation](#feature-based-route-generation) to omit supported inactive production routes, and [authentication](#authentication) when content requires access control.
 
 ### Feature-based route generation
 
-`app.prebuild.featureBasedRoutes` defaults to `false`. In that mode, generated production routes retain the canonical route set. Set it to `true` to filter supported top-level routes according to the edition's feature/content settings.
+In `src/project/config.ts`, `app.prebuild.featureBasedRoutes` defaults to `false`. In that mode, generated production routes retain the canonical route set. Set it to `true` to filter supported top-level routes according to the edition's feature/content settings.
 
 The filtering rules use menu flags and related content settings. For example, the ebook route requires both `component.mainSideMenu.items.ebooks` and at least one `ebooks` entry; search remains included when either its side-menu item or the top-menu search button is enabled. Custom top-level routes without a filtering rule remain included. Route filtering is not an authorization mechanism.
 
@@ -166,11 +166,11 @@ The generated route files are build outputs. Do not edit them to customize the e
 
 ### Edition README
 
-The fork's root `README.md` should describe the edition rather than present itself as the shared base app. Include the edition's name and purpose, public website, maintainers/contact information, and any edition-specific setup or development notes. Retain useful links to the shared guides under `docs/` and identify the upstream base repository so future maintainers know where updates come from.
+The fork's root [`README.md`](../README.md) should describe the edition rather than present itself as the shared base app. Include the edition's name and purpose, public website, maintainers/contact information, and any edition-specific setup or development notes. Retain useful links to the shared guides under `docs/` and identify the upstream base repository so future maintainers know where updates come from.
 
 ### Package identity and start scripts
 
-Update `name`, `description`, and `homepage` in `package.json` for the edition. Set `version` according to the edition's release/build naming described in [deployment](DEPLOYMENT.md#building). Keep `package-lock.json` in sync: use `npm version --no-git-tag-version <release-tag>` for release versions, or `npm install --package-lock-only` after changing package identity metadata.
+Update `name`, `description`, and `homepage` in [`package.json`](../package.json) for the edition. Set `version` according to the edition's release/build naming described in [deployment](DEPLOYMENT.md#building). Keep `package-lock.json` in sync: use `npm version --no-git-tag-version <release-tag>` for release versions, or `npm install --package-lock-only` after changing package identity metadata.
 
 Adjust the development `start` scripts to the locales/configurations selected in [internationalization](#internationalization). Keep the route-generation lifecycle hook paired with every start script. For example, if the fork defines an `en` build configuration, its default launcher can be:
 
@@ -183,7 +183,7 @@ Likewise, each additional `start:<locale>` script needs a matching `prestart:<lo
 
 ### Docker Compose
 
-Set `services.web.image` in `compose.yml` to the fork's published image and chosen tag. Set `services.nginx.ports` to an available host port on the deployment server, using `<available-host-port>:80`. The left-hand port is the server port allocated to this edition; the right-hand port remains nginx's container port. Coordinate that host port with the upstream reverse proxy's routing to the edition. See [deployment](DEPLOYMENT.md#deployment) for image rollout and browser-volume handling.
+In [`compose.yml`](../compose.yml), set `services.web.image` to the fork's published image and chosen tag. Set `services.nginx.ports` to an available host port on the deployment server, using `<available-host-port>:80`. The left-hand port is the server port allocated to this edition; the right-hand port remains nginx's container port. Coordinate that host port with the upstream reverse proxy's routing to the edition. See [deployment](DEPLOYMENT.md#deployment) for image rollout and browser-volume handling.
 
 ### nginx configuration
 
@@ -232,9 +232,9 @@ The [Topelius fork](https://github.com/slsfi/topelius-frontend/blob/production/n
 
 Add edition files under `public/assets/` and reference their public URL rather than their source location. For example, `public/assets/images/banner.jpg` is referenced as `assets/images/banner.jpg`, not `public/assets/images/banner.jpg`. Angular copies public files into each emitted locale's browser output. Locale-prefixed asset requests use that locale's copy; unprefixed requests use the configured default locale.
 
-Replace `public/favicon.ico` for the edition's favicon. Both the current `favicon.ico` URL and the compatibility `assets/icon/favicon.ico` URL are emitted from that file. Font selection and source references are covered in the [theming guide](THEMING.md).
+Replace [`public/favicon.ico`](../public/favicon.ico) for the edition's favicon. Both the current `favicon.ico` URL and the compatibility `assets/icon/favicon.ico` URL are emitted from that file. Font selection and source references are covered in the [theming guide](THEMING.md).
 
-Edit `public/robots.txt` when crawler rules need to differ for the edition. The deployed crawler documents are available at the website root as `/robots.txt` and `/sitemap.txt`, independent of the locale prefixes used by application pages. See [deployment](DEPLOYMENT.md#deployment) for default-locale serving and nginx configuration.
+Edit [`public/robots.txt`](../public/robots.txt) when crawler rules need to differ for the edition. The deployed crawler documents are available at the website root as `/robots.txt` and `/sitemap.txt`, independent of the locale prefixes used by application pages. See [deployment](DEPLOYMENT.md#deployment) for default-locale serving and nginx configuration.
 
 ### Production crawler instructions
 
@@ -250,6 +250,8 @@ Sitemap: https://edition.example.org/sitemap.txt
 Replace the example origin with the edition's public origin and retain any edition-specific `Disallow` rules. `Crawl-delay` depends on crawler support; Google does not support it. The sitemap URL must include the scheme and host. See [Google's robots.txt reference](https://developers.google.com/crawling/docs/robots-txt/robots-txt-spec). The production-only convention is managed through branches; the build copies the `public/robots.txt` present in the branch being built.
 
 ### Generated public content
+
+These options in `src/project/config.ts` control sitemap and static collection menu generation:
 
 | Setting | Command | Output |
 | --- | --- | --- |

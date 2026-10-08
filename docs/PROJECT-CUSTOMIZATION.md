@@ -2,7 +2,7 @@
 
 This guide is for maintainers configuring an edition fork of the base app. Start with the four [project setup steps](../README.md#setting-up-a-project), then use the files and settings below to adapt the app to the edition. Keep edition-specific settings, styles, and assets concentrated in these locations so updates from the base repository remain easier to merge.
 
-The [base-app development notes](DEVELOPMENT.md) cover architecture, implementation, dependency maintenance, and developer testing. This guide covers the existing customization options; it is not yet a complete reference for every configuration field. When upgrading an existing v3 fork, follow the [v3-to-v4 upgrade guide](upgrade-guides/upgrade-to-v4.md) as well.
+The [base-app development notes](DEVELOPMENT.md) cover architecture, implementation, dependency maintenance, and developer testing. This guide covers the existing customization options; it is not yet a complete reference for every configuration field. When upgrading an existing fork between major versions of the base app, follow the relevant [upgrade guide](upgrade-guides/).
 
 ## Project customization files
 

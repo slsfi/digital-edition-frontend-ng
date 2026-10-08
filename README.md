@@ -6,7 +6,7 @@ Internationalization and server-side rendering are supported out of the box, mea
 
 The app also supports optional authentication-guarded routing and a token-based authentication flow for forks that need protected content.
 
-See the instructions below for setting up a project and the [project customization guide](docs/PROJECT-CUSTOMIZATION.md).
+See the instructions below for [setting up a project](#setting-up-a-project) and the [project customization guide](docs/PROJECT-CUSTOMIZATION.md).
 
 Examples of digital editions employing this frontend app include:
 

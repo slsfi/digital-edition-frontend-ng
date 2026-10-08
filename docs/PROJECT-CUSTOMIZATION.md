@@ -62,44 +62,21 @@ Keep a fork's settings and styles in `src/project/`, and its static files in `pu
 
 | Location | What a project fork changes |
 | --- | --- |
-| [`README.md`](../README.md) | Describe the forked edition project, its website, maintainers, and project-specific setup. Replace the base-app introduction and examples. |
+| [`angular.json`](../angular.json) | Configure the edition's build locales. |
 | [`compose.yml`](../compose.yml) | Select the fork's published image/tag and an available host port for nginx on the deployment server. |
 | [`package.json`](../package.json) | Set the edition's package name, version, description, homepage, and development start scripts for its locales. Keep lockfile metadata synchronized. |
+| [`README.md`](../README.md) | Describe the forked edition project, its website, maintainers, and project-specific setup. Replace the base-app introduction and examples. |
+| `public/assets/{images,files,ebooks,fonts}/` | Add or replace public edition assets. Keep URLs such as `assets/images/...` in configuration and templates. |
+| [`public/favicon.ico`](../public/favicon.ico) | Replace the favicon. The former `assets/icon/favicon.ico` URL remains available as a build-time alias. |
+| [`public/robots.txt`](../public/robots.txt) | Set edition-specific production crawler instructions and the sitemap URL; it is served at `/robots.txt`. |
+| [`src/index.html`](../src/index.html) | Document-level resources, such as external font-provider snippets. |
+| [`src/locale/`](../src/locale/) (`messages.<locale>.xlf`) | Edit translations for enabled locales, including `Site.Title`, `Site.Subtitle`, and `Site.MetaDescription.Home`. |
 | [`src/project/config.ts`](../src/project/config.ts) | Edition settings, enabled features, menus, authentication, SSR options, and public/backend origins. Application imports continue to use `@config`. |
 | [`src/project/global-overrides.scss`](../src/project/global-overrides.scss) | Additional global styles and overrides to base CSS variables and page/component styles. Loaded after the base styles. |
 | [`src/styles.scss`](../src/styles.scss) | Comment out unused shared style/font bundles. |
 | [`src/theme/_inc-global-tei.scss`](../src/theme/_inc-global-tei.scss) | Select the TEI feature styles required by the edition; see [theming](THEMING.md#tei-styles) for the alternate v2 entry. |
-| `public/assets/{images,files,ebooks,fonts}/` | Add or replace public edition assets. Keep URLs such as `assets/images/...` in configuration and templates. |
-| [`public/favicon.ico`](../public/favicon.ico) | Replace the favicon. The former `assets/icon/favicon.ico` URL remains available as a build-time alias. |
-| [`src/index.html`](../src/index.html) | Document-level resources, such as external font-provider snippets. |
-| [`angular.json`](../angular.json) | Configure the edition's build locales. |
-| [`src/locale/`](../src/locale/) (`messages.<locale>.xlf`) | Edit translations for enabled locales, including `Site.Title`, `Site.Subtitle`, and `Site.MetaDescription.Home`. |
-| [`public/robots.txt`](../public/robots.txt) | Set edition-specific production crawler instructions and the sitemap URL; it is served at `/robots.txt`. |
 
 `public/sitemap.txt` and `public/static-html/collection-toc/` are generator outputs. Their generation is described [below](#generated-public-content).
-
-## Repository files and deployment settings
-
-### Edition README
-
-The fork's root `README.md` should describe the edition rather than present itself as the shared base app. Include the edition's name and purpose, public website, maintainers/contact information, and any edition-specific setup or development notes. Retain useful links to the shared guides under `docs/` and identify the upstream base repository so future maintainers know where updates come from.
-
-### Package identity and start scripts
-
-Update `name`, `description`, and `homepage` in `package.json` for the edition. Set `version` according to the edition's release/build naming described in [deployment](DEPLOYMENT.md#building). Keep `package-lock.json` in sync: use `npm version --no-git-tag-version <release-tag>` for release versions, or `npm install --package-lock-only` after changing package identity metadata.
-
-Adjust the development `start` scripts to the locales/configurations defined in `angular.json`. Keep the route-generation lifecycle hook paired with every start script. For example, if the fork defines an `en` build configuration, its default launcher can be:
-
-```json
-"prestart": "npm run generate-routes",
-"start": "ng serve --configuration=development,en"
-```
-
-Likewise, each additional `start:<locale>` script needs a matching `prestart:<locale>` hook. Remove launchers for locales the fork does not use. Keep the supported Node/npm declarations and shared build, test, and runtime scripts when changing package identity or language launchers.
-
-### Docker Compose
-
-Set `services.web.image` in `compose.yml` to the fork's published image and chosen tag. Set `services.nginx.ports` to an available host port on the deployment server, using `<available-host-port>:80`. The left-hand port is the server port allocated to this edition; the right-hand port remains nginx's container port. Coordinate that host port with the upstream reverse proxy's routing to the edition. See [deployment](DEPLOYMENT.md#deployment) for image rollout and browser-volume handling.
 
 ## Edition settings and content
 
@@ -110,11 +87,62 @@ Review [`config.ts`](../src/project/config.ts) before running the edition. The b
 | `app.projectNameDB` and `app.projectId` | The edition's backend project identifiers. |
 | `app.backendBaseURL` | The digital edition API used for content requests. |
 | `app.siteURLOrigin` | The public site origin used for generated URLs and SSR metadata. Use the deployed public origin, including its intended HTTP/HTTPS scheme. |
+| `app.i18n` | Interface languages, default language, and multilingual backend-content settings; see [internationalization](#internationalization). |
 | `collections`, `articles`, and `ebooks` | Collection selection/order, article entries, ebook files, and related content settings. |
 | `page`, `component`, and `modal` | Page behavior, navigation, content views, search options, and dialogs. |
 | `app.openGraphMetaTags` and `page.home` | Social-share images, the home-page banner, and localized image descriptions. |
 
 Configuration is compiled into the app; rebuild the production output after changing it. It is not a runtime environment file. Do not put secrets or credentials in it. Backend content, search indices, and file endpoints must correspond to the configured edition; a frontend setting does not provision those services.
+
+### Internationalization
+
+Choose the edition's interface languages and default language early in setup. The base app builds Swedish (`sv`) and Finnish (`fi`), with Swedish as the default. Its English translation file is maintained but is not included in the default build. The technical source locale `aa` lets every public language use a translation file; keep it when changing the edition's languages.
+
+#### Select or add languages
+
+Keep the application settings, build locales, translations, and development launchers aligned:
+
+1. In `src/project/config.ts`, set `app.i18n.languages` to the edition's language entries, each with a `code`, display `label`, and appropriate `region`. Set `app.i18n.defaultLanguage` to one of those codes. A single-language edition uses one entry.
+2. In `angular.json`, include each maintained translation filename, such as `messages.en.xlf`, in `projects.app.architect.extract-i18n.options.targetFiles`. Run `npm run extract-i18n` to create missing files and merge current messages into existing ones under `src/locale/`. Translate and review them as described [below](#translate-interface-messages).
+3. Add each public language under `projects.app.i18n.locales`, with its `translation` file path and `subPath`. For English, use `src/locale/messages.en.xlf` and `en`. Use the language code as the URL subpath so it matches the app's language links. Set `projects.app.architect.build.options.localize` to the emitted language codes, for example `["en"]` for an English-only edition. Include the configured default language in that list.
+4. Add a single-locale configuration under `projects.app.architect.build.configurations` for each development language. An `en` entry uses `"localize": ["en"]`. Add its matching entry under `projects.app.architect.serve.configurations`, with `"buildTarget": "app:build:development,en"`.
+5. Update the `start` and `start:<locale>` scripts in `package.json` to use those development configurations, keeping the matching route-generation hooks. See [package identity and start scripts](#package-identity-and-start-scripts) for the launcher example.
+
+To remove a public language, remove it from the app's language list, Angular's build locales and `localize` list, and its development configurations and launchers. Change the default language if needed. Remove its extraction `targetFiles` entry only if the fork will stop maintaining that translation; maintaining a file does not require emitting that locale.
+
+Development serves one locale at `/`. Production serves the emitted locale subpaths and uses `app.i18n.defaultLanguage` for unprefixed requests. After changing languages, regenerate any enabled [public content](#generated-public-content), rebuild, and check each locale's pages and language-switch links, plus the default language at an unprefixed URL. See [deployment](DEPLOYMENT.md#deployment) for serving details.
+
+#### Translate interface messages
+
+Run `npm run extract-i18n` after merging base-app changes or adding application messages. It extracts the shared source messages and merges them into the files listed in `targetFiles`, retaining existing targets and sorting units by ID. It does not translate the text. Review the diff for new or changed messages, obsolete units, and edition-specific targets before committing.
+
+Edit `<target>` values in `src/locale/messages.<locale>.xlf`. Preserve unit IDs, interpolation placeholders, inline markup, and plural/select expressions. Do not edit the generated `src/locale/messages.xlf` source catalog or shared template source text to customize an edition. Check translations in the running locale; a successful build does not prove they are complete, because the base build ignores missing translations and can display source text instead.
+
+#### Edition title, subtitle, and description
+
+In each enabled language's translation file, replace at least these targets:
+
+| Translation ID | Edition value |
+| --- | --- |
+| `Site.Title` | The website/edition title. |
+| `Site.Subtitle` | The subtitle, or an empty translation when the edition has no subtitle. |
+| `Site.MetaDescription.Home` | A localized description of the edition for home-page metadata. |
+
+For an edition without a subtitle, keep an empty target rather than removing the translation unit. Update these values in every enabled locale and review the other project-specific targets.
+
+#### Localized configuration and backend content
+
+Translations cover interface text. Also provide values for every enabled language in localized configuration, such as `app.openGraphMetaTags.image` and `page.home.bannerImage.altTexts`. For localized `articles`, use the matching `language` code and the same article `id` across language variants; `routeName` can differ by language so the language switch leads to the corresponding article.
+
+Configure multilingual backend content under `app.i18n` according to what the edition's API actually provides:
+
+| Setting | Content requirement |
+| --- | --- |
+| `multilingualCollectionTableOfContents` | Enable when the backend provides localized collection metadata and tables of contents for the interface languages. |
+| `multilingualReadingTextLanguages` | List the language codes of the reading-text versions available from the backend. These describe content languages and need not be identical to the interface-language list. |
+| `multilingualNamedEntityData` | Enable when the backend provides localized named-entity details for the interface languages. |
+
+Adding an interface locale does not translate backend articles, collection front matter, reading texts, or named entities. Supply the corresponding backend content and check its availability when switching languages.
 
 ### Navigation and enabled features
 
@@ -131,6 +159,29 @@ The filtering rules use menu flags and related content settings. For example, th
 `npm run build:ssr` generates the route artifacts before building. During development, the browser uses the canonical routes, so check the production build to verify that inactive routes were omitted. `npm start` and `npm run start:fi` generate server-rendering metadata before serving; after changing feature/auth configuration while a server is running, run `npm run generate-routes` and restart the development server. Generate routes first when invoking Angular build/serve commands directly.
 
 The generated route files are build outputs. Do not edit them to customize the edition. Changes to route declarations or to the filtering rules are source development, documented in [route-generation internals](DEVELOPMENT.md#feature-based-route-generation).
+
+## Repository files and deployment settings
+
+### Edition README
+
+The fork's root `README.md` should describe the edition rather than present itself as the shared base app. Include the edition's name and purpose, public website, maintainers/contact information, and any edition-specific setup or development notes. Retain useful links to the shared guides under `docs/` and identify the upstream base repository so future maintainers know where updates come from.
+
+### Package identity and start scripts
+
+Update `name`, `description`, and `homepage` in `package.json` for the edition. Set `version` according to the edition's release/build naming described in [deployment](DEPLOYMENT.md#building). Keep `package-lock.json` in sync: use `npm version --no-git-tag-version <release-tag>` for release versions, or `npm install --package-lock-only` after changing package identity metadata.
+
+Adjust the development `start` scripts to the locales/configurations selected in [internationalization](#internationalization). Keep the route-generation lifecycle hook paired with every start script. For example, if the fork defines an `en` build configuration, its default launcher can be:
+
+```json
+"prestart": "npm run generate-routes",
+"start": "ng serve --configuration=development,en"
+```
+
+Likewise, each additional `start:<locale>` script needs a matching `prestart:<locale>` hook. Remove launchers for locales the fork does not use. Keep the supported Node/npm declarations and shared build, test, and runtime scripts when changing package identity or language launchers.
+
+### Docker Compose
+
+Set `services.web.image` in `compose.yml` to the fork's published image and chosen tag. Set `services.nginx.ports` to an available host port on the deployment server, using `<available-host-port>:80`. The left-hand port is the server port allocated to this edition; the right-hand port remains nginx's container port. Coordinate that host port with the upstream reverse proxy's routing to the edition. See [deployment](DEPLOYMENT.md#deployment) for image rollout and browser-volume handling.
 
 ## Public assets and crawler documents
 
@@ -167,29 +218,6 @@ Regenerate these files after changing relevant content, languages, or configurat
 ## Theming
 
 Use the [theming guide](THEMING.md) for CSS variables, global overrides, style/font bundle selection, TEI styles, external fonts, images, and theme validation. Keep most edition-specific styles in `src/project/global-overrides.scss`; the detailed styling instructions belong in that guide.
-
-## Internationalization
-
-Internationalization is part of project customization. A dedicated guide for adding languages, translation workflows, and multilingual content has not yet been written. Until then, the main configuration points are:
-
-- `app.i18n.languages` and `app.i18n.defaultLanguage` in `config.ts` select the app's language choices and default language.
-- `angular.json` selects the translated build locales, translation files, and URL `subPath` values. These must agree with the edition's language configuration.
-- `src/locale/` contains the translation files. `npm run extract-i18n` extracts and merges messages; review the resulting translation changes.
-- Localized configuration values, such as image descriptions, need entries for the edition's enabled languages. Backend multilingual-content settings must match the edition's data.
-
-The base app emits Swedish and Finnish. Its `aa` locale is the technical source locale, not the public default language. Development serves one locale at `/`; production serves the configured locale subpaths and uses the configured default language for unprefixed requests. See [deployment](DEPLOYMENT.md#deployment) for that serving contract.
-
-### Edition title, subtitle, and description
-
-In each enabled language's `src/locale/messages.<locale>.xlf`, replace at least these translation targets:
-
-| Translation ID | Edition value |
-| --- | --- |
-| `Site.Title` | The website/edition title. |
-| `Site.Subtitle` | The subtitle, or an empty translation when the edition has no subtitle. |
-| `Site.MetaDescription.Home` | A localized description of the edition for home-page metadata. |
-
-Preserve the unit IDs and edit their `<target>` values. For an edition without a subtitle, keep an empty target rather than removing the translation unit. Update the targets in every enabled locale and review other project-specific translation values; do not change the shared source text in application templates merely to give the fork its own title.
 
 ## Authentication
 

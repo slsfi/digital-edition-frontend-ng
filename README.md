@@ -4,7 +4,9 @@
 
 Internationalization and server-side rendering are supported out of the box, meaning that your web app will be fully indexable by search engines and readable by AI bots. The frontend app utilizes a responsive design and works on both desktop and mobile devices. Many features of the user interface are easily configurable, and theming is straightforward.
 
-The app also supports optional authentication-guarded routing and a token-based authentication flow for forks that need protected content. See the [authentication guide](docs/AUTHENTICATION.md) for configuration and implementation details.
+The app also supports optional authentication-guarded routing and a token-based authentication flow for forks that need protected content.
+
+See the instructions below for setting up a project and the [project customization guide](docs/PROJECT-CUSTOMIZATION.md).
 
 Examples of digital editions employing this frontend app include:
 

@@ -1,6 +1,6 @@
 # Project customization
 
-This guide is for maintainers configuring an edition fork of the base app. Start with the four [project setup steps](../README.md#setting-up-a-project), then use the files and settings below to adapt the app to the edition. Keep edition-specific settings, styles, and assets concentrated in these locations so updates from the base repository remain easier to merge.
+This guide is for maintainers configuring an edition fork of the base app. Start with the [project setup steps](../README.md#setting-up-a-project), then configure the fork on GitHub before adapting the edition's files and settings. Keep edition-specific settings, styles, and assets concentrated in these locations so updates from the base repository remain easier to merge.
 
 The [base-app development notes](DEVELOPMENT.md) cover architecture, implementation, dependency maintenance, and developer testing. This guide covers the existing customization options; it is not yet a complete reference for every configuration field. When upgrading an existing fork between major versions of the base app, follow the relevant [upgrade guide](upgrade-guides/).
 
@@ -10,7 +10,9 @@ After creating the fork and its branches using the [README steps](../README.md#s
 
 ### Default branch
 
-In repository **Settings**, change **Default branch** to `production`. This makes the edition branch the default view of the repository and the usual target for pull requests. See [GitHub's default-branch instructions](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-branches-in-your-repository/changing-the-default-branch).
+In repository **Settings**, change **Default branch** to `production`. Both branches should still share the same unmodified upstream starting point at this stage. Set the default before adding the rulesets below so **Include default branch** protects the edition branch. This makes the edition branch the default view of the repository and the usual target for pull requests. See [GitHub's default-branch instructions](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-branches-in-your-repository/changing-the-default-branch).
+
+For later upstream updates, select `base` explicitly when syncing the fork, then merge the updated base into `production` through a pull request. Making `production` the default does not change the upstream mirror's role.
 
 ### Branch rulesets
 

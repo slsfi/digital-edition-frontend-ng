@@ -34,13 +34,11 @@ The app is built on [Angular][angular] and uses [Ionic][ionic] web components.
 
 1. Create a fork of [`digital-edition-frontend-ng`][digital-edition-frontend-ng]. Only include the `main` branch.
 
-2. Rename the default branch of the forked repository `base`, `shared` or something similar.
+2. Rename the fork's `main` branch to `base`, `shared` or something similar.
 
-3. Create a new branch in the forked repository and name it `production`, `prod` or something similar.
+3. Create a new branch from the renamed branch and name it `production`, `prod` or something similar.
 
-4. Configure your project app by editing [`src/project/config.ts`](src/project/config.ts).
-
-Follow the [project customization guide](docs/PROJECT-CUSTOMIZATION.md) for the files to edit, feature settings, assets, languages, and links to detailed guides.
+Continue with the [project customization guide](docs/PROJECT-CUSTOMIZATION.md), starting by making the production branch the default and configuring the repository rulesets, then adapting the edition's settings, assets, and languages.
 
 The `base` branch of the forked repository must **never** be manually modified. It must be kept as a clone of the original ”upstream” `main` branch in [`digital-edition-frontend-ng`][digital-edition-frontend-ng]. When the upstream `main` branch is updated, you can sync the updates to the `base` branch in your forked repository. You can then merge the `base` branch into your `production` branch.
 

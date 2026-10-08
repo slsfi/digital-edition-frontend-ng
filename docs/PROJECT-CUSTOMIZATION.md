@@ -4,12 +4,65 @@ This guide is for maintainers configuring an edition fork of the base app. Start
 
 The [base-app development notes](DEVELOPMENT.md) cover architecture, implementation, dependency maintenance, and developer testing. This guide covers the existing customization options; it is not yet a complete reference for every configuration field. When upgrading an existing fork between major versions of the base app, follow the relevant [upgrade guide](upgrade-guides/).
 
+## Set up the fork on GitHub
+
+After creating the fork and its branches using the [README steps](../README.md#setting-up-a-project), configure the forked repository on GitHub. The examples below use `base` for the upstream mirror and `production` for the edition branch; substitute the names chosen for the fork. Make edition-specific file changes on the production branch through pull requests, keeping the base branch available only for upstream syncing.
+
+### Default branch
+
+In repository **Settings**, change **Default branch** to `production`. This makes the edition branch the default view of the repository and the usual target for pull requests. See [GitHub's default-branch instructions](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-branches-in-your-repository/changing-the-default-branch).
+
+### Branch rulesets
+
+Open **Settings → Rules → Rulesets**, choose **New branch ruleset**, and create the two rulesets below with enforcement set to **Active**. Use the actual upstream-mirror branch name in the first ruleset and **Include default branch** in the second. GitHub documents [ruleset creation and bypass roles](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-rulesets/creating-rulesets-for-a-repository) and the [available branch rules](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-rulesets/available-rules-for-rulesets).
+
+#### Lock base branch, allow syncing
+
+| Setting | Value |
+| --- | --- |
+| Ruleset name | `Lock base branch, allow syncing` |
+| Bypass list | None. |
+| Target branches | Include by pattern: `base`. |
+| Restrict updates | Enabled, with **Allow fork syncing** selected. |
+| Restrict deletions | Enabled. |
+| Block force pushes | Enabled. |
+
+This keeps manual edition changes out of the upstream mirror while allowing GitHub's fork-sync operation.
+
+#### Require pull request before merging to default branch
+
+| Setting | Value |
+| --- | --- |
+| Ruleset name | `Require pull request before merging to default branch` |
+| Bypass list | Organization admin and repository admin. |
+| Target branches | Include default branch. |
+| Restrict deletions | Enabled. |
+| Require a pull request before merging | Enabled. |
+| Required approvals | `1`. |
+| Dismiss stale pull request approvals when new commits are pushed | Enabled. |
+| Block force pushes | Enabled. |
+
+The admin bypass entries allow exceptions to these rules. Keep routine edition changes on the pull-request workflow.
+
+### Repository About
+
+On the repository home page, edit **About** using its settings button. Set an edition-specific description and website address, and clear **Deployments** under the home-page inclusions.
+
+### GitHub Actions
+
+Open the fork's **Actions** tab and enable workflow runs when GitHub prompts for confirmation. If an individual workflow is disabled, select it and choose **Enable workflow**; see [GitHub's workflow instructions](https://docs.github.com/en/actions/how-tos/manage-workflow-runs/disable-and-enable-workflows).
+
+Review [`.github/workflows/docker-build-and-push.yml`](../.github/workflows/docker-build-and-push.yml) in the production branch. The supplied workflow builds on pushes to `main`, pushed tags, and manual dispatch. Changing the default branch does not change its explicit `main` push filter: use the edition branch if automatic production-branch builds are wanted. Its image name is derived from the GitHub repository, so align the image/tag in `compose.yml` with the fork's published image. Release/build procedures are documented in [deployment](DEPLOYMENT.md#building).
+
 ## Project customization files
 
 Keep a fork's settings and styles in `src/project/`, and its static files in `public/`. The usual customization points are:
 
 | Location | What a project fork changes |
 | --- | --- |
+| [`README.md`](../README.md) | Describe the forked edition project, its website, maintainers, and project-specific setup. Replace the base-app introduction and examples. |
+| [`compose.yml`](../compose.yml) | Select the fork's published image/tag and an available host port for nginx on the deployment server. |
+| [`package.json`](../package.json) | Set the edition's package name, version, description, homepage, and development start scripts for its locales. Keep lockfile metadata synchronized. |
 | [`src/project/config.ts`](../src/project/config.ts) | Edition settings, enabled features, menus, authentication, SSR options, and public/backend origins. Application imports continue to use `@config`. |
 | [`src/project/global-overrides.scss`](../src/project/global-overrides.scss) | Additional global styles and overrides to base CSS variables and page/component styles. Loaded after the base styles. |
 | [`src/styles.scss`](../src/styles.scss) | Comment out unused shared style/font bundles. |
@@ -18,10 +71,33 @@ Keep a fork's settings and styles in `src/project/`, and its static files in `pu
 | [`public/favicon.ico`](../public/favicon.ico) | Replace the favicon. The former `assets/icon/favicon.ico` URL remains available as a build-time alias. |
 | [`src/index.html`](../src/index.html) | Document-level resources, such as external font-provider snippets. |
 | [`angular.json`](../angular.json) | Configure the edition's build locales. |
-| [`src/locale/`](../src/locale/) | Edit translations for enabled locales. |
-| [`public/robots.txt`](../public/robots.txt) | Adjust crawler instructions when needed; it is served at `/robots.txt`. |
+| [`src/locale/`](../src/locale/) (`messages.<locale>.xlf`) | Edit translations for enabled locales, including `Site.Title`, `Site.Subtitle`, and `Site.MetaDescription.Home`. |
+| [`public/robots.txt`](../public/robots.txt) | Set edition-specific production crawler instructions and the sitemap URL; it is served at `/robots.txt`. |
 
 `public/sitemap.txt` and `public/static-html/collection-toc/` are generator outputs. Their generation is described [below](#generated-public-content).
+
+## Repository files and deployment settings
+
+### Edition README
+
+The fork's root `README.md` should describe the edition rather than present itself as the shared base app. Include the edition's name and purpose, public website, maintainers/contact information, and any edition-specific setup or development notes. Retain useful links to the shared guides under `docs/` and identify the upstream base repository so future maintainers know where updates come from.
+
+### Package identity and start scripts
+
+Update `name`, `description`, and `homepage` in `package.json` for the edition. Set `version` according to the edition's release/build naming described in [deployment](DEPLOYMENT.md#building). Keep `package-lock.json` in sync: use `npm version --no-git-tag-version <release-tag>` for release versions, or `npm install --package-lock-only` after changing package identity metadata.
+
+Adjust the development `start` scripts to the locales/configurations defined in `angular.json`. Keep the route-generation lifecycle hook paired with every start script. For example, if the fork defines an `en` build configuration, its default launcher can be:
+
+```json
+"prestart": "npm run generate-routes",
+"start": "ng serve --configuration=development,en"
+```
+
+Likewise, each additional `start:<locale>` script needs a matching `prestart:<locale>` hook. Remove launchers for locales the fork does not use. Keep the supported Node/npm declarations and shared build, test, and runtime scripts when changing package identity or language launchers.
+
+### Docker Compose
+
+Set `services.web.image` in `compose.yml` to the fork's published image and chosen tag. Set `services.nginx.ports` to an available host port on the deployment server, using `<available-host-port>:80`. The left-hand port is the server port allocated to this edition; the right-hand port remains nginx's container port. Coordinate that host port with the upstream reverse proxy's routing to the edition. See [deployment](DEPLOYMENT.md#deployment) for image rollout and browser-volume handling.
 
 ## Edition settings and content
 
@@ -62,6 +138,19 @@ Replace `public/favicon.ico` for the edition's favicon. Both the current `favico
 
 Edit `public/robots.txt` when crawler rules need to differ for the edition. The deployed crawler documents are available at the website root as `/robots.txt` and `/sitemap.txt`, independent of the locale prefixes used by application pages. See [deployment](DEPLOYMENT.md#deployment) for default-locale serving and nginx configuration.
 
+### Production crawler instructions
+
+Apply edition-specific changes to `public/robots.txt` only in the fork's production branch. Keep the upstream-mirror branch unchanged. A typical production file includes a crawl-delay request and the edition's absolute sitemap URL:
+
+```text
+User-agent: *
+Crawl-delay: 10
+
+Sitemap: https://edition.example.org/sitemap.txt
+```
+
+Replace the example origin with the edition's public origin and retain any edition-specific `Disallow` rules. `Crawl-delay` depends on crawler support; Google does not support it. The sitemap URL must include the scheme and host. See [Google's robots.txt reference](https://developers.google.com/crawling/docs/robots-txt/robots-txt-spec). The production-only convention is managed through branches; the build copies the `public/robots.txt` present in the branch being built.
+
 ### Generated public content
 
 | Setting | Command | Output |
@@ -87,6 +176,18 @@ Internationalization is part of project customization. A dedicated guide for add
 - Localized configuration values, such as image descriptions, need entries for the edition's enabled languages. Backend multilingual-content settings must match the edition's data.
 
 The base app emits Swedish and Finnish. Its `aa` locale is the technical source locale, not the public default language. Development serves one locale at `/`; production serves the configured locale subpaths and uses the configured default language for unprefixed requests. See [deployment](DEPLOYMENT.md#deployment) for that serving contract.
+
+### Edition title, subtitle, and description
+
+In each enabled language's `src/locale/messages.<locale>.xlf`, replace at least these translation targets:
+
+| Translation ID | Edition value |
+| --- | --- |
+| `Site.Title` | The website/edition title. |
+| `Site.Subtitle` | The subtitle, or an empty translation when the edition has no subtitle. |
+| `Site.MetaDescription.Home` | A localized description of the edition for home-page metadata. |
+
+Preserve the unit IDs and edit their `<target>` values. For an edition without a subtitle, keep an empty target rather than removing the translation unit. Update the targets in every enabled locale and review other project-specific translation values; do not change the shared source text in application templates merely to give the fork its own title.
 
 ## Authentication
 

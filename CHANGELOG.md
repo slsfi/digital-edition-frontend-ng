@@ -33,7 +33,7 @@ These breaking changes are planned for v4. Follow the [v3-to-v4 fork upgrade gui
 - Build tooling: remove `@angular-devkit/build-angular`, Browser Sync, Istanbul, and Jasmine/Karma tooling; merge browser/server TypeScript configuration and remove the unused generated auth-path artifact.
 - SSR tooling: Docker and benchmark auto-start use the canonical `npm run serve:ssr` command.
 - i18n tooling: delegate extraction to `@angular/build`, preserving XLIFF 2 sorting and merging.
-- Documentation: complete the application-builder and Vitest migration guides, archive completed migration plans, document current development/production workflows, and provide dedicated v3-to-v4 fork upgrade guidance. Separate project customization guidance from the README and base-app development notes.
+- Documentation: complete the application-builder and Vitest migration guides, archive completed migration plans, document current development/production workflows, and provide dedicated v3-to-v4 fork upgrade guidance. Separate project customization and fork setup guidance from the README and base-app development notes.
 
 
 

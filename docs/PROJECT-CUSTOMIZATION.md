@@ -132,7 +132,7 @@ For an edition without a subtitle, keep an empty target rather than removing the
 
 #### Localized configuration and backend content
 
-Translations cover interface text. Also provide values for every enabled language in localized configuration, such as `app.openGraphMetaTags.image` and `page.home.bannerImage.altTexts`. For localized `articles`, use the matching `language` code and the same article `id` across language variants; `routeName` can differ by language so the language switch leads to the corresponding article.
+Translations cover interface text. Also provide values for every enabled language in localized configuration in `src/project/config.ts`, such as `app.openGraphMetaTags.image` and `page.home.bannerImage.altTexts`. For localized `articles`, use the matching `language` code and the same article `id` across language variants; `routeName` can differ by language so the language switch leads to the corresponding article.
 
 Configure multilingual backend content under `app.i18n` according to what the edition's API actually provides:
 

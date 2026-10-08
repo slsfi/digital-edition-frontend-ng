@@ -11,4 +11,4 @@ Both stages are complete. This folder retains their implementation and validatio
 
 See the [application architecture](../../../DEVELOPMENT.md#application-architecture) for the current implemented state. Active deferred work remains tracked in the [cross-cutting TODOs](../../../TODO.md).
 
-These plans record implementation work in the base app. Fork maintainers upgrading releases should follow the [v3-to-v4 upgrade guide](../../../upgrade-guides/upgrade-to-v4.md).
+These plans record implementation work in the base app. Fork maintainers upgrading releases should use the [v4 breaking changes and fork migration notes](../../../breaking-changes/v4.md).

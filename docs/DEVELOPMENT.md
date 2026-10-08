@@ -2,7 +2,7 @@
 
 This guide contains architecture notes, implementation details, and development/testing tips for contributors to the shared base app.
 
-For edition settings, feature selection, assets, languages, and styling, use the [project customization guide](PROJECT-CUSTOMIZATION.md). Build/release operations belong in [deployment](DEPLOYMENT.md); release-specific fork migration steps belong in [upgrade guides](upgrade-guides/).
+For edition settings, feature selection, assets, languages, and styling, use the [project customization guide](PROJECT-CUSTOMIZATION.md). Build/release operations belong in [deployment](DEPLOYMENT.md); release-specific fork migration steps belong in [breaking changes and fork migration notes](breaking-changes/).
 
 ## Angular development server
 
@@ -122,7 +122,7 @@ The app is a standalone, zoneless Angular application with server-side rendering
 - **TypeScript interoperability:** [`tsconfig.app.json`](../tsconfig.app.json) includes browser and server sources, excludes specs and the Vitest cleanup setup, and retains Node/localization types and extended diagnostics. [`tsconfig.spec.json`](../tsconfig.spec.json) supplies Vitest globals and localization types while retaining extended diagnostics. [`tsconfig.json`](../tsconfig.json) retains strict checks, `ES2022` modules, `bundler` resolution, and `esModuleInterop`; `resolveJsonModule` lets the bundled server read the fork's build locale configuration. Root helper scripts remain CommonJS.
 - **Hydration intentionally not enabled:** Client hydration is deliberately not configured because Ionic's underlying Stencil components do not currently support SSR hydration with Angular ([ionic-team/ionic-framework#30490](https://github.com/ionic-team/ionic-framework/issues/30490)). Hydration must be handled and tested as a dedicated SSR/deployment migration rather than folded into ordinary component work.
 
-Both stages of the [Angular modernization](migrations/completed/angular-22-modernization/README.md) are complete. The plans retain the implementation and validation history; current architecture and workflows are documented here, and release-specific fork migration instructions live in the [v3-to-v4 upgrade guide](upgrade-guides/upgrade-to-v4.md).
+Both stages of the [Angular modernization](migrations/completed/angular-22-modernization/README.md) are complete. The plans retain the implementation and validation history; current architecture and workflows are documented here, and release-specific fork migration instructions live in the [breaking changes and fork migration notes](breaking-changes/).
 
 When updating Angular, compare `src/server.ts`, bootstrap/provider configuration, and build/test options with the current CLI-generated structure and the [reference starter](https://github.com/SebastianKohler/ng22-ion9-ssr-starter). Reconcile API changes with the configured locales, generated render modes, request-context adapter, and Express middleware ordering described above. The custom server preserves these application contracts, so a generated replacement needs review and the SSR regression checks.
 

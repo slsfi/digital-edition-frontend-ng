@@ -1,6 +1,6 @@
 # Migration plans
 
-This directory contains implementation plans and records for migrations in the base app. Current architecture and operating guidance live in [development](../DEVELOPMENT.md) and [deployment](../DEPLOYMENT.md); release-specific instructions for fork maintainers live in [upgrade guides](../upgrade-guides/).
+This directory contains implementation plans and records for migrations in the base app. Current architecture and operating guidance live in [development](../DEVELOPMENT.md) and [deployment](../DEPLOYMENT.md); release-specific instructions for fork maintainers live in [breaking changes and fork migration notes](../breaking-changes/).
 
 ## Active and planned migrations
 

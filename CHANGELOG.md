@@ -15,7 +15,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - Test tooling: replace Jasmine/Karma with Vitest and jsdom; fork-owned specs and CI commands must be converted.
 - SSR proxy trust: add `app.ssr.trustedProxyAddresses`; trusted proxy addresses and the hop limit both apply.
 
-These breaking changes are planned for v4. Follow the [v3-to-v4 fork upgrade guide](docs/upgrade-guides/upgrade-to-v4.md) for file mappings, configuration/API changes, dependency updates, and validation steps.
+These breaking changes are planned for v4. See the [v4 breaking changes and fork migration notes](docs/breaking-changes/v4.md) for file mappings, configuration/API changes, dependency updates, and validation steps.
 
 ### Added
 
@@ -33,7 +33,7 @@ These breaking changes are planned for v4. Follow the [v3-to-v4 fork upgrade gui
 - Build tooling: remove `@angular-devkit/build-angular`, Browser Sync, Istanbul, and Jasmine/Karma tooling; merge browser/server TypeScript configuration and remove the unused generated auth-path artifact.
 - SSR tooling: Docker and benchmark auto-start use the canonical `npm run serve:ssr` command.
 - i18n tooling: delegate extraction to `@angular/build`, preserving XLIFF 2 sorting and merging.
-- Documentation: complete the application-builder and Vitest migration guides, archive completed migration plans, document current development/production workflows, and provide dedicated v3-to-v4 fork upgrade guidance. Separate project customization and fork setup guidance from the README and base-app development notes.
+- Documentation: complete the application-builder and Vitest migration guides, archive completed migration plans, document current development/production workflows, and provide release-specific breaking changes and fork migration notes. Separate project customization and fork setup guidance from the README and base-app development notes.
 
 
 

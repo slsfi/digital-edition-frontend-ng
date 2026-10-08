@@ -47,7 +47,7 @@ This workflow enables updates to the app in the original, upstream repository to
 ## Documentation
 
 - [Project customization](docs/PROJECT-CUSTOMIZATION.md).
-- [Upgrading between major versions of the base app](docs/upgrade-guides/).
+- [Breaking changes for project forks](docs/breaking-changes/README.md).
 - [Authentication](docs/AUTHENTICATION.md).
 - [Theming](docs/THEMING.md).
 - [Updating, building and deployment](docs/DEPLOYMENT.md).

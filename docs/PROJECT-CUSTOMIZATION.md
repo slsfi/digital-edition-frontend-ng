@@ -2,7 +2,7 @@
 
 This guide is for maintainers configuring an edition fork of the base app. Start with the [project setup steps](../README.md#setting-up-a-project), then configure the fork on GitHub before adapting the edition's files and settings. Keep edition-specific settings, styles, and assets concentrated in these locations so updates from the base repository remain easier to merge.
 
-The [base-app development notes](DEVELOPMENT.md) cover architecture, implementation, dependency maintenance, and developer testing. This guide covers the existing customization options; it is not yet a complete reference for every configuration field. When upgrading an existing fork between major versions of the base app, follow the relevant [upgrade guide](upgrade-guides/).
+The [base-app development notes](DEVELOPMENT.md) cover architecture, implementation, dependency maintenance, and developer testing. This guide covers the existing customization options; it is not yet a complete reference for every configuration field. When upgrading an existing fork between major versions of the base app, review the relevant [breaking changes and fork migration notes](breaking-changes/README.md).
 
 ## Set up the fork on GitHub
 
@@ -201,4 +201,4 @@ Use the [README's local setup](../README.md#development-setup) to install depend
 
 Generate the required public content, then run `npm run build:ssr` and `npm run serve:ssr`. Check locale-prefixed and unprefixed URLs, root crawler documents, and any protected routes. The base SSR smoke fixtures use base-app content; use a cases file for the edition's routes and expected content as described in the [smoke-test reference](DEVELOPMENT.md#ssr-smoke-test-local-or-remote).
 
-Use [updating, building and deployment](DEPLOYMENT.md) for releases, Docker/nginx, proxy settings, and rollback. Use [upgrade guides](upgrade-guides/) for changes between major base-app releases.
+Use [updating, building and deployment](DEPLOYMENT.md) for releases, Docker/nginx, proxy settings, and rollback. Use [breaking changes and fork migration notes](breaking-changes/README.md) for changes between major base-app releases.

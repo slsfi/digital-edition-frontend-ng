@@ -16,7 +16,7 @@ Use the [project customization guide](PROJECT-CUSTOMIZATION.md) to configure edi
 
 It’s recommended not to synchronise unreleased changes from the upstream repository, but to wait for them to be included in a release. The base app uses semantic versioning.
 
-For an upgrade from v3 to v4, follow the dedicated [fork upgrade guide](upgrade-guides/upgrade-to-v4.md) before using these general build and deployment instructions.
+Before merging a new major release, review its [breaking changes and fork migration notes](breaking-changes/README.md), then use these general build and deployment instructions.
 
 
 ## Building

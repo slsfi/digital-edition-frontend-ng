@@ -64,6 +64,7 @@ Keep a fork's settings and styles in `src/project/`, and its static files in `pu
 | --- | --- |
 | [`angular.json`](../angular.json) | Configure the edition's build locales. |
 | [`compose.yml`](../compose.yml) | Select the fork's published image/tag and an available host port for nginx on the deployment server. |
+| [`nginx.conf`](../nginx.conf) | Set the default locale, optional compression of SSR HTML, and proxy buffers for the edition's response sizes. |
 | [`package.json`](../package.json) | Set the edition's package name, version, description, homepage, and development start scripts for its locales. Keep lockfile metadata synchronized. |
 | [`README.md`](../README.md) | Describe the forked edition project, its website, maintainers, and project-specific setup. Replace the base-app introduction and examples. |
 | `public/assets/{images,files,ebooks,fonts}/` | Add or replace public edition assets. Keep URLs such as `assets/images/...` in configuration and templates. |
@@ -102,11 +103,12 @@ Choose the edition's interface languages and default language early in setup. Th
 
 Keep the application settings, build locales, translations, and development launchers aligned:
 
-1. In `src/project/config.ts`, set `app.i18n.languages` to the edition's language entries, each with a `code`, display `label`, and appropriate `region`. Set `app.i18n.defaultLanguage` to one of those codes. A single-language edition uses one entry.
-2. In `angular.json`, include each maintained translation filename, such as `messages.en.xlf`, in `projects.app.architect.extract-i18n.options.targetFiles`. Run `npm run extract-i18n` to create missing files and merge current messages into existing ones under `src/locale/`. Translate and review them as described [below](#translate-interface-messages).
+1. **In `src/project/config.ts`**, set `app.i18n.languages` to the edition's language entries, each with a `code`, display `label`, and appropriate `region`. Set `app.i18n.defaultLanguage` to one of those codes. A single-language edition uses one entry.
+2. **In `angular.json`**, include each maintained translation filename, such as `messages.en.xlf`, in `projects.app.architect.extract-i18n.options.targetFiles`. Run `npm run extract-i18n` to create missing files and merge current messages into existing ones under `src/locale/`. Translate and review them as described [below](#translate-interface-messages).
 3. Add each public language under `projects.app.i18n.locales`, with its `translation` file path and `subPath`. For English, use `src/locale/messages.en.xlf` and `en`. Use the language code as the URL subpath so it matches the app's language links. Set `projects.app.architect.build.options.localize` to the emitted language codes, for example `["en"]` for an English-only edition. Include the configured default language in that list.
 4. Add a single-locale configuration under `projects.app.architect.build.configurations` for each development language. An `en` entry uses `"localize": ["en"]`. Add its matching entry under `projects.app.architect.serve.configurations`, with `"buildTarget": "app:build:development,en"`.
-5. Update the `start` and `start:<locale>` scripts in `package.json` to use those development configurations, keeping the matching route-generation hooks. See [package identity and start scripts](#package-identity-and-start-scripts) for the launcher example.
+5. **In `package.json`**, update the `start` and `start:<locale>` scripts to use those development configurations, keeping the matching route-generation hooks. See [package identity and start scripts](#package-identity-and-start-scripts) for the launcher example.
+6. **In `nginx.conf`**, set `$default_locale` to the language code of the default language, for example `set $default_locale en;` for an English default. nginx does not read `config.ts`; keep these settings aligned. See [nginx configuration](#nginx-configuration).
 
 To remove a public language, remove it from the app's language list, Angular's build locales and `localize` list, and its development configurations and launchers. Change the default language if needed. Remove its extraction `targetFiles` entry only if the fork will stop maintaining that translation; maintaining a file does not require emitting that locale.
 
@@ -182,6 +184,55 @@ Likewise, each additional `start:<locale>` script needs a matching `prestart:<lo
 ### Docker Compose
 
 Set `services.web.image` in `compose.yml` to the fork's published image and chosen tag. Set `services.nginx.ports` to an available host port on the deployment server, using `<available-host-port>:80`. The left-hand port is the server port allocated to this edition; the right-hand port remains nginx's container port. Coordinate that host port with the upstream reverse proxy's routing to the edition. See [deployment](DEPLOYMENT.md#deployment) for image rollout and browser-volume handling.
+
+### nginx configuration
+
+[`nginx.conf`](../nginx.conf) controls static-file serving and the proxy to the Node SSR server. Compose mounts it into the nginx container. Review the following settings for the edition, and validate changes with `docker compose exec nginx nginx -t` before reloading or restarting nginx. Use [deployment](DEPLOYMENT.md#deployment) for rollout procedures.
+
+#### Default locale
+
+Set `$default_locale` to the emitted subpath of the edition's configured default language. For example:
+
+```nginx
+set $default_locale en;
+```
+
+nginx uses this value to find unprefixed static files and root `/robots.txt` and `/sitemap.txt` in the default locale's browser directory. It must agree with `app.i18n.defaultLanguage` in `src/project/config.ts` and the locale's `subPath` in `angular.json`; see [internationalization](#internationalization).
+
+#### Compression
+
+The base configuration enables `gzip_static on` to serve precompressed `.gz` files created by `npm run compress`; Docker runs that command after building. This does not compress dynamic SSR responses. See [nginx's precompressed-file documentation](https://nginx.org/en/docs/http/ngx_http_gzip_static_module.html).
+
+To compress rendered HTML as nginx sends it, enable `gzip` and start with compression level `1` in the `server` block. Add `gzip_vary on` so caches distinguish responses by accepted encoding:
+
+```nginx
+gzip on;
+gzip_comp_level 1;
+gzip_vary on;
+```
+
+This reduces transferred HTML at the cost of compression work in nginx. HTML is included automatically; `gzip_types` is used to add other response types. The existing `gzip_proxied` setting limits compression when an upstream proxy sends a `Via` request header; review its conditions for the deployment, or use `gzip_proxied any` to allow all such requests. See the [nginx gzip directives](https://nginx.org/en/docs/http/ngx_http_gzip_module.html).
+
+Check that a large SSR page returns `Content-Encoding: gzip` through the production proxy chain when the client accepts gzip.
+
+#### Proxy buffers for large SSR responses
+
+The `location @backend` block supplies these defaults:
+
+| Directive | Purpose |
+| --- | --- |
+| `proxy_buffers 24 16k;` | Response-body buffers per proxied connection, with a configured capacity of 384 KiB. |
+| `proxy_buffer_size 16k;` | Buffer for the first part of the upstream response, usually its HTTP headers. |
+
+With response buffering enabled, nginx can write data that exceeds the in-memory buffers to temporary files. These sizes do not cap the size of an SSR response. Increasing `proxy_buffers` can reduce disk buffering for large HTML pages, but increases potential memory use across concurrent requests. Increase `proxy_buffer_size` when headers need more space, rather than solely because the HTML body is large. See the [nginx proxy-buffer documentation](https://nginx.org/en/docs/http/ngx_http_proxy_module.html#proxy_buffering).
+
+The [Topelius fork](https://github.com/slsfi/topelius-frontend/blob/production/nginx.conf) uses `proxy_buffers 32 16k;` (512 KiB) and retains `proxy_buffer_size 16k;`. Choose values based on the edition's response sizes, nginx logs, and expected concurrency.
+
+#### Browser bundles and static-file caching
+
+nginx serves browser bundles directly from the shared `/static` volume, avoiding the Node server. The long-cache location covers `.js` and `.css` files directly under a locale prefix, plus fonts under `media/`. Its `(media/)?` part is optional: both `/sv/chunk-HASH.js` and `/sv/media/font-HASH.woff2` match.
+
+The application builder emits browser JavaScript as `.js`, including lazy-loaded chunks. The `.mjs` files belong to the Node server build under `dist/app/server/`; they are not browser assets. Keep the nginx static locations when merging base-app updates so these browser requests continue to bypass SSR.
 
 ## Public assets and crawler documents
 

@@ -1,7 +1,7 @@
 # Angular 22 modernization — Stage 2: application builder and Vitest migration
 
 > [!IMPORTANT]
-> **Status: In progress; phases 1–19 complete.** The application-builder/SSR cutover, development/deployment checkpoints, and complete route/auth/test/browser matrix are verified. Vitest with jsdom passes the existing unit suite, legacy build/test tooling has been removed, and the public asset/fork customization layout is implemented. The performance comparison is recorded below; final documentation remains. Revalidate Angular's guidance and APIs before each remaining migration.
+> **Status: Completed; phases 1–20 complete, planned for release 4.0.0.** The application-builder/SSR cutover, development/deployment checkpoints, complete route/auth/test/browser matrix, performance comparison, and documentation are verified. Vitest with jsdom passes all 267 tests across 44 files, legacy build/test tooling is removed, and the public asset/fork customization layout is implemented. This plan retains the migration and validation history. Fork maintainers should use the [v3-to-v4 upgrade guide](../../../upgrade-guides/upgrade-to-v4.md); current operating guidance lives in [development](../../../DEVELOPMENT.md) and [deployment](../../../DEPLOYMENT.md).
 
 This is the second stage of the repository's [two-stage Angular modernization](README.md). It migrates the application from Angular's deprecated Webpack-based `browser`/`server` build pipeline to the integrated `application` builder and migrates unit testing from Jasmine/Karma to Vitest.
 
@@ -1181,7 +1181,7 @@ Do not proceed if the production SSR workflow or existing unit suite is not full
 
 The integrated builder now emits `dist/app/server/server.mjs` and Swedish/Finnish browser and server applications, with no technical `aa` output. The legacy proxy, post-build copy, separate server targets, and server tsconfig are removed. Generated server routes own auth-protected CSR rendering; Angular Web `REQUEST` and nullable `RESPONSE_INIT` replace repository-owned Express tokens. Jasmine/Karma, non-hydrated SSR, and `inlineCritical: false` are retained.
 
-Locale dispatch and static middleware use the fork's configured subpaths and emitted locales. Unprefixed requests retain the configured default language without redirects. The CLI's single-locale in-memory development app uses its own base path. Proxy trust now requires both the configured hop limit and `app.ssr.trustedProxyAddresses`; deployments with public proxy addresses must configure their actual IPs/CIDRs. See [deployment notes](../DEPLOYMENT.md).
+Locale dispatch and static middleware use the fork's configured subpaths and emitted locales. Unprefixed requests retain the configured default language without redirects. The CLI's single-locale in-memory development app uses its own base path. Proxy trust now requires both the configured hop limit and `app.ssr.trustedProxyAddresses`; deployments with public proxy addresses must configure their actual IPs/CIDRs. See [deployment notes](../../../DEPLOYMENT.md).
 
 Verified with Node 24.20.0 and the locked Angular 22.2.1 toolchain:
 
@@ -1902,7 +1902,7 @@ Verification after each move:
 - manual image/font/icon/file checks.
 - Docker/nginx container gate.
 
-The file-by-file fork upgrade mapping is documented in the [v3-to-v4 upgrade guide](../upgrade-guides/upgrade-to-v4.md#2-relocate-configuration-styles-and-public-files), the customization entry points in [README](../../README.md#project-customization-files), and the source-path breaking changes in [CHANGELOG](../../CHANGELOG.md#unreleased).
+The file-by-file fork upgrade mapping is documented in the [v3-to-v4 upgrade guide](../../../upgrade-guides/upgrade-to-v4.md#2-relocate-configuration-styles-and-public-files), the customization entry points in [README](../../../../README.md#project-customization-files), and the source-path breaking changes in [CHANGELOG](../../../../CHANGELOG.md#unreleased).
 
 ### Phase 17 implementation checkpoint (2026-10-07)
 
@@ -2309,6 +2309,14 @@ Commit:
 ~~~text
 docs: document application builder and Vitest architecture
 ~~~
+
+### Phase 20 documentation checkpoint (2026-10-07)
+
+Reviewed the merged phase 19 state `c86fe39` against the final source, Angular configuration, npm scripts, TypeScript/test setup, emitted output, Dockerfile, nginx/Compose configuration, and supplied GitHub Actions workflow. Rechecked Angular's SSR/testing guidance and the reference starter's current `main`, which still resolves to `d012cb4a9c8942ded25b95de37b6ceede87edfa9`. The final entry, integrated builders, ESM bootstrap, `AngularNodeAppEngine`, exported CLI handler, server-route providers, and Vitest/jsdom setup match that model. The application-specific locale/default-language, auth, request-context, static/proxy/limiter, critical-CSS, and Ionicons behavior remain intentional deviations documented above and in the current guides.
+
+Finalized the architecture/testing guardrails in `AGENTS.md`, the development and production output/workflow documentation, README test instructions, and the concise `Unreleased` changelog. The dedicated v3-to-v4 guide retains the detailed file/API/dependency mappings, merge-conflict guidance, locale preservation, custom-server/test adaptation, and fork validation checklist. No release version/tag is created. Removed the completed Stage 2 section from `docs/TODO.md`; the separate hydration migration and other deferred work remain.
+
+This checkpoint changes documentation only. Verified 160 local links/anchors across 12 documents, 21 documented npm scripts, current build/runtime/test/output contracts, and consistent completion status. Published changelog entries are byte-for-byte unchanged, the hydration TODO is unchanged, and `git diff --check` passes. The local audit is recorded in `tmp/stage-2-phase-20/verification.json`. The source/build/test/deployment gates from phases 17–19 remain applicable and do not require another full runtime matrix for prose changes. Cloud CI runs and fork-specific deployment checks remain separate from the local documentation audit.
 
 ---
 

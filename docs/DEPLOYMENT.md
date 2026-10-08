@@ -25,9 +25,20 @@ For example, if the base app is on version `1.0.2`, the release targets the `pro
 
 The Docker images built this way are pushed to and stored in the [GitHub Container Registry][ghcr_docs].
 
-The production build command `npm run build:ssr` runs route generation before compiling Angular. Feature-based route exclusion is disabled by default and can be enabled in [`src/project/config.ts`][config_ts] by setting `app.prebuild.featureBasedRoutes` to `true`.
+The production build command `npm run build:ssr` runs route generation and one integrated `@angular/build:application` build for the browser and server. Feature-based route exclusion is disabled by default and can be enabled in [`src/project/config.ts`][config_ts] by setting `app.prebuild.featureBasedRoutes` to `true`.
 
 The integrated application build emits browser files under `dist/app/browser/<locale subPath>` and the ESM runtime at `dist/app/server/server.mjs`. `npm run serve:ssr` starts it on port 4201 (or `PORT`). Browser CSR shells are named `index.csr.html`. Docker and benchmarks use the canonical npm command; emitted locales and their URL subpaths are configured in `angular.json`.
+
+| Production output | Purpose |
+| --- | --- |
+| `dist/app/server/server.mjs` | Express entry with Angular's localized application dispatch. |
+| `dist/app/server/<locale subPath>/main.server.mjs` and adjacent chunks/manifests | Localized Angular server application and its runtime dependencies. |
+| `dist/app/browser/<locale subPath>/index.csr.html` | Client-rendered shell used for auth-protected routes when auth is enabled. |
+| `dist/app/browser/<locale subPath>/` | Browser bundles, compiled `media/` resources, and copied public files (`assets/`, `static-html/`, favicon, robots, and sitemap). |
+
+`<locale subPath>` is Angular's configured output/URL subpath, which can differ from the locale code. The base emits Swedish and Finnish; `aa` is the technical source locale, not a production output. Angular uses runtime SSR for public routes, with critical CSS inlining and client hydration disabled. Generated static collection menus are independent of Angular prerendering.
+
+The [`Dockerfile`][dockerfile] installs from the lockfile with `npm ci`, generates the sitemap/static menus, builds both applications, and compresses browser output. The final image contains production dependencies and runs the SSR entry as a non-root user. Local `build:ssr` does not run the sitemap/menu generators or compression; invoke those commands separately when validating the complete deployment output locally.
 
 **Important!** Before creating a new release, push a commit that updates:
 
@@ -46,7 +57,9 @@ The Docker runtime starts SSR through `npm run serve:ssr`. Keep that script alig
 
 However, for easier configuration and better performance it is recommended to use [Docker Compose][docker_compose_reference] and the provided Compose file [`compose.yml`][docker_compose_file]. The Compose file defines an [nginx][nginx] web server to be used for serving static files in front of Node ([`nginx.conf`][nginx_conf]). This increases performance.
 
-The application builder emits hashed fonts under `dist/app/browser/<locale subPath>/media/`. nginx gives those fonts the same one-year immutable caching as emitted JS/CSS bundles. Locale assets and generated `static-html` menus retain one-day caching; `npm run compress` creates gzip siblings throughout the browser output for nginx's `gzip_static` delivery.
+The application builder processes Sass font references and emits hashed fonts under `dist/app/browser/<locale subPath>/media/`. nginx gives those fonts the same one-year immutable caching as emitted JS/CSS bundles. Locale assets and generated `static-html` menus retain one-day caching. `npm run compress` creates `.gz` siblings for the included text/SVG/icon/TTF/OTF file types of at least 1,300 bytes throughout `dist/app/browser`, removing gzip files larger than the originals, for nginx's `gzip_static` delivery. WOFF/WOFF2 are already compressed and excluded from this command. Dynamic SSR HTML is not precompressed; on-the-fly nginx compression remains optional in `nginx.conf`.
+
+Node serves unprefixed pages and public files from `app.i18n.defaultLanguage`, falling back to the first emitted locale when the configured default is absent. Set nginx's `$default_locale` to that locale's emitted subpath as well; nginx does not read the TypeScript configuration. Root `/robots.txt` and `/sitemap.txt` use the default locale's copied files. HTTP does not redirect unprefixed requests based on `Accept-Language`. In the base app, Angular's browser bootstrap subsequently normalizes unprefixed routes under the Swedish `/sv/` base href.
 
 The Node SSR app uses app-level request limiting for dynamic render requests. Limits can be tuned with environment variables (or by modifying in [`src/server.ts`](../src/server.ts)):
 

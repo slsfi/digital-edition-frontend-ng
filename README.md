@@ -121,6 +121,12 @@ npm run serve:ssr
 
 Open your browser on http://localhost:4201/. This server runs the compiled output from `dist/app/`. After changing source files, stop the server, rebuild, and start it again for the changes to take effect.
 
+See [building and deployment](docs/DEPLOYMENT.md#building) for the localized output layout and Docker/nginx workflow.
+
+### Testing
+
+Run `npm test` for unit tests in interactive watch mode, or `npm run test:ci` for a single run before a PR or in CI. Angular uses Vitest with jsdom; the unit suite does not require Chrome. See [testing](docs/DEVELOPMENT.md#testing) for script-based route, SSR, and output checks.
+
 
 ## Earlier version
 

@@ -2,23 +2,6 @@
 
 This document tracks cross-cutting TODOs that should stay visible outside local code comments.
 
-## Remaining Stage 2 checkpoints
-
-Current status:
-
-- The standalone/zoneless application now uses the integrated application builder and `AngularNodeAppEngine`.
-- Generated Angular server routes own auth-protected CSR shells through `RenderMode.Client`; the manual Express CSR workaround has been removed.
-- i18n extraction now delegates to `@angular/build:extract-i18n` through the existing merge wrapper.
-- Swedish/Finnish locale routing and Swedish-default unprefixed serving are verified in Node, the production Docker image, nginx, and browser navigation; no additional compatibility changes were needed in phase 11.
-- Development SSR/HMR, source maps, startup route generation, nginx output caching, and the CI configuration are verified in phase 12. Both start commands now generate routes, and nginx caches emitted `media/` fonts immutably.
-- Phase 15 completes the rehearsed Vitest/jsdom cutover, preserving all 267 tests across 44 spec files. Angular initializes TestBed and inherits localization and centralized Ionicons registration; a minimal setup restores spies and timers. The Karma configuration, manual bootstrap, and direct Jasmine/Karma dependencies are removed.
-- Phase 16 removes the old `@angular-devkit/build-angular`, Browser Sync, Istanbul instrumenter, and generated auth-path artifact. Clean installation, unit tests, development/production builds, i18n extraction, output checks, and all 32 production SSR smoke tests pass. Sitemap generation retains the shared protected-route parser.
-- Phase 17 groups configuration and global overrides under `src/project/`, renames the application stylesheet to `src/styles.scss`, and moves static assets and generated public documents under `public/`. Public URLs and locale/default-language serving are preserved; unit, generator, development SSR/HMR, production output, Docker/nginx, compression, and browser checks pass. Fork upgrade paths are documented as breaking changes.
-
-See the [application-builder and Vitest migration plan](migrations/STAGE-2-APPLICATION-BUILDER.md) for the remaining checkpoints:
-
-- Complete the final validation and benchmark checkpoints.
-
 ## nginx rate limiting for SSR backend
 
 - nginx rate limiting is currently not enabled; app-level limiting is handled in `src/server.ts` (`express-rate-limit`).

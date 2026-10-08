@@ -25,22 +25,23 @@ When contributing, changes must be reusable and config-driven; project-specific 
 - Keep the application standalone. Do not introduce application, server, page, or routing NgModules.
 - Import Ionic components as standalone components rather than through `IonicModule`. `importProvidersFrom(IonicServerModule)` in the server configuration is the intentional application-level NgModule bridge.
 - Keep the application zoneless. Do not add Zone.js, `provideZoneChangeDetection()`, or another compatibility provider as a workaround; expose asynchronous template state through signals, inputs, the `async` pipe, or another Angular notification mechanism.
-- Preserve the integrated application builder, `AngularNodeAppEngine`, and the `dist/app` output contract. Keep the Express static/probe short-circuits before the SSR limiter and dynamic handler; use the fork's configured locale paths and default language.
+- Keep builds on `@angular/build:application` with `AngularNodeAppEngine` and the `dist/app` output contract. Do not reintroduce split browser/server builders, legacy SSR targets, or `@angular-devkit/build-angular`. Keep the Express static/probe short-circuits before the SSR limiter and dynamic handler; use the fork's configured locale paths and default language.
+- Generate server render modes from the canonical routes and feature/auth configuration: protected routes use `RenderMode.Client` when auth is enabled, and public routes use `RenderMode.Server`. Keep Angular prerendering out of unrelated changes and production critical CSS inlining disabled (`inlineCritical: false`).
 - Application services consume `APPLICATION_REQUEST_CONTEXT` for app-relative request URL, public origin, and user agent. Keep Angular Web `REQUEST` adapters under `src/ssr/` rather than injecting Express requests into application services. HTTP status changes use Angular's nullable `RESPONSE_INIT`.
-- Do not enable client hydration as part of unrelated work. Keep unit tests on Angular's `@angular/build:unit-test` builder with Vitest and jsdom.
+- Do not enable client hydration as part of unrelated work. Keep unit tests on Angular's `@angular/build:unit-test` builder with Vitest and jsdom; do not add Jasmine/Karma dependencies or a manual TestBed bootstrap.
 - Register application-owned Ionicons centrally in `src/ionicons-polyfill.ts`; do not add component-local `addIcons()` registrations.
 - See `docs/DEVELOPMENT.md` for the detailed architecture rationale and migration notes.
 
 ## Build, Test, and Development Commands
 - `npm ci` - clean dependency install from `package-lock.json`; supported Node/npm versions are declared in `package.json`.
-- `npm start` - local Angular dev server.
+- `npm start` - generate route metadata and run the Swedish Angular development server with SSR; `npm run start:fi` serves Finnish.
 - `npm test` - run Angular/Vitest unit tests in watch mode in an interactive terminal.
 - `npm run test:ci` - run the Angular/Vitest unit test suite once with jsdom.
 - `npm run test:source-encoding` - validate source-file encoding and BOM usage.
 - `npm run test:routes-parser` - smoke tests for route parser/generator logic.
 - `npm run test:static-collection-menus` - verify static collection-menu generation and shared prebuild fetch retry behavior.
 - `npm run build:ssr` - generate routes + integrated browser/server production build.
-- `npm run serve:ssr` - run built SSR app from `dist/`.
+- `npm run serve:ssr` - run the built ESM SSR entry `dist/app/server/server.mjs`.
 - `npm run test:ssr:smoke` - verify key SSR responses against a running SSR app.
 - `npm run test:ssr:checks` - verify SSR smoke-runner rendering and HTTP checks without a running app.
 - `npm run test:ssr:server` - build SSR, then verify Express middleware from the emitted server entry with a render spy, covering short-circuits, caching, limiting, locale paths, and proxy trust.

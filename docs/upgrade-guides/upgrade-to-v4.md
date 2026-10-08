@@ -3,7 +3,7 @@
 > [!NOTE]
 > This guide assumes an upgrade from **v3.x.x to v4.x.x** of the base app. It does not cover upgrades directly from v2 or v1 to v4. Guidance for earlier major-version upgrades will be documented separately.
 
-v4 is currently being prepared. This guide records the implemented breaking changes and will be updated as the remaining release work is completed. Use the final v4 release notes and tagged source when upgrading a production fork.
+The Stage 2 application-builder and Vitest migration is complete; its breaking changes are planned for v4. The release has not yet been tagged. Use the final v4 release notes and tagged source when upgrading a production fork.
 
 ## 1. Prepare the fork and choose the baseline
 
@@ -64,7 +64,7 @@ The favicon link in `src/index.html` now uses relative `favicon.ico`, resolved a
 
 ## 3. Merge the integrated build and locale configuration
 
-[`angular.json`](../../angular.json) changes structurally. Preserve the fork's locale set and project-specific options while adopting these targets:
+[`angular.json`](../../angular.json) changes structurally, so forks with customized build, locale, or test settings should expect merge conflicts. Preserve the fork's locale set and project-specific options while adopting these targets:
 
 | Target | v4 builder |
 | --- | --- |
@@ -107,6 +107,8 @@ Convert each locale's old `baseHref` setting to the equivalent `subPath`. For ex
 Use the edition's actual URL subpath, which may differ from its Angular locale code. Keep any deployment-wide `build.options.baseHref` when the site runs under a directory prefix. Merge locale overrides and extraction `targetFiles` according to the fork's own translations.
 
 Check that `config.app.i18n.languages` and `defaultLanguage` still match the intended deployment. Unprefixed requests use the configured default language when it was emitted, falling back to the first emitted locale otherwise. They do not redirect based on `Accept-Language`. A single-locale fork is supported. Set nginx's `$default_locale` to the emitted output subpath used for the default language; review any custom nginx paths if that subpath is empty or nested.
+
+Distinguish the HTTP response from browser navigation when testing compatibility: an unprefixed request receives default-language HTML without an HTTP redirect, while browser bootstrap can normalize the URL to the document's locale base href. In the base app this places the route under `/sv/`, as it did before the migration.
 
 ### TypeScript and localization setup
 
@@ -173,7 +175,7 @@ Replace Jasmine-specific matchers, clock behavior, and spy types rather than ass
 
 Replace Zone-dependent `fakeAsync`, `tick`, and `waitForAsync` usage with native async tests or Vitest fake timers. Advance scheduled rendering work before waiting for `fixture.whenStable()` with mocked timers. Keep localization and centralized Ionicons registration inherited from the application polyfills, and add fork-owned icons centrally rather than in component constructors. See [development testing](../DEVELOPMENT.md#testing) and the converted upstream specs for current patterns.
 
-`npm test` retains interactive watch mode; `npm run test:ci` runs once with jsdom. Update fork CI commands that pass `--browsers=ChromeHeadless` or invoke the removed Karma configuration.
+`npm test` retains interactive watch mode; `npm run test:ci` runs once with jsdom. Replace fork CI commands that pass `--browsers=ChromeHeadless`, invoke the removed Karma configuration, or use the removed `ci` configuration of the Angular test target (`ng test --configuration=ci`) with `npm run test:ci`. The npm script supplies `--watch=false`; it does not depend on a named Angular test configuration.
 
 ## 6. Merge dependencies, runtime commands, and deployment changes
 
@@ -195,9 +197,17 @@ Use the versions and install-script approvals in the selected v4 release instead
 | Browser output | `dist/app/browser/<locale subPath>/`, including `index.csr.html`. |
 | Server output | `dist/app/server/`, with one runtime entry and localized Angular bundles. |
 
+Common legacy command mappings are:
+
+| v3 command | v4 command |
+| --- | --- |
+| Separate browser build followed by `ng run app:server:production` | `npm run build:ssr` |
+| `node dist/app/proxy-server.js` | `npm run serve:ssr` |
+| `ng test --configuration=ci` or a Karma/headless-Chrome command | `npm run test:ci` |
+
 `prestart` and `prestart:fi` run automatically when invoking the corresponding npm start scripts. Fork-owned start commands also need route generation; direct `ng serve` calls must generate routes beforehand. The development server now executes SSR, so exercise custom code that previously ran only in the browser. Production output remains the relevant environment for multi-locale dispatch and deployment verification.
 
-Remove custom calls to `proxy-server.js`, `postbuild-copy-files.js`, separate `ng run app:server...` builds, and the legacy prerender target. Adapt launchers, process-manager definitions, benchmark scripts, Docker commands, and CI paths to the canonical `serve:ssr` entry. The Docker runtime already uses that npm command.
+`proxy-server.js` and `postbuild-copy-files.js` are removed. Remove custom calls to them, separate `ng run app:server...` builds, and the legacy prerender target. Carry any fork-owned extra copy operations into supported asset rules or a separate fork script. Adapt launchers, process-manager definitions, benchmark scripts, Docker commands, and CI paths to the canonical `serve:ssr` entry. The Docker runtime already uses that npm command.
 
 The browser volume remains `/digital-edition-frontend-ng/dist/app/browser` in the supplied image and `/static` in nginx. Keep the fork's image repository, ports, locale settings, and proxy configuration while merging the new Docker/nginx setup. nginx must cache hashed fonts emitted under locale `media/` directories. `npm run compress` still processes the entire `dist/app/browser` tree; WOFF/WOFF2 are already compressed and stay excluded from its gzip include list.
 

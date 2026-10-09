@@ -31,8 +31,10 @@ Use public asset URLs such as `assets/images/banner.jpg` for files in `public/as
 | `app.projectNameDB` | `string`: backend project name | Required for backend requests | Identifies the edition in digital-edition API paths. |
 | `app.projectId` | `number`: backend project ID | Required for entity/search queries | Identifies the edition in named-entity and Elasticsearch queries. |
 | `app.backendBaseURL` | `string`: absolute API base URL | Required for backend requests | Base for digital-edition content requests; services append the project name and endpoint. Use no trailing slash. |
-| `app.alternateFacsimileBaseURL` | `string`: absolute image base URL, or `''` | `''` | Alternative facsimile host. Images use `<base>/<facsimileCollectionId>/<quality>/<imageNumber>.jpg`. An empty string uses the backend's facsimile endpoint. |
+| `app.alternateFacsimileBaseURL` | `string`: absolute image base URL, or `''` | `''` | Serve facsimile images from separate storage using `<base>/<facsimileCollectionId>/<quality>/<imageNumber>.jpg`. Use no trailing slash. An empty string uses the backend's facsimile image endpoint. |
 | `app.enableRouterLoadingBar` | `boolean` | `false` | Show the progress bar during router navigation. |
+
+An alternate facsimile base URL changes where image files are loaded; facsimile metadata, collection IDs, and page counts still come from `app.backendBaseURL`. The image storage must follow the URL structure above. For example, a base of `https://images.example.org/facsimile_collection`, facsimile collection ID `12`, quality `1`, and image number `7` gives `https://images.example.org/facsimile_collection/12/1/7.jpg`. Quality comes from `component.facsimiles.imageQuality`, or `modal.fullscreenImageViewer.imageQuality` for fullscreen viewing.
 
 ### Internationalization (`app.i18n`)
 
@@ -50,6 +52,26 @@ Keep interface languages aligned with `angular.json`, translation files, develop
 | `app.i18n.multilingualNamedEntityData` | `boolean` | `false` | Request named-entity details in the active interface language. Requires localized backend entity data. |
 
 When `app.i18n.defaultLanguage` is omitted, the first configured interface language is used (`"sv"` if no language entries exist). Production SSR can only select an emitted locale: if the preferred language is absent from the build, it serves the first emitted locale instead. Configure `defaultLanguage` explicitly and keep it included in `angular.json` to make the intended language clear.
+
+#### Multilingual reading texts
+
+Set `app.i18n.multilingualReadingTextLanguages` to the backend language codes for parallel versions of the same publication, for example `["sv", "fi"]`. This is separate from selecting interface languages in `app.i18n.languages`. The backend must provide each text version through its localized reading-text endpoints. With an empty list or a single entry, the app uses the ordinary reading text without requesting a specific language.
+
+When the list has two or more entries, enable `page.text.viewTypes.readingtext` and use the corresponding `readingtext_<language>` names in `page.text.defaultViews`. The plain `readingtext` view is replaced by these language-specific views:
+
+```ts
+app: {
+  i18n: { multilingualReadingTextLanguages: ["sv", "fi"] }
+},
+page: {
+  text: {
+    defaultViews: ["readingtext_sv", "readingtext_fi", "facsimiles"],
+    viewTypes: { readingtext: true, facsimiles: true }
+  }
+}
+```
+
+This example shows only the related settings; merge them into the existing `app` and `page` objects. Enabled reading-text download formats also get language-specific choices when the backend supplies matching download metadata. The current view labels and download headings cover Swedish (`sv`) and Finnish (`fi`); other reading-text languages need corresponding template and translation updates.
 
 ### Authentication (`app.auth`)
 
@@ -207,6 +229,10 @@ ebooks: [
 ### Search (`page.elasticSearch`)
 
 These settings configure the Elasticsearch-backed search page. Search indices, fields, type codes, and query objects must match the backend's index mappings.
+
+An edition without full-text search can omit `page.elasticSearch`. Explicitly set `component.mainSideMenu.items.search`, `component.topMenu.showElasticSearchButton`, and `page.home.showSearchbar` to `false`; the top-menu search button defaults to `true`. Enable `app.prebuild.featureBasedRoutes` and regenerate routes to exclude the search route from production builds.
+
+Elasticsearch is also used by some named-entity features independently of full-text search. For an edition without Elasticsearch, set `page.index.persons.database` to `"default"` for the person index, and keep `component.mainSideMenu.items.indexKeywords`, `component.mainSideMenu.items.indexPlaces`, and `component.mainSideMenu.items.indexWorks` disabled. If work details are needed, set `modal.namedEntity.useSimpleWorkMetadata` to `true` to use the direct backend.
 
 | Option | Type / possible values | Default / fallback | Description |
 | --- | --- | --- | --- |
@@ -370,7 +396,7 @@ These `viewOptions` flags control which toggles are offered, rather than their i
 
 | Option | Type / possible values | Default / fallback | Description |
 | --- | --- | --- | --- |
-| `page.text.defaultViews` | `string[]`: enabled view names | `["readingtext"]` | Views opened initially, in column order, when no URL/recent view selection applies. Use `readingtext`, `comments`, `facsimiles`, `manuscripts`, `variants`, `illustrations`, `legend`, or `metadata`. For multilingual reading texts, use `readingtext_<language>`, such as `readingtext_sv`. |
+| `page.text.defaultViews` | `string[]`: enabled view names | `["readingtext"]` | Views opened initially, in column order, when no URL/recent view selection applies. Use `readingtext`, `comments`, `facsimiles`, `manuscripts`, `variants`, `illustrations`, `legend`, or `metadata`. For multilingual reading texts, use `readingtext_<language>`, such as `readingtext_sv`; see [multilingual reading texts](#multilingual-reading-texts) for the related settings. |
 | `page.text.defaultViewOptions` | `string[]`: keys from `page.text.viewOptions`, or `[]` | `[]` | Annotation/display flags initially switched on in the shared view-options state, such as `["comments", "personInfo"]`. This also affects pages using that shared state. |
 | `page.text.showTextDownloadButton` | `boolean` | `false` | Show the collection-text download button. Formats are configured under `modal.downloadTexts`. |
 | `page.text.showURNButton` | `boolean` | `true` | Show the collection-text reference/URN button. |

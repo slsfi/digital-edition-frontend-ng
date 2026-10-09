@@ -15,6 +15,16 @@ This document tracks cross-cutting TODOs that should stay visible outside local 
 - Future breaking change to consider: make the wrapper title app-owned and localized through the Angular XLF files (like other menu wrapper labels), instead of reading it from the markdown node.
 - Reasoning: forks already customize localized XLF strings, so this keeps the menu label source consistent and avoids coupling the wrapper label to markdown menu metadata.
 
+## TypeScript compiler follow-ups
+
+Consider these changes to the shared [TypeScript configuration](../tsconfig.json):
+
+- **Remove `strictPropertyInitialization: false`:** with `strict: true`, omitting this override enables the check. Some observable fields are assigned in lifecycle hooks rather than constructors. Give these fields an appropriate initial value or model their initially absent state before removing the override; avoid adding definite-assignment assertions solely to silence errors.
+- **Enable `noPropertyAccessFromIndexSignature`:** define explicit types for [`src/project/config.ts`](../src/project/config.ts) and other affected dictionary values, then distinguish known properties from dynamic keys before enabling the check.
+- **Remove `useDefineForClassFields: false`:** with `target: ES2022`, omitting this override enables standard class-field semantics and changes runtime initialization. Audit constructor, inheritance, and field initialization dependencies, then verify browser and SSR behavior before removing the override.
+- **Review suppressed Angular diagnostics:** `nullishCoalescingNotNullable` and `optionalChainNotNullable` remain suppressed in the shared configuration. Align nullable types and template guards, then remove the suppressions when the warnings have been resolved.
+- **Evaluate `skipLibCheck` only if declaration checking becomes a measured bottleneck:** retain dependency declaration checks for now. Compare build/test timings and any lost diagnostics before enabling it.
+
 ## Hydration migration
 
 Current status:

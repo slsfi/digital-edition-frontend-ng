@@ -24,6 +24,7 @@ See the [v4 breaking changes and fork migration notes](https://github.com/slsfi/
 ### Changed
 
 - Angular modernization: complete the Angular application-builder and Vitest migration, reorganize project files and public assets, and update documentation. See the [migration plan](https://github.com/slsfi/digital-edition-frontend-ng/blob/main/docs/migrations/completed/angular-22-modernization/STAGE-2-APPLICATION-BUILDER.md).
+- Build: align TypeScript configuration with the Angular toolchain, enable isolated compilation, consolidate shared diagnostics, and reference the application and test configurations from the root configuration.
 
 ### Fixed
 

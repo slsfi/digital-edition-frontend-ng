@@ -191,14 +191,6 @@ When updating to a new major version of Angular:
 
 The Ionic Framework documentation is available on <https://ionicframework.com/docs/>
 
-#### Updating Ionic
-
-Run
-
-```bash
-npm install @ionic/angular @ionic/angular-server
-```
-
 
 ### [`dom-serializer`][npm_dom-serializer]
 
@@ -273,7 +265,7 @@ Library for extracting and merging i18n xliff translation files for Angular proj
 The wrapper delegates extraction to `@angular/build:extract-i18n` using the application's build target. `npm run extract-i18n` retains XLIFF 2 output in `src/locale`, sorts units by ID, and merges the Finnish, Swedish, and English target files. The technical source locale remains `aa`; extraction does not change which locales are emitted by application builds. Application builds, development serving, unit tests, and extraction all use `@angular/build`.
 
 
-### `vitest` and `jsdom`
+### [`vitest`][npm_vitest] and [`jsdom`][npm_jsdom] (devDependencies)
 
 Angular unit tests run through `@angular/build:unit-test` with Vitest and jsdom. Use `npm test` for watch mode in an interactive terminal or `npm run test:ci` for a single run. A Chrome installation is no longer required for the unit suite.
 
@@ -344,7 +336,7 @@ Use the Angular/Vitest unit suite as the primary automated check, with the scrip
 - `npm run test:ssr:benchmark`: verify benchmark auto-start through `serve:ssr`, including an alternate runtime entry, failed startup, interruption, and child-process cleanup, using local fixtures without building the app.
 - `npm run test:build-output`: verify browser output for the production locales configured in `angular.json` and the runtime entry from `serve:ssr`; run after `npm run build:ssr`. Supports `--dist-root`, `--locales` (comma-separated), and `--server-entry` (relative to the output root) for custom output.
 
-The [unit-test target](../angular.json) lets Angular initialize TestBed and inherits application styles, assets, localization, and the Ionicons polyfill. [`tsconfig.spec.json`](../tsconfig.spec.json) supplies `vitest/globals`; [`src/test-setup.ts`](../src/test-setup.ts) restores spies and real timers after each test. There is no Karma configuration or manual Angular test bootstrap. Prefer Angular CLI test options; the suite does not need a custom Vitest configuration or browser provider. See the [Vitest notes](#vitest-and-jsdom) for mock and timer patterns. The supplied GitHub Actions workflow builds/pushes the Docker image; it does not run the unit suite, so run `test:ci` before a PR or add a dedicated unit-test CI job.
+The [unit-test target](../angular.json) lets Angular initialize TestBed and inherits application styles, assets, localization, and the Ionicons polyfill. [`tsconfig.spec.json`](../tsconfig.spec.json) supplies `vitest/globals`; [`src/test-setup.ts`](../src/test-setup.ts) restores spies and real timers after each test. Prefer Angular CLI test options; the suite does not need a custom Vitest configuration or browser provider. See the [Vitest notes](#vitest-and-jsdom) for mock and timer patterns. The supplied GitHub Actions workflow builds/pushes the Docker image; it does not run the unit suite, so run `test:ci` before a PR or add a dedicated unit-test CI job.
 
 When changing `app.routes.ts` or a lazy `*.routes.ts` file, also update and run the Angular route-recognition specs. For SSR-specific changes, run `npm run build:ssr`, start the built app with `npm run serve:ssr`, and then run `npm run test:ssr:smoke` in another terminal. The detailed route-parser and SSR smoke-test sections below describe those workflows further.
 
@@ -508,7 +500,7 @@ What the smoke test validates per route:
 - `Content-Type` contains `text/html`.
 - SSR responses contain a populated Angular root and the expected content/SEO snippets. CSR responses contain an empty root without server-rendered protected content; public pages remain SSR with auth enabled.
 - Dynamic responses include `Vary: User-Agent`. Missing static files contain no Angular application or SSR rate-limit headers.
-- Unprefixed home requests keep Swedish as the default, including with Finnish `Accept-Language`.
+- Unprefixed home requests use the configured default language (Swedish in the base app), regardless of the `Accept-Language` header.
 - Optional per-test request headers can be set in `TEST_CASES` (for example to simulate forwarded HTTPS headers).
 
 Updating checks:
@@ -529,7 +521,7 @@ Use the SSR benchmark to measure response-time performance of server-rendered ro
 
 Auto-start uses `npm run serve:ssr`, the same launcher used by the Docker runtime. The benchmark stops its launcher and SSR child processes when it finishes, is interrupted, or cannot start the server.
 
-The first request per route is labeled cold, but readiness has already rendered the first route before measurement. It is not a process-start measurement. Requests can include live API and rendering costs; check response status, size, and completeness before interpreting latency changes. Keep critical CSS inlining disabled for comparable measurements. The [Stage 2 performance checkpoint](migrations/completed/angular-22-modernization/STAGE-2-APPLICATION-BUILDER.md#phase-19-verification-checkpoint-2026-10-07) records the measured build/test improvements and runtime variability.
+The first request per route is labeled cold, but readiness has already rendered the first route before measurement. It is not a process-start measurement. Requests can include live API and rendering costs; check response status, size, and completeness before interpreting latency changes. Keep critical CSS inlining disabled for comparable measurements.
 
 Recommended workflow:
 
@@ -581,7 +573,7 @@ What the benchmark reports:
 Cross-cutting future work that should stay visible outside local code comments is tracked in [`docs/TODO.md`](TODO.md).
 
 
-[angular_update_guide]: https://update.angular.io/
+[angular_update_guide]: https://angular.dev/update-guide
 [docker_compose_file]: ../compose.yml
 [docker_desktop]: https://www.docker.com/products/docker-desktop/
 [dockerfile]: ../Dockerfile
@@ -592,6 +584,7 @@ Cross-cutting future work that should stay visible outside local code comments i
 [npm_express-rate-limit]: https://www.npmjs.com/package/express-rate-limit
 [npm_htmlparser2]: https://www.npmjs.com/package/htmlparser2
 [npm_ionicons]: https://www.npmjs.com/package/ionicons
+[npm_jsdom]: https://www.npmjs.com/package/jsdom
 [npm_marked]: https://www.npmjs.com/package/marked
 [npm_marked-custom-heading-id]: https://www.npmjs.com/package/marked-custom-heading-id
 [npm_marked-footnote]: https://www.npmjs.com/package/marked-footnote
@@ -599,3 +592,4 @@ Cross-cutting future work that should stay visible outside local code comments i
 [npm_tslib]: https://www.npmjs.com/package/tslib
 [npm_gzipper]: https://www.npmjs.com/package/gzipper
 [npm_ng-extract-i18n-merge]: https://www.npmjs.com/package/ng-extract-i18n-merge
+[npm_vitest]: https://www.npmjs.com/package/vitest

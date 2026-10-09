@@ -95,7 +95,7 @@ Both the hop limit and address list apply. The immediate peer must be trusted be
 
 | Field | Type / possible values | Default / fallback | Description |
 | --- | --- | --- | --- |
-| `articles[].id` | `string`: backend article node ID | Required in each article entry | Stable ID connecting localized versions of the same article. |
+| `articles[].id` | `string`: backend article node ID without the language prefix, such as `"04-01"` | Required in each article entry | Stable ID connecting localized versions of the same article. The app prefixes it with the active interface language: `"04-01"` becomes `"sv-04-01"` for Swedish content. |
 | `articles[].language` | `string`: interface-language code | Required in each article entry | Language of this article entry. |
 | `articles[].routeName` | `string`: URL segment | Required in each article entry | Public route under `/article/<routeName>`. Use a URL-safe name without surrounding slashes. |
 | `articles[].title` | Optional `string` | Backend menu title; no content-grid title | Override the article's menu/content-grid title. |
@@ -110,7 +110,7 @@ Example:
 ```ts
 articles: [
   {
-    id: "01",
+    id: "04-01",
     language: "sv",
     routeName: "om-utgavan",
     title: "Om utgåvan",
@@ -118,7 +118,7 @@ articles: [
     enableTOC: true,
     downloadOptions: [{ url: "assets/files/about.pdf", label: "PDF" }]
   },
-  { id: "01", language: "fi", routeName: "tietoa-julkaisusta" }
+  { id: "04-01", language: "fi", routeName: "tietoa-julkaisusta" }
 ]
 ```
 
@@ -231,20 +231,37 @@ The `fvh` highlighter requires term vectors with positions and offsets in the in
 
 #### Aggregation definitions
 
-The shipped filter groups are listed below. Each name is a key in `page.elasticSearch.aggregations` and can also appear in `filterGroupsOpenByDefault`.
+The search page recognizes the group names below. Each name is a case-sensitive key in `page.elasticSearch.aggregations` and can also appear in `page.elasticSearch.filterGroupsOpenByDefault`. Include only the groups relevant to the edition's indexed data; their order in `aggregations` determines their display order. Names outside this list require template changes to provide a filter-group heading.
 
 | Group | Type | Indexed field / purpose |
 | --- | --- | --- |
 | `Years` | `date_histogram` | `orig_date_sort`: original publication dates grouped by year; used by the year-range control. |
 | `Type` | `terms` | `text_type`: content types. |
 | `Genre` | `terms` | `publication_data.genre.keyword`: publication genres. |
-| `Collection` | `terms` | `publication_data.collection_name.keyword`: collection names. |
+| `Collection` | `terms` | `publication_data.collection_name.keyword`: display collection names stored in the index. |
+| `CollectionId` | `terms` | `collection_id`: collection IDs, displayed as collection titles fetched from the backend. An alternative to `Collection` when the index stores IDs rather than names. |
+| `Language` | `terms` | `text_language`: content-language codes, displayed as language names in the active interface language. These describe the indexed texts and need not match `app.i18n.languages`. |
 | `LetterSenderName` | `terms` | `sender_subject_name.keyword`: letter senders. |
 | `LetterReceiverName` | `terms` | `receiver_subject_name.keyword`: letter recipients. |
 | `LetterSenderLocation` | `terms` | `sender_location_name.keyword`: sending locations. |
 | `LetterReceiverLocation` | `terms` | `receiver_location_name.keyword`: receiving locations. |
+| `Region` | `terms` | The edition's indexed region field: geographic regions. |
+| `Signum` | `terms` | The edition's indexed archival-reference field: archival reference codes. |
 
-For each group, `<group>` below stands for its key. Keep `Years` as a year histogram with year-formatted labels when using the existing year-range UI.
+For example, an edition can use collection IDs and content languages as its only categorical filters:
+
+```ts
+aggregations: {
+  Years: {
+    date_histogram: { field: "orig_date_sort", calendar_interval: "year", format: "yyyy" }
+  },
+  CollectionId: { terms: { field: "collection_id", size: 20 } },
+  Language: { terms: { field: "text_language", size: 20 } }
+},
+filterGroupsOpenByDefault: ["Years", "CollectionId"]
+```
+
+Use field paths that exist in the edition's index, and size each categorical group to include the required choices. For each group, `<group>` below stands for its key. Keep `Years` as a year histogram of `orig_date_sort` with year-formatted labels when using the existing year-range UI; date-range queries use that field.
 
 | Field | Type / possible values | Default / fallback | Description |
 | --- | --- | --- | --- |
@@ -275,7 +292,7 @@ These definitions are sent to Elasticsearch through the backend. The application
 | `page.home.bannerImage.altTexts.<locale>` | `string` | `"image"` | Banner alt text for that interface language; also a fallback for share-image alt text. |
 | `page.home.bannerImage.intrinsicSize.height` | `number` (positive pixel height) or `null` | `null` (attribute omitted) | Intrinsic image height for the `<img>` element. `null` omits the attribute. |
 | `page.home.bannerImage.intrinsicSize.width` | `number` (positive pixel width) or `null` | `null` (attribute omitted) | Intrinsic image width for the `<img>` element. `null` omits the attribute. |
-| `page.home.bannerImage.orientationPortrait` | `boolean` | `false` | Select the portrait-image home layout. `false` uses the landscape layout. |
+| `page.home.bannerImage.orientationPortrait` | `boolean` | `false` | Select the portrait-image home layout. `false` uses the landscape layout. This is independent of viewport orientation conditions in `alternateSources[].media`. |
 | `page.home.bannerImage.alternateSources` | Array of source objects, or `[]` | `[]` | Responsive image sources, in `<picture>` order. Empty uses the banner URL directly. Source fields are described below. |
 | `page.home.bannerImage.URL` | `string`: public image URL/path | `"assets/images/home-page-banner.jpg"` | Banner image, fallback image for `<picture>`, and default share image. |
 | `page.home.portraitOrientationSettings.imagePlacement.onRight` | `boolean` | `false` | Place the portrait image to the right in the layout. |
@@ -290,18 +307,22 @@ Each `alternateSources` entry can contain these HTML `<source>` attributes:
 | Field | Type / possible values | Default / fallback | Description |
 | --- | --- | --- | --- |
 | `page.home.bannerImage.alternateSources[].srcset` | `string`: HTML source-set value | Required in each source entry | Image URL(s) with optional width/density descriptors. |
-| `page.home.bannerImage.alternateSources[].media` | Optional `string`: CSS media query | Attribute omitted | Condition under which this source applies. |
+| `page.home.bannerImage.alternateSources[].media` | Optional `string`: CSS media query | Attribute omitted | Condition under which this source applies, such as viewport width, height, orientation, or pixel density. |
 | `page.home.bannerImage.alternateSources[].sizes` | Optional `string`: HTML sizes value | Attribute omitted | Display-size hints for a width-based source set. |
-| `page.home.bannerImage.alternateSources[].type` | Optional `string`: image MIME type | Attribute omitted | Format hint, such as `image/webp`. |
+| `page.home.bannerImage.alternateSources[].type` | Optional `string`: image MIME type | Attribute omitted | Format hint, such as `image/avif`, `image/jpeg`, or `image/webp`. |
 | `page.home.bannerImage.alternateSources[].height` | Optional positive `number` | Attribute omitted | Intrinsic height of this source. |
 | `page.home.bannerImage.alternateSources[].width` | Optional positive `number` | Attribute omitted | Intrinsic width of this source. |
+
+The browser considers sources in list order, choosing the first with a matching media condition and supported format. Put a preferred format before its fallback for the same condition, and general sources without `media` last. `page.home.bannerImage.URL` supplies the fallback `<img>` URL.
 
 Example:
 
 ```ts
 alternateSources: [
-  { media: "(max-width: 600px)", srcset: "assets/images/banner-small.webp", type: "image/webp" },
-  { srcset: "assets/images/banner-large.webp", type: "image/webp" }
+  { media: "(max-width: 600px)", srcset: "assets/images/banner-small.avif", type: "image/avif" },
+  { media: "(max-width: 600px)", srcset: "assets/images/banner-small.jpg", type: "image/jpeg" },
+  { srcset: "assets/images/banner-large.avif", type: "image/avif" },
+  { srcset: "assets/images/banner-large.jpg", type: "image/jpeg" }
 ]
 ```
 

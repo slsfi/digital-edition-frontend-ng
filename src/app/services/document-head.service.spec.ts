@@ -9,12 +9,14 @@ describe('DocumentHeadService request context', () => {
   let testDocument: Document;
   let originalOrigin: unknown;
   let originalI18n: typeof config.app.i18n;
+  let originalHome: typeof config.page.home;
   let originalOpenGraph: typeof config.app.openGraphMetaTags;
 
   beforeEach(() => {
     testDocument = document.implementation.createHTMLDocument('SEO test');
     originalOrigin = config.app.siteURLOrigin;
     originalI18n = config.app.i18n;
+    originalHome = config.page.home;
     originalOpenGraph = config.app.openGraphMetaTags;
     config.app.siteURLOrigin = 'https://edition.example';
     config.app.i18n = { defaultLanguage: 'sv', languages: [{ code: 'sv' }, { code: 'fi' }] };
@@ -25,6 +27,7 @@ describe('DocumentHeadService request context', () => {
     config.app.siteURLOrigin = originalOrigin;
     config.app.i18n = originalI18n;
     config.app.openGraphMetaTags = originalOpenGraph;
+    config.page.home = originalHome;
   });
 
   function createService(context?: ApplicationRequestContext, browserOrigin?: string): DocumentHeadService {
@@ -48,6 +51,26 @@ describe('DocumentHeadService request context', () => {
   function ogUrl(): string | null | undefined {
     return testDocument.head.querySelector('meta[property="og:url"]')?.getAttribute('content');
   }
+
+  it('uses the first configured language for canonical and default hreflang links when the default is omitted', () => {
+    config.app.i18n = { languages: [{ code: 'fi' }, { code: 'sv' }] };
+    const service = createService();
+    service.setLinks('/');
+
+    expect(canonical()).toBe('https://edition.example/fi/');
+    expect(testDocument.head.querySelector('link[hreflang="x-default"]')?.getAttribute('href'))
+      .toBe('https://edition.example/fi/');
+  });
+
+  it('uses the home-page default image when both image settings are omitted', () => {
+    config.app.openGraphMetaTags = { enabled: true };
+    config.page.home = {};
+    const service = createService();
+    service.setCommonOpenGraphTags();
+
+    expect(testDocument.head.querySelector('meta[property="og:image"]')?.getAttribute('content'))
+      .toBe('https://edition.example/fi/assets/images/home-page-banner.jpg');
+  });
 
   it('uses context origin and locale-prefixed request fallback, removing query parameters from SEO URLs', () => {
     const service = createService({

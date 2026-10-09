@@ -84,7 +84,7 @@ export class DocumentHeadService implements OnDestroy {
     if (routerURL !== this.currentRouterUrl) {
       this.currentRouterUrl = routerURL;
 
-      const x_default = config.app?.i18n?.defaultLanguage ?? this.languages[0].code;
+      const x_default = config.app?.i18n?.defaultLanguage ?? this.languages[0]?.code ?? 'sv';
 
       // Remove old tags
       this.removeLinkTags('canonical');
@@ -130,7 +130,7 @@ export class DocumentHeadService implements OnDestroy {
       // Set og:image and og:image:alt
       let imageURL: string = this.openGraphTags?.image?.[this.activeLocale]?.URL
             ? this.openGraphTags?.image?.[this.activeLocale]?.URL
-            : config.page?.home?.bannerImage?.URL ?? '';
+            : config.page?.home?.bannerImage?.URL ?? 'assets/images/home-page-banner.jpg';
       const origin = this.getOrigin();
       const localeRoot = origin ? origin + '/' + this.activeLocale + '/' : '';
 

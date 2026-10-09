@@ -46,7 +46,8 @@ const browserFolder = resolve(dirname(fileURLToPath(import.meta.url)), '../brows
 // CLI development SSR has one in-memory app at the dev server's base path.
 const localizedRuntime = environment.production || isMainModule(import.meta.url);
 const locales = getServerLocales(angularConfig.projects.app, browserFolder, localizedRuntime);
-const defaultLocale = getDefaultServerLocale(locales, config.app?.i18n?.defaultLanguage);
+const defaultLanguage = config.app?.i18n?.defaultLanguage ?? config.app?.i18n?.languages?.[0]?.code ?? 'sv';
+const defaultLocale = getDefaultServerLocale(locales, defaultLanguage);
 
 // Create the Express app here so its setup, Angular handler, and listener stay together.
 export const app = express();

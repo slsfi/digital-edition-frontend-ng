@@ -538,7 +538,7 @@ export class DownloadTextsModal {
     }
 
     const textTitle = this.constructPrintHtmlTitle(textType);
-    typeTitle = typeTitle && config.component?.manuscripts?.showTitle ? typeTitle : '';
+    typeTitle = typeTitle && (config.component?.manuscripts?.showTitle ?? true) ? typeTitle : '';
     const referenceURL = this.referenceData?.urn
           ? this.urnResolverUrl + this.referenceData.urn
           : this.currentUrl;

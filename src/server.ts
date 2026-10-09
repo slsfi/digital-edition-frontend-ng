@@ -43,7 +43,11 @@ for (const host of (process.env['NG_ALLOWED_HOSTS'] ?? '').split(',').map(host =
 // One engine owns dispatch to the localized applications emitted by the integrated build.
 const angularApp = new AngularNodeAppEngine({ allowedHosts: [...allowedHosts], trustProxyHeaders: proxyHeaders });
 const browserFolder = resolve(dirname(fileURLToPath(import.meta.url)), '../browser');
-// CLI development SSR has one in-memory app at the dev server's base path.
+// Built SSR uses emitted locale directories and localizes unprefixed request URLs.
+// The production flag also identifies a built entry imported by another module;
+// isMainModule covers direct execution, including non-production builds.
+// CLI development SSR imports this entry with production=false and serves one
+// in-memory app at the dev server's base path, so it skips that URL localization.
 const localizedRuntime = environment.production || isMainModule(import.meta.url);
 const locales = getServerLocales(angularConfig.projects.app, browserFolder, localizedRuntime);
 const defaultLanguage = config.app?.i18n?.defaultLanguage ?? config.app?.i18n?.languages?.[0]?.code ?? 'sv';

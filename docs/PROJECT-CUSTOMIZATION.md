@@ -72,8 +72,8 @@ Keep a fork's settings and styles in `src/project/`, and its static files in `pu
 | [`public/robots.txt`](../public/robots.txt) | Set edition-specific production crawler instructions and the sitemap URL; it is served at `/robots.txt`. |
 | [`src/index.html`](../src/index.html) | Document-level resources, such as external font-provider snippets. |
 | [`src/locale/`](../src/locale/) (`messages.<locale>.xlf`) | Edit translations for enabled locales, including `Site.Title`, `Site.Subtitle`, and `Site.MetaDescription.Home`. |
-| [`src/project/config.ts`](../src/project/config.ts) | Edition settings, enabled features, menus, authentication, SSR options, and public/backend origins. Application imports continue to use `@config`. |
-| [`src/project/global-overrides.scss`](../src/project/global-overrides.scss) | Additional global styles and overrides to base CSS variables and page/component styles. Loaded after the base styles. |
+| [`src/project/config.ts`](../src/project/config.ts) | Edition settings, enabled features, menus, authentication, SSR options, and public/backend origins. Application imports continue to use `@config`; see the [configuration reference](CONFIGURATION.md). |
+| [`src/project/global-overrides.scss`](../src/project/global-overrides.scss) | Additional global styles and overrides to base CSS variables and page/component styles. Loaded after the base styles; see the [theming guide](THEMING.md). |
 | [`src/styles.scss`](../src/styles.scss) | Comment out unused shared style/font bundles. |
 | [`src/theme/_inc-global-tei.scss`](../src/theme/_inc-global-tei.scss) | Select the TEI feature styles required by the edition; see [theming](THEMING.md#tei-styles) for the alternate v2 entry. |
 

@@ -63,7 +63,7 @@ async function generateSitemap() {
     process.exit(1); // Hard failure: something is wrong with core config
   }
 
-  const locale = config.app?.i18n?.defaultLanguage ?? 'sv';
+  const locale = config.app?.i18n?.defaultLanguage ?? config.app?.i18n?.languages?.[0]?.code ?? 'sv';
   const multilingualCollectionTOC = config.app?.i18n?.multilingualCollectionTableOfContents ?? false;
 
   const APIBase = API + '/' + projectName;

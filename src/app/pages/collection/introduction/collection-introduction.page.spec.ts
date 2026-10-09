@@ -5,6 +5,7 @@ import { ActivatedRoute, Params, Router } from '@angular/router';
 import { ModalController, PopoverController } from '@ionic/angular';
 import { BehaviorSubject, Subject, of } from 'rxjs';
 
+import { config } from '@config';
 import { CollectionContentService } from '@services/collection-content.service';
 import { CollectionsService } from '@services/collections.service';
 import { HtmlParserService } from '@services/html-parser.service';
@@ -19,6 +20,7 @@ import { ViewOptionsService } from '@services/view-options.service';
 import { CollectionIntroductionPage } from './collection-introduction.page';
 
 describe('CollectionIntroductionPage', () => {
+  let originalViewOptions: typeof config.page.introduction.viewOptions;
   let params$: BehaviorSubject<Params>;
   let queryParams$: BehaviorSubject<Params>;
   let firstIntroduction$: Subject<any>;
@@ -44,6 +46,7 @@ describe('CollectionIntroductionPage', () => {
   >>;
 
   beforeEach(async () => {
+    originalViewOptions = config.page.introduction.viewOptions;
     params$ = new BehaviorSubject<Params>({ collectionID: '203' });
     queryParams$ = new BehaviorSubject<Params>({});
     firstIntroduction$ = new Subject<any>();
@@ -151,6 +154,27 @@ describe('CollectionIntroductionPage', () => {
         `
       )
       .compileComponents();
+  });
+
+  afterEach(() => {
+    config.page.introduction.viewOptions = originalViewOptions;
+  });
+
+  it.each([undefined, {}, { personInfo: true }])('offers paragraph numbering with omitted settings: %j', viewOptions => {
+    config.page.introduction.viewOptions = viewOptions;
+    const page = TestBed.createComponent(CollectionIntroductionPage).componentInstance;
+
+    expect(page.viewOptionsTogglesIntro['paragraphNumbering']).toBe(true);
+    expect(page.viewOptionsTogglesIntro['comments']).toBe(false);
+  });
+
+  it('preserves explicit introduction options while keeping reading-text-only options hidden', () => {
+    config.page.introduction.viewOptions = { paragraphNumbering: false, personInfo: true, comments: true };
+    const page = TestBed.createComponent(CollectionIntroductionPage).componentInstance;
+
+    expect(page.viewOptionsTogglesIntro['paragraphNumbering']).toBe(false);
+    expect(page.viewOptionsTogglesIntro['personInfo']).toBe(true);
+    expect(page.viewOptionsTogglesIntro['comments']).toBe(false);
   });
 
   it('renders content and reloads a reused page while cancelling the stale request', async () => {

@@ -8,6 +8,7 @@
  * Coverage:
  *   - Route extraction with comments, quote styles, parameters, and lazy routes.
  *   - Feature filtering and auth-dependent server/client rendering metadata.
+ *   - Omitted search-button settings and sitemap default-language selection.
  *   - Deterministic generated browser routes and Angular server-rendering routes.
  *   - Generated ServerRoute[] compatibility with the installed Angular SSR types.
  *   - Parsing the repository's canonical src/app/app.routes.ts.
@@ -25,6 +26,7 @@ const assert = require('assert');
 const fs = require('fs');
 const path = require('path');
 const ts = require('typescript');
+const vm = require('node:vm');
 const common = require('../prebuild-common-fns');
 const {
   generateRoutes,
@@ -401,6 +403,56 @@ for (const featureBasedRoutes of [false, true]) {
     });
   }
 }
+
+test('an omitted top-menu search setting retains the route for the visible button', () => {
+  const config = createGeneratorConfig(true, false);
+  delete config.component.topMenu.showElasticSearchButton;
+  const plan = createRouteGenerationPlan(standaloneRoutesSource, config);
+  assert.ok(plan.routeBlocks.some(block => getRoutePath(block) === 'search'));
+
+  config.component.topMenu.showElasticSearchButton = false;
+  const disabled = createRouteGenerationPlan(standaloneRoutesSource, config);
+  assert.ok(!disabled.routeBlocks.some(block => getRoutePath(block) === 'search'));
+});
+
+test('sitemap URLs use the first configured language when defaultLanguage is omitted', () => {
+  const source = fs.readFileSync(path.join(__dirname, '../prebuild-generate-sitemap.js'), 'utf8');
+  for (const [languages, defaultLanguage, expected] of [
+    [[{ code: 'fi' }, { code: 'sv' }], undefined, 'fi'],
+    [[{ code: 'fi' }, { code: 'sv' }], 'sv', 'sv'],
+    [[], undefined, 'sv']
+  ]) {
+    const config = {
+      app: {
+        backendBaseURL: 'https://api.example.test', projectNameDB: 'edition',
+        siteURLOrigin: 'https://edition.example', i18n: { languages, defaultLanguage }
+      },
+      component: { topMenu: { showElasticSearchButton: false } }
+    };
+    let sitemap = '';
+    vm.runInNewContext(source, {
+      __dirname: path.resolve(__dirname, '..'),
+      console: { log() {}, error(message) { throw new Error(message); } },
+      require: name => {
+        if (name === './prebuild-common-fns') {
+          return { ...common, getConfig: () => config };
+        }
+        if (name === './prebuild-generate-routes') {
+          return require('../prebuild-generate-routes');
+        }
+        if (name === 'fs') {
+          return {
+            writeFileSync: (_filename, content) => { sitemap = content; },
+            appendFileSync: (_filename, content) => { sitemap += content; }
+          };
+        }
+        return require(name);
+      }
+    });
+    assert.strictEqual(sitemap, 'https://edition.example/' + expected + '/\n'
+      + 'https://edition.example/' + expected + '/content\n');
+  }
+});
 
 test('protected lazy routes are included when their feature is enabled from the top menu', () => {
   const source = `export const routes: Routes = [

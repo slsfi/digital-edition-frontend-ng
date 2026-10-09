@@ -25,6 +25,7 @@ The app is built on [Angular][angular] and uses [Ionic][ionic] web components.
 
 <hr>
 
+
 ## Changelog
 
 [Learn about the latest improvements][changelog].
@@ -48,11 +49,9 @@ This workflow enables updates to the app in the original, upstream repository to
 ## Documentation
 
 - [Project customization](docs/PROJECT-CUSTOMIZATION.md).
-- [Theming](docs/THEMING.md).
-- [Authentication](docs/AUTHENTICATION.md).
-- [Breaking changes for project forks](docs/breaking-changes/README.md).
 - [Updating, building and deployment](docs/DEPLOYMENT.md).
 - [Base-app development](docs/DEVELOPMENT.md).
+- [Breaking changes for project forks](docs/breaking-changes/README.md).
 
 
 ## Development Setup

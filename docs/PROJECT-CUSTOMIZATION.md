@@ -81,7 +81,7 @@ Keep a fork's settings and styles in `src/project/`, and its static files in `pu
 
 ## Edition settings and content
 
-Review [`src/project/config.ts`](../src/project/config.ts) before running the edition. The base configuration contains example project data; replace it with the fork's own identifiers, content, and URLs.
+Review [`src/project/config.ts`](../src/project/config.ts) before running the edition. The base configuration contains example project data; replace it with the fork's own identifiers, content, and URLs. See the [configuration reference](CONFIGURATION.md) for all options, their types, and possible values.
 
 | Configuration area | What to review |
 | --- | --- |

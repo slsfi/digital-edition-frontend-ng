@@ -44,12 +44,13 @@ The `base` branch of the forked repository must **never** be manually modified. 
 
 This workflow enables updates to the app in the original, upstream repository to be easily distributed to forked project repositories.
 
+
 ## Documentation
 
 - [Project customization](docs/PROJECT-CUSTOMIZATION.md).
-- [Breaking changes for project forks](docs/breaking-changes/README.md).
-- [Authentication](docs/AUTHENTICATION.md).
 - [Theming](docs/THEMING.md).
+- [Authentication](docs/AUTHENTICATION.md).
+- [Breaking changes for project forks](docs/breaking-changes/README.md).
 - [Updating, building and deployment](docs/DEPLOYMENT.md).
 - [Base-app development](docs/DEVELOPMENT.md).
 

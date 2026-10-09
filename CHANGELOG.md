@@ -8,32 +8,26 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
-### Breaking changes
+### BREAKING CHANGES
 
-- Build/SSR: adopt the integrated application builder and `AngularNodeAppEngine`, move the Express source entry to `src/server.ts`, and replace legacy launchers with the ESM runtime at `dist/app/server/server.mjs`. Custom SSR services use the application request context and Angular response APIs.
-- Fork file layout: group configuration/global overrides under `src/project/`, rename `src/global.scss` to `src/styles.scss`, and move static assets, crawler documents, and generated HTML to `public/`. Public asset URLs and default-language serving are preserved.
+- Build/SSR: replace separate browser/server builds with the integrated Angular application builder. The production server entry is now `dist/app/server/server.mjs`, and the development server runs SSR.
+- Project files: move edition configuration and style overrides to `src/project/`, rename `src/global.scss` to `src/styles.scss`, and move static assets, crawler documents, and generated HTML to `public/`.
 - Test tooling: replace Jasmine/Karma with Vitest and jsdom; fork-owned specs and CI commands must be converted.
-- SSR proxy trust: add `app.ssr.trustedProxyAddresses`; trusted proxy addresses and the hop limit both apply.
+- SSR proxy trust: require both the configured hop limit and trusted proxy addresses. Review the settings against the deployment's proxy chain.
 
-These breaking changes are planned for v4. See the [v4 breaking changes and fork migration notes](docs/breaking-changes/v4.md) for file mappings, configuration/API changes, dependency updates, and validation steps.
+See the [v4 breaking changes and fork migration notes](https://github.com/slsfi/digital-edition-frontend-ng/blob/main/docs/breaking-changes/v4.md) for the required fork changes.
 
 ### Added
 
-- Routes: generate Angular server-rendering metadata for public SSR and auth-protected CSR routes.
-- Tests: add build-output, SSR rendering/middleware, proxy, locale, and runtime-launch regression checks. JSON smoke-test cases accept literal checks to prevent regex injection.
-
-### Fixed
-
-- Development startup: generate route metadata before the Swedish and Finnish start commands so development SSR works without pre-existing ignored route outputs.
-- nginx: apply one-year immutable caching to hashed fonts emitted in locale `media/` directories by the application builder.
-- Pdf-viewer: broaden error message if the PDF can't be displayed.
+- SSR: add `app.ssr.trustedProxyAddresses` to configure trusted proxy IP addresses and ranges alongside `app.ssr.trustProxyHops`. An empty array disables proxy trust.
 
 ### Changed
 
-- Build tooling: remove `@angular-devkit/build-angular`, Browser Sync, Istanbul, and Jasmine/Karma tooling; merge browser/server TypeScript configuration and remove the unused generated auth-path artifact.
-- SSR tooling: Docker and benchmark auto-start use the canonical `npm run serve:ssr` command.
-- i18n tooling: delegate extraction to `@angular/build`, preserving XLIFF 2 sorting and merging.
-- Documentation: complete the application-builder and Vitest migration guides, archive completed migration plans, document current development/production workflows, and provide release-specific breaking changes and fork migration notes for v2, v3, and the planned v4 release. Separate project customization and fork setup guidance from the README and base-app development notes.
+- Angular modernization: complete the Angular application-builder and Vitest migration, reorganize project files and public assets, and update documentation. See the [migration plan](https://github.com/slsfi/digital-edition-frontend-ng/blob/main/docs/migrations/completed/angular-22-modernization/STAGE-2-APPLICATION-BUILDER.md).
+
+### Fixed
+
+- Pdf-viewer: broaden error message if the PDF can't be displayed. ([3f4968b](https://github.com/slsfi/digital-edition-frontend-ng/commit/3f4968b048d3bc89f6f7cc96129cbeaaa6f730a2))
 
 
 

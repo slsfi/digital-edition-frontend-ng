@@ -312,7 +312,7 @@ alternateSources: [
 | `page.index.keywords.maxFetchSize` | `number`: positive integer, capped at `10000` | `500` | Keyword records requested per fetch. |
 | `page.index.keywords.showFilter` | `boolean` | `false` | Show keyword-index filter controls. |
 | `page.index.keywords.publishedStatus` | `number`: backend publication-status code | `2` | Status matched by keyword-index queries; also used as the minimum publication status in keyword occurrences. The shipped value is `2`. |
-| `page.index.persons.database` | `string`: `"elastic"` or another string | `"elastic"` | `"elastic"` uses Elasticsearch for the person index. Other values select the direct backend person-list endpoint. |
+| `page.index.persons.database` | `string`: `"elastic"` or another string | `"elastic"` | `"elastic"` uses Elasticsearch for the person index. Other values, like `"default"`, select the direct backend person-list endpoint. |
 | `page.index.persons.maxFetchSize` | `number`: positive integer, capped at `10000` | `500` | Person records requested per Elasticsearch fetch; the direct person-list endpoint loads its whole result. |
 | `page.index.persons.showFilter` | `boolean` | `false` | Show person-index filter controls when the Elasticsearch source is used. |
 | `page.index.persons.publishedStatus` | `number`: backend publication-status code | `2` | Status matched by Elasticsearch person-index queries; also used as the minimum publication status in person occurrences. |

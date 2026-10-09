@@ -4,6 +4,10 @@ This app is intended to be themed in each project fork. Keep fork-specific
 changes concentrated in the files described below so that updates from the
 base repository remain easy to merge.
 
+For the overall fork configuration workflow and customization-file map, see the
+[project customization guide](PROJECT-CUSTOMIZATION.md). This guide covers the
+styling details.
+
 
 ## Where theming changes belong
 

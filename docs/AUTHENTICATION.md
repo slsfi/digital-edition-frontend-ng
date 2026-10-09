@@ -2,7 +2,11 @@
 
 The app supports optional authentication-guarded routing and a token-based authentication flow. Authentication is controlled by config so the base app can stay auth-disabled by default, while selected forks can enable it.
 
+For the overall fork configuration workflow and other edition settings, start with the [project customization guide](PROJECT-CUSTOMIZATION.md). This guide covers authentication configuration, behavior, and verification.
+
 ## Enable in a fork
+
+`AUTH_ENABLED` is an Angular injection token defined in [`src/app/tokens/auth.tokens.ts`](../src/app/tokens/auth.tokens.ts). Its factory reads `app.auth.enabled` from [`src/project/config.ts`](../src/project/config.ts) and returns `true` only when that setting is `true`; otherwise it returns `false`. Guards and other application code inject this token to read the configured flag.
 
 1. Set `app.auth.enabled` to `true` in [`src/project/config.ts`](../src/project/config.ts).
 2. Configure auth API base URL by setting `app.auth.backendAuthBaseURL`.
@@ -11,7 +15,7 @@ The app supports optional authentication-guarded routing and a token-based authe
 5. Protect routes by adding `canActivate: [authGuard]` to the route declaration that owns the protected URL. This is normally the top-level route in [`src/app/app.routes.ts`](../src/app/app.routes.ts); child-specific guards belong in the corresponding lazy `*.routes.ts` file.
 6. For protected routes that do not normally fetch backend data (for example `/account`), add `data: { requiresSessionValidation: true }` so the guard can validate current session state through `GET <backendAuthBaseURL>/session/validate`.
 7. Optional: configure `app.auth.sessionValidationTTLms` in [`src/project/config.ts`](../src/project/config.ts) to control how long a successful session validation is cached in the browser (default: `120000` ms).
-8. Keep login route enabled with `canMatch: [authFeatureEnabledMatchGuard]` so `/login` is only matchable when auth feature is enabled.
+8. Keep login route enabled with `canMatch: [authFeatureEnabledMatchGuard]` in [`src/app/app.routes.ts`](../src/app/app.routes.ts) so `/login` is only matchable when auth feature is enabled.
 9. If using production build with feature-based routes, run `npm run generate-routes` after route/config changes (or use `npm run build:ssr`, which runs it automatically).
 
 In feature-based route mode, the `login` route is included only when `app.auth.enabled` is `true`.
@@ -78,7 +82,7 @@ Use this checklist after auth/interceptor/guard changes.
 
 With current token storage strategy (no auth cookies), SSR cannot identify authenticated browser users on initial request.
 
-To avoid SSR/client mismatches on auth-guarded routes, Angular serves CSR shells for the `RenderMode.Client` paths in [`src/app/app.routes.server.generated.ts`](../src/app/app.routes.server.generated.ts) when `app.auth.enabled` is `true`. Protected lazy-route descendants are also client rendered. Public routes retain `RenderMode.Server`. Regenerate routes and rebuild after changing auth or feature flags.
+To avoid SSR/client mismatches on auth-guarded routes, Angular serves CSR shells for the `RenderMode.Client` paths in `src/app/app.routes.server.generated.ts` when `app.auth.enabled` is `true`. Protected lazy-route descendants are also client rendered. Public routes retain `RenderMode.Server`. Regenerate routes and rebuild after changing auth or feature flags.
 
 ## Sitemap behavior in auth mode
 

@@ -4,13 +4,16 @@
 
 Internationalization and server-side rendering are supported out of the box, meaning that your web app will be fully indexable by search engines and readable by AI bots. The frontend app utilizes a responsive design and works on both desktop and mobile devices. Many features of the user interface are easily configurable, and theming is straightforward.
 
-The app also supports optional authentication-guarded routing and a token-based authentication flow for forks that need protected content. See the [authentication guide](docs/AUTHENTICATION.md) for configuration and implementation details.
+The app also supports optional authentication-guarded routing and a token-based authentication flow for forks that need protected content.
+
+See the instructions below for [setting up a project](#setting-up-a-project) and the [project customization guide](docs/PROJECT-CUSTOMIZATION.md).
 
 Examples of digital editions employing this frontend app include:
 
 - [Zacharias Topelius Skrifter][topelius]
 - [Historiska recept][historiskarecept]
-- [Leo Mechelin – Pro lege][mechelin]
+- [Edvard Westermarck. Letters, Articles, and Field Studies][westermarck]
+- [The Writings of Tove Jansson][jansson]
 
 The app is built on [Angular][angular] and uses [Ionic][ionic] web components.
 
@@ -22,6 +25,7 @@ The app is built on [Angular][angular] and uses [Ionic][ionic] web components.
 
 <hr>
 
+
 ## Changelog
 
 [Learn about the latest improvements][changelog].
@@ -31,45 +35,23 @@ The app is built on [Angular][angular] and uses [Ionic][ionic] web components.
 
 1. Create a fork of [`digital-edition-frontend-ng`][digital-edition-frontend-ng]. Only include the `main` branch.
 
-2. Rename the default branch of the forked repository `base`, `shared` or something similar.
+2. Rename the fork's `main` branch to `base`, `shared` or something similar.
 
-3. Create a new branch in the forked repository and name it `production`, `prod` or something similar.
+3. Create a new branch from the renamed branch and name it `production`, `prod` or something similar.
 
-4. Configure your project app by editing [`src/project/config.ts`](src/project/config.ts). The [development notes](docs/DEVELOPMENT.md) document selected configuration-dependent features, but a complete reference for all configuration options is not yet available.
+Continue with the [project customization guide](docs/PROJECT-CUSTOMIZATION.md), starting by making the production branch the default and configuring the repository rulesets, then adapting the edition's settings, assets, and languages.
 
 The `base` branch of the forked repository must **never** be manually modified. It must be kept as a clone of the original ”upstream” `main` branch in [`digital-edition-frontend-ng`][digital-edition-frontend-ng]. When the upstream `main` branch is updated, you can sync the updates to the `base` branch in your forked repository. You can then merge the `base` branch into your `production` branch.
 
 This workflow enables updates to the app in the original, upstream repository to be easily distributed to forked project repositories.
 
-By default, the app has Swedish and Finnish language versions enabled. See the [theming guide](docs/THEMING.md), [updating, building and deployment](docs/DEPLOYMENT.md), and the [development notes](docs/DEVELOPMENT.md) for the currently available guidance. Complete documentation for internationalization and other app customization is not yet available.
-
-### Project customization files
-
-Keep a fork's settings and styles in `src/project/`, and its static files in `public/`. The usual customization points are:
-
-| Location | What a project fork changes |
-| --- | --- |
-| [`src/project/config.ts`](src/project/config.ts) | Edition settings, enabled features, menus, authentication, SSR options, and public/backend origins. Application imports continue to use `@config`. |
-| [`src/project/global-overrides.scss`](src/project/global-overrides.scss) | Additional global styles and overrides to base CSS variables and page/component styles. Loaded after the base styles. |
-| [`src/styles.scss`](src/styles.scss) | Comment out unused shared style/font bundles. |
-| [`src/theme/_inc-global-tei.scss`](src/theme/_inc-global-tei.scss) | Select the TEI feature styles required by the edition; see [theming](docs/THEMING.md#tei-styles) for the alternate v2 entry. |
-| `public/assets/{images,files,ebooks,fonts}/` | Add or replace public edition assets. Keep URLs such as `assets/images/...` in configuration and templates. |
-| [`public/favicon.ico`](public/favicon.ico) | Replace the favicon. The former `assets/icon/favicon.ico` URL remains available as a build-time alias. |
-| [`src/index.html`](src/index.html) | Document-level resources, such as external font-provider snippets. |
-| [`angular.json`](angular.json) | Configure the edition's build locales. |
-| [`src/locale/`](src/locale/) | Edit translations for enabled locales. |
-| [`public/robots.txt`](public/robots.txt) | Adjust crawler instructions when needed; it is served at `/robots.txt`. |
-
-`public/sitemap.txt` and `public/static-html/collection-toc/` are generator outputs. Run `npm run generate-sitemap` and `npm run generate-static-collection-menus` before building when their corresponding prebuild flags are enabled; Docker does this automatically. The sitemap is served at `/sitemap.txt` even though it lists localized page URLs. Generated collection menus remain ignored by Git. See the [v3-to-v4 fork upgrade guide](docs/upgrade-guides/upgrade-to-v4.md) when upgrading an existing edition.
-
 
 ## Documentation
 
-- [Upgrade a project fork from v3 to v4](docs/upgrade-guides/upgrade-to-v4.md).
-- [Authentication](docs/AUTHENTICATION.md).
-- [Theming](docs/THEMING.md).
+- [Project customization](docs/PROJECT-CUSTOMIZATION.md).
 - [Updating, building and deployment](docs/DEPLOYMENT.md).
-- [Development notes](docs/DEVELOPMENT.md).
+- [Base-app development](docs/DEVELOPMENT.md).
+- [Breaking changes for project forks](docs/breaking-changes/README.md).
 
 
 ## Development Setup
@@ -121,6 +103,12 @@ npm run serve:ssr
 
 Open your browser on http://localhost:4201/. This server runs the compiled output from `dist/app/`. After changing source files, stop the server, rebuild, and start it again for the changes to take effect.
 
+See [building and deployment](docs/DEPLOYMENT.md#building) for the localized output layout and Docker/nginx workflow.
+
+### Testing
+
+Run `npm test` for unit tests in interactive watch mode, or `npm run test:ci` for a single run before a PR or in CI. Angular uses Vitest with jsdom; the unit suite does not require Chrome. See [testing](docs/DEVELOPMENT.md#testing) for script-based route, SSR, and output checks.
+
 
 ## Earlier version
 
@@ -148,9 +136,10 @@ The platform consists of an [Angular frontend app][digital-edition-frontend-ng],
 [github_desktop]: https://desktop.github.com/
 [historiskarecept]: https://historiskarecept.sls.fi/
 [ionic]: https://ionicframework.com/
-[mechelin]: https://leomechelin.fi/
+[jansson]: https://jansson.sls.fi/en/
 [node.js]: https://nodejs.org/
 [npm]: https://www.npmjs.com/get-npm
 [SLS]: https://www.sls.fi/en
 [TEI]: https://tei-c.org/
 [topelius]: https://topelius.sls.fi/
+[westermarck]: https://westermarck.sls.fi/en/

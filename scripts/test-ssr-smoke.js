@@ -1,45 +1,55 @@
 #!/usr/bin/env node
 
+/*
+ * Smoke tests for the raw HTTP responses from a running SSR app.
+ *
+ * Usage (from the repository root):
+ *   npm run test:ssr:smoke -- [options]
+ *   node scripts/test-ssr-smoke.js [options]
+ *
+ * For local production checks, run npm run build:ssr and npm run serve:ssr first,
+ * then run the smoke tests in another terminal. Use --base-url for a running remote
+ * app. Tests check response HTML and headers without executing browser JavaScript.
+ * The default cases use base-app content; forks can supply their own --cases-file.
+ *
+ * Coverage:
+ *   - Expected status, content type, HTML snippets, and response headers.
+ *   - Populated Angular SSR roots and CSR shells for auth-protected routes.
+ *   - SEO/default-language URLs, missing static files, and probe responses.
+ *
+ * Supported CLI arguments (value options accept --name=value or --name value):
+ *   --base-url <url>
+ *     Running app URL (default: http://localhost:4201).
+ *   --timeout-ms <n>
+ *     Per-request timeout in milliseconds, at least 1000 (default: 30000).
+ *   --auth-enabled
+ *     Expect CSR shells for protected routes; build the app with auth enabled first.
+ *   --cases-file <path>
+ *     JSON array of test cases, relative to the working directory or absolute.
+ *     Supports literal includes checks only; defaults to the built-in base-app cases.
+ *   --help | -h
+ *     Show help without sending requests.
+ *
+ * Examples:
+ *   npm run test:ssr:smoke
+ *   npm run test:ssr:smoke -- --auth-enabled
+ *   npm run test:ssr:smoke -- --base-url=https://edition.example --cases-file=smoke-cases.json
+ *
+ * Exit codes:
+ *   0: all tests passed, or help was requested.
+ *   1: at least one test failed, or an option/runtime error occurred.
+ *
+ * Maintenance:
+ *   Keep TEST_CASES aligned with stable output and prefer short, deterministic snippets.
+ *   Regex checks require code-owned RegExp literals; JSON cases cannot supply patterns.
+ *   Use per-test headers to simulate proxy behavior (for example forwarded HTTPS).
+ */
+
 const http = require('node:http');
 const https = require('node:https');
 const fs = require('node:fs');
 const { performance } = require('node:perf_hooks');
 
-/**
- * SSR smoke tests for a running SSR server (typically localhost).
- *
- * Purpose:
- * - Quickly verify that selected routes return server-rendered HTML.
- * - Catch regressions where key content disappears from the initial HTML response.
- * - Provide a repeatable alternative to manual checks in browser DevTools.
- *
- * What each test asserts:
- * - HTTP status matches the test case (200 by default).
- * - Content-Type includes "text/html".
- * - Response body contains one or more expected SSR markers.
- * - SSR pages have a populated Angular root; auth-enabled protected pages have a CSR shell.
- *
- * This script checks the raw HTTP response body from the server.
- * It does not execute client-side JavaScript.
- *
- * Usage:
- * - npm run test:ssr:smoke
- * - npm run test:ssr:smoke -- --base-url=http://localhost:4201
- * - npm run test:ssr:smoke -- --base-url=https://topelius.sls.fi
- * - npm run test:ssr:smoke -- --timeout-ms=5000
- * - npm run test:ssr:smoke -- --auth-enabled
- * - npm run test:ssr:smoke -- --cases-file=smoke-cases.json (literal includes checks only)
- *
- * Exit codes:
- * - 0: all tests passed.
- * - 1: at least one test failed, or script/runtime error.
- *
- * Maintenance:
- * - Keep TEST_CASES aligned with stable SSR output.
- * - Prefer short, deterministic snippets that should always be present.
- * - Use "regex" checks only when attribute order may vary in generated HTML.
- * - Use per-test `headers` to simulate proxy behavior (for example forwarded HTTPS).
- */
 const DEFAULT_BASE_URL = 'http://localhost:4201';
 const DEFAULT_TIMEOUT_MS = 30000;
 

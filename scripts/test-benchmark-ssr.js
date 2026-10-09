@@ -1,3 +1,25 @@
+/*
+ * Regression tests for benchmark-ssr.js runtime startup and cleanup.
+ *
+ * Usage (from the repository root):
+ *   npm run test:ssr:benchmark
+ *   node scripts/test-benchmark-ssr.js
+ *
+ * Coverage:
+ *   - Auto-start through npm run serve:ssr with an alternate runtime entry and PORT.
+ *   - Cold-run and warm-run output from successful HTTP requests.
+ *   - Runtime launch failures, startup timeouts, and SIGINT interruption.
+ *   - Cleanup of the npm launcher and runtime processes after each scenario.
+ *
+ * Requires Node and npm. Creates temporary runtime fixtures and local HTTP servers
+ * on available ports; no application build or running SSR app is required.
+ * Fixture files and child processes are cleaned up after the tests.
+ *
+ * Exit codes:
+ *   0: all checks passed.
+ *   1: an assertion or runtime error occurred.
+ */
+
 const assert = require('node:assert/strict');
 const { execFile } = require('node:child_process');
 const fs = require('node:fs');

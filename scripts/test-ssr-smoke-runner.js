@@ -1,3 +1,25 @@
+/*
+ * Regression tests for the test-ssr-smoke.js helpers and command-line runner.
+ *
+ * Usage (from the repository root):
+ *   npm run test:ssr:checks
+ *   node scripts/test-ssr-smoke-runner.js
+ *
+ * Coverage:
+ *   - SSR/CSR/static response detection and auth-dependent rendering expectations.
+ *   - Rejection of empty SSR content, protected SSR content, and unexpected redirects.
+ *   - Explicit Host/proxy headers through both HTTP request implementations.
+ *   - Code-owned RegExp checks and literal-only JSON case-file validation.
+ *
+ * Creates a temporary local HTTP server and JSON fixtures, and invokes the smoke
+ * runner as a child process to check its CLI. Cleans up the server and fixtures.
+ * No application build, backend, or running SSR app is required.
+ *
+ * Exit codes:
+ *   0: all checks passed.
+ *   1: an assertion or runtime error occurred.
+ */
+
 const assert = require('node:assert/strict');
 const { execFile } = require('node:child_process');
 const fs = require('node:fs');

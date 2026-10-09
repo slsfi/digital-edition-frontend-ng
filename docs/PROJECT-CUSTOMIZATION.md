@@ -89,6 +89,7 @@ Review [`src/project/config.ts`](../src/project/config.ts) before running the ed
 | `app.backendBaseURL` | The digital edition API used for content requests. |
 | `app.siteURLOrigin` | The public site origin used for generated URLs and SSR metadata. Use the deployed public origin, including its intended HTTP/HTTPS scheme. |
 | `app.i18n` | Interface languages, default language, and multilingual backend-content settings; see [internationalization](#internationalization). |
+| `app.ssr` | SSR behavior and trusted proxies; see [SSR and proxy settings](#ssr-and-proxy-settings). |
 | `collections`, `articles`, and `ebooks` | Collection selection/order, article entries, ebook files, and related content settings. |
 | `page`, `component`, and `modal` | Page behavior, navigation, content views, search options, and dialogs. |
 | `app.openGraphMetaTags` and `page.home` | Social-share images, the home-page banner, and localized image descriptions. |
@@ -126,7 +127,7 @@ Keep the application settings, build locales, translations, and development laun
 
 To remove a public language, remove it from the app's language list, Angular's build locales and `localize` list, and its development configurations and launchers. Change the default language if needed. Remove its extraction `targetFiles` entry only if the fork will stop maintaining that translation; maintaining a file does not require emitting that locale.
 
-Development serves one locale at `/`. Production serves the emitted locale subpaths and uses `app.i18n.defaultLanguage` for unprefixed requests. After changing languages, regenerate any enabled [public content](#generated-public-content), rebuild, and check each locale's pages and language-switch links, plus the default language at an unprefixed URL. See [deployment](DEPLOYMENT.md#deployment) for serving details.
+Development serves one locale at `/`. Production serves the emitted locale subpaths and uses `app.i18n.defaultLanguage` for unprefixed requests. After changing languages, regenerate any enabled [public content](#generated-public-content), rebuild, and check each locale's pages and language-switch links, plus the default language at an unprefixed URL. Follow [deployment](DEPLOYMENT.md#deployment) for rollout.
 
 #### Translate interface messages
 
@@ -199,6 +200,17 @@ Likewise, each additional `start:<locale>` script needs a matching `prestart:<lo
 
 In [`compose.yml`](../compose.yml), set `services.web.image` to the fork's published image and chosen tag. Set `services.nginx.ports` to an available host port on the deployment server, using `<available-host-port>:80`. The left-hand port is the server port allocated to this edition; the right-hand port remains nginx's container port. Coordinate that host port with the upstream reverse proxy's routing to the edition. See [deployment](DEPLOYMENT.md#deployment) for image rollout and browser-volume handling.
 
+### SSR and proxy settings
+
+Review these options in [`src/project/config.ts`](../src/project/config.ts) against the edition's deployed proxy chain:
+
+- `app.ssr.trustProxyHops` (default: `2`): maximum number of trusted proxy hops when resolving the client IP for SSR rate limiting. Use `2` for `HAProxy -> nginx -> Node`, `1` for `nginx -> Node`, and `0` when clients connect directly to Node. Adjust the value if the proxy chain is longer.
+- `app.ssr.trustedProxyAddresses` (default: `["loopback", "linklocal", "uniquelocal"]`): trusted proxy IPs/subnets, using Express's named ranges, individual addresses, or CIDRs. Set this to the actual trusted proxy addresses; include public proxy IPs explicitly when needed. Both the hop limit and address list apply to the forwarded client-IP chain. An empty address list or zero hops disables proxy trust.
+
+The immediate proxy connecting to Node must be trusted for Node to accept `X-Forwarded-Host` and `X-Forwarded-Proto`. Trusted upstream proxies must overwrite client-supplied origin headers before forwarding requests. Check that rendered canonical and Open Graph URLs use the edition's public `app.siteURLOrigin`, including its intended HTTPS scheme.
+
+Runtime rate-limit overrides and additional SSR hostnames are documented under [deployment environment settings](DEPLOYMENT.md#runtime-environment-settings). The [development notes](DEVELOPMENT.md#ssr-request-handling) explain how the server applies proxy trust.
+
 ### nginx configuration
 
 [`nginx.conf`](../nginx.conf) controls static-file serving and the proxy to the Node SSR server. Compose mounts it into the nginx container. Review the following settings for the edition, and validate changes with `docker compose exec nginx nginx -t` before reloading or restarting nginx. See [nginx in production](DEVELOPMENT.md#nginx-in-production) for the architecture and [deployment](DEPLOYMENT.md#deployment) for rollout procedures.
@@ -248,7 +260,7 @@ Add edition files under `public/assets/` and reference their public URL rather t
 
 Replace [`public/favicon.ico`](../public/favicon.ico) for the edition's favicon. Both the current `favicon.ico` URL and the compatibility `assets/icon/favicon.ico` URL are emitted from that file. Font selection and source references are covered in the [theming guide](THEMING.md).
 
-Edit [`public/robots.txt`](../public/robots.txt) when crawler rules need to differ for the edition. The deployed crawler documents are available at the website root as `/robots.txt` and `/sitemap.txt`, independent of the locale prefixes used by application pages. See [deployment](DEPLOYMENT.md#deployment) for default-locale serving and nginx configuration.
+Edit [`public/robots.txt`](../public/robots.txt) when crawler rules need to differ for the edition. The deployed crawler documents are available at the website root as `/robots.txt` and `/sitemap.txt`, independent of the locale prefixes used by application pages. See the [default-locale nginx setting](#default-locale) for serving these files.
 
 ### Production crawler instructions
 
@@ -290,4 +302,4 @@ Use the [README's local setup](../README.md#development-setup) to install depend
 
 Generate the required public content, then run `npm run build:ssr` and `npm run serve:ssr`. Check locale-prefixed and unprefixed URLs, root crawler documents, and any protected routes. The base SSR smoke fixtures use base-app content; use a cases file for the edition's routes and expected content as described in the [smoke-test reference](DEVELOPMENT.md#ssr-smoke-test-local-or-remote).
 
-Use [updating, building and deployment](DEPLOYMENT.md) for releases, Docker/nginx, proxy settings, and rollback. Use [breaking changes and fork migration notes](breaking-changes/README.md) for changes between major base-app releases.
+Use [updating, building and deployment](DEPLOYMENT.md) for releases, rollout, runtime environment settings, and rollback. Use [breaking changes and fork migration notes](breaking-changes/README.md) for changes between major base-app releases.

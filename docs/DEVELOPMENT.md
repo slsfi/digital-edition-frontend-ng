@@ -146,9 +146,19 @@ The dedicated static locations return 404 for missing files. For other requests,
 
 ### Precompressed static files
 
-Docker runs `npm run compress` after building to create `.gz` siblings of eligible browser files. With `gzip_static on`, nginx can answer a request for `/sv/chunk-HASH.js` using `/sv/chunk-HASH.js.gz` when the client accepts gzip and the configured gzip conditions allow it. The URL retains its `.js` extension, so the existing static location and cache policy apply. The location regex does not need to include `.gz`. See [nginx's precompressed-file documentation](https://nginx.org/en/docs/http/ngx_http_gzip_static_module.html).
+The `compress` script in [`package.json`](../package.json) processes browser output throughout `dist/app/browser/`, creating `.gz` siblings for its included HTML/text, CSS/JavaScript, SVG/icon, and TTF/OTF files of at least 1,300 bytes. It removes compressed copies larger than their originals. WOFF/WOFF2 are already compressed and excluded from the script. Docker runs it after building.
 
-For the default locale, dynamic HTML compression, and proxy-buffer settings, use [nginx configuration in the project customization guide](PROJECT-CUSTOMIZATION.md#nginx-configuration). Image rollout and volume handling are covered in [deployment](DEPLOYMENT.md#deployment).
+With `gzip_static on`, nginx can answer a request for `/sv/chunk-HASH.js` using `/sv/chunk-HASH.js.gz` when the client accepts gzip and the configured gzip conditions allow it. The URL retains its `.js` extension, so the existing static location and cache policy apply. The location regex does not need to include `.gz`. Dynamic SSR HTML is generated per request and uses on-the-fly compression when enabled. See [nginx's precompressed-file documentation](https://nginx.org/en/docs/http/ngx_http_gzip_static_module.html).
+
+### SSR request handling
+
+For requests that reach Node, [`src/server.ts`](../src/server.ts) combines the configured hop limit and proxy address list to resolve Express's `req.ip`. Static files and probes return before the limiter; the resolved IP is used to limit dynamic-render requests.
+
+The Express middleware also checks the immediate peer before accepting `X-Forwarded-Host` and `X-Forwarded-Proto`. This is a narrow check of those two origin headers. Express handles the client-IP chain, and Angular filters unsupported forwarding headers, including `Forwarded` and `X-Forwarded-Prefix`. The peer check uses a trust function compiled at startup, with no per-request network lookup or scan of all headers. In the standard `HAProxy -> nginx -> Node` chain, nginx is the immediate peer; the check also protects alternate paths to Node.
+
+nginx preserves the incoming `X-Forwarded-Proto` from an upstream TLS-terminating proxy, falling back to its own `$scheme` when the header is absent. The [origin helper](../src/app/utils/request-origin.ts) treats `app.siteURLOrigin` as authoritative when the request host matches the configured public host. This keeps canonical and Open Graph URLs on the public HTTPS origin even when an internal hop uses HTTP.
+
+Fork settings belong in the project customization guide: [SSR proxy trust](PROJECT-CUSTOMIZATION.md#ssr-and-proxy-settings) and [nginx's default locale, HTML compression, and proxy buffers](PROJECT-CUSTOMIZATION.md#nginx-configuration). Image rollout, volume handling, and runtime environment overrides are covered in [deployment](DEPLOYMENT.md#deployment).
 
 
 

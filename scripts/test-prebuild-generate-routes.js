@@ -1,3 +1,26 @@
+/*
+ * Regression tests for the route parser and browser/server route generation.
+ *
+ * Usage (from the repository root, with dependencies installed):
+ *   npm run test:routes-parser
+ *   node scripts/test-prebuild-generate-routes.js
+ *
+ * Coverage:
+ *   - Route extraction with comments, quote styles, parameters, and lazy routes.
+ *   - Feature filtering and auth-dependent server/client rendering metadata.
+ *   - Deterministic generated browser routes and Angular server-rendering routes.
+ *   - Generated ServerRoute[] compatibility with the installed Angular SSR types.
+ *   - Parsing the repository's canonical src/app/app.routes.ts.
+ *
+ * Run after generator changes or generator-facing route syntax changes. Uses fixture
+ * configuration and intercepts generated file writes; no build, backend, or running
+ * app is required. TypeScript checks run without emitting files.
+ *
+ * Exit codes:
+ *   0: all checks passed.
+ *   1: an assertion or runtime error occurred.
+ */
+
 const assert = require('assert');
 const fs = require('fs');
 const path = require('path');
@@ -16,28 +39,6 @@ const {
   stripCommentsPreserveLiterals
 } = require('../prebuild-generate-routes');
 
-/**
- * Parser smoke tests for prebuild route generation.
- *
- * What this script does:
- * - Exercises key parsing helpers in `prebuild-generate-routes.js`.
- * - Verifies behavior for common edge cases (comments, quote styles, route extraction).
- * - Fails fast with a non-zero exit code if any assertion fails.
- *
- * What this script is NOT:
- * - Not a full unit test suite.
- * - Not an end-to-end production build test.
- *
- * How to run:
- * - Recommended npm command:
- *   `npm run test:routes-parser`
- * - Directly with Node:
- *   `node ./scripts/test-prebuild-generate-routes.js`
- *
- * Typical usage:
- * - Run after changes to `prebuild-generate-routes.js`.
- * - Run after route syntax refactors in `src/app/app.routes.ts`.
- */
 const tests = [];
 
 function test(name, fn) {

@@ -1,5 +1,38 @@
 #!/usr/bin/env node
 
+/*
+ * Validate the emitted browser/server output against the project configuration.
+ *
+ * Usage (from the repository root):
+ *   npm run build:ssr
+ *   npm run test:build-output -- [options]
+ *   node scripts/test-build-output.js [options]
+ *
+ * Checks configured locale directories, CSR shells, locale server bundles, and the
+ * production runtime entry. Also verifies copied public documents and the legacy
+ * favicon URL, and checks that old configuration/style sources are absent from assets.
+ * Run after building; this script reads output files without building or starting SSR.
+ *
+ * Supported CLI arguments (value options accept --name=value or --name value):
+ *   --dist-root <path>
+ *     Output root, relative to the repository root or absolute (default: dist/app).
+ *   --locales <csv>
+ *     Locale codes to check (default: production locales from angular.json).
+ *   --server-entry <path>
+ *     Runtime entry relative to --dist-root (default: inferred from serve:ssr).
+ *   --help | -h
+ *     Show usage without checking output.
+ *
+ * Examples:
+ *   npm run test:build-output
+ *   npm run test:build-output -- --locales=sv
+ *   npm run test:build-output -- --dist-root=dist/custom --server-entry=server/server.mjs
+ *
+ * Exit codes:
+ *   0: all checks passed, or help was requested.
+ *   1: an output file is missing/incorrect, or an option/runtime error occurred.
+ */
+
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');

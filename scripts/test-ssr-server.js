@@ -1,5 +1,30 @@
 #!/usr/bin/env node
 
+/*
+ * Regression tests for the production Express middleware and SSR locale helpers.
+ *
+ * Usage (from the repository root):
+ *   npm run test:ssr:server
+ *     Builds SSR first, then runs these checks.
+ *   node scripts/test-ssr-server.js
+ *     Runs against an existing build; run npm run build:ssr after server changes.
+ *
+ * Coverage:
+ *   - Configured locale paths, default-language fallbacks, and deployment prefixes.
+ *   - Static files/probes bypassing Angular and the SSR rate limiter.
+ *   - Static caching, missing-file responses, and dynamic ebook fall-through.
+ *   - Dynamic response limiting and trusted-proxy headers/client IP handling.
+ *
+ * Requires installed dependencies and dist/app/server/server.mjs. Imports the built
+ * middleware without starting the production listener, and uses a render spy in
+ * place of Angular. Tests create temporary files and local HTTP servers on available
+ * ports, then clean them up; no separately running app or backend is needed.
+ *
+ * Exit codes:
+ *   0: all checks passed.
+ *   1: an assertion, import, or runtime error occurred.
+ */
+
 const assert = require('node:assert/strict');
 const express = require('express');
 const fs = require('node:fs');
@@ -8,8 +33,6 @@ const os = require('node:os');
 const path = require('node:path');
 const { pathToFileURL } = require('node:url');
 
-// Import the built server to check the middleware shipped in production without rendering Angular.
-// Its main-module guard prevents a listener; each test creates its own app and render spy.
 /** Runs built-server middleware and locale checks with test-owned files and local HTTP servers. */
 async function main() {
   const { configureSsrMiddleware } = await import(pathToFileURL(path.resolve(__dirname, '../dist/app/server/server.mjs')));

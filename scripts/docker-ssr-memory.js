@@ -44,6 +44,19 @@
  * Memory needs review: completion alone does not prove the absence of a leak.
  * Use --max-growth-mib to enforce an explicit final idle growth budget.
  *
+ * Measurement notes:
+ *   - docker stats --no-stream reports cache-adjusted Linux container memory,
+ *     including launcher processes, rather than JavaScript live heap usage.
+ *   - Sampling pauses --sample-seconds between Docker calls; readings spanning
+ *     stage transitions are discarded. Peaks are the highest observed samples.
+ *   - Idle values use the median of the last three samples in each idle phase.
+ *     The final growth budget is checked after the longer final idle period.
+ *   - Node may retain heap pages, compiled code, and allocator memory after GC.
+ *     A warm plateau above startup usage alone does not establish a leak.
+ * References:
+ *   https://docs.docker.com/reference/cli/docker/container/stats/
+ *   https://nodejs.org/docs/latest-v24.x/api/process.html#processmemoryusage
+ *
  * Exit codes:
  *   0: request/measurement run completed within any supplied memory budget.
  *   1: an argument, request, Docker, measurement, budget, time limit, or cleanup error occurred.

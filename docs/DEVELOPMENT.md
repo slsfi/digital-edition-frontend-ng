@@ -293,60 +293,36 @@ What the benchmark reports:
 
 ## Repeatable Docker SSR memory check
 
-With Docker Desktop running in Linux-container mode, run:
+With Docker Desktop running in Linux-container mode, run the [memory test runner](../scripts/docker-ssr-memory.js):
 
 ```bash
 npm run test:ssr:docker -- --pull
 ```
 
-[`scripts/docker-ssr-memory.js`](../scripts/docker-ssr-memory.js) builds the local Dockerfile as `digital-edition-frontend-ng:memory-test`, starts a fresh container on <http://127.0.0.1:4210/>, and sends sequential requests to 12 fixed public SSR routes covering both locales, Markdown, content, collection front matter/text, and an index. It requires only the Node/npm versions declared in `package.json` and the Docker CLI. The normal image entry, production dependencies, SSR limiter, and garbage collection remain in use. Live edition APIs must be reachable from the container.
+It builds the local image, warms public SSR routes, then repeats requests and idle periods while printing progress and memory usage. Allow **10–15 minutes for requests and idle periods**, including a two-minute final idle observation. This phase has a 15-minute limit; building, startup, and cleanup take additional time.
 
-The default run makes 50 warm-up visits to every route (600 requests), waits 30 seconds for the baseline, then runs three cycles of 15 visits to every route (540 measured requests), with a 100 ms delay after each request. Intermediate cycles have 30 seconds idle; after the final request cycle, the runner observes **two minutes of idle time** (`--final-idle-seconds=120`) before recording the final median and evaluating any memory growth budget. No page requests are sent during idle periods; memory sampling continues so recovery beyond the first 30 seconds is visible.
+Useful options:
 
-This targets **10–15 minutes for requests and idle periods**, depending on backend latency. The request/idle phase, including the final idle observation, has a 15-minute limit (`--max-duration-seconds=900`), starting when the container is ready. If reached, the runner aborts the requests, saves partial reports, and exits 1 with an incomplete-run error. Image building, container startup, and report/cleanup work take additional time. Increase the limit explicitly for longer workloads or idle observations, or a full sitemap.
+- `--skip-build`: reuse the local image.
+- `--keep-container`: leave the container running for Docker Desktop inspection.
+- `--routes-file=<path>`: replace the sample-edition routes with a public SSR URL list; all URLs are remapped to the local container.
+- `--final-idle-seconds=<n>`: change the final idle observation.
+- `--help`: show all options and defaults.
 
-The warm-up accounts for the initial allocation growth observed in the local release check; adjust `--warmup-visits` for another workload if its idle floor has not settled. Each response must be HTTP 200 with a populated server-rendered Angular root. Redirects, rate-limit responses, CSR shells, timeouts, and Docker/statistics failures fail the run. This checks rendering mode; run the [SSR smoke test](#ssr-smoke-test-local-or-remote) against the container for content/SEO assertions.
+Results are saved under `tmp/docker-ssr-memory/<timestamp>/` as `samples.csv`, `report.json`, and `container.log`. Press Ctrl+C to stop early and save partial results. The container is removed unless `--keep-container` is set; images and reports remain.
 
-The terminal prints elapsed time and stage headings for Docker checks, image building/reuse, container startup, warm-up, baseline idle, each request/idle cycle, final idle, and cleanup. It prints progress after each visit through the route list. During quieter request and idle periods, periodic updates show the stage's request count or idle elapsed/total seconds, current memory, and change from the warm baseline. Docker's build output is also streamed to the terminal.
-
-Memory is sampled through `docker stats --no-stream`, with five-second pauses between calls. The console compares the median of the last three samples of each idle period against the warm baseline. Reports under ignored `tmp/docker-ssr-memory/<timestamp>/` include `samples.csv`, `report.json` (options, routes, image ID, request counts, cycle values and idle durations, sampled peak, and container state), and `container.log`. Partial reports are saved on failure or Ctrl+C. The container is removed at the end; the image and reports remain. `--keep-container` leaves it running for Docker Desktop inspection and prints its cleanup command.
-
-Useful variants:
-
-```bash
-# Observe three minutes of final idle time without lengthening intermediate pauses.
-npm run test:ssr:docker -- --skip-build --final-idle-seconds=180
-
-# Reuse the image and run a longer observation with Docker Desktop inspection afterwards.
-npm run test:ssr:docker -- --skip-build --cycles=10 --visits=30 --max-duration-seconds=3600 --keep-container
-
-# Use the URL list from the visit simulator (or a plain-text sitemap).
-npm run test:ssr:docker -- --skip-build --routes-file=../digital_edition_scripts/simulate_visits/urls.txt
-
-# Show all options, including another image/port and an optional memory growth budget.
-npm run test:ssr:docker -- --help
-```
-
-A routes file replaces the defaults and accepts one absolute HTTP URL or `/path?query` per line, ignoring blank lines and `#` comments. Only paths and queries are used: all requests go to the local container, even if the list contains production URLs or a different localhost port. The fixed defaults match this repository's sample edition. For other editions, including auth-enabled builds, supply routes that render publicly on the server. Avoid redirects and static asset URLs. A full sitemap can take much longer and warm many more lazy routes than the default set.
-
-Compare **idle values across successive cycles**, including later cycles after all routes are warm. Node can keep heap pages, compiled code, and allocator memory after objects are collected; a stable warm plateau above startup usage is expected and does not by itself indicate a leak. Docker's Linux CLI [subtracts inactive file cache](https://docs.docker.com/reference/cli/docker/container/stats/) from memory usage; this is container memory, not JavaScript live heap, and Docker Desktop's displayed value may differ. A growing idle floor is a reason for a longer run and heap investigation; a short plateau cannot prove the absence of a slower leak. See also Node's [`process.memoryUsage()` notes](https://nodejs.org/docs/latest-v24.x/api/process.html#processmemoryusage).
-
-Without a budget, exit 0 means the request/measurement run completed and the container stayed running without a recorded OOM or restart; memory still needs review. After establishing a comparable baseline, optionally add `--max-growth-mib=50` (choose a budget appropriate to the edition and workload) to fail if the final idle median exceeds the warm baseline by that amount. There is no default universal leak threshold. Sampling captures an observed peak rather than every instantaneous allocation. Keep image, route set, pacing, and idle duration comparable between releases; the report records them for that purpose.
+Review idle values across cycles and recovery during the final pause. A stable warm plateau can remain above startup usage. Use `--max-growth-mib=<MiB>` to enforce an optional growth budget. See the script headers and `--help` for measurement and validation details.
 
 ### Compare with a known-good release image
 
-The runner can test an existing local or published image with `--skip-build --image=<reference>`. For example, pull the known-good 3.1.1 release and run the same default profile against it and the current local build:
+Pull the release image and select it with `--skip-build --image`:
 
 ```bash
 docker pull ghcr.io/slsfi/digital-edition-frontend-ng:3.1.1
-npm run test:ssr:docker -- --skip-build --image=ghcr.io/slsfi/digital-edition-frontend-ng:3.1.1 --output=tmp/docker-ssr-memory/release-3.1.1
-npm run test:ssr:docker -- --output=tmp/docker-ssr-memory/current
+npm run test:ssr:docker -- --skip-build --image=ghcr.io/slsfi/digital-edition-frontend-ng:3.1.1
 ```
 
-Include `--skip-build` for a published image: without it, the runner builds the local Dockerfile and assigns the `--image` tag to that build. The runner's `--pull` option refreshes the Dockerfile's base image during a build; use `docker pull` explicitly to download or refresh a published application image. If the current image is already built, add `--skip-build` to the second run. Choose fresh output directories to preserve earlier comparisons.
-
-Run comparisons sequentially with the same routes, warm-up, request counts, pacing, and idle durations. Each default run retains the 15-minute request/idle limit, so comparing two images takes two runs. Use routes that both versions render on the server; the runner applies its HTTP/SSR checks to either image. Compare the idle trend, sampled peak, and recovery during the final idle period, alongside response bytes and completed request counts in `report.json`. The recorded image IDs identify the actual images tested. Absolute memory usage can differ with Node/dependency versions, SSR architecture, and rendered content; a healthy reference helps interpret those differences and is not a universal memory threshold.
-
+Run images sequentially with the same routes and settings, then compare the reports' idle trends, peaks, and final recovery. Absolute memory usage can differ between versions.
 
 
 ## Feature-based route generation

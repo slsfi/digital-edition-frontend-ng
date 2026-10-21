@@ -21,7 +21,7 @@ Before merging a new major release, review its [breaking changes and fork migrat
 
 ## Building
 
-A GitHub Actions [workflow][build_workflow] for automated builds is included in the repository. It automatically builds and pushes a new [Docker image][docker_image_reference] of the app on pushes to `main`, when a GitHub Release is published, and when manually triggered (`workflow_dispatch`). Releases and prereleases both build on publication; a pushed Git tag is built when its GitHub Release is published. When creating a new release tag, name the tag based on the version of the base app and append it with a branch identifier and an incremental build number.
+A GitHub Actions [workflow][build_workflow] for automated builds is included in the repository. It automatically builds and pushes a new [Docker image][docker_image_reference] of the app on pushes to `main`, when a GitHub Release is published, and when started manually from the **Actions** tab. Releases and prereleases both build on publication; a pushed Git tag is built when its GitHub Release is published. When creating a new release tag, name the tag based on the version of the base app and append it with a branch identifier and an incremental build number.
 
 Release builds use the workflow, Dockerfile, and edition configuration at the tagged commit, whether the tag was created from `production`, `development`, or `staging`. Keep the workflow current in each release branch. The explicit `main` push filter does not restrict release builds to a particular branch.
 
@@ -58,19 +58,19 @@ If you edit `package.json` manually instead, run `npm install --package-lock-onl
 
 ### Rebuild an existing release image
 
-The workflow declares an optional `release_tag` input under `workflow_dispatch`. GitHub displays its description as a field in the **Run workflow** form once this workflow is merged into the fork's default branch and Actions is enabled. The default branch can be named `production`; the `main` push filter does not restrict manual runs.
+The **Run workflow** form includes an optional **Release tag to rebuild** field. Actions must be enabled, and the build workflow must be present on the repository's default branch for the form to be available.
 
 To refresh an existing release, of any age, without creating a new Git tag or changing the npm version:
 
 1. Open the fork's **Actions** tab on github.com and select **Build and push Docker image**.
 2. Choose **Run workflow**.
-3. Under **Use workflow from**, select the branch containing the updated workflow, normally the default `production` branch.
+3. Under **Use workflow from**, select the repository's default branch, for example `production`.
 4. In **Release tag to rebuild**, enter the existing tag, for example `4.0.0-production.1`.
 5. Choose **Run workflow** to start a new run.
 
-The selected branch supplies the workflow definition; the release-tag field selects the application source. The workflow validates the tag, checks out that exact Git tag, and publishes its Docker image tag with the correct source-commit label. The old tag does not need to contain the new workflow or input. Leaving the field empty builds the selected branch's current source and publishes its branch image tag.
+The selected branch supplies the workflow definition; the release-tag field selects the application source and can refer to a tag from any edition branch. The workflow validates the tag, checks out that exact Git tag, and publishes its Docker image tag with the correct source-commit label. Leaving the field empty builds the selected branch's current source and publishes its branch image tag.
 
-This is a new manual run, so GitHub's 30-day limit on [rerunning an existing run](https://docs.github.com/en/actions/how-tos/manage-workflow-runs/re-run-workflows-and-jobs) does not apply. Use this form for maintenance rebuilds. **Re-run all jobs** retains the original workflow definition; rerunning an older workflow can still apply its old automatic `latest` tagging rules.
+This starts a separate manual run, so GitHub's 30-day limit on [rerunning an existing run](https://docs.github.com/en/actions/how-tos/manage-workflow-runs/re-run-workflows-and-jobs) does not apply. Use this form for maintenance rebuilds. **Re-run all jobs** reuses the workflow definition from the original run and can therefore apply different build or tagging rules.
 
 For example, rebuilding `4.0.0-production.1` pulls the current Node base image and republishes `ghcr.io/OWNER/FORK:4.0.0-production.1`. The Git tag continues to identify the same source commit, while the Docker image tag can point to a new image digest. Record the old and new image digests for traceability and rollback; an image pinned by digest must be updated explicitly. The build also regenerates any enabled sitemap and static menus from current backend content, so rebuilding the same source can refresh those assets.
 
@@ -84,7 +84,7 @@ GitHub's **Latest** release designation and Docker's `latest` image tag are sepa
 
 Every build publishes its branch or release image tag first. After building, a separate step queries GitHub and publishes `latest` from that build's image digest only if its source tag matches the currently designated latest release. Branch builds, older releases, prereleases, and tags without a matching latest GitHub Release leave the existing alias unchanged. A GitHub API error fails this step without moving the alias; a repository with no published latest release also leaves it unchanged.
 
-When publishing a release, select **Set as the latest release** only for the release intended to supply the Docker `latest` alias. If you change the latest designation on an already published release, use the manual rebuild form for that tag to update the alias. After adopting this workflow, rebuild the designated latest release once if an earlier workflow assigned `latest` to the wrong image. Deploy using the intended release tag or recorded digest.
+When publishing a release, select **Set as the latest release** only for the release intended to supply the Docker `latest` alias. If you change the latest designation on an already published release, use the manual rebuild form for that tag to update the alias. The same procedure corrects an alias that points to the wrong image: rebuild the release currently designated as latest. Deploy using the intended release tag or recorded digest.
 
 
 ## Deployment

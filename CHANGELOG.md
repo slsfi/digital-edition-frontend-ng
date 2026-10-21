@@ -10,8 +10,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ### Changed
 
-- Docker: update installed Alpine packages from the configured release repositories in the shared base stage, covering build and runtime images, and log the Node.js/npm versions in the build output.
-- GitHub Actions: add an optional release-tag field for browser-triggered rebuilds of existing releases, and publish the Docker `latest` alias only for GitHub's currently designated latest release. Build releases on publication instead of tag pushes to avoid duplicate runs.
+- Docker/GitHub Actions: add [release image rebuilds](docs/DEPLOYMENT.md#rebuild-an-existing-release-image) and update Alpine packages at build time. Build releases and prereleases on publication instead of tag pushes, and align Docker's `latest` tag with GitHub's designated latest release.
 
 
 

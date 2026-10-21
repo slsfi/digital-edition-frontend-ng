@@ -74,7 +74,7 @@ This starts a separate manual run, so GitHub's 30-day limit on [rerunning an exi
 
 For example, rebuilding `4.0.0-production.1` pulls the current Node base image and republishes `ghcr.io/OWNER/FORK:4.0.0-production.1`. The Git tag continues to identify the same source commit, while the Docker image tag can point to a new image digest. Record the old and new image digests for traceability and rollback; an image pinned by digest must be updated explicitly. The build also regenerates any enabled sitemap and static menus from current backend content, so rebuilding the same source can refresh those assets.
 
-The application source, including its Dockerfile, comes from the selected tag. A floating Node tag picks up the refreshed base image, but `apk upgrade` and version logging only run if the tagged Dockerfile already contains those steps. Changes merged into a branch after the tag was created are not included in the application build.
+The rebuild uses the Dockerfile and application source from the selected release tag. To include subsequent source changes, create a new release.
 
 After a successful rebuild, follow the [deployment procedure](#deploy-or-update-the-image), including recreating the browser-static volume, even when the image tag text has not changed.
 

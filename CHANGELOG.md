@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+### Changed
+
+- SSR benchmark: add configurable request delays, defaulting to two seconds, to reduce server load.
+
 
 
 ## [4.0.0] – 2026-10-16

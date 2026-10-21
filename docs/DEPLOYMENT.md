@@ -3,7 +3,7 @@
 
 ## Prerequisites
 
-Set up a forked repository for your app according to the instructions for [setting up a new project][set_up_project]. These instructions only apply to forked repositories, and assume that it is the `production` branch which is to be updated, built and deployed. However, the same instructions apply to any other branch, for instance a `dev` branch, – just exchange any mentions of `production` with the target branch name.
+Set up a forked repository for your app according to the instructions for [setting up a new project][set_up_project]. These instructions apply to forked repositories and use `production` for the public edition branch in examples. A fork can also maintain `development` or `staging` branches for internal versions. Apply the update, release, and deployment steps separately to each maintained edition branch, substituting its name wherever an example uses `production`.
 
 Use the [project customization guide](PROJECT-CUSTOMIZATION.md) to configure edition features, assets, languages, and styling before building. This guide covers updating, releasing, and operating the configured fork.
 
@@ -12,7 +12,7 @@ Use the [project customization guide](PROJECT-CUSTOMIZATION.md) to configure edi
 
 1. Switch to the `base` branch.
 2. Select `Sync fork` to update the `base` branch with the latest changes from the original, upstream repository [digital-edition-frontend-ng][digital-edition-frontend-ng].
-3. Merge the changes from the `base` branch to the `production` branch and resolve any conflicts.
+3. Merge the changes from the `base` branch into each maintained edition branch, such as `production`, `development`, or `staging`, and resolve any conflicts for that branch.
 
 It’s recommended not to synchronise unreleased changes from the upstream repository, but to wait for them to be included in a release. The base app uses semantic versioning.
 
@@ -22,6 +22,8 @@ Before merging a new major release, review its [breaking changes and fork migrat
 ## Building
 
 A GitHub Actions [workflow][build_workflow] for automated builds is included in the repository. It automatically builds and pushes a new [Docker image][docker_image_reference] of the app on pushes to `main`, when a GitHub Release is published, and when manually triggered (`workflow_dispatch`). Releases and prereleases both build on publication; a pushed Git tag is built when its GitHub Release is published. When creating a new release tag, name the tag based on the version of the base app and append it with a branch identifier and an incremental build number.
+
+Release builds use the workflow, Dockerfile, and edition configuration at the tagged commit, whether the tag was created from `production`, `development`, or `staging`. Keep the workflow current in each release branch. The explicit `main` push filter does not restrict release builds to a particular branch.
 
 For example, if the base app is on version `1.0.2`, the release targets the `production` branch and this is the first build for this version in the `production` branch, the release should be tagged `1.0.2-production.1`. The next release should be tagged `1.0.2-production.2` (build number incremented by 1), provided that the base app remains on `1.0.2` and the release targets the `production` branch. When the semantic version of the base app changes, the build number is reset to 1, for instance: `1.1.0-production.1`.
 

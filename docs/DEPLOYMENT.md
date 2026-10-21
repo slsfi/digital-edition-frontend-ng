@@ -21,7 +21,7 @@ Before merging a new major release, review its [breaking changes and fork migrat
 
 ## Building
 
-A GitHub Actions [workflow][build_workflow] for automated builds is included in the repository. It automatically builds and pushes a new [Docker image][docker_image_reference] of the app on pushes to `main`, on pushed tags, and when manually triggered (`workflow_dispatch`). When creating a new release tag, name the tag based on the version of the base app and append it with a branch identifier and an incremental build number.
+A GitHub Actions [workflow][build_workflow] for automated builds is included in the repository. It automatically builds and pushes a new [Docker image][docker_image_reference] of the app on pushes to `main`, when a GitHub Release is published, and when manually triggered (`workflow_dispatch`). Releases and prereleases both build on publication; a pushed Git tag is built when its GitHub Release is published. When creating a new release tag, name the tag based on the version of the base app and append it with a branch identifier and an incremental build number.
 
 For example, if the base app is on version `1.0.2`, the release targets the `production` branch and this is the first build for this version in the `production` branch, the release should be tagged `1.0.2-production.1`. The next release should be tagged `1.0.2-production.2` (build number incremented by 1), provided that the base app remains on `1.0.2` and the release targets the `production` branch. When the semantic version of the base app changes, the build number is reset to 1, for instance: `1.1.0-production.1`.
 
@@ -42,6 +42,10 @@ The integrated application build emits browser files under `dist/app/browser/<lo
 
 The [`Dockerfile`][dockerfile] installs from the lockfile with `npm ci`, generates the sitemap/static menus, builds both applications, and compresses browser output. The final image contains production dependencies and runs the SSR entry as a non-root user. Local `build:ssr` does not run the sitemap/menu generators or compression; invoke those commands separately when validating the complete deployment output locally.
 
+The shared Docker base stage runs `apk upgrade --no-cache` to apply available package updates from the configured Alpine release repositories before installing npm dependencies. These updates reach both the build stages and the final runtime image. Node.js itself is supplied by the Node base image and is refreshed by pulling a newer base image. The same step prints `node --version` and `npm --version`; expand **Build and push Docker image** in the GitHub Actions job log to find the versions used by every stage.
+
+The supplied GitHub Actions workflow uses `pull: true` and does not configure a persistent Docker build cache, so each job refreshes the base image and executes the package-upgrade step. For a local security rebuild, use `docker build --pull --no-cache -t <image>:<tag> .` to refresh the base image and force all build steps to execute; APK's `--no-cache` option only controls its package cache.
+
 **Important!** Before creating a new release, push a commit that updates:
 
 1. the image tag in [`compose.yml`][docker_compose_file] to the release tag you are going to use,
@@ -49,6 +53,36 @@ The [`Dockerfile`][dockerfile] installs from the lockfile with `npm ci`, generat
 3. the [changelog][changelog].
 
 If you edit `package.json` manually instead, run `npm install --package-lock-only` to synchronize lockfile metadata. Avoid using plain `npm install` just to update the lockfile, unless you intentionally want dependency resolution changes.
+
+### Rebuild an existing release image
+
+The workflow declares an optional `release_tag` input under `workflow_dispatch`. GitHub displays its description as a field in the **Run workflow** form once this workflow is merged into the fork's default branch and Actions is enabled. The default branch can be named `production`; the `main` push filter does not restrict manual runs.
+
+To refresh an existing release, of any age, without creating a new Git tag or changing the npm version:
+
+1. Open the fork's **Actions** tab on github.com and select **Build and push Docker image**.
+2. Choose **Run workflow**.
+3. Under **Use workflow from**, select the branch containing the updated workflow, normally the default `production` branch.
+4. In **Release tag to rebuild**, enter the existing tag, for example `4.0.0-production.1`.
+5. Choose **Run workflow** to start a new run.
+
+The selected branch supplies the workflow definition; the release-tag field selects the application source. The workflow validates the tag, checks out that exact Git tag, and publishes its Docker image tag with the correct source-commit label. The old tag does not need to contain the new workflow or input. Leaving the field empty builds the selected branch's current source and publishes its branch image tag.
+
+This is a new manual run, so GitHub's 30-day limit on [rerunning an existing run](https://docs.github.com/en/actions/how-tos/manage-workflow-runs/re-run-workflows-and-jobs) does not apply. Use this form for maintenance rebuilds. **Re-run all jobs** retains the original workflow definition; rerunning an older workflow can still apply its old automatic `latest` tagging rules.
+
+For example, rebuilding `4.0.0-production.1` pulls the current Node base image and republishes `ghcr.io/OWNER/FORK:4.0.0-production.1`. The Git tag continues to identify the same source commit, while the Docker image tag can point to a new image digest. Record the old and new image digests for traceability and rollback; an image pinned by digest must be updated explicitly. The build also regenerates any enabled sitemap and static menus from current backend content, so rebuilding the same source can refresh those assets.
+
+The application source, including its Dockerfile, comes from the selected tag. A floating Node tag picks up the refreshed base image, but `apk upgrade` and version logging only run if the tagged Dockerfile already contains those steps. Changes merged into a branch after the tag was created are not included in the application build.
+
+After a successful rebuild, follow the [deployment procedure](#deploy-or-update-the-image), including recreating the browser-static volume, even when the image tag text has not changed.
+
+### The latest image tag
+
+GitHub's **Latest** release designation and Docker's `latest` image tag are separate settings. The supplied workflow disables the metadata action's automatic `latest` tagging and explicitly connects the image alias to [GitHub's current latest published release](https://docs.github.com/en/rest/releases/releases#get-the-latest-release).
+
+Every build publishes its branch or release image tag first. After building, a separate step queries GitHub and publishes `latest` from that build's image digest only if its source tag matches the currently designated latest release. Branch builds, older releases, prereleases, and tags without a matching latest GitHub Release leave the existing alias unchanged. A GitHub API error fails this step without moving the alias; a repository with no published latest release also leaves it unchanged.
+
+When publishing a release, select **Set as the latest release** only for the release intended to supply the Docker `latest` alias. If you change the latest designation on an already published release, use the manual rebuild form for that tag to update the alias. After adopting this workflow, rebuild the designated latest release once if an earlier workflow assigned `latest` to the wrong image. Deploy using the intended release tag or recorded digest.
 
 
 ## Deployment

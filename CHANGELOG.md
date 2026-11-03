@@ -8,15 +8,19 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+
+
+## [4.1.1] – 2026-11-03
+
 ### Changed
 
-- Deps: update `@angular/cli` to 22.2.5 and `@angular/core` to 22.2.4.
-- Deps: update `@ionic/angular` and `@ionic/angular-server` to 9.0.10.
-- Deps: update `express-rate-limit` to 8.7.3.
-- Deps: update `marked` to 18.1.3.
-- Deps: update `tslib` to 2.9.1.
-- Deps (dev): update `vitest` to 5.1.0.
-- Deps: update transitive dependencies.
+- Deps: update `@angular/cli` to 22.2.5 and `@angular/core` to 22.2.4. ([a97f0e9](https://github.com/slsfi/digital-edition-frontend-ng/commit/a97f0e9044a281533f6252427b3ed62b1c50a714))
+- Deps: update `@ionic/angular` and `@ionic/angular-server` to 9.0.10. ([e33dd2d](https://github.com/slsfi/digital-edition-frontend-ng/commit/e33dd2d76cb53e597ec52648ec0b69c2ef3f67b7))
+- Deps: update `express-rate-limit` to 8.7.3. ([ffc9dab](https://github.com/slsfi/digital-edition-frontend-ng/commit/ffc9dab35c60922d8b5abb8dd0bf1f2ff8d0310d))
+- Deps: update `marked` to 18.1.3. ([059b12f](https://github.com/slsfi/digital-edition-frontend-ng/commit/059b12f192396c2dcbefe20295e3dd151575d08f))
+- Deps: update `tslib` to 2.9.1. ([187f1eb](https://github.com/slsfi/digital-edition-frontend-ng/commit/187f1eb1a90d172a1d028744e9dcc4da214e5105))
+- Deps (dev): update `vitest` to 5.1.0. ([faf0201](https://github.com/slsfi/digital-edition-frontend-ng/commit/faf0201e521953c67df48f7813a1e4dbfb05a53c))
+- Deps: update transitive dependencies. ([f8187a3](https://github.com/slsfi/digital-edition-frontend-ng/commit/f8187a3a8dcd42a4283e43dd94b13b3c7711ae1f))
 
 
 
@@ -1706,7 +1710,8 @@ siteLogoDimensions: {
 
 
 
-[unreleased]: https://github.com/slsfi/digital-edition-frontend-ng/compare/4.1.0...HEAD
+[unreleased]: https://github.com/slsfi/digital-edition-frontend-ng/compare/4.1.1...HEAD
+[4.1.1]: https://github.com/slsfi/digital-edition-frontend-ng/compare/4.1.0...4.1.1
 [4.1.0]: https://github.com/slsfi/digital-edition-frontend-ng/compare/4.0.0...4.1.0
 [4.0.0]: https://github.com/slsfi/digital-edition-frontend-ng/compare/3.1.1...4.0.0
 [3.1.1]: https://github.com/slsfi/digital-edition-frontend-ng/compare/3.1.0...3.1.1

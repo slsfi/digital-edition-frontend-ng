@@ -231,7 +231,7 @@ page-article .markdown {
 
   blockquote {
     background: #f3f3f3;
-    border-left: 4px solid rgba(var(--article-blockquote-accent-rgb, var(--primary-color-rgb), 0.5));
+    border-left: 4px solid rgba(var(--article-blockquote-accent-rgb, var(--primary-color-rgb, 130, 130, 130)), 0.5);
     font-size: 0.9412em;
     margin: 1.5em 0;
     padding: 1em 1.25em;

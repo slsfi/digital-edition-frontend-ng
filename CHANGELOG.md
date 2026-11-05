@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+### Changed
+
+- Improve styling of headings, blockquotes and TOC of Markdown-based text. The new CSS variable `--article-blockquote-accent-rgb` can be used to adjust the left border colour of blockquotes on article pages.
+
 
 
 ## [4.1.1] – 2026-11-03

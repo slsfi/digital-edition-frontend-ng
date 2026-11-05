@@ -108,6 +108,11 @@
     margin: 1.75em 0;
   }
 
+  img {
+    height: auto;
+    max-width: 100%;
+  }
+
   img[src$="#align-left"] {
     float: left;
     margin: 0 0.8889em 0.8889em 0;

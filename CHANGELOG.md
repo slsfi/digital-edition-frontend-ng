@@ -11,6 +11,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 ### Changed
 
 - Improve styling of headings, blockquotes and TOC of Markdown-based text. The new CSS variable `--article-blockquote-accent-rgb` can be used to adjust the left border colour of blockquotes on article pages.
+- Deps: update `@angular/cli` to 22.2.6 and `@angular/core` to 22.2.5.
 
 ### Fixed
 

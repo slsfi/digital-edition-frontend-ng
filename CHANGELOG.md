@@ -8,15 +8,23 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+
+
+## [4.2.0] – 2026-11-07
+
+### Added
+
+- CSS variable `--article-blockquote-accent-rgb` to adjust the left border colour of blockquotes on article pages. ([60d736f](https://github.com/slsfi/digital-edition-frontend-ng/commit/60d736f12cd446c72dfdb73aa5d84cf1f68357ee))
+
 ### Changed
 
-- Improve styling of headings, blockquotes and TOC of Markdown-based text. The new CSS variable `--article-blockquote-accent-rgb` can be used to adjust the left border colour of blockquotes on article pages.
-- Deps: update `@angular/cli` to 22.2.6 and `@angular/core` to 22.2.5.
-- Deps (dev): update `jsdom` to 31.0.0.
+- Improve styling of headings, blockquotes and TOC of Markdown-based text. ([60d736f](https://github.com/slsfi/digital-edition-frontend-ng/commit/60d736f12cd446c72dfdb73aa5d84cf1f68357ee))
+- Deps: update `@angular/cli` to 22.2.6 and `@angular/core` to 22.2.5. ([da66ff0](https://github.com/slsfi/digital-edition-frontend-ng/commit/da66ff009bbe8b9fc63c4155675de86dae21a05e))
+- Deps (dev): update `jsdom` to 31.0.0. ([c1c9f5d](https://github.com/slsfi/digital-edition-frontend-ng/commit/c1c9f5d96a58be07468c43133bb0a8be4999ca99))
 
 ### Fixed
 
-- Markdown image aspect ratio when defined dimensions.
+- Markdown image aspect ratio when defined dimensions. ([559257f](https://github.com/slsfi/digital-edition-frontend-ng/commit/559257fb8cc599a048fd3181055e7c4fd65fd1ef))
 
 
 
@@ -1720,7 +1728,8 @@ siteLogoDimensions: {
 
 
 
-[unreleased]: https://github.com/slsfi/digital-edition-frontend-ng/compare/4.1.1...HEAD
+[unreleased]: https://github.com/slsfi/digital-edition-frontend-ng/compare/4.2.0...HEAD
+[4.2.0]: https://github.com/slsfi/digital-edition-frontend-ng/compare/4.1.1...4.2.0
 [4.1.1]: https://github.com/slsfi/digital-edition-frontend-ng/compare/4.1.0...4.1.1
 [4.1.0]: https://github.com/slsfi/digital-edition-frontend-ng/compare/4.0.0...4.1.0
 [4.0.0]: https://github.com/slsfi/digital-edition-frontend-ng/compare/3.1.1...4.0.0

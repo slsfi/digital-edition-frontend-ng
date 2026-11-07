@@ -25,7 +25,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ### Fixed
 
-- Markdown image aspect ratio when defined dimensions. ([559257f](https://github.com/slsfi/digital-edition-frontend-ng/commit/559257fb8cc599a048fd3181055e7c4fd65fd1ef))
+- Image aspect ratio in Markdown-based text when image height and width are defined. ([559257f](https://github.com/slsfi/digital-edition-frontend-ng/commit/559257fb8cc599a048fd3181055e7c4fd65fd1ef))
 
 
 

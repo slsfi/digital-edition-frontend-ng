@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+### Changed
+
+- Deps: update `@ionic/angular` and `@ionic/angular-server` to 9.0.11.
+
 
 
 ## [4.2.0] – 2026-11-07

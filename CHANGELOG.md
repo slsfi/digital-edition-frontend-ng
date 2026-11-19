@@ -12,7 +12,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 - Update `nginx` to 1.30.7.
 - Deps: update `@angular/cli` and `@angular/core` to 22.3.0.
-- Deps: update `@ionic/angular` and `@ionic/angular-server` to 9.0.11.
+- Deps: update `@ionic/angular` and `@ionic/angular-server` to 9.0.12.
 - Deps: update `express-rate-limit` to 8.7.5.
 - Deps: update `marked` to 18.2.1.
 - Deps (dev): update `jsdom` to 31.0.1.

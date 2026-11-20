@@ -14,6 +14,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - Deps: update `@angular/cli` and `@angular/core` to 22.3.0.
 - Deps: update `@ionic/angular` and `@ionic/angular-server` to 9.0.12.
 - Deps: update `express-rate-limit` to 8.7.5.
+- Deps: update `ionicons` to 8.1.1.
 - Deps: update `marked` to 18.2.1.
 - Deps (dev): update `jsdom` to 31.0.1.
 - Deps (dev): update `vitest` to 5.1.1.

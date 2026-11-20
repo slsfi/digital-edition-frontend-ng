@@ -11,6 +11,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 ### Changed
 
 - Update `nginx` to 1.30.7.
+- Upgrade `actions/github-script` to v9 in the Docker build and push workflow.
 - Deps: update `@angular/cli` and `@angular/core` to 22.3.0.
 - Deps: update `@ionic/angular` and `@ionic/angular-server` to 9.0.12.
 - Deps: update `express-rate-limit` to 8.7.5.

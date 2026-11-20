@@ -8,18 +8,22 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+
+
+## [4.2.1] – 2026-11-20
+
 ### Changed
 
-- Update `nginx` to 1.30.7.
-- Upgrade `actions/github-script` to v9 in the Docker build and push workflow.
-- Deps: update `@angular/cli` and `@angular/core` to 22.3.0.
-- Deps: update `@ionic/angular` and `@ionic/angular-server` to 9.0.12.
-- Deps: update `express-rate-limit` to 8.7.5.
-- Deps: update `ionicons` to 8.1.1.
-- Deps: update `marked` to 18.2.1.
-- Deps (dev): update `jsdom` to 31.0.1.
-- Deps (dev): update `vitest` to 5.1.1.
-- Deps: update transitive dependencies.
+- Update `nginx` to 1.30.7. ([6cc2999](https://github.com/slsfi/digital-edition-frontend-ng/commit/6cc2999ce819c0c9defefea1a06f5161c9bc50e2))
+- Upgrade `actions/github-script` to v9 in the Docker build and push workflow. ([60be1dd](https://github.com/slsfi/digital-edition-frontend-ng/commit/60be1ddcaed472e11048f526a5ffdb62d09b27b8))
+- Deps: update `@angular/cli` and `@angular/core` to 22.3.0. ([ac88fe4](https://github.com/slsfi/digital-edition-frontend-ng/commit/ac88fe4b07902d04430525ee0a0ab5786fe16e14))
+- Deps: update `@ionic/angular` and `@ionic/angular-server` to 9.0.12. ([2c0315f](https://github.com/slsfi/digital-edition-frontend-ng/commit/2c0315f5b6d11709160c595ab90954b6f2c31a8f), [9b8b236](https://github.com/slsfi/digital-edition-frontend-ng/commit/9b8b2368c7736e52b47dc401ef8972e566aa7e07))
+- Deps: update `express-rate-limit` to 8.7.5. ([17efcb2](https://github.com/slsfi/digital-edition-frontend-ng/commit/17efcb272dfdd9ab2e577c235e97b5a472a70388))
+- Deps: update `ionicons` to 8.1.1. ([c96e80b](https://github.com/slsfi/digital-edition-frontend-ng/commit/c96e80b10f747a28c53218c1a89f92adb5a53948))
+- Deps: update `marked` to 18.2.1. ([2a97121](https://github.com/slsfi/digital-edition-frontend-ng/commit/2a971212733a7812c629c1c511c232d6553cc909))
+- Deps (dev): update `jsdom` to 31.0.1. ([442a7e5](https://github.com/slsfi/digital-edition-frontend-ng/commit/442a7e5a4049f1b2e749b9a8e3723f4e5357f6bb))
+- Deps (dev): update `vitest` to 5.1.1. ([66a9f7b](https://github.com/slsfi/digital-edition-frontend-ng/commit/66a9f7b88c9800492e953f9fa55959a1ee57ce00))
+- Deps: update transitive dependencies. ([f80e060](https://github.com/slsfi/digital-edition-frontend-ng/commit/f80e060a35f4aed0f14ebb999dc80b64c33ebbe1))
 
 
 
@@ -1742,7 +1746,8 @@ siteLogoDimensions: {
 
 
 
-[unreleased]: https://github.com/slsfi/digital-edition-frontend-ng/compare/4.2.0...HEAD
+[unreleased]: https://github.com/slsfi/digital-edition-frontend-ng/compare/4.2.1...HEAD
+[4.2.1]: https://github.com/slsfi/digital-edition-frontend-ng/compare/4.2.0...4.2.1
 [4.2.0]: https://github.com/slsfi/digital-edition-frontend-ng/compare/4.1.1...4.2.0
 [4.1.1]: https://github.com/slsfi/digital-edition-frontend-ng/compare/4.1.0...4.1.1
 [4.1.0]: https://github.com/slsfi/digital-edition-frontend-ng/compare/4.0.0...4.1.0

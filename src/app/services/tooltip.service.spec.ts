@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { firstValueFrom } from 'rxjs';
+import { firstValueFrom, of } from 'rxjs';
 
 import { CommentService } from './comment.service';
 import { NamedEntityService } from './named-entity.service';
@@ -8,15 +8,40 @@ import { TooltipService } from './tooltip.service';
 
 
 describe('TooltipService', () => {
-  it('reads reused footnote IDs from the current reading text on desktop', async () => {
+  let service: TooltipService;
+  const getEntity = vi.fn<NamedEntityService['getEntity']>();
+
+  beforeEach(() => {
+    getEntity.mockReset();
     TestBed.configureTestingModule({
       providers: [
         { provide: CommentService, useValue: {} },
-        { provide: NamedEntityService, useValue: {} },
+        { provide: NamedEntityService, useValue: { getEntity } },
         { provide: PlatformService, useValue: { isMobile: () => false } }
       ]
     });
-    const service = TestBed.inject(TooltipService);
+    service = TestBed.inject(TooltipService);
+  });
+
+  it('uses the current person marker to label cached person data', async () => {
+    getEntity.mockReturnValue(of({ full_name: 'Person', description: null }));
+    const trigger = document.createElement('span');
+
+    for (const [classes, expectedTooltip] of [
+      ['', '<b>Person</b>'],
+      ['uncertain', 'ev. <b>Person</b>'],
+      ['fictional', 'historisk förebild:<br/><b>Person</b>'],
+      ['fictional uncertain', 'historisk förebild:<br/>ev. <b>Person</b>'],
+      ['', '<b>Person</b>']
+    ]) {
+      trigger.className = classes;
+      const tooltip = await firstValueFrom(service.getSemanticDataObjectTooltip('pe1', 'person', trigger));
+      expect(tooltip).toBe(expectedTooltip);
+    }
+    expect(getEntity).toHaveBeenCalledExactlyOnceWith('person', 'pe1');
+  });
+
+  it('reads reused footnote IDs from the current reading text on desktop', async () => {
     const column = document.createElement('div');
     column.className = 'text-column';
     column.id = 'first-column';

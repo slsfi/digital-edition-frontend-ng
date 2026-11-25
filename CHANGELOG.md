@@ -8,19 +8,23 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+
+
+## [4.2.2] – 2026-11-25
+
 ### Changed
 
-- Update `nginx` to 1.30.8.
-- Deps: update `@ionic/angular` and `@ionic/angular-server` to 9.0.13.
-- Deps: update `marked` to 18.3.0.
-- Deps (dev): update `@types/node` to 24.19.4.
-- Deps (dev): update `vitest` to 5.1.2.
+- Update `nginx` to 1.30.8. ([75a21dd](https://github.com/slsfi/digital-edition-frontend-ng/commit/75a21dd067b5fd1aaff6893004e28f2e1a8eb77e))
+- Deps: update `@ionic/angular` and `@ionic/angular-server` to 9.0.13. ([90cbeb2](https://github.com/slsfi/digital-edition-frontend-ng/commit/90cbeb287d8eeb10cb37a2c9fa0b2b4afd58ff62))
+- Deps: update `marked` to 18.3.0. ([60cac81](https://github.com/slsfi/digital-edition-frontend-ng/commit/60cac8190cbbf38917a9b97fcc50b8d3d9b5c39d))
+- Deps (dev): update `@types/node` to 24.19.4. ([7bc8a85](https://github.com/slsfi/digital-edition-frontend-ng/commit/7bc8a853f446e286c5d8358e8c405985272566a3), [6360faf](https://github.com/slsfi/digital-edition-frontend-ng/commit/6360faf9eeb6e562d60259efb0f9b3544972159f))
+- Deps (dev): update `vitest` to 5.1.2. ([9940131](https://github.com/slsfi/digital-edition-frontend-ng/commit/9940131a9152f52e0286ad5b9968624fd0cb6ba0))
 
 ### Fixed
 
-- Show the current footnote in tooltips and info overlays when different texts or columns reuse a footnote ID.
-- Use the current person reference's uncertainty and historical figure labels in tooltips.
-- Add example of customising `--article-blockquote-accent-rgb` in `global-overrides.scss`.
+- Show the current footnote in tooltips and info overlays when different texts or columns reuse a footnote ID. ([73521f7](https://github.com/slsfi/digital-edition-frontend-ng/commit/73521f74551287fa2844af0cf83038ad364f6b42))
+- Use the current person reference's uncertainty and historical figure labels in tooltips. ([1ea3f32](https://github.com/slsfi/digital-edition-frontend-ng/commit/1ea3f3261d0ad51ad69dbc2377f5f42dfc4083cb))
+- Add example of customising `--article-blockquote-accent-rgb` in `global-overrides.scss`. ([616f127](https://github.com/slsfi/digital-edition-frontend-ng/commit/616f12770216bab4db7ac139fbd9fe66fdd978c5))
 
 
 
@@ -1760,7 +1764,8 @@ siteLogoDimensions: {
 
 
 
-[unreleased]: https://github.com/slsfi/digital-edition-frontend-ng/compare/4.2.1...HEAD
+[unreleased]: https://github.com/slsfi/digital-edition-frontend-ng/compare/4.2.2...HEAD
+[4.2.2]: https://github.com/slsfi/digital-edition-frontend-ng/compare/4.2.1...4.2.2
 [4.2.1]: https://github.com/slsfi/digital-edition-frontend-ng/compare/4.2.0...4.2.1
 [4.2.0]: https://github.com/slsfi/digital-edition-frontend-ng/compare/4.1.1...4.2.0
 [4.1.1]: https://github.com/slsfi/digital-edition-frontend-ng/compare/4.1.0...4.1.1

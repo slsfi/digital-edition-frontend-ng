@@ -24,7 +24,7 @@ describe('TooltipService', () => {
   });
 
   it('uses the current person marker to label cached person data', async () => {
-    getEntity.mockReturnValue(of({ full_name: 'Person', description: null }));
+    getEntity.mockReturnValue(of({ full_name: 'Person' }));
     const trigger = document.createElement('span');
 
     for (const [classes, expectedTooltip] of [

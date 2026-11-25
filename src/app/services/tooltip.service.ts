@@ -62,9 +62,11 @@ export class TooltipService {
           let text = '';
           if (type === 'person') {
             text = this.constructPersonTooltipText(tooltip, targetElem);
-            this.cachedPersons.size > this.maxTooltipCacheSize && this.cachedPersons.clear();
-            this.cachedPersons.set(id, tooltip);
-          } else if (type === 'place') {
+            if (text) {
+              this.cachedPersons.size > this.maxTooltipCacheSize && this.cachedPersons.clear();
+              this.cachedPersons.set(id, tooltip);
+            }
+          } else if (type === 'place' && tooltip.name != null) {
             text = '<b>' + tooltip.name.trim() + '</b>';
             tooltip.description && (text += ', ' + tooltip.description.trim());
             this.cachedPlaceTooltips.size > this.maxTooltipCacheSize && this.cachedPlaceTooltips.clear();
@@ -170,7 +172,11 @@ export class TooltipService {
     }
   }
 
-  constructPersonTooltipText(tooltip: any, targetElem: HTMLElement) {
+  constructPersonTooltipText(tooltip: NamedEntityDetails, targetElem: HTMLElement): string {
+    if (tooltip.full_name == null) {
+      return '';
+    }
+
     const uncertainPretext = (
       targetElem.classList.contains('uncertain') &&
       $localize`:@@NamedEntity.Possibly:ev.`
@@ -186,7 +192,7 @@ export class TooltipService {
       tooltip.date_deceased
     );
     (yearBornDeceasedString !== '') && (text += ' ' + yearBornDeceasedString);
-    (tooltip.description !== null) && (text += ', ' + tooltip.description);
+    (tooltip.description != null) && (text += ', ' + tooltip.description);
     text = uncertainPretext + text;
     text = fictionalPretext + text;
     return text;

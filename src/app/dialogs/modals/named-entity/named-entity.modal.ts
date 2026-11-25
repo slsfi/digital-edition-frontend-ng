@@ -140,7 +140,7 @@ export class NamedEntityModal implements OnInit {
       // Get semantic data object details from the backend API
       return this.namedEntityService.getEntity(type, id).pipe(
         timeout(20000),
-        map((data: NamedEntityDetails) => {
+        map((data) => {
           if (type === 'work') {
             data.description = null;
             data.source = null;

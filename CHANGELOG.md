@@ -10,6 +10,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ### Changed
 
+- Deps: update `@ionic/angular` and `@ionic/angular-server` to 9.0.13.
 - Deps: update `marked` to 18.3.0.
 - Deps (dev): update `@types/node` to 24.19.3.
 

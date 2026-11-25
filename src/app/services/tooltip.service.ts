@@ -3,6 +3,7 @@ import { catchError, map, Observable, of } from 'rxjs';
 
 import { config } from '@config';
 import { TextKey } from '@models/collection.models';
+import { NamedEntityDetails } from '@models/named-entity.models';
 import { CommentService } from '@services/comment.service';
 import { NamedEntityService } from '@services/named-entity.service';
 import { PlatformService } from '@services/platform.service';
@@ -17,19 +18,21 @@ export class TooltipService {
   private readonly maxTooltipCacheSize: number = 50;
   private readonly simpleWorkMetadata: boolean = config.modal?.namedEntity?.useSimpleWorkMetadata ?? false;
 
-  private cachedTooltips: Record<string, any> = {
-    'comments': new Map(),
-    'persons': new Map(),
-    'places': new Map(),
-    'works': new Map()
-  };
+  private readonly cachedCommentTooltips = new Map<string, string>();
+  private readonly cachedPersons = new Map<string, NamedEntityDetails>();
+  private readonly cachedPlaceTooltips = new Map<string, string>();
+  private readonly cachedWorkTooltips = new Map<string, string>();
 
   getSemanticDataObjectTooltip(id: string, type: string, targetElem: HTMLElement): Observable<string> {
+    const cachedPerson = type === 'person' ? this.cachedPersons.get(id) : undefined;
+    if (cachedPerson) {
+      return of(this.constructPersonTooltipText(cachedPerson, targetElem));
+    }
+
     const cachedTooltip =
-      (type === 'person' && this.cachedTooltips.persons.has(id)) ? this.cachedTooltips.persons.get(id)
-      : (type === 'place' && this.cachedTooltips.places.has(id)) ? this.cachedTooltips.places.get(id)
-      : (type === 'work' && this.cachedTooltips.works.has(id)) ? this.cachedTooltips.works.get(id)
-      : '';
+      type === 'place' ? this.cachedPlaceTooltips.get(id)
+      : type === 'work' ? this.cachedWorkTooltips.get(id)
+      : undefined;
 
     if (cachedTooltip) {
       return of(cachedTooltip);
@@ -44,8 +47,8 @@ export class TooltipService {
           if (tooltip?.hits?.hits?.[0]?.['_source']) {
             tooltip = tooltip.hits.hits[0]['_source'];
             text = '<span class="work_title">' + tooltip.title  + '</span><br/>' + tooltip.reference;
-            this.cachedTooltips.works.size > this.maxTooltipCacheSize && this.cachedTooltips.works.clear();
-            this.cachedTooltips.works.set(id, text);
+            this.clearCacheIfOversized(this.cachedWorkTooltips);
+            this.cachedWorkTooltips.set(id, text);
           }
           return text || noInfoFound;
         }),
@@ -59,17 +62,21 @@ export class TooltipService {
           let text = '';
           if (type === 'person') {
             text = this.constructPersonTooltipText(tooltip, targetElem);
-            this.cachedTooltips.persons.size > this.maxTooltipCacheSize && this.cachedTooltips.persons.clear();
-            this.cachedTooltips.persons.set(id, text);
-          } else if (type === 'place') {
+            if (text) {
+              this.clearCacheIfOversized(this.cachedPersons);
+              this.cachedPersons.set(id, tooltip);
+            }
+          } else if (type === 'place' && tooltip.name != null) {
             text = '<b>' + tooltip.name.trim() + '</b>';
-            tooltip.description && (text += ', ' + tooltip.description.trim());
-            this.cachedTooltips.places.size > this.maxTooltipCacheSize && this.cachedTooltips.places.clear();
-            this.cachedTooltips.places.set(id, text);
+            if (tooltip.description) {
+              text += ', ' + tooltip.description.trim();
+            }
+            this.clearCacheIfOversized(this.cachedPlaceTooltips);
+            this.cachedPlaceTooltips.set(id, text);
           } else if (type === 'work') {
-            text = tooltip.title;
-            this.cachedTooltips.works.size > this.maxTooltipCacheSize && this.cachedTooltips.works.clear();
-            this.cachedTooltips.works.set(id, text);
+            text = tooltip.title ?? '';
+            this.clearCacheIfOversized(this.cachedWorkTooltips);
+            this.cachedWorkTooltips.set(id, text);
           }
           return text || noInfoFound;
         }),
@@ -87,22 +94,30 @@ export class TooltipService {
    */
   getCommentTooltip(textKey: TextKey, elementID: string): Observable<any> {
     elementID = elementID.replace('end', 'en');
-    const cachedTooltip = this.cachedTooltips.comments.has(elementID)
-      ? this.cachedTooltips.comments.get(elementID) : '';
+    // A comment ID identifies the same explanatory note across texts in an edition.
+    const cachedTooltip = this.cachedCommentTooltips.get(elementID);
 
     if (cachedTooltip) {
       return of({ name: 'Comment', description: cachedTooltip });
     }
 
     return this.commentService.getSingleComment(textKey, elementID).pipe(
-      map((comment: any) => {
-        this.cachedTooltips.comments.size > this.maxTooltipCacheSize && this.cachedTooltips.comments.clear();
-        !this.platformService.isMobile() && this.cachedTooltips.comments.set(elementID, comment);
+      map((comment) => {
+        this.clearCacheIfOversized(this.cachedCommentTooltips);
+        if (!this.platformService.isMobile()) {
+          this.cachedCommentTooltips.set(elementID, comment);
+        }
         return comment ?
           { name: 'Comment', description: comment } :
           { name: 'Error', description: '' };
       })
     );
+  }
+
+  private clearCacheIfOversized(cache: Map<string, unknown>): void {
+    if (cache.size > this.maxTooltipCacheSize) {
+      cache.clear();
+    }
   }
 
   getFootnoteTooltip(id: string, textType: string, triggerElem: HTMLElement): Observable<string> {
@@ -167,7 +182,11 @@ export class TooltipService {
     }
   }
 
-  constructPersonTooltipText(tooltip: any, targetElem: HTMLElement) {
+  constructPersonTooltipText(tooltip: NamedEntityDetails, targetElem: HTMLElement): string {
+    if (tooltip.full_name == null) {
+      return '';
+    }
+
     const uncertainPretext = (
       targetElem.classList.contains('uncertain') &&
       $localize`:@@NamedEntity.Possibly:ev.`
@@ -182,8 +201,12 @@ export class TooltipService {
       tooltip.date_born,
       tooltip.date_deceased
     );
-    (yearBornDeceasedString !== '') && (text += ' ' + yearBornDeceasedString);
-    (tooltip.description !== null) && (text += ', ' + tooltip.description);
+    if (yearBornDeceasedString !== '') {
+      text += ' ' + yearBornDeceasedString;
+    }
+    if (tooltip.description != null) {
+      text += ', ' + tooltip.description;
+    }
     text = uncertainPretext + text;
     text = fictionalPretext + text;
     return text;

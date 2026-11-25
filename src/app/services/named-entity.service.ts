@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 import { config } from '@config';
+import { NamedEntityDetails } from '@models/named-entity.models';
 import { convertNamedEntityTypeForBackend, isEmptyObject } from '@utility-functions';
 
 
@@ -23,11 +24,11 @@ export class NamedEntityService {
    * @param type type of the named entity: keyword/tag, person/subject, place/location, work
    * @param id of the named entity
    */
-  getEntity(type: string, id: string): Observable<any> {
+  getEntity(type: string, id: string): Observable<NamedEntityDetails> {
     type = convertNamedEntityTypeForBackend(type);
     const locale = this.multilingual ? '/' + this.activeLocale : '';
     const endpoint = `${this.apiURL}/${type}/${id}${locale}`;
-    return this.http.get(endpoint);
+    return this.http.get<NamedEntityDetails>(endpoint);
   }
 
   /**

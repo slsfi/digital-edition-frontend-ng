@@ -47,7 +47,7 @@ export class TooltipService {
           if (tooltip?.hits?.hits?.[0]?.['_source']) {
             tooltip = tooltip.hits.hits[0]['_source'];
             text = '<span class="work_title">' + tooltip.title  + '</span><br/>' + tooltip.reference;
-            this.cachedWorkTooltips.size > this.maxTooltipCacheSize && this.cachedWorkTooltips.clear();
+            this.clearCacheIfOversized(this.cachedWorkTooltips);
             this.cachedWorkTooltips.set(id, text);
           }
           return text || noInfoFound;
@@ -63,17 +63,19 @@ export class TooltipService {
           if (type === 'person') {
             text = this.constructPersonTooltipText(tooltip, targetElem);
             if (text) {
-              this.cachedPersons.size > this.maxTooltipCacheSize && this.cachedPersons.clear();
+              this.clearCacheIfOversized(this.cachedPersons);
               this.cachedPersons.set(id, tooltip);
             }
           } else if (type === 'place' && tooltip.name != null) {
             text = '<b>' + tooltip.name.trim() + '</b>';
-            tooltip.description && (text += ', ' + tooltip.description.trim());
-            this.cachedPlaceTooltips.size > this.maxTooltipCacheSize && this.cachedPlaceTooltips.clear();
+            if (tooltip.description) {
+              text += ', ' + tooltip.description.trim();
+            }
+            this.clearCacheIfOversized(this.cachedPlaceTooltips);
             this.cachedPlaceTooltips.set(id, text);
           } else if (type === 'work') {
             text = tooltip.title ?? '';
-            this.cachedWorkTooltips.size > this.maxTooltipCacheSize && this.cachedWorkTooltips.clear();
+            this.clearCacheIfOversized(this.cachedWorkTooltips);
             this.cachedWorkTooltips.set(id, text);
           }
           return text || noInfoFound;
@@ -101,13 +103,21 @@ export class TooltipService {
 
     return this.commentService.getSingleComment(textKey, elementID).pipe(
       map((comment) => {
-        this.cachedCommentTooltips.size > this.maxTooltipCacheSize && this.cachedCommentTooltips.clear();
-        !this.platformService.isMobile() && this.cachedCommentTooltips.set(elementID, comment);
+        this.clearCacheIfOversized(this.cachedCommentTooltips);
+        if (!this.platformService.isMobile()) {
+          this.cachedCommentTooltips.set(elementID, comment);
+        }
         return comment ?
           { name: 'Comment', description: comment } :
           { name: 'Error', description: '' };
       })
     );
+  }
+
+  private clearCacheIfOversized(cache: Map<string, unknown>): void {
+    if (cache.size > this.maxTooltipCacheSize) {
+      cache.clear();
+    }
   }
 
   getFootnoteTooltip(id: string, textType: string, triggerElem: HTMLElement): Observable<string> {
@@ -191,8 +201,12 @@ export class TooltipService {
       tooltip.date_born,
       tooltip.date_deceased
     );
-    (yearBornDeceasedString !== '') && (text += ' ' + yearBornDeceasedString);
-    (tooltip.description != null) && (text += ', ' + tooltip.description);
+    if (yearBornDeceasedString !== '') {
+      text += ' ' + yearBornDeceasedString;
+    }
+    if (tooltip.description != null) {
+      text += ', ' + tooltip.description;
+    }
     text = uncertainPretext + text;
     text = fictionalPretext + text;
     return text;

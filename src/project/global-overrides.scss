@@ -151,6 +151,11 @@
     --top-menu-button-filter:                  drop-shadow(0 1px 3px rgba(35, 35, 35, .3));
   }
 
+  page-article {
+    /// Left-border color of blockquotes as rgb-value
+    --article-blockquote-accent-rgb: var(--primary-color-rgb, 130, 130, 130);
+  }
+
   page-home {
     /// Banner image and site title, mainly in landscape mode
     --banner-border-bottom: 0;

@@ -18,6 +18,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 - Show the current footnote in tooltips and info overlays when different texts or columns reuse a footnote ID.
 - Use the current person reference's uncertainty and historical figure labels in tooltips.
+- Add example of customising `--article-blockquote-accent-rgb` in `global-overrides.scss`.
 
 
 

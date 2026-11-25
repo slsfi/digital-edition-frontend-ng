@@ -19,7 +19,6 @@ export class TooltipService {
 
   private cachedTooltips: Record<string, any> = {
     'comments': new Map(),
-    'footnotes': new Map(),
     'persons': new Map(),
     'places': new Map(),
     'works': new Map()
@@ -107,13 +106,7 @@ export class TooltipService {
   }
 
   getFootnoteTooltip(id: string, textType: string, triggerElem: HTMLElement): Observable<string> {
-    const cachedTooltip = this.cachedTooltips.footnotes.has(textType + '_' + id)
-      ? this.cachedTooltips.footnotes.get(textType + '_' + id) : '';
-
-    if (cachedTooltip) {
-      return of(cachedTooltip);
-    }
-
+    // Footnote IDs can be reused across texts and columns. Read the note next to its trigger.
     const textTypeClass = (textType === 'variant') ? 'teiVariant'
       : (textType === 'manuscript') ? 'teiManuscript'
       : '';
@@ -168,9 +161,7 @@ export class TooltipService {
         + (columnId ? ' targetColumnId_' + columnId : '')
         + '" href="#' + id + '">' + triggerElem.textContent
         + '</a>' + '<p class="footnoteText">' + ttText  + '</p></div>';
-      this.cachedTooltips.footnotes.size > this.maxTooltipCacheSize && this.cachedTooltips.footnotes.clear();
-      !this.platformService.isMobile() && this.cachedTooltips.footnotes.set(textType + '_' + id, footnoteHTML);
-      return of(footnoteHTML || '');
+      return of(footnoteHTML);
     } else {
       return of('');
     }

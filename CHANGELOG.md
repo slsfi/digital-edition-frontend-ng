@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+### Fixed
+
+- Show the current footnote in tooltips and info overlays when different texts or columns reuse a footnote ID.
+
 
 
 ## [4.2.1] – 2026-11-20
